@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.transport.mailets;
 
 import java.util.ArrayList;
@@ -40,15 +38,14 @@ import org.apache.mailet.MailAddress;
  * 
  * Available configurations are:
  * 
- * <enableAliases>true</enableAliases>: specify wether the user aliases should
- * be looked up or not. Default is false.
+ * <code>&lt;enableAliases&gt;true&lt;/enableAliases&gt;</code>: specify wether
+ * the user aliases should be looked up or not. Default is false.
  * 
- * <enableForwarding>true</enableForwarding>: enable the forwarding. Default to
- * false.
+ * <code>&lt;enableForwarding&gt;true&lt;/enableForwarding&gt;</code>: enable
+ * the forwarding. Default to false.
  * 
  * 
  * @deprecated use org.apache.james.transport.mailets.VirtualUserTable
- * 
  */
 @Deprecated
 public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableMailet {
@@ -68,7 +65,7 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
         return "Local User Aliasing and Forwarding Mailet";
     }
 
-    @Resource(name="usersrepository")
+    @Resource(name = "usersrepository")
     public void setUsersRepository(UsersRepository usersRepository) {
         this.usersRepository = usersRepository;
     }
@@ -82,15 +79,12 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
      * @param message
      * @throws MessagingException
      */
-    public Collection<MailAddress> processMail(MailAddress sender, MailAddress recipient,
-            MimeMessage message) throws MessagingException {
+    public Collection<MailAddress> processMail(MailAddress sender, MailAddress recipient, MimeMessage message) throws MessagingException {
         if (recipient == null) {
-            throw new IllegalArgumentException(
-                    "Recipient for mail to be spooled cannot be null.");
+            throw new IllegalArgumentException("Recipient for mail to be spooled cannot be null.");
         }
         if (message == null) {
-            throw new IllegalArgumentException(
-                    "Mail message to be spooled cannot be null.");
+            throw new IllegalArgumentException("Mail message to be spooled cannot be null.");
         }
 
         if (usersRepository instanceof VirtualUserTable) {
@@ -98,30 +92,21 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
             try {
                 mappings = ((VirtualUserTable) usersRepository).getMappings(recipient.getLocalPart(), recipient.getDomain());
             } catch (ErrorMappingException e) {
-                StringBuilder errorBuffer = new StringBuilder(128)
-                    .append("A problem as occoured trying to alias and forward user ")
-                    .append(recipient)
-                    .append(": ")
-                    .append(e.getMessage());
-                    throw new MessagingException(errorBuffer.toString());
+                StringBuilder errorBuffer = new StringBuilder(128).append("A problem as occoured trying to alias and forward user ").append(recipient).append(": ").append(e.getMessage());
+                throw new MessagingException(errorBuffer.toString());
             } catch (VirtualUserTableException e) {
-                StringBuilder errorBuffer = new StringBuilder(128)
-                    .append("A problem as occoured trying to alias and forward user ")
-                    .append(recipient)
-                    .append(": ")
-                    .append(e.getMessage());
-                    throw new MessagingException(errorBuffer.toString());
+                StringBuilder errorBuffer = new StringBuilder(128).append("A problem as occoured trying to alias and forward user ").append(recipient).append(": ").append(e.getMessage());
+                throw new MessagingException(errorBuffer.toString());
             }
-            
+
             if (mappings != null) {
                 return handleMappings(mappings, sender, recipient, message);
             }
-        }      
+        }
         ArrayList<MailAddress> ret = new ArrayList<MailAddress>();
         ret.add(recipient);
         return ret;
-        
+
     }
 
-    
 }

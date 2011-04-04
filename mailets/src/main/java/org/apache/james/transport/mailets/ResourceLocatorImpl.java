@@ -26,9 +26,9 @@ import java.io.InputStream;
 import org.apache.jsieve.mailet.ResourceLocator;
 
 /**
- * To maintain backwards compatibility with existing
- * installations, this uses the old file based scheme.
- * TODO: replace with <code>FileSystem</code> based implementation.
+ * To maintain backwards compatibility with existing installations, this uses
+ * the old file based scheme. TODO: replace with <code>FileSystem</code> based
+ * implementation.
  */
 public class ResourceLocatorImpl implements ResourceLocator {
 
@@ -37,20 +37,20 @@ public class ResourceLocatorImpl implements ResourceLocator {
     public ResourceLocatorImpl(boolean virtualHosting) {
         this.virtualHosting = virtualHosting;
     }
-    
+
     public InputStream get(String uri) throws IOException {
         // This is a toy implementation
-        
+
         // Use the complete emailaddress for finding the sieve file
         uri = uri.substring(2);
-        
+
         String username;
         if (virtualHosting) {
-            username = uri.substring(0,uri.indexOf("/"));
+            username = uri.substring(0, uri.indexOf("/"));
         } else {
-            username = uri.substring(0,uri.indexOf("@"));
+            username = uri.substring(0, uri.indexOf("@"));
         }
-        String sieveFileName = "../apps/james/var/sieve/"+username+".sieve";
+        String sieveFileName = "../apps/james/var/sieve/" + username + ".sieve";
         return new FileInputStream(sieveFileName);
     }
 

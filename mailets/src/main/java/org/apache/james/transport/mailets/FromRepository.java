@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.transport.mailets;
 
 import org.apache.james.lifecycle.api.LifecycleUtil;
@@ -34,48 +32,40 @@ import java.util.Iterator;
 
 /**
  * Re-spools Mail found in the specified Repository.
- *
+ * 
+ * <pre>
  * &lt;mailet match="RecipientIs=respool@localhost" class="FromRepository"&gt;
  *    &lt;repositoryPath&gt; <i>repository path</i> &lt;/repositoryPath&gt;
  *    &lt;processor&gt; <i>target processor</i> &lt;/repositoryPath&gt;
  *    &lt;delete&t; [true|<b>false</b>] &lt;/delete&gt;
  * &lt;/mailet&gt;
- *
- * @version This is $Revision$
+ * </pre>
  */
 public class FromRepository extends GenericMailet {
 
-    /**
-     * The repository from where this mailet spools mail.
-     */
+    /** The repository from where this mailet spools mail. */
     private MailRepository repository;
 
-    /**
-     * Whether this mailet should delete messages after being spooled
-     */
+    /** Whether this mailet should delete messages after being spooled */
     private boolean delete = false;
 
-    /**
-     * The path to the repository
-     */
+    /** The path to the repository */
     private String repositoryPath;
 
-    /**
-     * The processor that will handle the re-spooled message(s)
-     */
+    /** The processor that will handle the re-spooled message(s) */
     private String processor;
 
-	private MailRepositoryStore mailStore;
+    private MailRepositoryStore mailStore;
 
-    @Resource(name="mailrepositorystore")
+    @Resource(name = "mailrepositorystore")
     public void setStore(MailRepositoryStore mailStore) {
-    	this.mailStore = mailStore;
+        this.mailStore = mailStore;
     }
-    
+
     /**
      * Initialize the mailet, loading configuration information.
      */
-    public void init() throws MessagingException{
+    public void init() throws MessagingException {
         repositoryPath = getInitParameter("repositoryPath");
         processor = (getInitParameter("processor") == null) ? Mail.DEFAULT : getInitParameter("processor");
 
@@ -94,9 +84,10 @@ public class FromRepository extends GenericMailet {
 
     /**
      * Spool mail from a particular repository.
-     *
-     * @param trigger triggering e-mail (eventually parameterize via the
-     * trigger message)
+     * 
+     * @param trigger
+     *            triggering e-mail (eventually parameterize via the trigger
+     *            message)
      */
     public void service(Mail trigger) throws MessagingException {
         trigger.setState(Mail.GHOST);
@@ -105,24 +96,25 @@ public class FromRepository extends GenericMailet {
         while (list.hasNext()) {
             String key = (String) list.next();
             try {
-                Mail mail =  repository.retrieve(key);
+                Mail mail = repository.retrieve(key);
                 if (mail != null && mail.getRecipients() != null) {
                     log((new StringBuffer(160).append("Spooling mail ").append(mail.getName()).append(" from ").append(repositoryPath)).toString());
 
                     /*
-                    log("Return-Path: " + mail.getMessage().getHeader(RFC2822Headers.RETURN_PATH, ", "));
-                    log("Sender: " + mail.getSender());
-                    log("To: " + mail.getMessage().getHeader(RFC2822Headers.TO, ", "));
-                    log("Recipients: ");
-                    for (Iterator i = mail.getRecipients().iterator(); i.hasNext(); ) {
-                        log("    " + ((MailAddress)i.next()).toString());
-                    };
-                    */
+                     * log("Return-Path: " +
+                     * mail.getMessage().getHeader(RFC2822Headers.RETURN_PATH,
+                     * ", ")); log("Sender: " + mail.getSender()); log("To: " +
+                     * mail.getMessage().getHeader(RFC2822Headers.TO, ", "));
+                     * log("Recipients: "); for (Iterator i =
+                     * mail.getRecipients().iterator(); i.hasNext(); ) {
+                     * log("    " + ((MailAddress)i.next()).toString()); };
+                     */
 
                     mail.setAttribute("FromRepository", Boolean.TRUE);
                     mail.setState(processor);
                     getMailetContext().sendMail(mail);
-                    if (delete) processed.add(key);
+                    if (delete)
+                        processed.add(key);
                     LifecycleUtil.dispose(mail);
                 }
             } catch (MessagingException e) {
@@ -133,14 +125,14 @@ public class FromRepository extends GenericMailet {
         if (delete) {
             Iterator delList = processed.iterator();
             while (delList.hasNext()) {
-                repository.remove((String)delList.next());
+                repository.remove((String) delList.next());
             }
         }
     }
 
     /**
      * Return a string describing this mailet.
-     *
+     * 
      * @return a string describing this mailet
      */
     public String getMailetInfo() {

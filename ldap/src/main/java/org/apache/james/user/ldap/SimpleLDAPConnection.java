@@ -27,48 +27,28 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
 /**
- * <p>
- * A connection handle to an LDAP server which is created by means 
- * of a simple principal and password/credentials 
- * authentication against the LDAP server. 
- * </p>
- * 
+ * A connection handle to an LDAP server which is created by means of a simple
+ * principal and password/credentials authentication against the LDAP server.
  */
 public class SimpleLDAPConnection {
 
     /**
-     * <p>
      * The distinguished-name/DN of the principal to authenticate against the
      * LDAP server.
-     * </p>
      */
     private String principal;
 
-    /**
-     * <p>
-     * The credentials with which to authenticate against the LDAP server.
-     * </p>
-     */
+    /** The credentials with which to authenticate against the LDAP server. */
     private String credentials;
 
-    /**
-     * <p>
-     * The URL of the LDAP server.
-     * </p>
-     */
+    /** The URL of the LDAP server. */
     private String ldapURL;
 
-    /**
-     * <p>
-     * The root directory context that is visible to the authenticated user.
-     * </p>
-     */
+    /** The root directory context that is visible to the authenticated user. */
     private DirContext ldapContext;
 
     /**
-     * <p>
      * Creates an instance with the given login details.
-     * </p>
      * 
      * @param principal
      *            The distinguished-name (DN) of the user to authenticate
@@ -88,10 +68,8 @@ public class SimpleLDAPConnection {
     }
 
     /**
-     * <p>
      * Opens a connection to the specified LDAP server using the specified user
      * details.
-     * </p>
      * 
      * @param principal
      *            The distinguished-name (DN) of the user to authenticate
@@ -113,10 +91,8 @@ public class SimpleLDAPConnection {
     }
 
     /**
-     * <p>
      * Returns the root directory context that is visible to the authenticated
      * user.
-     * </p>
      * 
      * @return The directory context that is visible to the authenticated user.
      */
@@ -125,10 +101,8 @@ public class SimpleLDAPConnection {
     }
 
     /**
-     * <p>
      * Internal helper method which creates an LDAP/JNDI context using the
      * specified user credentials.
-     * </p>
      * 
      * @throws NamingException
      *             Propagated from underlying LDAP communication API.

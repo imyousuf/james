@@ -23,9 +23,10 @@ import java.util.List;
 
 import org.apache.james.protocols.api.HandlersPackage;
 
-public class JMXHandlersLoader implements HandlersPackage{
+public class JMXHandlersLoader implements HandlersPackage {
 
     private final List<String> handlers = new ArrayList<String>();
+
     public JMXHandlersLoader() {
         handlers.add(ConnectHandlerResultJMXMonitor.class.getName());
         handlers.add(CommandHandlerResultJMXMonitor.class.getName());
@@ -34,6 +35,7 @@ public class JMXHandlersLoader implements HandlersPackage{
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.protocols.api.HandlersPackage#getHandlers()
      */
     public List<String> getHandlers() {

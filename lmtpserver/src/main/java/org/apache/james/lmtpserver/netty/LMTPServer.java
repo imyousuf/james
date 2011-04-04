@@ -35,27 +35,28 @@ import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
-public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPServerMBean{
+public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPServerMBean {
 
     /**
-     * The maximum message size allowed by this SMTP server.  The default
-     * value, 0, means no limit.
+     * The maximum message size allowed by this SMTP server. The default value,
+     * 0, means no limit.
      */
     private long maxMessageSize = 0;
     private ProtocolHandlerChain handlerChain;
     private LMTPConfiguration lmtpConfig = new LMTPConfiguration();
-    private String lmtpGreeting;    
+    private String lmtpGreeting;
 
-
-    @Resource(name="lmtphandlerchain")
+    @Resource(name = "lmtphandlerchain")
     public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
     }
 
-    
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer#getDefaultPort()
+     * 
+     * @see
+     * org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer#
+     * getDefaultPort()
      */
     public int getDefaultPort() {
         return 24;
@@ -63,31 +64,31 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.socket.ServerMBean#getServiceType()
      */
     public String getServiceType() {
         return "LMTP Service";
     }
-    
+
     public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         if (isEnabled()) {
-           
+
             // get the message size limit from the conf file and multiply
             // by 1024, to put it in bytes
-            maxMessageSize = configuration.getLong( "maxmessagesize",maxMessageSize ) * 1024;
+            maxMessageSize = configuration.getLong("maxmessagesize", maxMessageSize) * 1024;
             if (maxMessageSize > 0) {
                 getLogger().info("The maximum allowed message size is " + maxMessageSize + " bytes.");
             } else {
                 getLogger().info("No maximum message size is enforced for this server.");
             }
-            
-            // get the lmtpGreeting
-            lmtpGreeting = configuration.getString("lmtpGreeting",null);
 
+            // get the lmtpGreeting
+            lmtpGreeting = configuration.getString("lmtpGreeting", null);
 
         }
     }
-    
+
     @Override
     protected ChannelPipelineFactory createPipelineFactory(ChannelGroup group) {
         return new LMTPChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group);
@@ -133,7 +134,6 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
             return false;
         }
 
-
         /**
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#getSMTPGreeting()
          */
@@ -162,7 +162,7 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
             return false;
         }
     }
-    
+
     private final class LMTPChannelPipelineFactory extends AbstractSSLAwareChannelPipelineFactory {
 
         public LMTPChannelPipelineFactory(int timeout, int maxConnections, int maxConnectsPerIp, ChannelGroup group) {
@@ -219,24 +219,29 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer#getDefaultJMXName()
+     * 
+     * @see
+     * org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer#
+     * getDefaultJMXName()
      */
     protected String getDefaultJMXName() {
         return "lmtpserver";
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.netty.SMTPServerMBean#setMaximalMessageSize(long)
+     * 
+     * @see
+     * org.apache.james.smtpserver.netty.SMTPServerMBean#setMaximalMessageSize
+     * (long)
      */
     public void setMaximalMessageSize(long maxSize) {
         maxMessageSize = maxSize;
     }
 
-
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.lmtpserver.netty.LMTPServerMBean#getHeloName()
      */
     public String getHeloName() {

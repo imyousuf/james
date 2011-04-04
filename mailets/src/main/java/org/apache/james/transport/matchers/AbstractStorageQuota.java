@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.transport.matchers;
 
 import java.util.Iterator;
@@ -48,46 +46,55 @@ import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
 
 /**
- * <P>Experimental: Abstract matcher checking whether a recipient has exceeded a maximum allowed
- * <I>storage</I> quota for messages standing in his inbox.</P>
- * <P>"Storage quota" at this level is still an abstraction whose specific interpretation
- * will be done by subclasses (e.g. could be specific for each user or common to all of them).</P> 
- *
- * <P>This matcher need to calculate the mailbox size everytime it is called. This can slow down things if there are many mails in
- * the mailbox. Some users also report big problems with the matcher if a JDBC based mailrepository is used. </P>
- *
- * @version CVS $Revision$ $Date$
+ * <p>
+ * Experimental: Abstract matcher checking whether a recipient has exceeded a
+ * maximum allowed <I>storage</I> quota for messages standing in his inbox.
+ * </p>
+ * <p>
+ * "Storage quota" at this level is still an abstraction whose specific
+ * interpretation will be done by subclasses (e.g. could be specific for each
+ * user or common to all of them).
+ * </p>
+ * <p>
+ * This matcher need to calculate the mailbox size everytime it is called. This
+ * can slow down things if there are many mails in the mailbox. Some users also
+ * report big problems with the matcher if a JDBC based mailrepository is used.
+ * </p>
+ * 
  * @since 2.2.0
  */
-abstract public class AbstractStorageQuota extends AbstractQuotaMatcher { 
+abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
 
     private MailboxManager manager;
 
-    @Resource(name="mailboxmanager")
+    @Resource(name = "mailboxmanager")
     public void setMailboxManager(MailboxManager manager) {
         this.manager = manager;
     }
-    
-    @Resource(name="usersrepository")
+
+    @Resource(name = "usersrepository")
     public void setUsersRepository(UsersRepository localusers) {
         this.localusers = localusers;
     }
-    /** The user repository for this mail server.  Contains all the users with inboxes
-     * on this server.
+
+    /**
+     * The user repository for this mail server. Contains all the users with
+     * inboxes on this server.
      */
     private UsersRepository localusers;
 
     private MailetContextLog log;
-    
-    /** 
-     * Checks the recipient.
-     * Does a <CODE>super.isRecipientChecked</CODE> and checks that the recipient
-     * is a known user in the local server.
-     * If a subclass overrides this method it should "and" <CODE>super.isRecipientChecked</CODE>
-     * to its check.
-     *
-     * @param recipient the recipient to check
-     */    
+
+    /**
+     * Checks the recipient.<br>
+     * Does a <code>super.isRecipientChecked</code> and checks that the
+     * recipient is a known user in the local server.<br>
+     * If a subclass overrides this method it should "and"
+     * <code>super.isRecipientChecked</code> to its check.
+     * 
+     * @param recipient
+     *            the recipient to check
+     */
     protected boolean isRecipientChecked(MailAddress recipient) throws MessagingException {
         MailetContext mailetContext = getMailetContext();
         return super.isRecipientChecked(recipient) && (mailetContext.isLocalEmail(recipient));
@@ -96,23 +103,24 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
     @Override
     public void init() throws MessagingException {
         super.init();
-        
+
         // init the log
         log = new MailetContextLog(getMailetContext());
     }
 
-    /** 
+    /**
      * Gets the storage used in the recipient's inbox.
-     *
-     * @param recipient the recipient to check
-     */    
+     * 
+     * @param recipient
+     *            the recipient to check
+     */
     protected long getUsed(MailAddress recipient, Mail _) throws MessagingException {
         long size = 0;
         MailboxSession session;
         try {
             String username;
             try {
-                // see if we need use the full email address as username or not. 
+                // see if we need use the full email address as username or not.
                 // See JAMES-1197
                 if (localusers.supportVirtualHosting()) {
                     username = recipient.toString().toLowerCase(Locale.US);
@@ -122,15 +130,15 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
             } catch (UsersRepositoryException e) {
                 throw new MessagingException("Unable to access UsersRepository", e);
             }
-            session = manager.createSystemSession(username,log); 
+            session = manager.createSystemSession(username, log);
             manager.startProcessingRequest(session);
-            
+
             // get all mailboxes for the user to calculate the size
             // See JAMES-1198
             List<MailboxMetaData> mList = manager.search(new MailboxQuery(MailboxPath.inbox(username), "", session.getPathDelimiter()), session);
             for (int i = 0; i < mList.size(); i++) {
                 MessageManager mailbox = manager.getMailbox(mList.get(i).getPath(), session);
-                Iterator<MessageResult> results = mailbox.getMessages(MessageRange.all(), new FetchGroupImpl(FetchGroup.MINIMAL), session);                 
+                Iterator<MessageResult> results = mailbox.getMessages(MessageRange.all(), new FetchGroupImpl(FetchGroup.MINIMAL), session);
                 while (results.hasNext()) {
                     size += results.next().getSize();
                 }
@@ -147,5 +155,4 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
 
     }
 
-    
 }

@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.transport.mailets;
 
 import javax.annotation.Resource;
@@ -30,12 +28,11 @@ import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
 
 /**
- * Stores incoming Mail in the specified Repository.
+ * Stores incoming Mail in the specified Repository.<br>
  * If the "passThrough" in confs is true the mail will be returned untouched in
  * the pipe. If false will be destroyed.
+ * 
  * @version 1.0.0, 24/04/1999
- *
- * @version This is $Revision$
  */
 public class ToRepository extends GenericMailet {
 
@@ -45,8 +42,8 @@ public class ToRepository extends GenericMailet {
     private MailRepository repository;
 
     /**
-     * Whether this mailet should allow mails to be processed by additional mailets
-     * or mark it as finished.
+     * Whether this mailet should allow mails to be processed by additional
+     * mailets or mark it as finished.
      */
     private boolean passThrough = false;
 
@@ -57,16 +54,15 @@ public class ToRepository extends GenericMailet {
 
     private MailRepositoryStore mailStore;
 
-    
-    @Resource(name="mailrepositorystore")
+    @Resource(name = "mailrepositorystore")
     public void setStore(MailRepositoryStore mailStore) {
         this.mailStore = mailStore;
     }
-    
+
     /**
      * Initialize the mailet, loading configuration information.
      */
-    public void init() throws MessagingException{
+    public void init() throws MessagingException {
         repositoryPath = getInitParameter("repositoryPath");
         try {
             passThrough = Boolean.valueOf(getInitParameter("passThrough"));
@@ -84,16 +80,12 @@ public class ToRepository extends GenericMailet {
 
     /**
      * Store a mail in a particular repository.
-     *
-     * @param mail the mail to process
+     * 
+     * @param mail
+     *            the mail to process
      */
     public void service(Mail mail) throws javax.mail.MessagingException {
-        StringBuffer logBuffer =
-            new StringBuffer(160)
-                    .append("Storing mail ")
-                    .append(mail.getName())
-                    .append(" in ")
-                    .append(repositoryPath);
+        StringBuffer logBuffer = new StringBuffer(160).append("Storing mail ").append(mail.getName()).append(" in ").append(repositoryPath);
         log(logBuffer.toString());
         repository.store(mail);
         if (!passThrough) {
@@ -103,7 +95,7 @@ public class ToRepository extends GenericMailet {
 
     /**
      * Return a string describing this mailet.
-     *
+     * 
      * @return a string describing this mailet
      */
     public String getMailetInfo() {

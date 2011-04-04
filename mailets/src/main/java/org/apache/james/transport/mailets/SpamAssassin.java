@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.transport.mailets;
 
 import java.util.Iterator;
@@ -31,20 +30,27 @@ import javax.mail.internet.MimeMessage;
 
 /**
  * Sends the message through daemonized SpamAssassin (spamd), visit <a
- * href="SpamAssassin.org">SpamAssassin.org</a> for info on configuration. The
- * header X-Spam-Status is added to every message, this contains the score and
- * the threshold score for spam (usually 5.0). If the message exceeds the
- * threshold, the header X-Spam-Flag will be added with the value of YES. The
- * default host for spamd is localhost and the default port is 783. <br>
+ * href="http://spamassassin.apache.org/">spamassassin.apache.org/</a> for info
+ * on configuration. The header X-Spam-Status is added to every message, this
+ * contains the score and the threshold score for spam (usually 5.0). If the
+ * message exceeds the threshold, the header X-Spam-Flag will be added with the
+ * value of YES. The default host for spamd is localhost and the default port is
+ * 783.
  * 
- * org.apache.james.spamassassin.status - Holds the status
- * org.apache.james.spamassassin.flag   - Holds the flag
- * <br>
- * Sample Configuration: <br>
- * <br>
+ * <pre>
+ * <code>
+ *  org.apache.james.spamassassin.status - Holds the status
+ *  org.apache.james.spamassassin.flag   - Holds the flag
+ * </code>
+ * </pre>
+ * 
+ * Sample Configuration:
+ * 
+ * <pre>
  * &lt;mailet notmatch="SenderHostIsLocal" class="SpamAssassin"&gt;
  * &lt;spamdHost&gt;localhost&lt;/spamdHost&gt;
- * &lt;spamdPort&gt;783&lt;/spamdPort&gt; <br>
+ * &lt;spamdPort&gt;783&lt;/spamdPort&gt;
+ * </pre>
  */
 public class SpamAssassin extends GenericMailet {
 
@@ -69,9 +75,7 @@ public class SpamAssassin extends GenericMailet {
             try {
                 spamdPort = Integer.parseInt(getInitParameter("spamdPort"));
             } catch (NumberFormatException e) {
-                throw new MessagingException(
-                        "Please configure a valid port. Not valid: "
-                                + spamdPort);
+                throw new MessagingException("Please configure a valid port. Not valid: " + spamdPort);
             }
         }
     }
@@ -84,8 +88,7 @@ public class SpamAssassin extends GenericMailet {
             MimeMessage message = mail.getMessage();
 
             // Invoke spamassian connection and scan the message
-            SpamAssassinInvoker sa = new SpamAssassinInvoker(spamdHost,
-                    spamdPort);
+            SpamAssassinInvoker sa = new SpamAssassinInvoker(spamdHost, spamdPort);
             sa.scanMail(message);
 
             Iterator<String> headers = sa.getHeadersAsAttribute().keySet().iterator();
@@ -102,7 +105,7 @@ public class SpamAssassin extends GenericMailet {
         }
 
     }
-    
+
     /**
      * @see org.apache.mailet.GenericMailet#getMailetInfo()
      */

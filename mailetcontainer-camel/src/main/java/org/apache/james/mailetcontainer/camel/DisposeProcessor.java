@@ -26,20 +26,19 @@ import org.apache.mailet.Mail;
 
 /**
  * Processor which dispose body object if needed
- * 
- *
  */
-public class DisposeProcessor implements Processor{
+public class DisposeProcessor implements Processor {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.camel.Processor#process(org.apache.camel.Exchange)
      */
     public void process(Exchange arg0) throws Exception {
         Mail mail = arg0.getIn().getBody(Mail.class);
         LifecycleUtil.dispose(mail.getMessage());
         LifecycleUtil.dispose(mail);
-        
+
         // stop routing
         arg0.setProperty(Exchange.ROUTE_STOP, true);
 

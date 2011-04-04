@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.mailetcontainer.lib;
 
 import java.io.PrintWriter;
@@ -36,30 +35,30 @@ public class ProcessorUtil {
     /**
      * This is a helper method that updates the state of the mail object to
      * Mail.ERROR as well as recording the exception to the log
-     *
-     * @param me the exception to be handled
-     * @param mail the mail being processed when the exception was generated
-     * @param offendersName the matcher or mailet than generated the exception
-     * @param nextState the next state to set
-     *
-     * @throws MessagingException thrown always, rethrowing the passed in exception
+     * 
+     * @param me
+     *            the exception to be handled
+     * @param mail
+     *            the mail being processed when the exception was generated
+     * @param offendersName
+     *            the matcher or mailet than generated the exception
+     * @param nextState
+     *            the next state to set
+     * 
+     * @throws MessagingException
+     *             thrown always, rethrowing the passed in exception
      */
     public static void handleException(MessagingException me, Mail mail, String offendersName, String nextState, Logger logger) throws MessagingException {
         mail.setState(nextState);
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
-        StringBuffer exceptionBuffer =
-            new StringBuffer(128)
-                    .append("Exception calling ")
-                    .append(offendersName)
-                    .append(": ")
-                    .append(me.getMessage());
+        StringBuffer exceptionBuffer = new StringBuffer(128).append("Exception calling ").append(offendersName).append(": ").append(me.getMessage());
         out.println(exceptionBuffer.toString());
         Exception e = me;
         while (e != null) {
             e.printStackTrace(out);
             if (e instanceof MessagingException) {
-                e = ((MessagingException)e).getNextException();
+                e = ((MessagingException) e).getNextException();
             } else {
                 e = null;
             }
@@ -69,20 +68,22 @@ public class ProcessorUtil {
         logger.error(errorString);
         throw me;
     }
-    
+
     /**
      * Checks that all objects in this class are of the form MailAddress.
-     *
-     * @throws MessagingException when the <code>Collection</code> contains objects that are not <code>MailAddress</code> objects
+     * 
+     * @throws MessagingException
+     *             when the <code>Collection</code> contains objects that are
+     *             not <code>MailAddress</code> objects
      */
     @SuppressWarnings("rawtypes")
     public static void verifyMailAddresses(Collection col) throws MessagingException {
         try {
-            MailAddress addresses[] = (MailAddress[])col.toArray(new MailAddress[0]);
+            MailAddress addresses[] = (MailAddress[]) col.toArray(new MailAddress[0]);
 
-            // Why is this here?  According to the javadoc for
+            // Why is this here? According to the javadoc for
             // java.util.Collection.toArray(Object[]), this should
-            // never happen.  The exception will be thrown.
+            // never happen. The exception will be thrown.
             if (addresses.length != col.size()) {
                 throw new MailetException("The recipient list contains objects other than MailAddress objects");
             }

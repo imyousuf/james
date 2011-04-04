@@ -28,22 +28,25 @@ import org.apache.james.user.api.UsersRepositoryException;
 import org.slf4j.Logger;
 
 /**
- * Authenticator which use an UsersRepository to check if the user and password match
- *
+ * Authenticator which use an UsersRepository to check if the user and password
+ * match
  */
-public class UserRepositoryAuthenticator implements Authenticator, LogEnabled{
+public class UserRepositoryAuthenticator implements Authenticator, LogEnabled {
 
     private UsersRepository repos;
     private Logger log;
 
-    @Resource(name="usersrepository")
+    @Resource(name = "usersrepository")
     public void setUsersRepository(UsersRepository repos) {
         this.repos = repos;
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailbox.store.Authenticator#isAuthentic(java.lang.String, java.lang.CharSequence)
+     * 
+     * @see
+     * org.apache.james.mailbox.store.Authenticator#isAuthentic(java.lang.String
+     * , java.lang.CharSequence)
      */
     public boolean isAuthentic(String userid, CharSequence passwd) {
         try {
@@ -57,5 +60,5 @@ public class UserRepositoryAuthenticator implements Authenticator, LogEnabled{
     public void setLog(Logger log) {
         this.log = log;
     }
-    
+
 }

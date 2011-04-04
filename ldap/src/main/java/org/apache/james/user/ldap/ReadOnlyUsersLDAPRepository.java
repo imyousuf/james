@@ -98,10 +98,9 @@ import org.slf4j.Logger;
  * For example &quot;uid&quot; for Apache DS, or &quot;sAMAccountName&quot; for
  * Microsoft Active Directory.</li>
  * <li>
- * <b>userObjectClass:</b>The objectClass value for user nodes below the userBase.
- * For example &quot;inetOrgPerson&quot; for Apache DS, or &quot;user&quot; for
- * Microsoft Active Directory.
- * </li>
+ * <b>userObjectClass:</b>The objectClass value for user nodes below the
+ * userBase. For example &quot;inetOrgPerson&quot; for Apache DS, or
+ * &quot;user&quot; for Microsoft Active Directory.</li>
  * </ul>
  * </p>
  * 
@@ -116,7 +115,7 @@ import org.slf4j.Logger;
  * 		&lt;group&gt;cn=PermanentStaff,ou=Groups,o=myorg.co.uk,ou=system&lt;/group&gt;
  *        	&lt;group&gt;cn=TemporaryStaff,ou=Groups,o=myorg.co.uk,ou=system&lt;/group&gt;
  * &lt;/restriction&gt;
- *</pre>
+ * </pre>
  * 
  * <br>
  * Its constituent attributes and elements are defined as follows:
@@ -139,89 +138,71 @@ import org.slf4j.Logger;
 public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurable, LogEnabled {
 
     /**
-     * <p>
      * The URL of the LDAP server against which users are to be authenticated.
      * Note that users are actually authenticated by binding against the LDAP
      * server using the users &quot;dn&quot; and &quot;credentials&quot;.The
      * value of this field is taken from the value of the configuration
      * attribute &quot;ldapHost&quot;.
-     * </p>
      */
     private String ldapHost;
 
     /**
-     * <p>
      * The value of this field is taken from the configuration attribute
      * &quot;userIdAttribute&quot;. This is the LDAP attribute type which holds
      * the userId value. Note that this is not the same as the email address
      * attribute.
-     * </p>
      */
     private String userIdAttribute;
-    
+
     /**
-     * <p>
      * The value of this field is taken from the configuration attribute
-     * &quot;userObjectClass&quot;.  This is the LDAP object class to use
-     * in the search filter for user nodes under the userBase value.
-     * </p>
+     * &quot;userObjectClass&quot;. This is the LDAP object class to use in the
+     * search filter for user nodes under the userBase value.
      */
     private String userObjectClass;
 
     /**
-     * <p>
      * This is the LDAP context/sub-context within which to search for user
      * entities. The value of this field is taken from the configuration
      * attribute &quot;userBase&quot;.
-     * </p>
      */
     private String userBase;
 
     /**
-     * <p>
      * The user with which to initially bind to the LDAP server. The value of
      * this field is taken from the configuration attribute
      * &quot;principal&quot;.
-     * </p>
      */
     private String principal;
 
     /**
-     * <p>
      * The password/credentials with which to initially bind to the LDAP server.
      * The value of this field is taken from the configuration attribute
      * &quot;credentials&quot;.
-     * </p>
      */
     private String credentials;
 
     /**
-     * <p>
      * Encapsulates the information required to restrict users to LDAP groups or
      * roles. This object is populated from the contents of the configuration
      * element &lt;restriction&gt;.
-     * </p>
      */
     private ReadOnlyLDAPGroupRestriction restriction;
 
     /**
-     * <p>
      * The connection handle to the LDAP server. This is the connection that is
      * built from the configuration attributes &quot;ldapHost&quot;,
      * &quot;principal&quot; and &quot;credentials&quot;.
-     * </p>
      */
     private SimpleLDAPConnection ldapConnection;
 
     private Logger log;
 
     /**
-     * <p>
      * Extracts the parameters required by the repository instance from the
      * James server configuration data. The fields extracted include
      * {@link #ldapHost}, {@link #userIdAttribute}, {@link #userBase},
      * {@link #principal}, {@link #credentials} and {@link #restriction}.
-     * </p>
      * 
      * @param configuration
      *            An encapsulation of the James server configuration data.
@@ -245,10 +226,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
     }
 
     /**
-     * <p>
      * Initialises the user-repository instance. It will create a connection to
      * the LDAP host using the supplied configuration.
-     * </p>
      * 
      * @throws Exception
      *             If an error occurs authenticating or connecting to the
@@ -274,10 +253,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
     }
 
     /**
-     * <p>
      * Indicates if the user with the specified DN can be found in the group
      * membership map&#45;as encapsulated by the specified parameter map.
-     * </p>
      * 
      * @param userDN
      *            The DN of the user to search for.
@@ -307,10 +284,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
     }
 
     /**
-     * <p>
      * Gets all the user entities taken from the LDAP server, as taken from the
      * search-context given by the value of the attribute {@link #userBase}.
-     * </p>
      * 
      * @return A set containing all the relevant users found in the LDAP
      *         directory.
@@ -320,26 +295,23 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
     private Set<String> getAllUsersFromLDAP() throws NamingException {
         Set<String> result = new HashSet<String>();
 
-        SearchControls sc = new SearchControls ();
-        sc.setSearchScope (SearchControls.SUBTREE_SCOPE);
-        sc.setReturningAttributes (new String[] { "distinguishedName" });
-        NamingEnumeration <SearchResult> sr = ldapConnection.getLdapContext ().search (userBase, "(objectClass=" + userObjectClass + ")", sc);
-        while(sr.hasMore ())
-        {
-            SearchResult r = sr.next ();
-            result.add (r.getNameInNamespace ());
+        SearchControls sc = new SearchControls();
+        sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        sc.setReturningAttributes(new String[] { "distinguishedName" });
+        NamingEnumeration<SearchResult> sr = ldapConnection.getLdapContext().search(userBase, "(objectClass=" + userObjectClass + ")", sc);
+        while (sr.hasMore()) {
+            SearchResult r = sr.next();
+            result.add(r.getNameInNamespace());
         }
 
         return result;
     }
 
     /**
-     * <p>
      * Extract the user attributes for the given collection of userDNs, and
      * encapsulates the user list as a collection of {@link ReadOnlyLDAPUser}s.
      * This method delegates the extraction of a single user's details to the
      * method {@link #buildUser(String)}.
-     * </p>
      * 
      * @param userDNs
      *            The distinguished-names (DNs) of the users whose information
@@ -363,13 +335,11 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
     }
 
     /**
-     * <p>
      * Given a userDN, this method retrieves the user attributes from the LDAP
      * server, so as to extract the items that are of interest to James.
      * Specifically it extracts the userId, which is extracted from the LDAP
      * attribute whose name is given by the value of the field
      * {@link #userIdAttribute}.
-     * </p>
      * 
      * @param userDN
      *            The distinguished-name of the user whose details are to be
@@ -565,7 +535,6 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
         return false;
     }
 
-
     /*
      * (non-Javadoc)
      * 
@@ -592,8 +561,7 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger log) {
         this.log = log;
@@ -602,7 +570,7 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
     /**
      * VirtualHosting not supported
      */
-    public boolean supportVirtualHosting() throws UsersRepositoryException{
+    public boolean supportVirtualHosting() throws UsersRepositoryException {
         return false;
     }
 

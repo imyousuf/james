@@ -25,8 +25,6 @@ import org.slf4j.Marker;
 /**
  * {@link Logger} implementation which delegate the logging to a
  * {@link MailetContext}
- * 
- * 
  */
 public class MailetContextLog implements Logger {
 

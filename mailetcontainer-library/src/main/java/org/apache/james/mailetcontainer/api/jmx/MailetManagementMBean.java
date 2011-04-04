@@ -22,15 +22,15 @@ package org.apache.james.mailetcontainer.api.jmx;
 /**
  * management interface for one Mailet instance
  */
-public interface MailetManagementMBean extends MailProcessorManagementMBean{
-    
+public interface MailetManagementMBean extends MailProcessorManagementMBean {
+
     /**
      * Return the name of the mailet
      * 
      * @return mailet
      */
     String getMailetName();
-    
+
     /**
      * Return the parameters which are configured for the mailet
      * 

@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.transport.mailets;
 
 import org.apache.mailet.base.RFC2822Headers;
@@ -34,79 +32,87 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * <P>Abstract mailet providing configurable notification services.<BR>
- * This mailet can be subclassed to make authoring notification mailets simple.<BR>
- * <P>Provides the following functionalities to all notification subclasses:</P>
- * <UL>
- * <LI>A common notification message layout.</LI>
- * <LI>A sender of the notification message can optionally be specified.
- * If one is not specified, the postmaster's address will be used.</LI>
- * <LI>A notice text can be specified, and in such case will be inserted into the 
- * notification inline text.</LI>
- * <LI>If the notified message has an "error message" set, it will be inserted into the 
- * notification inline text. If the <CODE>attachStackTrace</CODE> init parameter
- * is set to true, such error message will be attached to the notification message.</LI>
- * <LI>The notified messages are attached in their entirety (headers and
- * content) and the resulting MIME part type is "message/rfc822".</LI>
- * <LI>Supports by default the <CODE>passThrough</CODE> init parameter (true if missing).</LI>
- * </UL>
- *
- * <P>Sample configuration common to all notification mailet subclasses:</P>
- * <PRE><CODE>
- * &lt;mailet match="All" class="<I>a notification mailet</I>">
- *   &lt;sender&gt;<I>an address or postmaster or sender or unaltered, default=postmaster</I>&lt;/sender&gt;
- *   &lt;attachError&gt;<I>true or false, default=false</I>&lt;/attachError&gt;
- *   &lt;message&gt;<I>notice attached to the original message text (optional)</I>&lt;/message&gt;
- *   &lt;prefix&gt;<I>optional subject prefix prepended to the original message</I>&lt;/prefix&gt;
- *   &lt;inline&gt;<I>see {@link Redirect}, default=none</I>&lt;/inline&gt;
- *   &lt;attachment&gt;<I>see {@link Redirect}, default=message</I>&lt;/attachment&gt;
- *   &lt;passThrough&gt;<I>true or false, default=true</I>&lt;/passThrough&gt;
- *   &lt;fakeDomainCheck&gt;<I>true or false, default=true</I>&lt;/fakeDomainCheck&gt;
- *   &lt;debug&gt;<I>true or false, default=false</I>&lt;/debug&gt;
+ * <p>
+ * Abstract mailet providing configurable notification services.<br>
+ * This mailet can be subclassed to make authoring notification mailets simple.
+ * <br>
+ * <p>
+ * Provides the following functionalities to all notification subclasses:
+ * </p>
+ * <ul>
+ * <li>A common notification message layout.</li>
+ * <li>A sender of the notification message can optionally be specified. If one
+ * is not specified, the postmaster's address will be used.</li>
+ * <li>A notice text can be specified, and in such case will be inserted into
+ * the notification inline text.</li>
+ * <li>If the notified message has an "error message" set, it will be inserted
+ * into the notification inline text. If the <code>attachStackTrace</code> init
+ * parameter is set to true, such error message will be attached to the
+ * notification message.</li>
+ * <li>The notified messages are attached in their entirety (headers and
+ * content) and the resulting MIME part type is "message/rfc822".</li>
+ * <li>Supports by default the <code>passThrough</code> init parameter (true if
+ * missing).</li>
+ * </ul>
+ * 
+ * <p>
+ * Sample configuration common to all notification mailet subclasses:
+ * </p>
+ * 
+ * <pre>
+ * <code>
+ * &lt;mailet match="All" class="<i>a notification mailet</i>">
+ *   &lt;sender&gt;<i>an address or postmaster or sender or unaltered, default=postmaster</i>&lt;/sender&gt;
+ *   &lt;attachError&gt;<i>true or false, default=false</i>&lt;/attachError&gt;
+ *   &lt;message&gt;<i>notice attached to the original message text (optional)</i>&lt;/message&gt;
+ *   &lt;prefix&gt;<i>optional subject prefix prepended to the original message</i>&lt;/prefix&gt;
+ *   &lt;inline&gt;<i>see {@link Redirect}, default=none</i>&lt;/inline&gt;
+ *   &lt;attachment&gt;<i>see {@link Redirect}, default=message</i>&lt;/attachment&gt;
+ *   &lt;passThrough&gt;<i>true or false, default=true</i>&lt;/passThrough&gt;
+ *   &lt;fakeDomainCheck&gt;<i>true or false, default=true</i>&lt;/fakeDomainCheck&gt;
+ *   &lt;debug&gt;<i>true or false, default=false</i>&lt;/debug&gt;
  * &lt;/mailet&gt;
- * </CODE></PRE>
- * <P><I>notice</I> and <I>senderAddress</I> can be used instead of
- * <I>message</I> and <I>sender</I>; such names are kept for backward compatibility.</P>
- *
- * @version CVS $Revision$ $Date$
+ * </code>
+ * </pre>
+ * <p>
+ * <i>notice</i> and <i>senderAddress</i> can be used instead of <i>message</i>
+ * and <i>sender</i>; such names are kept for backward compatibility.
+ * </p>
+ * 
  * @since 2.2.0
  */
 public abstract class AbstractNotify extends AbstractRedirect {
 
-    /* ******************************************************************** */
-    /* ****************** Begin of getX and setX methods ****************** */
-    /* ******************************************************************** */
-
     /**
-     * @return the <CODE>passThrough</CODE> init parameter, or true if missing
+     * @return the <code>passThrough</code> init parameter, or true if missing
      */
     protected boolean getPassThrough() throws MessagingException {
-        return Boolean.valueOf(getInitParameter("passThrough","true"));
+        return Boolean.valueOf(getInitParameter("passThrough", "true"));
     }
 
     /**
-     * @return the <CODE>inline</CODE> init parameter, or <CODE>NONE</CODE> if missing
+     * @return the <code>inline</code> init parameter, or <code>NONE</code> if
+     *         missing
      */
     protected int getInLineType() throws MessagingException {
-        return getTypeCode(getInitParameter("inline","none"));
+        return getTypeCode(getInitParameter("inline", "none"));
     }
 
     /**
-     * @return the <CODE>attachment</CODE> init parameter, or <CODE>MESSAGE</CODE> if missing
+     * @return the <code>attachment</code> init parameter, or
+     *         <code>MESSAGE</code> if missing
      */
     protected int getAttachmentType() throws MessagingException {
-        return getTypeCode(getInitParameter("attachment","message"));
+        return getTypeCode(getInitParameter("attachment", "message"));
     }
 
     /**
-     * @return the <CODE>notice</CODE> init parameter,
-     * or the <CODE>message</CODE> init parameter if missing,
-     * or a default string if both are missing
+     * @return the <code>notice</code> init parameter, or the
+     *         <code>message</code> init parameter if missing, or a default
+     *         string if both are missing
      */
     protected String getMessage() {
-        return getInitParameter("notice",
-                getInitParameter("message",
-                "We were unable to deliver the attached message because of an error in the mail server."));
+        return getInitParameter("notice", getInitParameter("message", "We were unable to deliver the attached message because of an error in the mail server."));
     }
 
     /**
@@ -174,7 +180,8 @@ public abstract class AbstractNotify extends AbstractRedirect {
         return sout.toString();
     }
 
-    // All subclasses of AbstractNotify are expected to establish their own recipients
+    // All subclasses of AbstractNotify are expected to establish their own
+    // recipients
     abstract protected Collection getRecipients() throws MessagingException;
 
     /**
@@ -185,43 +192,43 @@ public abstract class AbstractNotify extends AbstractRedirect {
     }
 
     /**
-     * @return <CODE>SpecialAddress.NULL</CODE>, that will remove the "ReplyTo:" header
+     * @return <code>SpecialAddress.NULL</code>, that will remove the "ReplyTo:"
+     *         header
      */
     protected MailAddress getReplyTo() throws MessagingException {
         return SpecialAddress.NULL;
     }
 
     /**
-     * @return {@link AbstractRedirect#getSender(Mail)}, meaning the new requested sender if any
+     * @return {@link AbstractRedirect#getSender(Mail)}, meaning the new
+     *         requested sender if any
      */
     protected MailAddress getReversePath(Mail originalMail) throws MessagingException {
         return getSender(originalMail);
     }
 
     /**
-     * @return the <CODE>sendingAddress</CODE> init parameter
-     * or the <CODE>sender</CODE> init parameter
-     * or the postmaster address if both are missing;
-     * possible special addresses returned are
-     * <CODE>SpecialAddress.SENDER</CODE>
-     * and <CODE>SpecialAddress.UNALTERED</CODE>
+     * @return the <code>sendingAddress</code> init parameter or the
+     *         <code>sender</code> init parameter or the postmaster address if
+     *         both are missing; possible special addresses returned are
+     *         <code>SpecialAddress.SENDER</code> and
+     *         <code>SpecialAddress.UNALTERED</code>
      */
     protected MailAddress getSender() throws MessagingException {
-        String addressString = getInitParameter("sendingAddress",getInitParameter("sender"));
-        
+        String addressString = getInitParameter("sendingAddress", getInitParameter("sender"));
+
         if (addressString == null) {
             return getMailetContext().getPostmaster();
         }
-        
-        MailAddress specialAddress = getSpecialAddress(addressString,
-                                        new String[] {"postmaster", "sender", "unaltered"});
+
+        MailAddress specialAddress = getSpecialAddress(addressString, new String[] { "postmaster", "sender", "unaltered" });
         if (specialAddress != null) {
             return specialAddress;
         }
 
         try {
             return new MailAddress(addressString);
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new MessagingException("Exception thrown in getSender() parsing: " + addressString, e);
         }
     }
@@ -234,22 +241,22 @@ public abstract class AbstractNotify extends AbstractRedirect {
     }
 
     /**
-     * @return the <CODE>prefix</CODE> init parameter or "Re:" if missing
+     * @return the <code>prefix</code> init parameter or "Re:" if missing
      */
     protected String getSubjectPrefix() {
-        return getInitParameter("prefix","Re:");
+        return getInitParameter("prefix", "Re:");
     }
 
     /**
-     * Builds the subject of <I>newMail</I> appending the subject
-     * of <I>originalMail</I> to <I>subjectPrefix</I>, but avoiding a duplicate.
+     * Builds the subject of <i>newMail</i> appending the subject of
+     * <i>originalMail</i> to <i>subjectPrefix</i>, but avoiding a duplicate.
      */
     protected void setSubjectPrefix(Mail newMail, String subjectPrefix, Mail originalMail) throws MessagingException {
         String subject = originalMail.getMessage().getSubject();
         if (subject == null) {
             subject = "";
         }
-        if (subjectPrefix==null || subject.indexOf(subjectPrefix) == 0) {
+        if (subjectPrefix == null || subject.indexOf(subjectPrefix) == 0) {
             newMail.getMessage().setSubject(subject);
         } else {
             newMail.getMessage().setSubject(subjectPrefix + subject);
@@ -262,9 +269,4 @@ public abstract class AbstractNotify extends AbstractRedirect {
     protected boolean isReply() {
         return true;
     }
-
-    /* ******************************************************************** */
-    /* ******************* End of getX and setX methods ******************* */
-    /* ******************************************************************** */
-
 }

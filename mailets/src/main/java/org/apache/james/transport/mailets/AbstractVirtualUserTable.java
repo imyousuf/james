@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.transport.mailets;
 
 import java.net.UnknownHostException;
@@ -45,40 +43,37 @@ import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.GenericMailet;
 
 /**
- * Provides an abstraction of common functionality needed for implementing
- * a Virtual User Table. Override the <code>mapRecipients</code> method to
- * map virtual recipients to real recipients.
+ * Provides an abstraction of common functionality needed for implementing a
+ * Virtual User Table. Override the <code>mapRecipients</code> method to map
+ * virtual recipients to real recipients.
  * 
  * @deprecated use the definitions in virtualusertable-store.xml instead
  */
 @Deprecated
-public abstract class AbstractVirtualUserTable extends GenericMailet
-{
+public abstract class AbstractVirtualUserTable extends GenericMailet {
     static private final String MARKER = "org.apache.james.transport.mailets.AbstractVirtualUserTable.mapped";
     private DNSService dns;
     private DomainList domainList;
 
-    
-    @Resource(name="dnsservice")
+    @Resource(name = "dnsservice")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
     }
-    
-    @Resource(name="domainlist")
+
+    @Resource(name = "domainlist")
     public void setDomainList(DomainList domainList) {
         this.domainList = domainList;
     }
-    
-    
+
     /**
-     * Checks the recipient list of the email for user mappings.  Maps recipients as
-     * appropriate, modifying the recipient list of the mail and sends mail to any new
-     * non-local recipients.
-     *
-     * @param mail the mail to process
+     * Checks the recipient list of the email for user mappings. Maps recipients
+     * as appropriate, modifying the recipient list of the mail and sends mail
+     * to any new non-local recipients.
+     * 
+     * @param mail
+     *            the mail to process
      */
-    public void service(Mail mail) throws MessagingException
-    {
+    public void service(Mail mail) throws MessagingException {
         if (mail.getAttribute(MARKER) != null) {
             mail.removeAttribute(MARKER);
             return;
@@ -89,9 +84,9 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
         Collection<MailAddress> recipientsToAddForward = new ArrayList<MailAddress>();
 
         Collection<MailAddress> recipients = mail.getRecipients();
-        Map<MailAddress,String> recipientsMap = new HashMap<MailAddress,String>(recipients.size());
+        Map<MailAddress, String> recipientsMap = new HashMap<MailAddress, String>(recipients.size());
 
-        for (Iterator<MailAddress> iter = recipients.iterator(); iter.hasNext(); ) {
+        for (Iterator<MailAddress> iter = recipients.iterator(); iter.hasNext();) {
             MailAddress address = iter.next();
 
             // Assume all addresses are non-virtual at start
@@ -100,14 +95,15 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
 
         mapRecipients(recipientsMap);
 
-        for (Iterator<MailAddress> iter = recipientsMap.keySet().iterator(); iter.hasNext(); ) {
+        for (Iterator<MailAddress> iter = recipientsMap.keySet().iterator(); iter.hasNext();) {
             MailAddress source = iter.next();
             String targetString = recipientsMap.get(source);
 
             // Only non-null mappings are translated
-            if(targetString != null) {
+            if (targetString != null) {
                 if (targetString.startsWith("error:")) {
-                    //Mark this source address as an address to remove from the recipient list
+                    // Mark this source address as an address to remove from the
+                    // recipient list
                     recipientsToRemove.add(source);
                     processDSN(mail, source, targetString);
                 } else {
@@ -116,7 +112,8 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
                     while (tokenizer.hasMoreTokens()) {
                         String targetAddress = tokenizer.nextToken().trim();
 
-                        // log("Attempting to map from " + source + " to " + targetAddress);
+                        // log("Attempting to map from " + source + " to " +
+                        // targetAddress);
 
                         if (targetAddress.startsWith("regex:")) {
                             try {
@@ -124,42 +121,36 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
                             } catch (PatternSyntaxException e) {
                                 log("Exception during regexMap processing: ", e);
                             }
-                            if (targetAddress == null) continue;
+                            if (targetAddress == null)
+                                continue;
                         }
 
                         try {
-                            MailAddress target = (targetAddress.indexOf('@') < 0) ? new MailAddress(targetAddress, domainList.getDefaultDomain())
-                                : new MailAddress(targetAddress);
+                            MailAddress target = (targetAddress.indexOf('@') < 0) ? new MailAddress(targetAddress, domainList.getDefaultDomain()) : new MailAddress(targetAddress);
 
-                            //Mark this source address as an address to remove from the recipient list
+                            // Mark this source address as an address to remove
+                            // from the recipient list
                             recipientsToRemove.add(source);
 
                             // We need to separate local and remote
-                            // recipients.  This is explained below.
+                            // recipients. This is explained below.
                             if (getMailetContext().isLocalServer(target.getDomain())) {
                                 recipientsToAddLocal.add(target);
                             } else {
                                 recipientsToAddForward.add(target);
                             }
 
-                            StringBuffer buf = new StringBuffer().append("Translating virtual user ")
-                                                                 .append(source)
-                                                                 .append(" to ")
-                                                                 .append(target);
+                            StringBuffer buf = new StringBuffer().append("Translating virtual user ").append(source).append(" to ").append(target);
                             log(buf.toString());
 
                         } catch (ParseException pe) {
-                            //Don't map this address... there's an invalid address mapping here
-                            StringBuffer exceptionBuffer =
-                                new StringBuffer(128)
-                                .append("There is an invalid map from ")
-                                .append(source)
-                                .append(" to ")
-                                .append(targetAddress);
+                            // Don't map this address... there's an invalid
+                            // address mapping here
+                            StringBuffer exceptionBuffer = new StringBuffer(128).append("There is an invalid map from ").append(source).append(" to ").append(targetAddress);
                             log(exceptionBuffer.toString());
                             continue;
                         } catch (DomainListException e) {
-                            log("Unable to access DomainList" ,e);
+                            log("Unable to access DomainList", e);
                         }
                     }
                 }
@@ -173,19 +164,21 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
         recipients.addAll(recipientsToAddLocal);
 
         // We consider an address that we map to be, by definition, a
-        // local address.  Therefore if we mapped to a remote address,
+        // local address. Therefore if we mapped to a remote address,
         // then we want to make sure that the mail can be relayed.
         // However, the original e-mail would typically be subjected to
-        // relay testing.  By posting a new mail back through the
+        // relay testing. By posting a new mail back through the
         // system, we have a locally generated mail, which will not be
         // subjected to relay testing.
 
         // Forward to mapped recipients that are remote
         if (recipientsToAddForward.size() != 0) {
             // Can't use this ... some mappings could lead to an infinite loop
-            // getMailetContext().sendMail(mail.getSender(), recipientsToAddForward, mail.getMessage());
+            // getMailetContext().sendMail(mail.getSender(),
+            // recipientsToAddForward, mail.getMessage());
 
-            // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
+            // duplicates the Mail object, to be able to modify the new mail
+            // keeping the original untouched
             MailImpl newMail = new MailImpl(mail);
             try {
                 try {
@@ -198,7 +191,7 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
                 } catch (UnknownHostException e) {
                     newMail.setRemoteHost("localhost");
                 }
-                
+
                 newMail.setRecipients(recipientsToAddForward);
                 newMail.setAttribute(MARKER, Boolean.TRUE);
                 getMailetContext().sendMail(newMail);
@@ -214,56 +207,61 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
     }
 
     /**
-     * Override to map virtual recipients to real recipients, both local and non-local.
-     * Each key in the provided map corresponds to a potential virtual recipient, stored as
-     * a <code>MailAddress</code> object.
+     * Override to map virtual recipients to real recipients, both local and
+     * non-local. Each key in the provided map corresponds to a potential
+     * virtual recipient, stored as a <code>MailAddress</code> object.
      * 
-     * Translate virtual recipients to real recipients by mapping a string containing the
-     * address of the real recipient as a value to a key. Leave the value <code>null<code>
+     * Translate virtual recipients to real recipients by mapping a string
+     * containing the address of the real recipient as a value to a key. Leave
+     * the value <code>null<code>
      * if no mapping should be performed. Multiple recipients may be specified by delineating
      * the mapped string with commas, semi-colons or colons.
      * 
-     * @param recipientsMap the mapping of virtual to real recipients, as 
-     *    <code>MailAddress</code>es to <code>String</code>s.
+     * @param recipientsMap
+     *            the mapping of virtual to real recipients, as
+     *            <code>MailAddress</code>es to <code>String</code>s.
      */
-    protected abstract void mapRecipients(Map<MailAddress,String> recipientsMap) throws MessagingException;
-  
+    protected abstract void mapRecipients(Map<MailAddress, String> recipientsMap) throws MessagingException;
+
     /**
      * Sends the message for DSN processing
-     *
-     * @param mail the Mail instance being processed
-     * @param address the MailAddress causing the DSN
-     * @param error a String in the form "error:<code> <msg>"
+     * 
+     * @param mail
+     *            the Mail instance being processed
+     * @param address
+     *            the MailAddress causing the DSN
+     * @param error
+     *            a String in the form "error:<code> <msg>"
      */
     private void processDSN(Mail mail, MailAddress address, String error) {
         // parse "error:<code> <msg>"
-      int msgPos = error.indexOf(' ');
-      try {
-          @SuppressWarnings("unused")
-          Integer code = Integer.valueOf(error.substring("error:".length(),msgPos));
-      } catch (NumberFormatException e) {
-          log("Cannot send DSN.  Exception parsing DSN code from: " + error, e);
-          return;
-      }
-      @SuppressWarnings("unused")
-      String msg = error.substring(msgPos + 1);
-      // process bounce for "source" address
-      try {
-          getMailetContext().bounce(mail, error);
-      }
-      catch (MessagingException me) {
-          log("Cannot send DSN.  Exception during DSN processing: ", me);
-      }
-  }
+        int msgPos = error.indexOf(' ');
+        try {
+            @SuppressWarnings("unused")
+            Integer code = Integer.valueOf(error.substring("error:".length(), msgPos));
+        } catch (NumberFormatException e) {
+            log("Cannot send DSN.  Exception parsing DSN code from: " + error, e);
+            return;
+        }
+        @SuppressWarnings("unused")
+        String msg = error.substring(msgPos + 1);
+        // process bounce for "source" address
+        try {
+            getMailetContext().bounce(mail, error);
+        } catch (MessagingException me) {
+            log("Cannot send DSN.  Exception during DSN processing: ", me);
+        }
+    }
 
-  /**
-   * Returns the character used to delineate multiple addresses.
-   * 
-   * @param targetString the string to parse
-   * @return the character to tokenize on
-   */
-  private String getSeparator(String targetString) {
-      return (targetString.indexOf(',') > -1 ? "," : (targetString.indexOf(';') > -1 ? ";" : (targetString.indexOf("regex:") > -1? "" : ":" )));
-  }
+    /**
+     * Returns the character used to delineate multiple addresses.
+     * 
+     * @param targetString
+     *            the string to parse
+     * @return the character to tokenize on
+     */
+    private String getSeparator(String targetString) {
+        return (targetString.indexOf(',') > -1 ? "," : (targetString.indexOf(';') > -1 ? ";" : (targetString.indexOf("regex:") > -1 ? "" : ":")));
+    }
 
 }

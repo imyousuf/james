@@ -19,7 +19,7 @@
 
 package org.apache.james.lmtpserver.jmx;
 
-public class ConnectHandlerResultJMXMonitor extends org.apache.james.smtpserver.jmx.ConnectHandlerResultJMXMonitor{
+public class ConnectHandlerResultJMXMonitor extends org.apache.james.smtpserver.jmx.ConnectHandlerResultJMXMonitor {
 
     @Override
     protected String getDefaultJMXName() {

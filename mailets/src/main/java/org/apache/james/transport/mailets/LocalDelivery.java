@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.transport.mailets;
 
 import org.apache.james.mailbox.MailboxManager;
@@ -39,8 +37,8 @@ import java.util.Iterator;
  * message to local inboxes.
  * 
  * Since James 2.3.0 this mailet is a composition of
- * UserRepositoryAliasingForwarding and ToMultiRepository
- * configurated to mimic the old "LocalDelivery" behaviour.
+ * UserRepositoryAliasingForwarding and ToMultiRepository configurated to mimic
+ * the old "LocalDelivery" behaviour.
  */
 public class LocalDelivery extends GenericMailet {
 
@@ -53,27 +51,21 @@ public class LocalDelivery extends GenericMailet {
      * Mailet that actually store the message
      */
     private SieveMailet sieveMailet;
-    
-    private UsersRepository usersRepository;
 
+    private UsersRepository usersRepository;
 
     private MailboxManager mailboxManager;
 
-
-    
-    @Resource(name="usersrepository")
+    @Resource(name = "usersrepository")
     public void setUsersRepository(UsersRepository usersRepository) {
         this.usersRepository = usersRepository;
     }
-    
-    
-    
 
-    @Resource(name="mailboxmanager")
+    @Resource(name = "mailboxmanager")
     public void setMailboxManager(MailboxManager mailboxManager) {
         this.mailboxManager = mailboxManager;
     }
-    
+
     /**
      * Delivers a mail to a local mailbox.
      * 
@@ -104,7 +96,7 @@ public class LocalDelivery extends GenericMailet {
      */
     public void init() throws MessagingException {
         super.init();
-        
+
         aliasingMailet = new UsersRepositoryAliasingForwarding();
         aliasingMailet.setUsersRepository(usersRepository);
         aliasingMailet.init(getMailetConfig());
@@ -115,14 +107,14 @@ public class LocalDelivery extends GenericMailet {
              * @see org.apache.mailet.MailetConfig#getInitParameter(java.lang.String)
              */
             public String getInitParameter(String name) {
-            	return null;
+                return null;
             }
 
             /**
              * @see org.apache.mailet.MailetConfig#getInitParameterNames()
              */
             public Iterator<String> getInitParameterNames() {
-            	return new ArrayList<String>().iterator();
+                return new ArrayList<String>().iterator();
             }
 
             /**

@@ -26,8 +26,7 @@ import javax.management.StandardMBean;
 import org.apache.james.mailetcontainer.api.jmx.MatcherManagementMBean;
 import org.apache.mailet.MatcherConfig;
 
-
-public final class MatcherManagement extends StandardMBean implements MatcherManagementMBean{
+public final class MatcherManagement extends StandardMBean implements MatcherManagementMBean {
     private MatcherConfig matcherConfig;
     private AtomicLong errorCount = new AtomicLong(0);
     private AtomicLong successCount = new AtomicLong(0);
@@ -36,21 +35,20 @@ public final class MatcherManagement extends StandardMBean implements MatcherMan
     private AtomicLong matchedCount = new AtomicLong(0);
     private AtomicLong notMatchedCount = new AtomicLong(0);
     private AtomicLong lastProcessing = new AtomicLong(-1);
-    
+
     public MatcherManagement(MatcherConfig matcherConfig) throws NotCompliantMBeanException {
         super(MatcherManagementMBean.class);
         this.matcherConfig = matcherConfig;
 
     }
 
-
     public void update(long processTime, boolean success, boolean matched) {
         long fastest = fastestProcessing.get();
-        
-        if ( fastest > processTime || fastest == -1) {
+
+        if (fastest > processTime || fastest == -1) {
             fastestProcessing.set(processTime);
         }
-        
+
         if (slowestProcessing.get() < processTime) {
             slowestProcessing.set(processTime);
         }
@@ -64,25 +62,27 @@ public final class MatcherManagement extends StandardMBean implements MatcherMan
         } else {
             notMatchedCount.incrementAndGet();
         }
-        
+
         lastProcessing.set(processTime);
 
-    } 
-    
-    
-    
+    }
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.MatcherManagementMBean#getMatcherName()
+     * 
+     * @see
+     * org.apache.james.mailetcontainer.MatcherManagementMBean#getMatcherName()
      */
     public String getMatcherName() {
         return matcherConfig.getMatcherName();
     }
-    
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.MatcherManagementMBean#getMatcherCondition()
+     * 
+     * @see
+     * org.apache.james.mailetcontainer.MatcherManagementMBean#getMatcherCondition
+     * ()
      */
     public String getMatcherCondition() {
         return matcherConfig.getCondition();
@@ -90,6 +90,7 @@ public final class MatcherManagement extends StandardMBean implements MatcherMan
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.mailetcontainer.MailProcessingMBean#getErrorCount()
      */
     public long getErrorCount() {
@@ -98,7 +99,10 @@ public final class MatcherManagement extends StandardMBean implements MatcherMan
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.MailProcessingMBean#getFastestProcessing()
+     * 
+     * @see
+     * org.apache.james.mailetcontainer.MailProcessingMBean#getFastestProcessing
+     * ()
      */
     public long getFastestProcessing() {
         return fastestProcessing.get();
@@ -106,7 +110,10 @@ public final class MatcherManagement extends StandardMBean implements MatcherMan
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.MailProcessingMBean#getHandledMailCount()
+     * 
+     * @see
+     * org.apache.james.mailetcontainer.MailProcessingMBean#getHandledMailCount
+     * ()
      */
     public long getHandledMailCount() {
         return getSuccessCount() + getErrorCount();
@@ -115,7 +122,10 @@ public final class MatcherManagement extends StandardMBean implements MatcherMan
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.MailProcessingMBean#getSlowestProcessing()
+     * 
+     * @see
+     * org.apache.james.mailetcontainer.MailProcessingMBean#getSlowestProcessing
+     * ()
      */
     public long getSlowestProcessing() {
         return slowestProcessing.get();
@@ -123,7 +133,9 @@ public final class MatcherManagement extends StandardMBean implements MatcherMan
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.MailProcessingMBean#getSuccessCount()
+     * 
+     * @see
+     * org.apache.james.mailetcontainer.MailProcessingMBean#getSuccessCount()
      */
     public long getSuccessCount() {
         return successCount.get();
@@ -131,7 +143,9 @@ public final class MatcherManagement extends StandardMBean implements MatcherMan
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.jmx.MatcherManagementMBean#getMatchedCount()
+     * 
+     * @see org.apache.james.mailetcontainer.api.jmx.MatcherManagementMBean#
+     * getMatchedCount()
      */
     public long getMatchedCount() {
         return matchedCount.get();
@@ -139,19 +153,21 @@ public final class MatcherManagement extends StandardMBean implements MatcherMan
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.jmx.MatcherManagementMBean#getNotMatchedCount()
+     * 
+     * @see org.apache.james.mailetcontainer.api.jmx.MatcherManagementMBean#
+     * getNotMatchedCount()
      */
     public long getNotMatchedCount() {
         return notMatchedCount.get();
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#getLastProcessing()
+     * 
+     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#
+     * getLastProcessing()
      */
     public long getLastProcessing() {
         return lastProcessing.get();
     }
 }
-

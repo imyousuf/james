@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.transport.mailets;
 
 import java.util.Collection;
@@ -32,75 +30,90 @@ import org.apache.james.vut.lib.VirtualUserTableUtil;
 import org.apache.mailet.MailAddress;
 
 /**
- * Implements a Virtual User Table to translate virtual users
- * to real users. This implementation has the same functionality
- * as <code>JDBCVirtualUserTable</code>, but is configured in the
- * JAMES configuration and is thus probably most suitable for smaller
- * and less dynamic mapping requirements.
- * 
+ * <p>
+ * Implements a Virtual User Table to translate virtual users to real users.
+ * This implementation has the same functionality as
+ * <code>JDBCVirtualUserTable</code>, but is configured in the JAMES
+ * configuration and is thus probably most suitable for smaller and less dynamic
+ * mapping requirements.
+ * </p>
+ * <p>
  * The configuration is specified in the form:
  * 
+ * <pre>
  * &lt;mailet match="All" class="XMLVirtualUserTable"&gt;
  *   &lt;mapping&gt;virtualuser@xxx=realuser[@yyy][;anotherrealuser[@zzz]]&lt;/mapping&gt;
  *   &lt;mapping&gt;virtualuser2@*=realuser2[@yyy][;anotherrealuser2[@zzz]]&lt;/mapping&gt;
  *   ...
  * &lt;/mailet&gt;
+ * </pre>
  * 
+ * </p>
+ * <p>
  * As many &lt;mapping&gt; elements can be added as necessary. As indicated,
- * wildcards are supported, and multiple recipients can be specified with a 
- * semicolon-separated list. The target domain does not need to be specified if 
+ * wildcards are supported, and multiple recipients can be specified with a
+ * semicolon-separated list. The target domain does not need to be specified if
  * the real user is local to the server.
- * 
+ * </p>
+ * <p>
  * Matching is done in the following order:
- * 1. user@domain    - explicit mapping for user@domain
- * 2. user@*         - catchall mapping for user anywhere
- * 3. *@domain       - catchall mapping for anyone at domain
- * 4. null           - no valid mapping
+ * <ol>
+ * <li>
+ * user@domain - explicit mapping for user@domain</li>
+ * <li>
+ * user@* - catchall mapping for user anywhere</li>
+ * <li>
+ * *@domain - catchall mapping for anyone at domain</li>
+ * <li>
+ * null - no valid mapping</li>
+ * </ol>
+ * </p>
  * 
  * @deprecated use the definitions in virtualusertable-store.xml instead
  * 
  */
 @Deprecated
-public class XMLVirtualUserTable extends AbstractVirtualUserTable
-{
-  /**
-   * Holds the configured mappings
-   */
-  private Map mappings = new HashMap();
+public class XMLVirtualUserTable extends AbstractVirtualUserTable {
+    /**
+     * Holds the configured mappings
+     */
+    private Map mappings = new HashMap();
 
-  /**
-   * Initialize the mailet
-   */
-  public void init() throws MessagingException {
-      String mapping = getInitParameter("mapping");
-      
-      if(mapping != null) {
-          mappings = VirtualUserTableUtil.getXMLMappings(mapping);
-      }
-  }
+    /**
+     * Initialize the mailet
+     */
+    public void init() throws MessagingException {
+        String mapping = getInitParameter("mapping");
 
-  /**
-   * Map any virtual recipients to real recipients using the configured mapping.
-   * 
-   * @param recipientsMap the mapping of virtual to real recipients
-   */
-  protected void mapRecipients(Map<MailAddress,String> recipientsMap) throws MessagingException {
-      Collection<MailAddress> recipients = recipientsMap.keySet();  
-        
-      for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext(); ) {
-          MailAddress source = i.next();
-          String user = source.getLocalPart().toLowerCase();
-          String domain = source.getDomain().toLowerCase();
-    
-          String targetString = VirtualUserTableUtil.getTargetString(user, domain, mappings);
-          
-          if (targetString != null) {
-              recipientsMap.put(source, targetString);
-          }
-      }
-  }
+        if (mapping != null) {
+            mappings = VirtualUserTableUtil.getXMLMappings(mapping);
+        }
+    }
 
-  public String getMailetInfo() {
-      return "XML Virtual User Table mailet";
-  }
+    /**
+     * Map any virtual recipients to real recipients using the configured
+     * mapping.
+     * 
+     * @param recipientsMap
+     *            the mapping of virtual to real recipients
+     */
+    protected void mapRecipients(Map<MailAddress, String> recipientsMap) throws MessagingException {
+        Collection<MailAddress> recipients = recipientsMap.keySet();
+
+        for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext();) {
+            MailAddress source = i.next();
+            String user = source.getLocalPart().toLowerCase();
+            String domain = source.getDomain().toLowerCase();
+
+            String targetString = VirtualUserTableUtil.getTargetString(user, domain, mappings);
+
+            if (targetString != null) {
+                recipientsMap.put(source, targetString);
+            }
+        }
+    }
+
+    public String getMailetInfo() {
+        return "XML Virtual User Table mailet";
+    }
 }

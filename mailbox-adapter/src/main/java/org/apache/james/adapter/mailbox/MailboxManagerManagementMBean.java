@@ -22,7 +22,6 @@ import java.util.List;
 
 /**
  * JMX MBean for Mailbox management
- *
  */
 public interface MailboxManagerManagementMBean {
 
@@ -33,7 +32,7 @@ public interface MailboxManagerManagementMBean {
      * @return successful
      */
     boolean deleteMailboxes(String username);
-    
+
     /**
      * List all mailboxes for a user
      * 

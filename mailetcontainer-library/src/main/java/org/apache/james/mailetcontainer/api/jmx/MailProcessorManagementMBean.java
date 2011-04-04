@@ -20,52 +20,51 @@
 package org.apache.james.mailetcontainer.api.jmx;
 
 /**
- *
  * MBean for Mail processing components
- *
  */
 public interface MailProcessorManagementMBean {
 
     /**
-     * Return the count of handled mail 
+     * Return the count of handled mail
      * 
      * @return handledCount
      */
     long getHandledMailCount();
-    
+
     /**
      * Return the time in ms of the fastest processing
      * 
      * @return fastest
      */
     long getFastestProcessing();
-   
+
     /**
      * Return the time in ms of the slowest processing
      * 
      * @return slowest
      */
     long getSlowestProcessing();
-  
+
     /**
-     * Return the count of how many time the processing was done without and error
+     * Return the count of how many time the processing was done without and
+     * error
      * 
      * @return successCount
      */
     long getSuccessCount();
-   
+
     /**
      * Return the count of how many times an error was detected while processing
      * 
      * @return errorCount
      */
     long getErrorCount();
-    
+
     /**
      * Return the time in ms of the last processing
      * 
      * @return last
      */
     long getLastProcessing();
-    
+
 }

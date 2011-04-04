@@ -29,36 +29,41 @@ import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
 import org.apache.mailet.base.GenericMatcher;
 
 /**
-  * AbstractNetworkMatcher makes writing IP Address matchers easier.<br/>
-  * <br/>
-  * This class extends the GenericMatcher, and as such, has access to the 
-  * matcher condition via GenericMatcher.getCondition().<br/>
-  * On initialization, the init method retrieves the condition from the
-  * defined matcher and create a corresponding NetMatcher.<br/>
-  * The marcher condition has to respect the syntax waited by the NetMacher.<br/>
-  * <br/>
-  * This abstract network matcher needs to be implemented by a concrete class.<br/>
-  * The implementing concrete class will call the allowedNetworks or matchNetwork methods.
-  *
-  * @see org.apache.james.dnsservice.library.netmatcher.NetMatcher
-  */
+ * <p>
+ * AbstractNetworkMatcher makes writing IP Address matchers easier.
+ * </p>
+ * <p>
+ * This class extends the GenericMatcher, and as such, has access to the matcher
+ * condition via GenericMatcher.getCondition().<br>
+ * On initialization, the init method retrieves the condition from the defined
+ * matcher and create a corresponding NetMatcher.<br>
+ * The marcher condition has to respect the syntax waited by the NetMacher.
+ * </p>
+ * <p>
+ * This abstract network matcher needs to be implemented by a concrete class.<br>
+ * The implementing concrete class will call the allowedNetworks or matchNetwork
+ * methods.
+ * </p>
+ * 
+ * @see org.apache.james.dnsservice.library.netmatcher.NetMatcher
+ */
 public abstract class AbstractNetworkMatcher extends GenericMatcher {
 
     /**
-     * This is a Network Matcher that should be configured to contain
-     * authorized networks
+     * This is a Network Matcher that should be configured to contain authorized
+     * networks
      */
     private NetMatcher authorizedNetworks = null;
-    
+
     /**
      * The DNSService
      */
     private DNSService dnsServer;
-    
+
     public void init() throws MessagingException {
-        
+
         Collection<String> nets = allowedNetworks();
-        
+
         if (nets != null) {
             authorizedNetworks = new NetMatcher(allowedNetworks(), dnsServer) {
                 protected void log(String s) {
@@ -74,7 +79,8 @@ public abstract class AbstractNetworkMatcher extends GenericMatcher {
         if (getCondition() != null) {
             StringTokenizer st = new StringTokenizer(getCondition(), ", ", false);
             networks = new java.util.ArrayList<String>();
-            while (st.hasMoreTokens()) networks.add(st.nextToken());
+            while (st.hasMoreTokens())
+                networks.add(st.nextToken());
         }
         return networks;
     }
@@ -86,15 +92,15 @@ public abstract class AbstractNetworkMatcher extends GenericMatcher {
     protected boolean matchNetwork(String addr) {
         return authorizedNetworks == null ? false : authorizedNetworks.matchInetNetwork(addr);
     }
-    
+
     /**
      * Injection setter for the DNSService.
      * 
      * @param dnsService
      */
-    @Resource(name="dnsservice")
+    @Resource(name = "dnsservice")
     public void setDNSService(DNSService dnsService) {
         this.dnsServer = dnsService;
     }
-    
+
 }

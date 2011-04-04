@@ -35,14 +35,13 @@ import org.slf4j.Logger;
 
 /**
  * Mailet wrapper which execute a Mailet in a Processor
- *
  */
-public class CamelProcessor implements Processor{
+public class CamelProcessor implements Processor {
 
     private Mailet mailet;
     private Logger logger;
     private CamelMailetProcessor processor;
-    
+
     /**
      * Mailet to call on process
      * 
@@ -53,7 +52,7 @@ public class CamelProcessor implements Processor{
         this.logger = logger;
         this.processor = processor;
     }
-    
+
     /**
      * Call the wrapped mailet for the exchange
      */
@@ -63,7 +62,7 @@ public class CamelProcessor implements Processor{
         long start = System.currentTimeMillis();
         MessagingException ex = null;
         try {
-            mailet.service(mail);       
+            mailet.service(mail);
         } catch (MessagingException me) {
             ex = me;
             String onMailetException = null;

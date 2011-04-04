@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.mailetcontainer.api;
 
 import org.apache.mailet.Matcher;
@@ -27,18 +25,19 @@ import org.apache.mailet.MatcherConfig;
 import javax.mail.MessagingException;
 
 /**
- * Implementations of this interface are responsible for loading {@link Matcher} instances
- * 
- *
+ * Implementations of this interface are responsible for loading {@link Matcher}
+ * instances
  */
 public interface MatcherLoader {
 
     /**
-     * Get a new {@link Matcher} for the given {@link MatcherConfig}. The returned {@link Matcher} needs to
-     * be fully initialized, so the returned instance is "read-to-use"
-     *
+     * Get a new {@link Matcher} for the given {@link MatcherConfig}. The
+     * returned {@link Matcher} needs to be fully initialized, so the returned
+     * instance is "read-to-use"
+     * 
      * @param config
-     * @throws MessagingException if an error occurs
+     * @throws MessagingException
+     *             if an error occurs
      */
     Matcher getMatcher(MatcherConfig config) throws MessagingException;
 

@@ -36,24 +36,23 @@ import org.apache.james.mailetcontainer.lib.AbstractStateCompositeProcessor;
 import org.apache.james.mailetcontainer.lib.AbstractStateCompositeProcessor.CompositeProcessorListener;
 
 /**
- * {@link CompositeProcessorListener} implementation which register MBeans for its child {@link MailProcessor} 
- * and keep track of the stats
- *
+ * {@link CompositeProcessorListener} implementation which register MBeans for
+ * its child {@link MailProcessor} and keep track of the stats
  */
-public class JMXStateCompositeProcessorListener implements CompositeProcessorListener, Disposable{
+public class JMXStateCompositeProcessorListener implements CompositeProcessorListener, Disposable {
 
     private AbstractStateCompositeProcessor mList;
     private MBeanServer mbeanserver;
     private List<ObjectName> mbeans = new ArrayList<ObjectName>();
     private Map<MailProcessor, MailProcessorManagement> mMap = new HashMap<MailProcessor, MailProcessorManagement>();
+
     public JMXStateCompositeProcessorListener(AbstractStateCompositeProcessor mList) throws MalformedObjectNameException, JMException {
         this.mList = mList;
-        
+
         mbeanserver = ManagementFactory.getPlatformMBeanServer();
         registerMBeans();
     }
-    
-    
+
     /**
      * Unregister all JMX MBeans
      */
@@ -61,25 +60,25 @@ public class JMXStateCompositeProcessorListener implements CompositeProcessorLis
         List<ObjectName> unregistered = new ArrayList<ObjectName>();
         for (int i = 0; i < mbeans.size(); i++) {
             ObjectName name = mbeans.get(i);
-            
+
             try {
                 mbeanserver.unregisterMBean(name);
                 unregistered.add(name);
             } catch (javax.management.JMException e) {
-                //logger.error("Unable to unregister mbean " + name, e);
+                // logger.error("Unable to unregister mbean " + name, e);
             }
         }
         mbeans.removeAll(unregistered);
     }
 
-
     /**
      * Register all JMX MBeans
-     * @throws JMException 
-     * @throws MalformedObjectNameException 
+     * 
+     * @throws JMException
+     * @throws MalformedObjectNameException
      */
     private void registerMBeans() throws MalformedObjectNameException, JMException {
-       
+
         String baseObjectName = "org.apache.james:type=component,component=mailetcontainer,name=processor,";
 
         String[] processorNames = mList.getProcessorStates();
@@ -88,36 +87,39 @@ public class JMXStateCompositeProcessorListener implements CompositeProcessorLis
             registerProcessorMBean(baseObjectName, processorName);
         }
     }
-    
+
     /**
      * Register a JMX MBean for a {@link MailProcessor}
      * 
      * @param baseObjectName
      * @param processorName
-     * @throws JMException 
-     * @throws MalformedObjectNameException 
+     * @throws JMException
+     * @throws MalformedObjectNameException
      */
     private void registerProcessorMBean(String baseObjectName, String processorName) throws MalformedObjectNameException, JMException {
         String processorMBeanName = baseObjectName + "processor=" + processorName;
-        
+
         MailProcessorManagement processorDetail = new MailProcessorManagement(processorName);
         registerMBean(processorMBeanName, processorDetail);
         mMap.put(mList.getProcessor(processorName), processorDetail);
 
     }
-    
 
-    private void registerMBean(String mBeanName, Object object) throws MalformedObjectNameException, JMException{
-         ObjectName objectName = new ObjectName(mBeanName);
-       
+    private void registerMBean(String mBeanName, Object object) throws MalformedObjectNameException, JMException {
+        ObjectName objectName = new ObjectName(mBeanName);
+
         mbeanserver.registerMBean(object, objectName);
         mbeans.add(objectName);
-       
+
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.MailProcessorListListener#afterProcessor(org.apache.james.mailetcontainer.api.MailProcessor, java.lang.String, long, javax.mail.MessagingException)
+     * 
+     * @see
+     * org.apache.james.mailetcontainer.api.MailProcessorListListener#afterProcessor
+     * (org.apache.james.mailetcontainer.api.MailProcessor, java.lang.String,
+     * long, javax.mail.MessagingException)
      */
     public void afterProcessor(MailProcessor processor, String mailName, long processTime, MessagingException e) {
         MailProcessorManagement m = mMap.get(processor);
@@ -126,13 +128,13 @@ public class JMXStateCompositeProcessorListener implements CompositeProcessorLis
         }
     }
 
-
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.lifecycle.api.Disposable#dispose()
      */
     public void dispose() {
-        unregisterMBeans();      
+        unregisterMBeans();
         mMap.clear();
     }
 

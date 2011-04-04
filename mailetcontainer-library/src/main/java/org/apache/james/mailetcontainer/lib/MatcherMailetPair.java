@@ -23,7 +23,6 @@ import org.apache.mailet.Matcher;
 
 /**
  * A pair of {@link Matcher} and {@link Mailet}
- *
  */
 public class MatcherMailetPair {
     private Matcher matcher;
@@ -33,7 +32,7 @@ public class MatcherMailetPair {
         this.matcher = matcher;
         this.mailet = mailet;
     }
-    
+
     /**
      * Return the {@link Matcher} of this pair
      * 
@@ -42,7 +41,7 @@ public class MatcherMailetPair {
     public Matcher getMatcher() {
         return matcher;
     }
-    
+
     /**
      * Return the {@link Mailet} of this pair
      * 
@@ -51,6 +50,5 @@ public class MatcherMailetPair {
     public Mailet getMailet() {
         return mailet;
     }
-    
-    
+
 }

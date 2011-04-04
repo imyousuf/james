@@ -45,18 +45,17 @@ import org.apache.mailet.MailetConfig;
 /**
  * Contains resource bindings.
  */
-public class SieveMailet extends SieveMailboxMailet implements Poster{
+public class SieveMailet extends SieveMailboxMailet implements Poster {
 
     private UsersRepository usersRepos;
     private MailboxManager mailboxManager;
 
-    @Resource(name="usersrepository")
+    @Resource(name = "usersrepository")
     public void setUsersRepository(UsersRepository usersRepos) {
         this.usersRepos = usersRepos;
     }
 
-    
-    @Resource(name="mailboxmanager")
+    @Resource(name = "mailboxmanager")
     public void setMailboxManager(MailboxManager mailboxManager) {
         this.mailboxManager = mailboxManager;
     }
@@ -77,10 +76,11 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
         super();
 
     }
-   
+
     /**
-     * Return the username to use for sieve processing for the given MailAddress. If virtualhosting
-     * is supported use the full emailaddrees as username
+     * Return the username to use for sieve processing for the given
+     * MailAddress. If virtualhosting is supported use the full emailaddrees as
+     * username
      * 
      * @param m
      * @return username
@@ -98,25 +98,23 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
 
         }
     }
-   
 
-       
     @Override
     public void storeMail(MailAddress sender, MailAddress recipient, Mail mail) throws MessagingException {
         super.storeMail(sender, recipient, mail);
-        
+
         String s;
         if (sender != null) {
             s = sender.toString();
         } else {
             s = "<>";
         }
-        // if no exception was thrown the message was successfully stored in the mailbox
-        log("Local delivered mail " + mail.getName() +" sucessfully from " + s + " to " + recipient.toString());
+        // if no exception was thrown the message was successfully stored in the
+        // mailbox
+        log("Local delivered mail " + mail.getName() + " sucessfully from " + s + " to " + recipient.toString());
     }
 
-
-        /**
+    /**
      * @see org.apache.jsieve.mailet.Poster#post(java.lang.String,
      *      javax.mail.internet.MimeMessage)
      */
@@ -174,7 +172,7 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
                     if (destination == null || "".equals(destination)) {
                         destination = "INBOX";
                     }
-                    if (destination.startsWith(session.getPathDelimiter() +""))
+                    if (destination.startsWith(session.getPathDelimiter() + ""))
                         destination = destination.substring(1);
                     final MailboxPath path = new MailboxPath(MailboxConstants.USER_NAMESPACE, user, destination);
                     try {
@@ -200,7 +198,7 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
 
                         // stop processing request
                         mailboxManager.endProcessingRequest(session);
-                        
+
                     }
                 }
             } else {

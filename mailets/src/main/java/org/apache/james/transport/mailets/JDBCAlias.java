@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.transport.mailets;
 
 import org.apache.james.util.sql.JDBCUtil;
@@ -42,35 +40,35 @@ import java.util.Iterator;
 import java.util.Vector;
 
 /**
- * Rewrites recipient addresses based on a database table.  The connection
- * is configured by passing the URL to a conn definition.  You need to set
- * the table name to check (or view) along with the source and target columns
- * to use.  For example,
+ * Rewrites recipient addresses based on a database table. The connection is
+ * configured by passing the URL to a conn definition. You need to set the table
+ * name to check (or view) along with the source and target columns to use. For
+ * example,
+ * 
+ * <pre>
  * &lt;mailet match="All" class="JDBCAlias"&gt;
  *   &lt;mappings&gt;db://maildb/Aliases&lt;/mappings&gt;
  *   &lt;source_column&gt;source_email_address&lt;/source_column&gt;
  *   &lt;target_column&gt;target_email_address&lt;/target_column&gt;
  * &lt;/mailet&gt;
- *
+ * </pre>
  */
 public class JDBCAlias extends GenericMailet {
 
     protected DataSource datasource;
     protected String query = null;
 
-
-    @Resource(name="datasource")
+    @Resource(name = "datasource")
     public void setDataSource(DataSource datasource) {
         this.datasource = datasource;
     }
-    
+
     // The JDBCUtil helper class
-    private final JDBCUtil theJDBCUtil =
-            new JDBCUtil() {
-                protected void delegatedLog(String logString) {
-                    log("JDBCAlias: " + logString);
-                }
-            };
+    private final JDBCUtil theJDBCUtil = new JDBCUtil() {
+        protected void delegatedLog(String logString) {
+            log("JDBCAlias: " + logString);
+        }
+    };
 
     /**
      * Initialize the mailet
@@ -91,34 +89,21 @@ public class JDBCAlias extends GenericMailet {
             throw new MailetException("target_column not specified for JDBCAlias");
         }
         try {
-         
+
             conn = datasource.getConnection();
 
             // Check if the required table exists. If not, complain.
             DatabaseMetaData dbMetaData = conn.getMetaData();
-            // Need to ask in the case that identifiers are stored, ask the DatabaseMetaInfo.
+            // Need to ask in the case that identifiers are stored, ask the
+            // DatabaseMetaInfo.
             // Try UPPER, lower, and MixedCase, to see if the table is there.
-            if (!(theJDBCUtil.tableExists(dbMetaData, tableName)))  {
-                StringBuffer exceptionBuffer =
-                    new StringBuffer(128)
-                            .append("Could not find table '")
-                            .append(tableName)
-                            .append("' in datasource '")
-                            .append(datasourceName)
-                            .append("'");
+            if (!(theJDBCUtil.tableExists(dbMetaData, tableName))) {
+                StringBuffer exceptionBuffer = new StringBuffer(128).append("Could not find table '").append(tableName).append("' in datasource '").append(datasourceName).append("'");
                 throw new MailetException(exceptionBuffer.toString());
             }
 
-            //Build the query
-            StringBuffer queryBuffer =
-                new StringBuffer(128)
-                        .append("SELECT ")
-                        .append(getInitParameter("target_column"))
-                        .append(" FROM ")
-                        .append(tableName)
-                        .append(" WHERE ")
-                        .append(getInitParameter("source_column"))
-                        .append(" = ?");
+            // Build the query
+            StringBuffer queryBuffer = new StringBuffer(128).append("SELECT ").append(getInitParameter("target_column")).append(" FROM ").append(tableName).append(" WHERE ").append(getInitParameter("source_column")).append(" = ?");
             query = queryBuffer.toString();
         } catch (MailetException me) {
             throw me;
@@ -130,7 +115,8 @@ public class JDBCAlias extends GenericMailet {
     }
 
     public void service(Mail mail) throws MessagingException {
-        //Then loop through each address in the recipient list and try to map it according to the alias table
+        // Then loop through each address in the recipient list and try to map
+        // it according to the alias table
 
         Connection conn = null;
         PreparedStatement mappingStmt = null;
@@ -143,31 +129,27 @@ public class JDBCAlias extends GenericMailet {
             conn = datasource.getConnection();
             mappingStmt = conn.prepareStatement(query);
 
-
-            for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext(); ) {
+            for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext();) {
                 try {
                     MailAddress source = i.next();
                     mappingStmt.setString(1, source.toString());
                     mappingRS = mappingStmt.executeQuery();
                     if (!mappingRS.next()) {
-                        //This address was not found
+                        // This address was not found
                         continue;
                     }
                     try {
                         String targetString = mappingRS.getString(1);
                         MailAddress target = new MailAddress(targetString);
 
-                        //Mark this source address as an address to remove from the recipient list
+                        // Mark this source address as an address to remove from
+                        // the recipient list
                         recipientsToRemove.add(source);
                         recipientsToAdd.add(target);
                     } catch (ParseException pe) {
-                        //Don't alias this address... there's an invalid address mapping here
-                        StringBuffer exceptionBuffer =
-                            new StringBuffer(128)
-                                    .append("There is an invalid alias from ")
-                                    .append(source)
-                                    .append(" to ")
-                                    .append(mappingRS.getString(1));
+                        // Don't alias this address... there's an invalid
+                        // address mapping here
+                        StringBuffer exceptionBuffer = new StringBuffer(128).append("There is an invalid alias from ").append(source).append(" to ").append(mappingRS.getString(1));
                         log(exceptionBuffer.toString());
                         continue;
                     }
@@ -191,7 +173,7 @@ public class JDBCAlias extends GenericMailet {
 
     /**
      * Return a string describing this mailet.
-     *
+     * 
      * @return a string describing this mailet
      */
     public String getMailetInfo() {

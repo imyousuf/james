@@ -40,49 +40,47 @@ import org.apache.mailet.Mail;
 import org.slf4j.Logger;
 
 /**
- * Abstract base class for {@link CompositeProcessor} which service the {@link Mail} with a {@link CamelProcessor} instances
- * 
- *
+ * Abstract base class for {@link CompositeProcessor} which service the
+ * {@link Mail} with a {@link CamelProcessor} instances
  */
-public abstract class AbstractStateCompositeProcessor implements MailProcessor, Configurable, LogEnabled{
+public abstract class AbstractStateCompositeProcessor implements MailProcessor, Configurable, LogEnabled {
 
     private List<CompositeProcessorListener> listeners = Collections.synchronizedList(new ArrayList<CompositeProcessorListener>());
-    private final Map<String,MailProcessor> processors = new HashMap<String,MailProcessor>();
+    private final Map<String, MailProcessor> processors = new HashMap<String, MailProcessor>();
     protected Logger logger;
     protected HierarchicalConfiguration config;
 
     private JMXStateCompositeProcessorListener jmxListener;
     private boolean enableJmx = true;
-    
+
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger log) {
         this.logger = log;
 
     }
-    
 
     public void addListener(CompositeProcessorListener listener) {
         listeners.add(listener);
     }
-    
 
     public List<CompositeProcessorListener> getListeners() {
         return listeners;
     }
-    
 
     public void removeListener(CompositeProcessorListener listener) {
         listeners.remove(listener);
     }
-    
 
-    
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         this.config = config;
@@ -90,32 +88,29 @@ public abstract class AbstractStateCompositeProcessor implements MailProcessor, 
 
     }
 
-    
-
     /**
-     * Service the given {@link Mail} by hand the {@link Mail} over the {@link MailProcessor} which is responsible for the {@link Mail#getState()}
+     * Service the given {@link Mail} by hand the {@link Mail} over the
+     * {@link MailProcessor} which is responsible for the
+     * {@link Mail#getState()}
      */
     public void service(Mail mail) throws MessagingException {
         long start = System.currentTimeMillis();
         MessagingException ex = null;
         MailProcessor processor = getProcessor(mail.getState());
-     
+
         if (processor != null) {
             logger.debug("Call MailProcessor " + mail.getState());
             try {
                 processor.service(mail);
-                
+
                 if (Mail.GHOST.equals(mail.getState())) {
                     LifecycleUtil.dispose(mail);
                 }
                 /*
-                // check the mail needs further processing
-                if (Mail.GHOST.equalsIgnoreCase(mail.getState()) == false) {
-                    service(mail);
-                } else {
-                    LifecycleUtil.dispose(mail);
-                }
-*/                
+                 * // check the mail needs further processing if
+                 * (Mail.GHOST.equalsIgnoreCase(mail.getState()) == false) {
+                 * service(mail); } else { LifecycleUtil.dispose(mail); }
+                 */
             } catch (MessagingException e) {
                 ex = e;
                 throw e;
@@ -123,9 +118,9 @@ public abstract class AbstractStateCompositeProcessor implements MailProcessor, 
                 long end = System.currentTimeMillis() - start;
                 for (int i = 0; i < listeners.size(); i++) {
                     CompositeProcessorListener listener = listeners.get(i);
-                    
+
                     listener.afterProcessor(processor, mail.getName(), end, ex);
-                } 
+                }
             }
         } else {
             throw new MessagingException("No processor found for mail " + mail.getName() + " with state " + mail.getState());
@@ -142,15 +137,13 @@ public abstract class AbstractStateCompositeProcessor implements MailProcessor, 
         return processors.get(state);
     }
 
-
-
-
     public String[] getProcessorStates() {
         return processors.keySet().toArray(new String[processors.size()]);
     }
 
     /**
-     * Check if all needed Processors are configured and if not throw a {@link ConfigurationException}
+     * Check if all needed Processors are configured and if not throw a
+     * {@link ConfigurationException}
      * 
      * @throws ConfigurationException
      */
@@ -158,14 +151,14 @@ public abstract class AbstractStateCompositeProcessor implements MailProcessor, 
         boolean errorProcessorFound = false;
         boolean rootProcessorFound = false;
         Iterator<String> names = processors.keySet().iterator();
-        while(names.hasNext()) {
+        while (names.hasNext()) {
             String name = names.next();
             if (name.equals(Mail.DEFAULT)) {
                 rootProcessorFound = true;
             } else if (name.equals(Mail.ERROR)) {
                 errorProcessorFound = true;
             }
-            
+
             if (errorProcessorFound && rootProcessorFound) {
                 return;
             }
@@ -176,7 +169,7 @@ public abstract class AbstractStateCompositeProcessor implements MailProcessor, 
             throw new ConfigurationException("You need to configure a Processor with name " + Mail.DEFAULT);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     @PostConstruct
     public void init() throws Exception {
@@ -184,24 +177,24 @@ public abstract class AbstractStateCompositeProcessor implements MailProcessor, 
         for (int i = 0; i < processorConfs.size(); i++) {
             final HierarchicalConfiguration processorConf = processorConfs.get(i);
             String processorName = processorConf.getString("[@state]");
-            
-            // if the "child" processor has no jmx config we just use the one of the composite
+
+            // if the "child" processor has no jmx config we just use the one of
+            // the composite
             if (processorConf.containsKey("[@enableJmx]") == false) {
                 processorConf.addProperty("[@enableJmx]", enableJmx);
             }
             processors.put(processorName, createMailProcessor(processorName, processorConf));
         }
-        
-        
+
         if (enableJmx) {
             this.jmxListener = new JMXStateCompositeProcessorListener(this);
             addListener(jmxListener);
         }
-        
+
         // check if all needed processors are configured
         checkProcessors();
     }
-    
+
     @PreDestroy
     public void dispose() {
         String names[] = getProcessorStates();
@@ -212,14 +205,14 @@ public abstract class AbstractStateCompositeProcessor implements MailProcessor, 
             }
 
         }
-        
+
         if (jmxListener != null) {
             jmxListener.dispose();
         }
     }
-    
+
     /**
-     * Create a new {@link MailProcessor} 
+     * Create a new {@link MailProcessor}
      * 
      * @param state
      * @param config
@@ -227,21 +220,23 @@ public abstract class AbstractStateCompositeProcessor implements MailProcessor, 
      * @throws Exception
      */
     protected abstract MailProcessor createMailProcessor(String state, HierarchicalConfiguration config) throws Exception;
-    
-    
+
     /**
-     * A Listener which will get called after {@link CompositeProcessor#service(org.apache.mailet.Mail)} was called
-     *
+     * A Listener which will get called after
+     * {@link CompositeProcessor#service(org.apache.mailet.Mail)} was called
      */
     public interface CompositeProcessorListener {
 
         /**
-         * Get called after the processing via a {@link MailProcessor} was complete
+         * Get called after the processing via a {@link MailProcessor} was
+         * complete
          * 
          * @param processor
          * @param mailName
-         * @param processTime in ms
-         * @param e or null if no exception was thrown
+         * @param processTime
+         *            in ms
+         * @param e
+         *            or null if no exception was thrown
          */
         void afterProcessor(MailProcessor processor, String mailName, long processTime, MessagingException e);
 

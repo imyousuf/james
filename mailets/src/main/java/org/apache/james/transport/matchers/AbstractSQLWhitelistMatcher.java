@@ -47,54 +47,48 @@ import org.apache.mailet.base.GenericMatcher;
 
 public abstract class AbstractSQLWhitelistMatcher extends GenericMatcher {
 
-
-    /** The user repository for this mail server.  Contains all the users with inboxes
-     * on this server.
+    /**
+     * The user repository for this mail server. Contains all the users with
+     * inboxes on this server.
      */
     private UsersRepository localusers;
 
     protected DataSource datasource;
-    
 
-    /**
-     * Holds value of property sqlFile.
-     */
+    /** Holds value of property sqlFile. */
     private File sqlFile;
 
-     /**
-     * Holds value of property sqlParameters.
-     */
-    private Map<String,String> sqlParameters = new HashMap<String,String>();
+    /** Holds value of property sqlParameters. */
+    private Map<String, String> sqlParameters = new HashMap<String, String>();
 
-
-    
-    @Resource(name="datasource")
+    @Resource(name = "datasource")
     public void setDataSource(DataSource datasource) {
         this.datasource = datasource;
     }
-    
-    @Resource(name="usersrepository")
+
+    @Resource(name = "usersrepository")
     public void setUsersRepository(UsersRepository localusers) {
         this.localusers = localusers;
     }
-    
+
     /**
      * Getter for property sqlParameters.
+     * 
      * @return Value of property sqlParameters.
      */
-    private Map<String,String> getSqlParameters() {
+    private Map<String, String> getSqlParameters() {
         return this.sqlParameters;
     }
-    
+
     /**
      * The JDBCUtil helper class
      */
     protected final JDBCUtil theJDBCUtil = new JDBCUtil() {
         protected void delegatedLog(String logString) {
-            log(getMatcherName() +": " + logString);
+            log(getMatcherName() + ": " + logString);
         }
     };
-    
+
     /**
      * Contains all of the sql strings for this component.
      */
@@ -102,11 +96,11 @@ public abstract class AbstractSQLWhitelistMatcher extends GenericMatcher {
 
     private FileSystem fs;
 
-    @Resource(name="filesystem")
+    @Resource(name = "filesystem")
     public void setFilesystem(FileSystem fs) {
         this.fs = fs;
     }
-    
+
     @Override
     public void init() throws MessagingException {
         String repositoryPath = null;
@@ -116,21 +110,18 @@ public abstract class AbstractSQLWhitelistMatcher extends GenericMatcher {
         }
         if (repositoryPath != null) {
             log("repositoryPath: " + repositoryPath);
-        }
-        else {
+        } else {
             throw new MessagingException("repositoryPath is null");
         }
-
-      
 
         try {
             initSqlQueries(datasource.getConnection(), getMailetContext());
         } catch (Exception e) {
             throw new MessagingException("Exception initializing queries", e);
-        }        
-        
+        }
+
         super.init();
-	}
+    }
 
     public Collection<MailAddress> match(Mail mail) throws MessagingException {
         // check if it's a local sender
@@ -175,10 +166,12 @@ public abstract class AbstractSQLWhitelistMatcher extends GenericMatcher {
         return inWhiteList;
 
     }
-    
+
     protected abstract boolean matchedWhitelist(MailAddress recipient, Mail mail) throws MessagingException;
-    
-	/** Gets the main name of a local customer, handling alias */
+
+    /**
+     * Gets the main name of a local customer, handling alias
+     */
     protected String getPrimaryName(String originalUsername) {
         String username;
         try {
@@ -187,30 +180,33 @@ public abstract class AbstractSQLWhitelistMatcher extends GenericMatcher {
             if (user.getAliasing()) {
                 username = user.getAlias();
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             username = originalUsername;
         }
         return username;
     }
-    
+
     /**
-     * Initializes the sql query environment from the SqlResources file.
-     * Will look for conf/sqlResources.xml.
-     * Will <I>not</I> create the database resources, if missing
+     * Initializes the sql query environment from the SqlResources file.<br>
+     * Will look for conf/sqlResources.xml.<br>
+     * Will <strong>not</<strong> create the database resources, if missing<br>
      * (this task is done, if needed, in the {@link WhiteListManager}
      * initialization routine).
-     * @param conn The connection for accessing the database
-     * @param mailetContext The current mailet context,
-     * for finding the conf/sqlResources.xml file
-     * @throws Exception If any error occurs
+     * 
+     * @param conn
+     *            The connection for accessing the database
+     * @param mailetContext
+     *            The current mailet context, for finding the
+     *            conf/sqlResources.xml file
+     * @throws Exception
+     *             If any error occurs
      */
     protected void initSqlQueries(Connection conn, org.apache.mailet.MailetContext mailetContext) throws Exception {
         try {
             if (conn.getAutoCommit()) {
                 conn.setAutoCommit(false);
             }
-            
+
             this.sqlFile = fs.getFile("classpath:sqlResources.xml");
             sqlQueries.init(this.sqlFile, getSQLSectionName(), conn, getSqlParameters());
             checkTables(conn);
@@ -218,63 +214,55 @@ public abstract class AbstractSQLWhitelistMatcher extends GenericMatcher {
             theJDBCUtil.closeJDBCConnection(conn);
         }
     }
-    
 
     protected abstract String getTableName();
-    
+
     protected abstract String getTableCreateQueryName();
-    
+
     private void checkTables(Connection conn) throws SQLException {
 
-        // Need to ask in the case that identifiers are stored, ask the DatabaseMetaInfo.
+        // Need to ask in the case that identifiers are stored, ask the
+        // DatabaseMetaInfo.
         // Try UPPER, lower, and MixedCase, to see if the table is there.
-        
+
         boolean dbUpdated = false;
-        
+
         dbUpdated = createTable(conn, getTableName(), getTableCreateQueryName());
-        
-        //Commit our changes if necessary.
+
+        // Commit our changes if necessary.
         if (conn != null && dbUpdated && !conn.getAutoCommit()) {
             conn.commit();
             dbUpdated = false;
         }
-            
+
     }
-    
+
     private boolean createTable(Connection conn, String tableNameSqlStringName, String createSqlStringName) throws SQLException {
         String tableName = sqlQueries.getSqlString(tableNameSqlStringName, true);
-        
+
         DatabaseMetaData dbMetaData = conn.getMetaData();
 
         // Try UPPER, lower, and MixedCase, to see if the table is there.
         if (theJDBCUtil.tableExists(dbMetaData, tableName)) {
             return false;
         }
-        
+
         PreparedStatement createStatement = null;
-        
+
         try {
-            createStatement =
-                    conn.prepareStatement(sqlQueries.getSqlString(createSqlStringName, true));
+            createStatement = conn.prepareStatement(sqlQueries.getSqlString(createSqlStringName, true));
             createStatement.execute();
-            
+
             StringBuffer logBuffer = null;
-            logBuffer =
-                    new StringBuffer(64)
-                    .append("Created table '")
-                    .append(tableName)
-                    .append("' using sqlResources string '")
-                    .append(createSqlStringName)
-                    .append("'.");
+            logBuffer = new StringBuffer(64).append("Created table '").append(tableName).append("' using sqlResources string '").append(createSqlStringName).append("'.");
             log(logBuffer.toString());
-            
+
         } finally {
             theJDBCUtil.closeJDBCStatement(createStatement);
         }
-        
+
         return true;
     }
-    
-    
+
     protected abstract String getSQLSectionName();
 }

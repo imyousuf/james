@@ -37,17 +37,14 @@ import org.apache.james.user.api.model.User;
 import org.apache.james.user.jpa.model.JPAUser;
 import org.apache.james.user.lib.AbstractUsersRepository;
 
-
 /**
  * JPA based UserRepository
- *
  */
 public class JPAUsersRepository extends AbstractUsersRepository {
 
     private EntityManagerFactory entityManagerFactory;
 
     private String algo;
-
 
     /**
      * Sets entity manager.
@@ -65,8 +62,6 @@ public class JPAUsersRepository extends AbstractUsersRepository {
         createEntityManager().close();
     }
 
-   
-
     /**
      * Get the user object with the specified user name. Return null if no such
      * user.
@@ -77,7 +72,7 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * 
      * @since James 1.2.2
      */
-    public User getUserByName(String name) throws UsersRepositoryException{
+    public User getUserByName(String name) throws UsersRepositoryException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         try {
@@ -89,9 +84,8 @@ public class JPAUsersRepository extends AbstractUsersRepository {
             throw new UsersRepositoryException("Unable to search user", e);
         } finally {
             entityManager.close();
-        }    
+        }
     }
-
 
     /**
      * Returns the user name of the user matching name on an equalsIgnoreCase
@@ -100,7 +94,7 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * @param name
      *            the name to case-correct
      * @return the case-correct name of the user, null if the user doesn't exist
-     * @throws UsersRepositoryException 
+     * @throws UsersRepositoryException
      */
     public String getRealName(String name) throws UsersRepositoryException {
         User u = getUserByName(name);
@@ -115,7 +109,7 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * this username must already exist.
      * 
      * @return true if successful.
-     * @throws UsersRepositoryException 
+     * @throws UsersRepositoryException
      */
     public void updateUser(User user) throws UsersRepositoryException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -136,7 +130,7 @@ public class JPAUsersRepository extends AbstractUsersRepository {
                 transaction.rollback();
             }
             throw new UsersRepositoryException("Failed to update user " + user.getUserName(), e);
-        }finally {
+        } finally {
             entityManager.close();
         }
     }
@@ -146,7 +140,7 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * 
      * @param name
      *            the user to remove from the repository
-     * @throws UsersRepositoryException 
+     * @throws UsersRepositoryException
      */
     public void removeUser(String name) throws UsersRepositoryException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -154,7 +148,7 @@ public class JPAUsersRepository extends AbstractUsersRepository {
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
-            if( entityManager.createNamedQuery("deleteUserByName").setParameter("name", name).executeUpdate() < 1) {
+            if (entityManager.createNamedQuery("deleteUserByName").setParameter("name", name).executeUpdate() < 1) {
                 transaction.commit();
                 throw new UsersRepositoryException("User " + name + " does not exist");
             } else {
@@ -177,7 +171,7 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * @param name
      *            the name to check in the repository
      * @return whether the user is in the repository
-     * @throws UsersRepositoryException 
+     * @throws UsersRepositoryException
      */
     public boolean contains(String name) throws UsersRepositoryException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -205,7 +199,7 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * 
      * @since James 1.2.2
      */
-    public boolean test(String name, String password) throws UsersRepositoryException{
+    public boolean test(String name, String password) throws UsersRepositoryException {
         final User user = getUserByName(name);
         final boolean result;
         if (user == null) {
@@ -220,7 +214,7 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * Returns a count of the users in the repository.
      * 
      * @return the number of users in the repository
-     * @throws UsersRepositoryException 
+     * @throws UsersRepositoryException
      */
     public int countUsers() throws UsersRepositoryException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -240,7 +234,7 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * 
      * @return Iterator over a collection of Strings, each being one user in the
      *         repository.
-     * @throws UsersRepositoryException 
+     * @throws UsersRepositoryException
      */
     @SuppressWarnings("unchecked")
     public Iterator<String> list() throws UsersRepositoryException {
@@ -257,13 +251,15 @@ public class JPAUsersRepository extends AbstractUsersRepository {
         }
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.lib.AbstractUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.user.lib.AbstractUsersRepository#doConfigure(org.apache
+     * .commons.configuration.HierarchicalConfiguration)
      */
     public void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
-        algo = config.getString("algorithm","MD5");
+        algo = config.getString("algorithm", "MD5");
         super.doConfigure(config);
     }
 
@@ -276,10 +272,12 @@ public class JPAUsersRepository extends AbstractUsersRepository {
         return entityManagerFactory.createEntityManager();
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.lib.AbstractUsersRepository#doAddUser(java.lang.String, java.lang.String)
+     * 
+     * @see
+     * org.apache.james.user.lib.AbstractUsersRepository#doAddUser(java.lang
+     * .String, java.lang.String)
      */
     protected void doAddUser(String username, String password) throws UsersRepositoryException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();

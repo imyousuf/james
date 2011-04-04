@@ -24,21 +24,21 @@ import org.apache.camel.Predicate;
 import org.apache.mailet.Mail;
 
 /**
- * Check if the previous called Matcher matched. This is done be
- * checking for the present of MatcherSplitter.MATCHER_MATCHED_ATTRIBUTE attribute in the Mail
- * 
- *
+ * Check if the previous called Matcher matched. This is done be checking for
+ * the present of MatcherSplitter.MATCHER_MATCHED_ATTRIBUTE attribute in the
+ * Mail
  */
-public class MatcherMatch implements Predicate{
+public class MatcherMatch implements Predicate {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.camel.Predicate#matches(org.apache.camel.Exchange)
      */
     public boolean matches(Exchange arg0) {
-        Mail m = arg0.getIn().getBody(Mail.class); 
+        Mail m = arg0.getIn().getBody(Mail.class);
         if (m.removeAttribute(MatcherSplitter.MATCHER_MATCHED_ATTRIBUTE) != null) {
-           return true;
+            return true;
         }
         return false;
     }

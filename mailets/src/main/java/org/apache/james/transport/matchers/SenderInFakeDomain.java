@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.transport.matchers;
 
 import org.apache.mailet.Mail;
@@ -27,10 +25,8 @@ import org.apache.mailet.MailAddress;
 import java.util.Collection;
 
 /**
- * Does a DNS lookup (MX and A/CNAME records) on the sender's domain.  If
- * there are no entries, the domain is considered fake and the match is 
- * successful.
- *
+ * Does a DNS lookup (MX and A/CNAME records) on the sender's domain. If there
+ * are no entries, the domain is considered fake and the match is successful.
  */
 public class SenderInFakeDomain extends AbstractNetworkMatcher {
 
@@ -39,13 +35,14 @@ public class SenderInFakeDomain extends AbstractNetworkMatcher {
             return null;
         }
         String domain = mail.getSender().getDomain();
-        //DNS Lookup for this domain
+        // DNS Lookup for this domain
         Collection<String> servers = getMailetContext().getMailServers(domain);
         if (servers.size() == 0) {
-            //No records...could not deliver to this domain, so matches criteria.
+            // No records...could not deliver to this domain, so matches
+            // criteria.
             log("No MX, A, or CNAME record found for domain: " + domain);
             return mail.getRecipients();
-        } else if (matchNetwork(servers.iterator().next().toString())){
+        } else if (matchNetwork(servers.iterator().next().toString())) {
             /*
              * It could be a wildcard address like these:
              *

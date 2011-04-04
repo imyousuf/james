@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.mailetcontainer.api;
 
 import org.apache.mailet.Mailet;
@@ -27,20 +25,20 @@ import org.apache.mailet.MailetConfig;
 import javax.mail.MessagingException;
 
 /**
- * Implementations of this interface are responsible to create {@link Mailet} instances
- * 
- *
+ * Implementations of this interface are responsible to create {@link Mailet}
+ * instances
  */
 public interface MailetLoader {
-    
+
     /**
-     * Get a new {@link Mailet} instance for the given {@link MailetConfig}. The returned {@link Mailet} needs to
-     * be fully initialized, so the returned instance is "read-to-use"
-     *
+     * Get a new {@link Mailet} instance for the given {@link MailetConfig}. The
+     * returned {@link Mailet} needs to be fully initialized, so the returned
+     * instance is "read-to-use"
+     * 
      * @param config
-     * @throws MessagingException if an error occurs
+     * @throws MessagingException
+     *             if an error occurs
      */
-    Mailet getMailet(MailetConfig config)
-            throws MessagingException;
+    Mailet getMailet(MailetConfig config) throws MessagingException;
 
 }

@@ -35,13 +35,16 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 /**
- * Matcher which lookup whitelisted networks in a database. The networks can be specified via netmask. 
- * 
- * For example:
- * 192.168.0.0/24
- * 
+ * <p>
+ * Matcher which lookup whitelisted networks in a database. The networks can be
+ * specified via netmask.
+ * </p>
+ * <p>
+ * For example: <code>192.168.0.0/24</code>
+ * </p>
+ * <p>
  * Th whitelisting is done per recipient
- *
+ * </p>
  */
 public class NetworkIsInWhitelist extends AbstractSQLWhitelistMatcher {
 
@@ -53,15 +56,16 @@ public class NetworkIsInWhitelist extends AbstractSQLWhitelistMatcher {
      * 
      * @param dnsService
      */
-    @Resource(name="dnsservice")
+    @Resource(name = "dnsservice")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
     }
-    
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#getSQLSectionName()
+     * 
+     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#
+     * getSQLSectionName()
      */
     protected String getSQLSectionName() {
         return "NetworkWhiteList";
@@ -74,10 +78,11 @@ public class NetworkIsInWhitelist extends AbstractSQLWhitelistMatcher {
 
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#matchedWhitelist(org.apache.mailet.MailAddress, org.apache.mailet.Mail)
+     * 
+     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#
+     * matchedWhitelist(org.apache.mailet.MailAddress, org.apache.mailet.Mail)
      */
     protected boolean matchedWhitelist(MailAddress recipientMailAddress, Mail mail) throws MessagingException {
         Connection conn = null;
@@ -124,22 +129,25 @@ public class NetworkIsInWhitelist extends AbstractSQLWhitelistMatcher {
             theJDBCUtil.closeJDBCResultSet(selectRS);
             theJDBCUtil.closeJDBCStatement(selectStmt);
             theJDBCUtil.closeJDBCConnection(conn);
-        }        
+        }
     }
-
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#getTableCreateQueryName()
+     * 
+     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#
+     * getTableCreateQueryName()
      */
     protected String getTableCreateQueryName() {
         return "createNetworkWhiteListTable";
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#getTableName()
+     * 
+     * @see
+     * org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#getTableName
+     * ()
      */
     protected String getTableName() {
         return "networkWhiteListTableName";

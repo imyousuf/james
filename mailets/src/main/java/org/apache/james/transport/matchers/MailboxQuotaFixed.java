@@ -25,19 +25,21 @@ import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
 
 /**
- * Matcher which can be used to set a quota for users Mailbox. This {@link Matcher} need to
- * recalculate the used space of users mailbox on every call. So use it with caution!
- * 
- *
+ * Matcher which can be used to set a quota for users Mailbox. This
+ * {@link Matcher} need to recalculate the used space of users mailbox on every
+ * call. So use it with caution!
  */
 public class MailboxQuotaFixed extends AbstractStorageQuota {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.transport.matchers.AbstractQuotaMatcher#getQuota(org.apache.mailet.MailAddress, org.apache.mailet.Mail)
+     * 
+     * @see
+     * org.apache.james.transport.matchers.AbstractQuotaMatcher#getQuota(org
+     * .apache.mailet.MailAddress, org.apache.mailet.Mail)
      */
     protected long getQuota(MailAddress arg0, Mail arg1) throws MessagingException {
-        return parseQuota(this.getCondition()); 
+        return parseQuota(this.getCondition());
     }
 
 }

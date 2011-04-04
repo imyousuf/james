@@ -61,9 +61,7 @@ import org.slf4j.Logger;
 
 public abstract class JamesMailetContext implements MailetContext, LogEnabled, Configurable {
 
-    /**
-     * A hash table of server attributes These are the MailetContext attributes
-     */
+    /** A hash table of server attributes These are the MailetContext attributes */
     private Hashtable<String, Object> attributes = new Hashtable<String, Object>();
     protected DNSService dns;
 
@@ -76,15 +74,12 @@ public abstract class JamesMailetContext implements MailetContext, LogEnabled, C
     private DomainList domains;
 
     private MailAddress postmaster;
-    
-    
 
-    @Resource(name="mailprocessor")
+    @Resource(name = "mailprocessor")
     public void setMailProcessor(MailProcessor processorList) {
         this.processorList = processorList;
     }
-    
-    
+
     @Resource(name = "dnsservice")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
@@ -94,15 +89,12 @@ public abstract class JamesMailetContext implements MailetContext, LogEnabled, C
     public void setUsersRepository(UsersRepository localusers) {
         this.localusers = localusers;
     }
-    
 
-
-    @Resource(name="domainlist")
+    @Resource(name = "domainlist")
     public void setDomainList(DomainList domains) {
         this.domains = domains;
     }
-    
-    
+
     /**
      * @see org.apache.mailet.MailetContext#getMailServers(String)
      */
@@ -163,28 +155,34 @@ public abstract class JamesMailetContext implements MailetContext, LogEnabled, C
     }
 
     /**
+     * <p>
      * This generates a response to the Return-Path address, or the address of
      * the message's sender if the Return-Path is not available. Note that this
      * is different than a mail-client's reply, which would use the Reply-To or
      * From header.
-     * 
+     * </p>
+     * <p>
      * Bounced messages are attached in their entirety (headers and content) and
      * the resulting MIME part type is "message/rfc822".
-     * 
+     * </p>
+     * <p>
      * The attachment to the subject of the original message (or "No Subject" if
      * there is no subject in the original message)
-     * 
+     * </p>
+     * <p>
      * There are outstanding issues with this implementation revolving around
      * handling of the return-path header.
-     * 
+     * </p>
+     * <p>
      * MIME layout of the bounce message:
-     * 
+     * </p>
+     * <p>
      * multipart (mixed)/ contentPartRoot (body) = mpContent (alternative)/ part
      * (body) = message part (body) = original
+     * </p>
      * 
      * @see org.apache.mailet.MailetContext#bounce(Mail, String, MailAddress)
      */
-
     public void bounce(Mail mail, String message, MailAddress bouncer) throws MessagingException {
         if (mail.getSender() == null) {
             if (log.isInfoEnabled())
@@ -248,7 +246,7 @@ public abstract class JamesMailetContext implements MailetContext, LogEnabled, C
                 try {
                     return isLocalEmail(new MailAddress(name, domains.getDefaultDomain()));
                 } catch (DomainListException e) {
-                    log("Unable to access DomainList",e);
+                    log("Unable to access DomainList", e);
                     return false;
                 }
             } else {
@@ -276,7 +274,7 @@ public abstract class JamesMailetContext implements MailetContext, LogEnabled, C
 
         } catch (UsersRepositoryException e) {
             log("Unable to access UsersRepository", e);
-            
+
         }
         return false;
     }
@@ -353,7 +351,9 @@ public abstract class JamesMailetContext implements MailetContext, LogEnabled, C
 
     /*
      * (non-Javadoc)
-     * @see org.apache.mailet.MailetContext#log(java.lang.String, java.lang.Throwable)
+     * 
+     * @see org.apache.mailet.MailetContext#log(java.lang.String,
+     * java.lang.Throwable)
      */
     public void log(String arg0, Throwable arg1) {
         log.info(arg0, arg1);
@@ -361,22 +361,23 @@ public abstract class JamesMailetContext implements MailetContext, LogEnabled, C
 
     /**
      * Place a mail on the spool for processing
-     *
-     * @param message the message to send
-     *
-     * @throws MessagingException if an exception is caught while placing the mail
-     *                            on the spool
+     * 
+     * @param message
+     *            the message to send
+     * 
+     * @throws MessagingException
+     *             if an exception is caught while placing the mail on the spool
      */
     public void sendMail(MimeMessage message) throws MessagingException {
-        MailAddress sender = new MailAddress((InternetAddress)message.getFrom()[0]);
+        MailAddress sender = new MailAddress((InternetAddress) message.getFrom()[0]);
         Collection<MailAddress> recipients = new HashSet<MailAddress>();
         Address addresses[] = message.getAllRecipients();
         if (addresses != null) {
             for (int i = 0; i < addresses.length; i++) {
                 // Javamail treats the "newsgroups:" header field as a
                 // recipient, so we want to filter those out.
-                if ( addresses[i] instanceof InternetAddress ) {
-                    recipients.add(new MailAddress((InternetAddress)addresses[i]));
+                if (addresses[i] instanceof InternetAddress) {
+                    recipients.add(new MailAddress((InternetAddress) addresses[i]));
                 }
             }
         }
@@ -385,18 +386,21 @@ public abstract class JamesMailetContext implements MailetContext, LogEnabled, C
 
     /*
      * (non-Javadoc)
-     * @see org.apache.mailet.MailetContext#sendMail(org.apache.mailet.MailAddress, java.util.Collection, javax.mail.internet.MimeMessage)
+     * 
+     * @see
+     * org.apache.mailet.MailetContext#sendMail(org.apache.mailet.MailAddress,
+     * java.util.Collection, javax.mail.internet.MimeMessage)
      */
     @SuppressWarnings("unchecked")
-	public void sendMail(MailAddress sender, Collection recipients, MimeMessage message)
-            throws MessagingException {
-            sendMail(sender, recipients, message, Mail.DEFAULT);
+    public void sendMail(MailAddress sender, Collection recipients, MimeMessage message) throws MessagingException {
+        sendMail(sender, recipients, message, Mail.DEFAULT);
     }
 
     /*
      * TODO: Should we use the MailProcessorList or the MailQueue here ?
      * 
      * (non-Javadoc)
+     * 
      * @see org.apache.mailet.MailetContext#sendMail(org.apache.mailet.Mail)
      */
     public void sendMail(Mail mail) throws MessagingException {
@@ -405,10 +409,13 @@ public abstract class JamesMailetContext implements MailetContext, LogEnabled, C
 
     /*
      * (non-Javadoc)
-     * @see org.apache.mailet.MailetContext#sendMail(org.apache.mailet.MailAddress, java.util.Collection, javax.mail.internet.MimeMessage, java.lang.String)
+     * 
+     * @see
+     * org.apache.mailet.MailetContext#sendMail(org.apache.mailet.MailAddress,
+     * java.util.Collection, javax.mail.internet.MimeMessage, java.lang.String)
      */
     @SuppressWarnings("unchecked")
-	public void sendMail(MailAddress sender, Collection recipients, MimeMessage message, String state) throws MessagingException {
+    public void sendMail(MailAddress sender, Collection recipients, MimeMessage message, String state) throws MessagingException {
         MailImpl mail = new MailImpl(MailImpl.getId(), sender, recipients, message);
         try {
             mail.setState(state);
@@ -419,18 +426,20 @@ public abstract class JamesMailetContext implements MailetContext, LogEnabled, C
     }
 
     /**
+     * <p>
      * This method has been moved to LocalDelivery (the only client of the
      * method). Now we can safely remove it from the Mailet API and from this
      * implementation of MailetContext.
-     * 
+     * </p>
+     * <p>
      * The local field localDeliveryMailet will be removed when we remove the
      * storeMail method.
+     * </p>
      * 
      * @deprecated since 2.2.0 look at the LocalDelivery code to find out how to
      *             do the local delivery.
      * @see org.apache.mailet.MailetContext#storeMail(org.apache.mailet.MailAddress,
      *      org.apache.mailet.MailAddress, javax.mail.internet.MimeMessage)
-     *      
      */
     public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg) throws MessagingException {
         throw new UnsupportedOperationException("Was removed");
@@ -438,12 +447,12 @@ public abstract class JamesMailetContext implements MailetContext, LogEnabled, C
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger log) {
         this.log = log;
     }
-
 
     /*
      * 

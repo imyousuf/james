@@ -31,46 +31,41 @@ import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.mailet.MailAddress;
 
 /**
- * Mailet which should get used when using VirtualUserTable-Store to implementations
- * for mappings of forwards and aliases. 
- * 
- *
+ * Mailet which should get used when using VirtualUserTable-Store to
+ * implementations for mappings of forwards and aliases.
  */
 public class VirtualUserTable extends AbstractVirtualUserTableMailet {
     private org.apache.james.vut.api.VirtualUserTable vut;
-   
+
     /**
      * Sets the virtual table store.
-     * @param vutStore the vutStore to set, possibly null
+     * 
+     * @param vutStore
+     *            the vutStore to set, possibly null
      */
-    @Resource(name="virtualusertable")
+    @Resource(name = "virtualusertable")
     public final void setVirtualUserTable(org.apache.james.vut.api.VirtualUserTable vut) {
         this.vut = vut;
     }
 
-
     /**
-     * @see org.apache.james.transport.mailets.AbstractVirtualUserTable#processMail(org.apache.mailet.MailAddress, org.apache.mailet.MailAddress, javax.mail.internet.MimeMessage)
+     * @see org.apache.james.transport.mailets.AbstractVirtualUserTable#processMail(org.apache.mailet.MailAddress,
+     *      org.apache.mailet.MailAddress, javax.mail.internet.MimeMessage)
      */
     public Collection<MailAddress> processMail(MailAddress sender, MailAddress recipient, MimeMessage message) throws MessagingException {
         try {
-            Collection<String>  mappings = vut.getMappings(recipient.getLocalPart(), recipient.getDomain());
-           
-            
+            Collection<String> mappings = vut.getMappings(recipient.getLocalPart(), recipient.getDomain());
+
             if (mappings != null) {
                 return handleMappings(mappings, sender, recipient, message);
             }
         } catch (ErrorMappingException e) {
-            StringBuilder errorBuffer = new StringBuilder(128)
-                .append("A problem as occoured trying to alias and forward user ")
-                .append(recipient)
-                .append(": ")
-                .append(e.getMessage());
-                throw new MessagingException(errorBuffer.toString());
+            StringBuilder errorBuffer = new StringBuilder(128).append("A problem as occoured trying to alias and forward user ").append(recipient).append(": ").append(e.getMessage());
+            throw new MessagingException(errorBuffer.toString());
         } catch (VirtualUserTableException e) {
             throw new MessagingException("Unable to access VirtualUserTable", e);
         }
-        
+
         Collection<MailAddress> rcpts = new ArrayList<MailAddress>();
         rcpts.add(recipient);
         return rcpts;
@@ -82,6 +77,5 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
     public String getMailetInfo() {
         return "VirtualUserTable Mailet";
     }
-    
-    
+
 }

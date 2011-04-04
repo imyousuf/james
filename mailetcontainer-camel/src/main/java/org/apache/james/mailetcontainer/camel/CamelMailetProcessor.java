@@ -41,38 +41,37 @@ import org.apache.mailet.MailetConfig;
 import org.apache.mailet.Matcher;
 import org.slf4j.Logger;
 
-
 /**
- * {@link AbstractStateMailetProcessor} implementation which use Camel DSL for the {@link Matcher} / {@link Mailet} routing
- *
+ * {@link AbstractStateMailetProcessor} implementation which use Camel DSL for
+ * the {@link Matcher} / {@link Mailet} routing
  */
-public class CamelMailetProcessor extends AbstractStateMailetProcessor implements CamelContextAware{
+public class CamelMailetProcessor extends AbstractStateMailetProcessor implements CamelContextAware {
 
     private CamelContext context;
 
-
     private ProducerTemplate producerTemplate;
-    
+
     private final UseLatestAggregationStrategy aggr = new UseLatestAggregationStrategy();
 
-
-    
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.MailProcessor#service(org.apache.mailet.Mail)
+     * 
+     * @see
+     * org.apache.james.mailetcontainer.api.MailProcessor#service(org.apache
+     * .mailet.Mail)
      */
     public void service(Mail mail) throws MessagingException {
         try {
             producerTemplate.sendBody(getEndpoint(), mail);
-            
-         } catch (CamelExecutionException ex) {
-             throw new MessagingException("Unable to process mail " + mail.getName(),ex);
-         }        
-     }
 
+        } catch (CamelExecutionException ex) {
+            throw new MessagingException("Unable to process mail " + mail.getName(), ex);
+        }
+    }
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.camel.CamelContextAware#getCamelContext()
      */
     public CamelContext getCamelContext() {
@@ -81,17 +80,18 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
 
     /*
      * (non-Javadoc)
-     * @see org.apache.camel.CamelContextAware#setCamelContext(org.apache.camel.CamelContext)
+     * 
+     * @see org.apache.camel.CamelContextAware#setCamelContext(org.apache.camel.
+     * CamelContext)
      */
     public void setCamelContext(CamelContext context) {
         this.context = context;
     }
 
-
     /**
-     * Return the endpoint for the processorname. 
+     * Return the endpoint for the processorname.
      * 
-     * This will return a "direct" endpoint. 
+     * This will return a "direct" endpoint.
      * 
      * @param processorName
      * @return endPoint
@@ -99,8 +99,7 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
     protected String getEndpoint() {
         return "direct:processor." + getState();
     }
-    
-    
+
     @PostConstruct
     public void init() throws Exception {
         producerTemplate = context.createProducerTemplate();
@@ -111,11 +110,12 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
         super.init();
     }
 
-
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.lib.AbstractMailetContainer#setupRouting(java.util.List)
+     * 
+     * @see
+     * org.apache.james.mailetcontainer.lib.AbstractMailetContainer#setupRouting
+     * (java.util.List)
      */
     protected void setupRouting(List<MatcherMailetPair> pairs) throws MessagingException {
         try {
@@ -125,10 +125,10 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
         }
     }
 
-
     /**
-     * {@link RouteBuilder} which construct the Matcher and Mailet routing use Camel DSL
-     *
+     * {@link RouteBuilder} which construct the Matcher and Mailet routing use
+     * Camel DSL
+     * 
      */
     private final class MailetContainerRouteBuilder extends RouteBuilder {
 
@@ -137,74 +137,65 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
         public MailetContainerRouteBuilder(List<MatcherMailetPair> pairs) {
             this.pairs = pairs;
         }
-        
+
         @Override
         public void configure() throws Exception {
             Processor disposeProcessor = new DisposeProcessor();
             Processor removePropsProcessor = new RemovePropertiesProcessor();
             Processor completeProcessor = new CompleteProcessor();
             Processor stateChangedProcessor = new StateChangedProcessor();
-            
+
             String state = getState();
             Logger logger = getLogger();
 
             RouteDefinition processorDef = from(getEndpoint()).routeId(state).inOnly()
             // store the logger in properties
-            .setProperty(MatcherSplitter.LOGGER_PROPERTY, constant(getLogger()));
-            
+                    .setProperty(MatcherSplitter.LOGGER_PROPERTY, constant(getLogger()));
+
             for (int i = 0; i < pairs.size(); i++) {
                 MatcherMailetPair pair = pairs.get(i);
                 Matcher matcher = pair.getMatcher();
                 Mailet mailet = pair.getMailet();
-                
+
                 String onMatchException = null;
                 MailetConfig mailetConfig = mailet.getMailetConfig();
-                
+
                 if (mailetConfig instanceof MailetConfigImpl) {
                     onMatchException = ((MailetConfigImpl) mailetConfig).getInitAttribute("onMatchException");
                 }
-                
+
                 CamelProcessor mailetProccessor = new CamelProcessor(mailet, logger, CamelMailetProcessor.this);
                 // Store the matcher to use for splitter in properties
-                processorDef
-                    .setProperty(MatcherSplitter.MATCHER_PROPERTY, constant(matcher)).setProperty(MatcherSplitter.ON_MATCH_EXCEPTION_PROPERTY, constant(onMatchException)).setProperty(MatcherSplitter.MAILETCONTAINER_PROPERTY, constant(CamelMailetProcessor.this))
-                   
-                    // do splitting of the mail based on the stored matcher
-                    .split().method(MatcherSplitter.class).aggregationStrategy(aggr).parallelProcessing()
-                       
-                    .choice().when(new MatcherMatch()).process(mailetProccessor).end()
-                    
-                    .choice().when(new MailStateEquals(Mail.GHOST)).process(disposeProcessor).stop().otherwise().process(removePropsProcessor).end()
+                processorDef.setProperty(MatcherSplitter.MATCHER_PROPERTY, constant(matcher)).setProperty(MatcherSplitter.ON_MATCH_EXCEPTION_PROPERTY, constant(onMatchException)).setProperty(MatcherSplitter.MAILETCONTAINER_PROPERTY, constant(CamelMailetProcessor.this))
 
-                    .choice().when(new MailStateNotEquals(state)).process(stateChangedProcessor).process(completeProcessor).stop().end();
+                // do splitting of the mail based on the stored matcher
+                        .split().method(MatcherSplitter.class).aggregationStrategy(aggr).parallelProcessing()
+
+                        .choice().when(new MatcherMatch()).process(mailetProccessor).end()
+
+                        .choice().when(new MailStateEquals(Mail.GHOST)).process(disposeProcessor).stop().otherwise().process(removePropsProcessor).end()
+
+                        .choice().when(new MailStateNotEquals(state)).process(stateChangedProcessor).process(completeProcessor).stop().end();
             }
-                
-          
 
-            
-            
             Processor terminatingMailetProcessor = new CamelProcessor(new TerminatingMailet(), getLogger(), CamelMailetProcessor.this);
 
-            
             processorDef
-                // start choice
-                .choice()
-             
-                // when the mail state did not change till yet ( the end of the route) we need to call the TerminatingMailet to
-                // make sure we don't fall into a endless loop
-                .when(new MailStateEquals(state)).process(terminatingMailetProcessor).stop()
-                
-                   
-                // dispose when needed
-                .when(new MailStateEquals(Mail.GHOST)).process(disposeProcessor).stop()
-                
-                 // this container is complete
-                .otherwise().process(completeProcessor).stop();
-            
-                       
-        }
+            // start choice
+                    .choice()
 
-        
+                    // when the mail state did not change till yet ( the end of
+                    // the route) we need to call the TerminatingMailet to
+                    // make sure we don't fall into a endless loop
+                    .when(new MailStateEquals(state)).process(terminatingMailetProcessor).stop()
+
+                    // dispose when needed
+                    .when(new MailStateEquals(Mail.GHOST)).process(disposeProcessor).stop()
+
+                    // this container is complete
+                    .otherwise().process(completeProcessor).stop();
+
+        }
 
         private final class RemovePropertiesProcessor implements Processor {
 
@@ -213,29 +204,25 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
                 exchange.removeProperty(MatcherSplitter.MATCHER_PROPERTY);
             }
         }
-        
-
 
         private final class CompleteProcessor implements Processor {
-            
+
             public void process(Exchange ex) throws Exception {
                 getLogger().debug("End of mailetprocessor for state " + getState() + " reached");
                 ex.setProperty(Exchange.ROUTE_STOP, true);
             }
         }
-        
+
         private final class StateChangedProcessor implements Processor {
 
             public void process(Exchange arg0) throws Exception {
                 Mail mail = arg0.getIn().getBody(Mail.class);
                 toProcessor(mail);
-                
+
             }
-            
+
         }
-        
+
     }
-
-
 
 }

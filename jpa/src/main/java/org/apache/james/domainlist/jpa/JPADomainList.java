@@ -35,12 +35,12 @@ import org.apache.james.domainlist.lib.AbstractDomainList;
 import org.apache.james.lifecycle.api.Configurable;
 
 /**
- * JPA implementation of the DomainList.
- * This implementation is compatible with the JDBCDomainList, meaning same database schema can be reused.
- *
+ * JPA implementation of the DomainList.<br>
+ * This implementation is compatible with the JDBCDomainList, meaning same
+ * database schema can be reused.
  */
 public class JPADomainList extends AbstractDomainList implements Configurable {
-    
+
     /**
      * The entity manager to access the database.
      */
@@ -55,16 +55,18 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
     public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;
     }
-    
+
     @PostConstruct
     public void init() {
         createEntityManager().close();
     }
 
-   
     /*
      * (non-Javadoc)
-     * @see org.apache.james.domainlist.lib.AbstractDomainList#getDomainListInternal()
+     * 
+     * @see
+     * org.apache.james.domainlist.lib.AbstractDomainList#getDomainListInternal
+     * ()
      */
     @SuppressWarnings("unchecked")
     protected List<String> getDomainListInternal() throws DomainListException {
@@ -80,7 +82,7 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
-            
+
             throw new DomainListException("Unable to retrieve domains", e);
         } finally {
             entityManager.close();
@@ -95,7 +97,7 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
     /**
      * @see org.apache.james.domainlist.api.DomainList#containsDomain(java.lang.String)
      */
-    public boolean containsDomain(String domain) throws DomainListException{
+    public boolean containsDomain(String domain) throws DomainListException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
@@ -115,15 +117,16 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
             throw new DomainListException("Unable to retrieve domains", e);
         } finally {
             entityManager.close();
-        }    
+        }
     }
-
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.domainlist.api.DomainList#addDomain(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.domainlist.api.DomainList#addDomain(java.lang.String)
      */
-    public void addDomain(String domain) throws DomainListException{
+    public void addDomain(String domain) throws DomainListException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
@@ -142,12 +145,13 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
         }
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.domainlist.api.DomainList#removeDomain(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.domainlist.api.DomainList#removeDomain(java.lang.String)
      */
-    public void removeDomain(String domain) throws DomainListException{
+    public void removeDomain(String domain) throws DomainListException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {

@@ -18,7 +18,6 @@
  ****************************************************************/
 package org.apache.james.adapter.mailbox;
 
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,27 +37,26 @@ import org.slf4j.Logger;
 
 /**
  * JMX managmenent for Mailboxes
- * 
- *
  */
 public class MailboxManagerManagement extends StandardMBean implements MailboxManagerManagementMBean, LogEnabled {
 
     private MailboxManager mailboxManager;
     private Logger log;
-    
-    @Resource(name="mailboxmanager")
+
+    @Resource(name = "mailboxmanager")
     public void setMailboxManager(MailboxManager mailboxManager) {
         this.mailboxManager = mailboxManager;
     }
-    
+
     public MailboxManagerManagement() throws NotCompliantMBeanException {
         super(MailboxManagerManagementMBean.class);
     }
-    
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.adapter.mailbox.MailboxManagerManagementMBean#deleteMailboxes(java.lang.String)
+     * 
+     * @see org.apache.james.adapter.mailbox.MailboxManagerManagementMBean#
+     * deleteMailboxes(java.lang.String)
      */
     public boolean deleteMailboxes(String username) {
         MailboxSession session = null;
@@ -67,7 +65,7 @@ public class MailboxManagerManagement extends StandardMBean implements MailboxMa
             mailboxManager.startProcessingRequest(session);
             List<MailboxMetaData> mList = mailboxManager.search(new MailboxQuery(MailboxPath.inbox(username), "", session.getPathDelimiter()), session);
             for (int i = 0; i < mList.size(); i++) {
-                mailboxManager.deleteMailbox(mList.get(i).getPath(),session);
+                mailboxManager.deleteMailbox(mList.get(i).getPath(), session);
             }
             return true;
         } catch (MailboxException e) {
@@ -87,6 +85,7 @@ public class MailboxManagerManagement extends StandardMBean implements MailboxMa
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger log) {
@@ -95,7 +94,10 @@ public class MailboxManagerManagement extends StandardMBean implements MailboxMa
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.adapter.mailbox.MailboxManagerManagementMBean#listMailboxes(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.adapter.mailbox.MailboxManagerManagementMBean#listMailboxes
+     * (java.lang.String)
      */
     public List<String> listMailboxes(String username) {
         List<String> boxes = new ArrayList<String>();

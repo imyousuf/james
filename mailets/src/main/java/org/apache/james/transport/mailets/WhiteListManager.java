@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.transport.mailets;
 
 import org.apache.james.user.api.UsersRepository;
@@ -59,24 +57,36 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-/** <P>Manages for each local user a "white list" of remote addresses whose messages
- * should never be blocked as spam.</P>
- * <P>The normal behaviour is to check, for a local sender, if a remote recipient
- * is already in the list: if not, it will be automatically inserted.
- * This is under the interpretation that if a local sender <I>X</I> sends a message to a
- * remote recipient <I>Y</I>, then later on if a message is sent by <I>Y</I> to <I>X</I> it should be
- * considered always valid and never blocked; hence <I>Y</I> should be in the white list
- * of <I>X</I>.</P>
- * <P>Another mode of operations is when a local sender sends a message to <I>whitelistManagerAddress</I>
- * with one of three specific values in the subject, to
- * (i) send back a message displaying a list of the addresses in his own list;
- * (ii) insert some new addresses in his own list;
- * (iii) remove some addresses from his own list.
- * In all this cases the message will be ghosted and the postmaster will reply
- * to the sender.</P>
- * <P> The sender name is always converted to its primary name (handling aliases).</P>
- * <P>Sample configuration:</P>
- * <PRE><CODE>
+/**
+ * <p>
+ * Manages for each local user a "white list" of remote addresses whose messages
+ * should never be blocked as spam.
+ * </p>
+ * <p>
+ * The normal behaviour is to check, for a local sender, if a remote recipient
+ * is already in the list: if not, it will be automatically inserted. This is
+ * under the interpretation that if a local sender <i>X</i> sends a message to a
+ * remote recipient <i>Y</i>, then later on if a message is sent by <i>Y</i> to
+ * <i>X</i> it should be considered always valid and never blocked; hence
+ * <i>Y</i> should be in the white list of <i>X</i>.
+ * </p>
+ * <p>
+ * Another mode of operations is when a local sender sends a message to
+ * <i>whitelistManagerAddress</i> with one of three specific values in the
+ * subject, to (i) send back a message displaying a list of the addresses in his
+ * own list; (ii) insert some new addresses in his own list; (iii) remove some
+ * addresses from his own list. In all this cases the message will be ghosted
+ * and the postmaster will reply to the sender.
+ * </p>
+ * <p>
+ * The sender name is always converted to its primary name (handling aliases).
+ * </p>
+ * <p>
+ * Sample configuration:
+ * </p>
+ * 
+ * <pre>
+ * <code>
  * &lt;mailet match="SMTPAuthSuccessful" class="WhiteListManager"&gt;
  *   &lt;repositoryPath&gt; db://maildb &lt;/repositoryPath&gt;
  *   &lt;!--
@@ -103,32 +113,33 @@ import java.util.StringTokenizer;
  *   --&gt;
  *   &lt;removeFlag&gt;remove whitelist&lt;/removeFlag&gt;
  * &lt;/mailet&gt;
- * </CODE></PRE>
- *
+ * </code>
+ * </pre>
+ * 
  * @see org.apache.james.transport.matchers.IsInWhiteList
- * @version SVN $Revision: $ $Date: $
  * @since 2.3.0
  */
 public class WhiteListManager extends GenericMailet {
-    
+
     private boolean automaticInsert;
     private String displayFlag;
     private String insertFlag;
     private String removeFlag;
     private MailAddress whitelistManagerAddress;
-    
+
     private String selectByPK;
     private String selectBySender;
     private String insert;
     private String deleteByPK;
-    
+
     /** The date format object used to generate RFC 822 compliant date headers. */
     private RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
 
     private DataSource datasource;
 
-    /** The user repository for this mail server.  Contains all the users with inboxes
-     * on this server.
+    /**
+     * The user repository for this mail server. Contains all the users with
+     * inboxes on this server.
      */
     private UsersRepository localusers;
 
@@ -140,7 +151,7 @@ public class WhiteListManager extends GenericMailet {
             log("WhiteListManager: " + logString);
         }
     };
-    
+
     /**
      * Contains all of the sql strings for this component.
      */
@@ -151,34 +162,31 @@ public class WhiteListManager extends GenericMailet {
      */
     private File sqlFile;
 
-     /**
-     * Holds value of property sqlParameters.
-     */
-    private Map<String,String> sqlParameters = new HashMap<String,String>();
+    /** Holds value of property sqlParameters. */
+    private Map<String, String> sqlParameters = new HashMap<String, String>();
 
-
-
-    @Resource(name="datasource")
+    @Resource(name = "datasource")
     public void setDataSource(DataSource datasource) {
         this.datasource = datasource;
     }
-    
-    @Resource(name="usersrepository")
+
+    @Resource(name = "usersrepository")
     public void setUsersRepository(UsersRepository localusers) {
         this.localusers = localusers;
     }
-    
-    
+
     /**
      * Getter for property sqlParameters.
+     * 
      * @return Value of property sqlParameters.
      */
-    private Map<String,String> getSqlParameters() {
+    private Map<String, String> getSqlParameters() {
 
         return this.sqlParameters;
     }
 
-    /** Initializes the mailet.
+    /**
+     * Initializes the mailet.
      */
     public void init() throws MessagingException {
         automaticInsert = Boolean.valueOf(getInitParameter("automaticInsert"));
@@ -187,49 +195,43 @@ public class WhiteListManager extends GenericMailet {
         displayFlag = getInitParameter("displayFlag");
         insertFlag = getInitParameter("insertFlag");
         removeFlag = getInitParameter("removeFlag");
-        
+
         String whitelistManagerAddressString = getInitParameter("whitelistManagerAddress");
         if (whitelistManagerAddressString != null) {
             whitelistManagerAddressString = whitelistManagerAddressString.trim();
             log("whitelistManagerAddress: " + whitelistManagerAddressString);
             try {
                 whitelistManagerAddress = new MailAddress(whitelistManagerAddressString);
-            }
-            catch (javax.mail.internet.ParseException pe) {
+            } catch (javax.mail.internet.ParseException pe) {
                 throw new MessagingException("Bad whitelistManagerAddress", pe);
             }
-            
+
             if (displayFlag != null) {
                 displayFlag = displayFlag.trim();
                 log("displayFlag: " + displayFlag);
-            }
-            else {
+            } else {
                 log("displayFlag is null");
             }
             if (insertFlag != null) {
                 insertFlag = insertFlag.trim();
                 log("insertFlag: " + insertFlag);
-            }
-            else {
+            } else {
                 log("insertFlag is null");
             }
             if (removeFlag != null) {
                 removeFlag = removeFlag.trim();
                 log("removeFlag: " + removeFlag);
-            }
-            else {
+            } else {
                 log("removeFlag is null");
             }
-        }
-        else {
+        } else {
             log("whitelistManagerAddress is null; will ignore commands");
         }
-        
+
         String repositoryPath = getInitParameter("repositoryPath");
         if (repositoryPath != null) {
             log("repositoryPath: " + repositoryPath);
-        }
-        else {
+        } else {
             throw new MessagingException("repositoryPath is null");
         }
 
@@ -237,18 +239,19 @@ public class WhiteListManager extends GenericMailet {
             initSqlQueries(datasource.getConnection(), getMailetContext());
         } catch (Exception e) {
             throw new MessagingException("Exception initializing queries", e);
-        }        
-        
+        }
+
         selectByPK = sqlQueries.getSqlString("selectByPK", true);
         selectBySender = sqlQueries.getSqlString("selectBySender", true);
         insert = sqlQueries.getSqlString("insert", true);
         deleteByPK = sqlQueries.getSqlString("deleteByPK", true);
     }
-    
-    /** Services the mailet.
-     */    
+
+    /**
+     * Services the mailet.
+     */
     public void service(Mail mail) throws MessagingException {
-        
+
         // check if it's a local sender
         MailAddress senderMailAddress = mail.getSender();
         if (senderMailAddress == null) {
@@ -258,26 +261,21 @@ public class WhiteListManager extends GenericMailet {
             // not a local sender, so return
             return;
         }
-        
+
         Collection<MailAddress> recipients = mail.getRecipients();
-        
-        if (recipients.size() == 1
-        && whitelistManagerAddress != null
-        && whitelistManagerAddress.equals(recipients.toArray()[0])) {
-            
+
+        if (recipients.size() == 1 && whitelistManagerAddress != null && whitelistManagerAddress.equals(recipients.toArray()[0])) {
+
             mail.setState(Mail.GHOST);
-        
+
             String subject = mail.getMessage().getSubject();
             if (displayFlag != null && displayFlag.equals(subject)) {
                 manageDisplayRequest(mail);
-            }
-            else if (insertFlag != null && insertFlag.equals(subject)) {
+            } else if (insertFlag != null && insertFlag.equals(subject)) {
                 manageInsertRequest(mail);
-            }
-            else if (removeFlag != null && removeFlag.equals(subject)) {
+            } else if (removeFlag != null && removeFlag.equals(subject)) {
                 manageRemoveRequest(mail);
-            }
-            else {
+            } else {
                 StringWriter sout = new StringWriter();
                 PrintWriter out = new PrintWriter(sout, true);
                 out.println("Answering on behalf of: " + whitelistManagerAddress);
@@ -286,53 +284,55 @@ public class WhiteListManager extends GenericMailet {
             }
             return;
         }
-        
+
         if (automaticInsert) {
             checkAndInsert(senderMailAddress, recipients);
         }
-        
+
     }
-    
-    /** Returns a string describing this mailet.
-     *
+
+    /**
+     * Returns a string describing this mailet.
+     * 
      * @return a string describing this mailet
      */
     public String getMailetInfo() {
         return "White List Manager mailet";
     }
-    
-    /** Loops through each address in the recipient list, checks if in the senders
-     * list and inserts in it otherwise.
-     */    
+
+    /**
+     * Loops through each address in the recipient list, checks if in the
+     * senders list and inserts in it otherwise.
+     */
     private void checkAndInsert(MailAddress senderMailAddress, Collection<MailAddress> recipients) throws MessagingException {
         String senderUser = senderMailAddress.getLocalPart().toLowerCase(Locale.US);
         String senderHost = senderMailAddress.getDomain().toLowerCase(Locale.US);
-        
+
         senderUser = getPrimaryName(senderUser);
-        
+
         Connection conn = null;
         PreparedStatement selectStmt = null;
         PreparedStatement insertStmt = null;
         boolean dbUpdated = false;
-        
+
         try {
-            
-            for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext(); ) {
+
+            for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext();) {
                 ResultSet selectRS = null;
                 try {
-                    MailAddress recipientMailAddress = (MailAddress)i.next();
+                    MailAddress recipientMailAddress = (MailAddress) i.next();
                     String recipientUser = recipientMailAddress.getLocalPart().toLowerCase(Locale.US);
                     String recipientHost = recipientMailAddress.getDomain().toLowerCase(Locale.US);
-                    
+
                     if (getMailetContext().isLocalServer(recipientHost)) {
                         // not a remote recipient, so skip
                         continue;
                     }
-                    
+
                     if (conn == null) {
                         conn = datasource.getConnection();
                     }
-                    
+
                     if (selectStmt == null) {
                         selectStmt = conn.prepareStatement(selectByPK);
                     }
@@ -342,10 +342,10 @@ public class WhiteListManager extends GenericMailet {
                     selectStmt.setString(4, recipientHost);
                     selectRS = selectStmt.executeQuery();
                     if (selectRS.next()) {
-                        //This address was already in the list
+                        // This address was already in the list
                         continue;
                     }
-                    
+
                     if (insertStmt == null) {
                         insertStmt = conn.prepareStatement(insert);
                     }
@@ -355,12 +355,12 @@ public class WhiteListManager extends GenericMailet {
                     insertStmt.setString(4, recipientHost);
                     insertStmt.executeUpdate();
                     dbUpdated = true;
-                    
+
                 } finally {
                     theJDBCUtil.closeJDBCResultSet(selectRS);
                 }
-                
-                //Commit our changes if necessary.
+
+                // Commit our changes if necessary.
                 if (conn != null && dbUpdated && !conn.getAutoCommit()) {
                     conn.commit();
                     dbUpdated = false;
@@ -372,56 +372,55 @@ public class WhiteListManager extends GenericMailet {
         } finally {
             theJDBCUtil.closeJDBCStatement(selectStmt);
             theJDBCUtil.closeJDBCStatement(insertStmt);
-            //Rollback our changes if necessary.
+            // Rollback our changes if necessary.
             try {
                 if (conn != null && dbUpdated && !conn.getAutoCommit()) {
                     conn.rollback();
                     dbUpdated = false;
                 }
+            } catch (Exception e) {
             }
-            catch (Exception e) {}
             theJDBCUtil.closeJDBCConnection(conn);
         }
     }
-    
-    /** Manages a display request.
-     */    
-    private void manageDisplayRequest(Mail mail)
-    throws MessagingException {
+
+    /**
+     * Manages a display request.
+     */
+    private void manageDisplayRequest(Mail mail) throws MessagingException {
         MailAddress senderMailAddress = mail.getSender();
         String senderUser = senderMailAddress.getLocalPart().toLowerCase(Locale.US);
         String senderHost = senderMailAddress.getDomain().toLowerCase(Locale.US);
-        
+
         senderUser = getPrimaryName(senderUser);
-        
+
         Connection conn = null;
         PreparedStatement selectStmt = null;
         ResultSet selectRS = null;
-        
+
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
-        
+
         try {
             out.println("Answering on behalf of: " + whitelistManagerAddress);
             out.println("Displaying white list of " + (new MailAddress(senderUser, senderHost)) + ":");
             out.println();
-            
+
             conn = datasource.getConnection();
             selectStmt = conn.prepareStatement(selectBySender);
             selectStmt.setString(1, senderUser);
             selectStmt.setString(2, senderHost);
             selectRS = selectStmt.executeQuery();
             while (selectRS.next()) {
-                MailAddress mailAddress =
-                    new MailAddress(selectRS.getString(1), selectRS.getString(2));
+                MailAddress mailAddress = new MailAddress(selectRS.getString(1), selectRS.getString(2));
                 out.println(mailAddress.toInternetAddress().toString());
             }
-            
+
             out.println();
             out.println("Finished");
-            
+
             sendReplyFromPostmaster(mail, sout.toString());
-                        
+
         } catch (SQLException sqle) {
             out.println("Error accessing the database");
             sendReplyFromPostmaster(mail, sout.toString());
@@ -432,36 +431,35 @@ public class WhiteListManager extends GenericMailet {
             theJDBCUtil.closeJDBCConnection(conn);
         }
     }
-    
-    /** Manages an insert request.
-     */    
-    private void manageInsertRequest(Mail mail)
-    throws MessagingException {
+
+    /**
+     * Manages an insert request.
+     */
+    private void manageInsertRequest(Mail mail) throws MessagingException {
         MailAddress senderMailAddress = mail.getSender();
         String senderUser = senderMailAddress.getLocalPart().toLowerCase(Locale.US);
         String senderHost = senderMailAddress.getDomain().toLowerCase(Locale.US);
-        
+
         senderUser = getPrimaryName(senderUser);
-        
+
         Connection conn = null;
         PreparedStatement selectStmt = null;
         PreparedStatement insertStmt = null;
         boolean dbUpdated = false;
-        
+
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
-        
+
         try {
             out.println("Answering on behalf of: " + whitelistManagerAddress);
             out.println("Inserting in the white list of " + (new MailAddress(senderUser, senderHost)) + " ...");
             out.println();
-            
-            MimeMessage message = mail.getMessage() ;
-            
-            Object content= message.getContent();
-            
-            if (message.getContentType().startsWith("text/plain")
-            && content instanceof String) {
+
+            MimeMessage message = mail.getMessage();
+
+            Object content = message.getContent();
+
+            if (message.getContentType().startsWith("text/plain") && content instanceof String) {
                 StringTokenizer st = new StringTokenizer((String) content, " \t\n\r\f,;:<>");
                 while (st.hasMoreTokens()) {
                     ResultSet selectRS = null;
@@ -469,22 +467,21 @@ public class WhiteListManager extends GenericMailet {
                         MailAddress recipientMailAddress;
                         try {
                             recipientMailAddress = new MailAddress(st.nextToken());
-                        }
-                        catch (javax.mail.internet.ParseException pe) {
+                        } catch (javax.mail.internet.ParseException pe) {
                             continue;
                         }
                         String recipientUser = recipientMailAddress.getLocalPart().toLowerCase(Locale.US);
                         String recipientHost = recipientMailAddress.getDomain().toLowerCase(Locale.US);
-                        
+
                         if (getMailetContext().isLocalServer(recipientHost)) {
                             // not a remote recipient, so skip
                             continue;
                         }
-                        
+
                         if (conn == null) {
                             conn = datasource.getConnection();
                         }
-                        
+
                         if (selectStmt == null) {
                             selectStmt = conn.prepareStatement(selectByPK);
                         }
@@ -494,11 +491,11 @@ public class WhiteListManager extends GenericMailet {
                         selectStmt.setString(4, recipientHost);
                         selectRS = selectStmt.executeQuery();
                         if (selectRS.next()) {
-                            //This address was already in the list
+                            // This address was already in the list
                             out.println("Skipped:  " + recipientMailAddress);
                             continue;
                         }
-                        
+
                         if (insertStmt == null) {
                             insertStmt = conn.prepareStatement(insert);
                         }
@@ -509,30 +506,29 @@ public class WhiteListManager extends GenericMailet {
                         insertStmt.executeUpdate();
                         dbUpdated = true;
                         out.println("Inserted: " + recipientMailAddress);
-                        
+
                     } finally {
                         theJDBCUtil.closeJDBCResultSet(selectRS);
                     }
                 }
-                
+
                 if (dbUpdated) {
                     log("Insertion request issued by " + senderMailAddress);
                 }
-                //Commit our changes if necessary.
+                // Commit our changes if necessary.
                 if (conn != null && dbUpdated && !conn.getAutoCommit()) {
-                    conn.commit() ;
+                    conn.commit();
                     dbUpdated = false;
                 }
-            }
-            else {
+            } else {
                 out.println("The message must be plain - no action");
             }
-            
+
             out.println();
             out.println("Finished");
-            
+
             sendReplyFromPostmaster(mail, sout.toString());
-            
+
         } catch (SQLException sqle) {
             out.println("Error accessing the database");
             sendReplyFromPostmaster(mail, sout.toString());
@@ -544,47 +540,46 @@ public class WhiteListManager extends GenericMailet {
         } finally {
             theJDBCUtil.closeJDBCStatement(selectStmt);
             theJDBCUtil.closeJDBCStatement(insertStmt);
-            //Rollback our changes if necessary.
+            // Rollback our changes if necessary.
             try {
                 if (conn != null && dbUpdated && !conn.getAutoCommit()) {
-                    conn.rollback() ;
+                    conn.rollback();
                     dbUpdated = false;
                 }
+            } catch (Exception e) {
             }
-            catch (Exception e) {}
             theJDBCUtil.closeJDBCConnection(conn);
         }
     }
-    
-    /** Manages a remove request.
-     */    
-    private void manageRemoveRequest(Mail mail)
-    throws MessagingException {
+
+    /**
+     * Manages a remove request.
+     */
+    private void manageRemoveRequest(Mail mail) throws MessagingException {
         MailAddress senderMailAddress = mail.getSender();
         String senderUser = senderMailAddress.getLocalPart().toLowerCase(Locale.US);
         String senderHost = senderMailAddress.getDomain().toLowerCase(Locale.US);
-        
+
         senderUser = getPrimaryName(senderUser);
-        
+
         Connection conn = null;
         PreparedStatement selectStmt = null;
         PreparedStatement deleteStmt = null;
         boolean dbUpdated = false;
-        
+
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
-        
+
         try {
             out.println("Answering on behalf of: " + whitelistManagerAddress);
             out.println("Removing from the white list of " + (new MailAddress(senderUser, senderHost)) + " ...");
             out.println();
-            
-            MimeMessage message = mail.getMessage() ;
-            
-            Object content= message.getContent();
-            
-            if (message.getContentType().startsWith("text/plain")
-            && content instanceof String) {
+
+            MimeMessage message = mail.getMessage();
+
+            Object content = message.getContent();
+
+            if (message.getContentType().startsWith("text/plain") && content instanceof String) {
                 StringTokenizer st = new StringTokenizer((String) content, " \t\n\r\f,;:<>");
                 while (st.hasMoreTokens()) {
                     ResultSet selectRS = null;
@@ -592,22 +587,21 @@ public class WhiteListManager extends GenericMailet {
                         MailAddress recipientMailAddress;
                         try {
                             recipientMailAddress = new MailAddress(st.nextToken());
-                        }
-                        catch (javax.mail.internet.ParseException pe) {
+                        } catch (javax.mail.internet.ParseException pe) {
                             continue;
                         }
                         String recipientUser = recipientMailAddress.getLocalPart().toLowerCase(Locale.US);
                         String recipientHost = recipientMailAddress.getDomain().toLowerCase(Locale.US);
-                        
+
                         if (getMailetContext().isLocalServer(recipientHost)) {
                             // not a remote recipient, so skip
                             continue;
                         }
-                        
+
                         if (conn == null) {
                             conn = datasource.getConnection();
                         }
-                        
+
                         if (selectStmt == null) {
                             selectStmt = conn.prepareStatement(selectByPK);
                         }
@@ -617,11 +611,11 @@ public class WhiteListManager extends GenericMailet {
                         selectStmt.setString(4, recipientHost);
                         selectRS = selectStmt.executeQuery();
                         if (!selectRS.next()) {
-                            //This address was not in the list
+                            // This address was not in the list
                             out.println("Skipped: " + recipientMailAddress);
                             continue;
                         }
-                        
+
                         if (deleteStmt == null) {
                             deleteStmt = conn.prepareStatement(deleteByPK);
                         }
@@ -632,7 +626,7 @@ public class WhiteListManager extends GenericMailet {
                         deleteStmt.executeUpdate();
                         dbUpdated = true;
                         out.println("Removed: " + recipientMailAddress);
-                        
+
                     } finally {
                         theJDBCUtil.closeJDBCResultSet(selectRS);
                     }
@@ -641,21 +635,20 @@ public class WhiteListManager extends GenericMailet {
                 if (dbUpdated) {
                     log("Removal request issued by " + senderMailAddress);
                 }
-                //Commit our changes if necessary.
+                // Commit our changes if necessary.
                 if (conn != null && dbUpdated && !conn.getAutoCommit()) {
-                    conn.commit() ;
+                    conn.commit();
                     dbUpdated = false;
                 }
-            }
-            else {
+            } else {
                 out.println("The message must be plain - no action");
             }
-            
+
             out.println();
             out.println("Finished");
-            
+
             sendReplyFromPostmaster(mail, sout.toString());
-            
+
         } catch (SQLException sqle) {
             out.println("Error accessing the database");
             sendReplyFromPostmaster(mail, sout.toString());
@@ -667,75 +660,76 @@ public class WhiteListManager extends GenericMailet {
         } finally {
             theJDBCUtil.closeJDBCStatement(selectStmt);
             theJDBCUtil.closeJDBCStatement(deleteStmt);
-            //Rollback our changes if necessary.
+            // Rollback our changes if necessary.
             try {
                 if (conn != null && dbUpdated && !conn.getAutoCommit()) {
-                    conn.rollback() ;
+                    conn.rollback();
                     dbUpdated = false;
                 }
+            } catch (Exception e) {
             }
-            catch (Exception e) {}
             theJDBCUtil.closeJDBCConnection(conn);
         }
     }
-    
+
     private void sendReplyFromPostmaster(Mail mail, String stringContent) throws MessagingException {
         try {
             MailAddress notifier = getMailetContext().getPostmaster();
-            
+
             MailAddress senderMailAddress = mail.getSender();
-            
+
             MimeMessage message = mail.getMessage();
-            //Create the reply message
+            // Create the reply message
             MimeMessage reply = new MimeMessage(Session.getDefaultInstance(System.getProperties(), null));
-            
-            //Create the list of recipients in the Address[] format
+
+            // Create the list of recipients in the Address[] format
             InternetAddress[] rcptAddr = new InternetAddress[1];
             rcptAddr[0] = senderMailAddress.toInternetAddress();
             reply.setRecipients(Message.RecipientType.TO, rcptAddr);
-            
-            //Set the sender...
+
+            // Set the sender...
             reply.setFrom(notifier.toInternetAddress());
-            
-            //Create the message body
+
+            // Create the message body
             MimeMultipart multipart = new MimeMultipart();
-            //Add message as the first mime body part
+            // Add message as the first mime body part
             MimeBodyPart part = new MimeBodyPart();
             part.setContent(stringContent, "text/plain");
             part.setHeader(RFC2822Headers.CONTENT_TYPE, "text/plain");
             multipart.addBodyPart(part);
-            
+
             reply.setContent(multipart);
             reply.setHeader(RFC2822Headers.CONTENT_TYPE, multipart.getContentType());
-            
-            //Create the list of recipients in our MailAddress format
+
+            // Create the list of recipients in our MailAddress format
             Set<MailAddress> recipients = new HashSet<MailAddress>();
             recipients.add(senderMailAddress);
-            
-            //Set additional headers
-            if (reply.getHeader(RFC2822Headers.DATE)==null){
+
+            // Set additional headers
+            if (reply.getHeader(RFC2822Headers.DATE) == null) {
                 reply.setHeader(RFC2822Headers.DATE, rfc822DateFormat.format(new java.util.Date()));
             }
             String subject = message.getSubject();
             if (subject == null) {
                 subject = "";
             }
-            if (subject.indexOf("Re:") == 0){
+            if (subject.indexOf("Re:") == 0) {
                 reply.setSubject(subject);
             } else {
                 reply.setSubject("Re:" + subject);
             }
             reply.setHeader(RFC2822Headers.IN_REPLY_TO, message.getMessageID());
-            
-            //Send it off...
+
+            // Send it off...
             getMailetContext().sendMail(notifier, recipients, reply);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log("Exception found sending reply", e);
         }
     }
-    
-    /** Gets the main name of a local customer, handling alias */
+
+    /**
+     * Gets the main name of a local customer, handling alias
+     */
     private String getPrimaryName(String originalUsername) {
         String username;
         try {
@@ -744,86 +738,82 @@ public class WhiteListManager extends GenericMailet {
             if (user.getAliasing()) {
                 username = user.getAlias();
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             username = originalUsername;
         }
         return username;
     }
-    
+
     /**
-     * Initializes the sql query environment from the SqlResources file.
-     * Will look for conf/sqlResources.xml.
-     * @param conn The connection for accessing the database
-     * @param mailetContext The current mailet context,
-     * for finding the conf/sqlResources.xml file
-     * @throws Exception If any error occurs
+     * Initializes the sql query environment from the SqlResources file. Will
+     * look for conf/sqlResources.xml.
+     * 
+     * @param conn
+     *            The connection for accessing the database
+     * @param mailetContext
+     *            The current mailet context, for finding the
+     *            conf/sqlResources.xml file
+     * @throws Exception
+     *             If any error occurs
      */
     private void initSqlQueries(Connection conn, org.apache.mailet.MailetContext mailetContext) throws Exception {
         try {
             if (conn.getAutoCommit()) {
                 conn.setAutoCommit(false);
             }
-            
+
             this.sqlFile = new File((String) mailetContext.getAttribute("confDir"), "sqlResources.xml").getCanonicalFile();
-            sqlQueries.init(this.sqlFile, "WhiteList" , conn, getSqlParameters());
-            
+            sqlQueries.init(this.sqlFile, "WhiteList", conn, getSqlParameters());
+
             checkTables(conn);
         } finally {
             theJDBCUtil.closeJDBCConnection(conn);
         }
     }
-    
+
     private void checkTables(Connection conn) throws SQLException {
 
-        // Need to ask in the case that identifiers are stored, ask the DatabaseMetaInfo.
+        // Need to ask in the case that identifiers are stored, ask the
+        // DatabaseMetaInfo.
         // Try UPPER, lower, and MixedCase, to see if the table is there.
-        
+
         boolean dbUpdated = false;
-        
+
         dbUpdated = createTable(conn, "whiteListTableName", "createWhiteListTable");
-        
-        //Commit our changes if necessary.
+
+        // Commit our changes if necessary.
         if (conn != null && dbUpdated && !conn.getAutoCommit()) {
             conn.commit();
             dbUpdated = false;
         }
-            
+
     }
-    
+
     private boolean createTable(Connection conn, String tableNameSqlStringName, String createSqlStringName) throws SQLException {
         String tableName = sqlQueries.getSqlString(tableNameSqlStringName, true);
-        
+
         DatabaseMetaData dbMetaData = conn.getMetaData();
 
         // Try UPPER, lower, and MixedCase, to see if the table is there.
         if (theJDBCUtil.tableExists(dbMetaData, tableName)) {
             return false;
         }
-        
+
         PreparedStatement createStatement = null;
-        
+
         try {
-            createStatement =
-                    conn.prepareStatement(sqlQueries.getSqlString(createSqlStringName, true));
+            createStatement = conn.prepareStatement(sqlQueries.getSqlString(createSqlStringName, true));
             createStatement.execute();
-            
+
             StringBuffer logBuffer = null;
-            logBuffer =
-                    new StringBuffer(64)
-                    .append("Created table '")
-                    .append(tableName)
-                    .append("' using sqlResources string '")
-                    .append(createSqlStringName)
-                    .append("'.");
+            logBuffer = new StringBuffer(64).append("Created table '").append(tableName).append("' using sqlResources string '").append(createSqlStringName).append("'.");
             log(logBuffer.toString());
-            
+
         } finally {
             theJDBCUtil.closeJDBCStatement(createStatement);
         }
-        
+
         return true;
     }
-    
-}
 
+}

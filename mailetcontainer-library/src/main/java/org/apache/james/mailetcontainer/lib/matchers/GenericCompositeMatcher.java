@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.mailetcontainer.lib.matchers;
 
 import java.util.Collection;

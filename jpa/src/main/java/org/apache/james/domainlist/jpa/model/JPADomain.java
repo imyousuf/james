@@ -27,31 +27,28 @@ import javax.persistence.Table;
 
 /**
  * Domain class for the James Domain to be used for JPA persistence.
- *
  */
 @Entity(name = "JamesDomain")
 @Table(name = "JAMES_DOMAIN")
-@NamedQueries( { 
-    @NamedQuery(name = "findDomainByName", query = "SELECT domain FROM JamesDomain domain WHERE domain.name=:name"),
-    @NamedQuery(name = "containsDomain", query = "SELECT COUNT(domain) FROM JamesDomain domain WHERE domain.name=:name") ,
-    @NamedQuery(name = "listDomainNames", query = "SELECT domain.name FROM JamesDomain domain"), 
-    @NamedQuery(name = "deleteDomainByName", query = "DELETE FROM JamesDomain domain WHERE domain.name=:name")
-})
+@NamedQueries({ @NamedQuery(name = "findDomainByName", query = "SELECT domain FROM JamesDomain domain WHERE domain.name=:name"), @NamedQuery(name = "containsDomain", query = "SELECT COUNT(domain) FROM JamesDomain domain WHERE domain.name=:name"),
+        @NamedQuery(name = "listDomainNames", query = "SELECT domain.name FROM JamesDomain domain"), @NamedQuery(name = "deleteDomainByName", query = "DELETE FROM JamesDomain domain WHERE domain.name=:name") })
 public class JPADomain {
 
     /**
-     * The name of the domain. column name is chosen to be compatible with the JDBCDomainList.
+     * The name of the domain. column name is chosen to be compatible with the
+     * JDBCDomainList.
      */
     @Id
     @Column(name = "DOMAIN_NAME", nullable = false, length = 100)
     private String name;
-    
+
     /**
      * Use this simple constructor to create a new Domain.
      * 
-     * @param name the name of the Domain
+     * @param name
+     *            the name of the Domain
      */
-    public JPADomain (String name) {
+    public JPADomain(String name) {
         this.name = name;
     }
 

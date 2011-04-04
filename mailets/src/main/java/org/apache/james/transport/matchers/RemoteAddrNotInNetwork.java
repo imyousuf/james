@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.transport.matchers;
 
 import org.apache.mailet.Mail;
@@ -27,12 +25,13 @@ import org.apache.mailet.MailAddress;
 import java.util.Collection;
 
 /**
- * Checks the IP address of the sending server against a comma-
- * delimited list of IP addresses, domain names or sub-nets.
- *
- * <p>See AbstractNetworkMatcher for details on how to specify
- * entries.</p>
- *
+ * <p>
+ * Checks the IP address of the sending server against a comma- delimited list
+ * of IP addresses, domain names or sub-nets.
+ * </p>
+ * <p>
+ * See AbstractNetworkMatcher for details on how to specify entries.
+ * </p>
  */
 public class RemoteAddrNotInNetwork extends AbstractNetworkMatcher {
     public Collection<MailAddress> match(Mail mail) {

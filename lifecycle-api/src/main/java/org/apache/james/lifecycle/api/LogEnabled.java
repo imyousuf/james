@@ -22,16 +22,17 @@ package org.apache.james.lifecycle.api;
 import org.slf4j.Logger;
 
 /**
- * Indicates that a services requires general logging.
- * Note that this log should only be used for general service operations.
- * A context sensitive log should be preferred where that is available 
- * within the context of a call.
+ * Indicates that a services requires general logging. Note that this log should
+ * only be used for general service operations. A context sensitive log should
+ * be preferred where that is available within the context of a call.
  */
 public interface LogEnabled {
 
     /**
      * Sets the service log.
-     * @param log not null
+     * 
+     * @param log
+     *            not null
      */
     void setLog(Logger log);
 }

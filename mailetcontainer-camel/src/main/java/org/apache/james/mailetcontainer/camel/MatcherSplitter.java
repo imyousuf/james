@@ -40,50 +40,44 @@ import org.apache.mailet.Matcher;
 import org.slf4j.Logger;
 
 /**
- * A Splitter for use with Camel to split the MailMessage into many pieces if needed. This is done
- * by use a Matcher.
- * 
- *
+ * A Splitter for use with Camel to split the MailMessage into many pieces if
+ * needed. This is done by use a Matcher.
  */
 @InOnly
 public class MatcherSplitter {
-    
-    /**
-     * Headername which is used to indicate that the matcher matched
-     */
+
+    /** Headername which is used to indicate that the matcher matched */
     public final static String MATCHER_MATCHED_ATTRIBUTE = "matched";
-    
-    /**
-     * Headername under which the matcher is stored
-     */
+
+    /** Headername under which the matcher is stored */
     public final static String MATCHER_PROPERTY = "matcher";
 
     public final static String ON_MATCH_EXCEPTION_PROPERTY = "onMatchException";
-    
+
     public final static String LOGGER_PROPERTY = "logger";
-    
+
     public final static String MAILETCONTAINER_PROPERTY = "container";
 
-
-    
     /**
-     * Generate a List of MailMessage instances for the give @Body. This is done by using the given Matcher to see if we need more then one instance of the 
-     * MailMessage
+     * Generate a List of MailMessage instances for the give @Body. This is done
+     * by using the given Matcher to see if we need more then one instance of
+     * the MailMessage
      * 
-     * @param matcher Matcher to use for splitting
-     * @param mail Mail which is stored in the @Body of the MailMessage
+     * @param matcher
+     *            Matcher to use for splitting
+     * @param mail
+     *            Mail which is stored in the @Body of the MailMessage
      * @return mailMessageList
      * @throws MessagingException
      */
     @SuppressWarnings("unchecked")
     @Handler
-    public List<Mail> split(@Property(MATCHER_PROPERTY) Matcher matcher, @Property(ON_MATCH_EXCEPTION_PROPERTY) String onMatchException, @Property(LOGGER_PROPERTY) Logger logger, @Property(MAILETCONTAINER_PROPERTY) CamelMailetProcessor container,
-            @Body Mail mail) throws MessagingException {
+    public List<Mail> split(@Property(MATCHER_PROPERTY) Matcher matcher, @Property(ON_MATCH_EXCEPTION_PROPERTY) String onMatchException, @Property(LOGGER_PROPERTY) Logger logger, @Property(MAILETCONTAINER_PROPERTY) CamelMailetProcessor container, @Body Mail mail) throws MessagingException {
         Collection<MailAddress> matchedRcpts = null;
         Collection<MailAddress> origRcpts = new ArrayList<MailAddress>(mail.getRecipients());
         long start = System.currentTimeMillis();
         MessagingException ex = null;
-        
+
         try {
             List<Mail> mails = new ArrayList<Mail>();
             boolean fullMatch = false;
@@ -168,7 +162,7 @@ public class MatcherSplitter {
                 MailetProcessorListener listener = listeners.get(i);
                 // need to check if its null or empty!
                 if (matchedRcpts == null || matchedRcpts.isEmpty()) {
-                    listener.afterMatcher(matcher, mail.getName(), origRcpts, null,  complete, ex);
+                    listener.afterMatcher(matcher, mail.getName(), origRcpts, null, complete, ex);
                 } else {
                     listener.afterMatcher(matcher, mail.getName(), origRcpts, matchedRcpts, complete, ex);
                 }

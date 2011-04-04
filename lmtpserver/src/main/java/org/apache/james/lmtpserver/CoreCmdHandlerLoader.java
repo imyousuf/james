@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.lmtpserver;
 
 import java.util.LinkedList;
@@ -58,7 +56,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
     private final String QUITCMDHANDLER = QuitCmdHandler.class.getName();
     private final String RCPTCMDHANDLER = JamesRcptCmdHandler.class.getName();
     private final String VALIDRCPTHANDLER = ValidRcptHandler.class.getName();
-    
+
     private final String RSETCMDHANDLER = RsetCmdHandler.class.getName();
     private final String VRFYCMDHANDLER = VrfyCmdHandler.class.getName();
     private final String MAILSIZEHOOK = MailSizeEsmtpExtension.class.getName();
@@ -95,15 +93,17 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         commands.add(POSTMASTERABUSEHOOK);
         commands.add(RECEIVEDDATALINEFILTER);
         commands.add(DATALINEMESSAGEHOOKHANDLER);
-    
+
         // Add logging stuff
         commands.add(COMMANDHANDLERRESULTLOGGER);
         commands.add(CONNECTHANDLERRESULTLOGGER);
         commands.add(LINEHANDLERRESULTLOGGER);
         commands.add(HOOKRESULTLOGGER);
     }
+
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.protocols.api.HandlersPackage#getHandlers()
      */
     public List<String> getHandlers() {

@@ -39,21 +39,19 @@ import org.apache.mailet.base.RFC2822Headers;
 /**
  * Abstract base class which should get extended by classes which handle mapping
  * operations based on VirtualUserTable implementations
- * 
- *
  */
 public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
-    
+
     private DomainList domainList;
 
-    @Resource(name="domainlist")
+    @Resource(name = "domainlist")
     public void setDomainList(DomainList domainList) {
         this.domainList = domainList;
     }
-    
-    
+
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.mailet.base.GenericMailet#service(org.apache.mailet.Mail)
      */
     public void service(Mail mail) throws MessagingException {
@@ -66,17 +64,13 @@ public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
         // message
         // This only works because there is a placeholder inserted by
         // MimeMessageWrapper
-        message
-                .setHeader(RFC2822Headers.RETURN_PATH,
-                        (mail.getSender() == null ? "<>" : "<"
-                                + mail.getSender() + ">"));
+        message.setHeader(RFC2822Headers.RETURN_PATH, (mail.getSender() == null ? "<>" : "<" + mail.getSender() + ">"));
 
         Collection<MailAddress> newRecipients = new LinkedList<MailAddress>();
         for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext();) {
             MailAddress recipient = (MailAddress) i.next();
             try {
-                Collection<MailAddress> usernames = processMail(mail.getSender(), recipient,
-                        message);
+                Collection<MailAddress> usernames = processMail(mail.getSender(), recipient, message);
 
                 // if the username is null or changed we remove it from the
                 // remaining recipients
@@ -107,8 +101,7 @@ public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
             // the sender. Note that this email doesn't include any details
             // regarding the details of the failure(s).
             // In the future we may wish to address this.
-            getMailetContext().sendMail(mail.getSender(), errors, message,
-                    Mail.ERROR);
+            getMailetContext().sendMail(mail.getSender(), errors, message, Mail.ERROR);
         }
 
         if (recipients.size() == 0) {
@@ -116,20 +109,23 @@ public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
             mail.setState(Mail.GHOST);
         }
     }
-    
+
     /**
      * Handle the given mappings to map the original recipient to the right one
      * 
-     * @param mappings a collection of mappings for the given recipient
-     * @param sender the sender of the mail
-     * @param recipient the original recipient of the email
-     * @param message the mail message
+     * @param mappings
+     *            a collection of mappings for the given recipient
+     * @param sender
+     *            the sender of the mail
+     * @param recipient
+     *            the original recipient of the email
+     * @param message
+     *            the mail message
      * @return a collection of mapped recpient addresses
      * 
      * @throws MessagingException
      */
-    protected Collection<MailAddress> handleMappings(Collection<String> mappings, MailAddress sender, MailAddress recipient,
-            MimeMessage message) throws MessagingException {
+    protected Collection<MailAddress> handleMappings(Collection<String> mappings, MailAddress sender, MailAddress recipient, MimeMessage message) throws MessagingException {
         Iterator<String> i = mappings.iterator();
         Collection<MailAddress> remoteRecipients = new ArrayList<MailAddress>();
         Collection<MailAddress> localRecipients = new ArrayList<MailAddress>();
@@ -141,7 +137,7 @@ public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
                 try {
                     rcpt = rcpt + "@" + domainList.getDefaultDomain();
                 } catch (DomainListException e) {
-                    throw new MessagingException("Unable to access DomainList" ,e);
+                    throw new MessagingException("Unable to access DomainList", e);
                 }
             }
 
@@ -184,17 +180,19 @@ public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
             return null;
         }
     }
-    
+
     /**
-     * Process the mail 
+     * Process the mail
      * 
-     * @param sender the sender of the mail
-     * @param recipient the recipient of the mail
-     * @param message the mail message
+     * @param sender
+     *            the sender of the mail
+     * @param recipient
+     *            the recipient of the mail
+     * @param message
+     *            the mail message
      * @return collection of recipients
      * 
      * @throws MessagingException
      */
-    public abstract Collection<MailAddress> processMail(MailAddress sender, MailAddress recipient,
-            MimeMessage message) throws MessagingException;
+    public abstract Collection<MailAddress> processMail(MailAddress sender, MailAddress recipient, MimeMessage message) throws MessagingException;
 }

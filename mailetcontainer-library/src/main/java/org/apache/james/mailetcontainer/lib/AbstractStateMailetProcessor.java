@@ -52,10 +52,10 @@ import org.apache.mailet.base.MatcherInverter;
 import org.slf4j.Logger;
 
 /**
- * Abstract base class for {@link MailProcessor} implementations which want to process {@link Mail} via {@link Matcher} and {@link Mailet}
- *
+ * Abstract base class for {@link MailProcessor} implementations which want to
+ * process {@link Mail} via {@link Matcher} and {@link Mailet}
  */
-public abstract class AbstractStateMailetProcessor implements MailProcessor, Configurable, LogEnabled{
+public abstract class AbstractStateMailetProcessor implements MailProcessor, Configurable, LogEnabled {
 
     private MailetContext mailetContext;
     private MatcherLoader matcherLoader;
@@ -68,13 +68,12 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
     private List<MatcherMailetPair> pairs = new ArrayList<MatcherMailetPair>();
     private String state;
 
-    
     @Resource(name = "matcherloader")
     public void setMatcherLoader(MatcherLoader matcherLoader) {
         this.matcherLoader = matcherLoader;
     }
 
-    @Resource(name= "mailetcontext")
+    @Resource(name = "mailetcontext")
     public void setMailetContext(MailetContext mailetContext) {
         this.mailetContext = mailetContext;
     }
@@ -86,29 +85,32 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger log) {
         this.logger = log;
     }
 
-    
-    
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons
+     * .configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         this.state = config.getString("[@state]", null);
-        if (state == null) throw new ConfigurationException("Processor state attribute must be configured");
-        if (state.equals(Mail.GHOST)) throw new ConfigurationException("Processor state of " + Mail.GHOST + " is reserved for internal use, choose a different one");
+        if (state == null)
+            throw new ConfigurationException("Processor state attribute must be configured");
+        if (state.equals(Mail.GHOST))
+            throw new ConfigurationException("Processor state of " + Mail.GHOST + " is reserved for internal use, choose a different one");
 
         this.enableJmx = config.getBoolean("[@enableJmx]", true);
         this.config = config;
-        
+
     }
-   
-   
+
     /**
      * Init the container
      * 
@@ -118,14 +120,13 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
     public void init() throws Exception {
         parseConfiguration();
         setupRouting(pairs);
-        
+
         if (enableJmx) {
             this.jmxListener = new JMXStateMailetProcessorListener(state, this);
             addListener(jmxListener);
         }
     }
-    
-    
+
     /**
      * Destroy the container
      */
@@ -144,7 +145,7 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
                 logger.debug("Shutdown matcher " + matcher.getMatcherInfo());
             }
             matcher.destroy();
-            
+
             if (logger.isDebugEnabled()) {
                 logger.debug("Shutdown mailet " + mailet.getMailetInfo());
             }
@@ -152,21 +153,21 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
 
         }
     }
-    
+
     /**
      * Hand the mail over to another processor
      * 
      * @param mail
      * @throws MessagingException
      */
-    protected void toProcessor(Mail mail) throws MessagingException{
+    protected void toProcessor(Mail mail) throws MessagingException {
         mailetContext.sendMail(mail);
     }
-    
+
     protected Logger getLogger() {
         return logger;
     }
-    
+
     protected String getState() {
         return state;
     }
@@ -184,7 +185,6 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
         return Collections.unmodifiableList(mailets);
     }
 
-
     /**
      * Return a unmodifiable {@link List} of the configured {@link Matcher}'s
      * 
@@ -195,9 +195,8 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
         for (int i = 0; i < pairs.size(); i++) {
             matchers.add(pairs.get(i).getMatcher());
         }
-        return Collections.unmodifiableList(matchers);       
+        return Collections.unmodifiableList(matchers);
     }
-
 
     public void addListener(MailetProcessorListener listener) {
         listeners.add(listener);
@@ -207,11 +206,9 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
         listeners.remove(listener);
     }
 
-
     public List<MailetProcessorListener> getListeners() {
         return listeners;
     }
-
 
     /**
      * Create a {@link MailetConfig} for the given mailetname and configuration
@@ -228,9 +225,9 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
         configImpl.setMailetContext(mailetContext);
         return configImpl;
     }
-    
+
     /**
-     * Create a {@link MatcherConfig} for the given "match=" attribute. 
+     * Create a {@link MatcherConfig} for the given "match=" attribute.
      * 
      * @param matchName
      * @return matcherConfig
@@ -249,11 +246,10 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
         return configImpl;
 
     }
-    
 
-    
     /**
-     * Load  {@link CompositeMatcher} implementations and their child {@link Matcher}'s
+     * Load {@link CompositeMatcher} implementations and their child
+     * {@link Matcher}'s
      * 
      * CompositeMatcher were added by JAMES-948
      * 
@@ -266,10 +262,10 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
      * @throws NotCompliantMBeanException
      */
     @SuppressWarnings("unchecked")
-    private List<Matcher> loadCompositeMatchers(String state, Map<String,Matcher> compMap, List<HierarchicalConfiguration> compMatcherConfs) throws ConfigurationException, MessagingException {
+    private List<Matcher> loadCompositeMatchers(String state, Map<String, Matcher> compMap, List<HierarchicalConfiguration> compMatcherConfs) throws ConfigurationException, MessagingException {
         List<Matcher> matchers = new ArrayList<Matcher>();
 
-        for (int j= 0 ; j < compMatcherConfs.size(); j++) {
+        for (int j = 0; j < compMatcherConfs.size(); j++) {
             HierarchicalConfiguration c = compMatcherConfs.get(j);
             String compName = c.getString("[@name]", null);
             String matcherName = c.getString("[@match]", null);
@@ -283,9 +279,9 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
                 matcher = matcherLoader.getMatcher(createMatcherConfig(matcherName));
                 if (matcher instanceof CompositeMatcher) {
                     CompositeMatcher compMatcher = (CompositeMatcher) matcher;
-                    
-                    List<Matcher> childMatcher = loadCompositeMatchers(state, compMap,c.configurationsAt("matcher"));
-                    for (int i = 0 ; i < childMatcher.size(); i++) {
+
+                    List<Matcher> childMatcher = loadCompositeMatchers(state, compMap, c.configurationsAt("matcher"));
+                    for (int i = 0; i < childMatcher.size(); i++) {
                         compMatcher.add(childMatcher.get(i));
                     }
                 }
@@ -293,35 +289,37 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
                 Matcher m = matcherLoader.getMatcher(createMatcherConfig(invertedMatcherName));
                 if (m instanceof CompositeMatcher) {
                     CompositeMatcher compMatcher = (CompositeMatcher) m;
-                    
-                    List<Matcher> childMatcher = loadCompositeMatchers(state, compMap,c.configurationsAt("matcher"));
-                    for (int i = 0 ; i < childMatcher.size(); i++) {
+
+                    List<Matcher> childMatcher = loadCompositeMatchers(state, compMap, c.configurationsAt("matcher"));
+                    for (int i = 0; i < childMatcher.size(); i++) {
                         compMatcher.add(childMatcher.get(i));
                     }
                 }
                 matcher = new MatcherInverter(m);
             }
-            if (matcher == null) throw new ConfigurationException("Unable to load matcher instance");
+            if (matcher == null)
+                throw new ConfigurationException("Unable to load matcher instance");
             matchers.add(matcher);
             if (compName != null) {
-                // check if there is already a composite Matcher with the name registered in the processor
-                if (compMap.containsKey(compName)) throw new ConfigurationException("CompositeMatcher with name " + compName + " is already defined in processor " + state);
+                // check if there is already a composite Matcher with the name
+                // registered in the processor
+                if (compMap.containsKey(compName))
+                    throw new ConfigurationException("CompositeMatcher with name " + compName + " is already defined in processor " + state);
                 compMap.put(compName, matcher);
             }
         }
         return matchers;
     }
-    
+
     @SuppressWarnings("unchecked")
     private void parseConfiguration() throws MessagingException, ConfigurationException {
-        
+
         // load composite matchers if there are any
-        Map<String,Matcher> compositeMatchers = new HashMap<String, Matcher>();
+        Map<String, Matcher> compositeMatchers = new HashMap<String, Matcher>();
         loadCompositeMatchers(getState(), compositeMatchers, config.configurationsAt("matcher"));
-        
-        
+
         final List<HierarchicalConfiguration> mailetConfs = config.configurationsAt("mailet");
-    
+
         // Loop through the mailet configuration, load
         // all of the matcher and mailets, and add
         // them to the processor.
@@ -332,10 +330,10 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
             String mailetClassName = c.getString("[@class]");
             String matcherName = c.getString("[@match]", null);
             String invertedMatcherName = c.getString("[@notmatch]", null);
-        
+
             Mailet mailet = null;
             Matcher matcher = null;
-            
+
             try {
 
                 if (matcherName != null && invertedMatcherName != null) {
@@ -345,14 +343,16 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
                     // try to load from compositeMatchers first
                     matcher = compositeMatchers.get(matcherName);
                     if (matcher == null) {
-                        // no composite Matcher found, try to load it via MatcherLoader
+                        // no composite Matcher found, try to load it via
+                        // MatcherLoader
                         matcher = matcherLoader.getMatcher(createMatcherConfig(matcherName));
                     }
                 } else if (invertedMatcherName != null) {
                     // try to load from compositeMatchers first
                     matcher = compositeMatchers.get(matcherName);
                     if (matcher == null) {
-                        // no composite Matcher found, try to load it via MatcherLoader
+                        // no composite Matcher found, try to load it via
+                        // MatcherLoader
                         matcher = matcherLoader.getMatcher(createMatcherConfig(invertedMatcherName));
                     }
                     matcher = new MatcherInverter(matcher);
@@ -395,7 +395,7 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
                 }
                 throw new ConfigurationException("Unable to init mailet " + mailetClassName, ex);
             }
-            
+
             if (matcher != null && mailet != null) {
                 pairs.add(new MatcherMailetPair(matcher, mailet));
             } else {
@@ -403,95 +403,92 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
             }
         }
     }
-    
+
     /**
-     * Setup the routing for the configured {@link MatcherMailetPair}'s for this {@link CamelProcessor}
-     * 
-     * 
+     * Setup the routing for the configured {@link MatcherMailetPair}'s for this
+     * {@link CamelProcessor}
      */
     protected abstract void setupRouting(List<MatcherMailetPair> pairs) throws MessagingException;
-    
-    
-    
+
     /**
-     * Mailet which protect us to not fall into an endless loop caused by an configuration error
-     *
+     * Mailet which protect us to not fall into an endless loop caused by an
+     * configuration error
      */
     public final class TerminatingMailet extends GenericMailet {
         /**
-         *  The name of the mailet used to terminate the mailet chain.  The
-         *  end of the matcher/mailet chain must be a matcher that matches
-         *  all mails and a mailet that sets every mail to GHOST status.
-         *  This is necessary to ensure that mails are removed from the spool
-         *  in an orderly fashion.
+         * The name of the mailet used to terminate the mailet chain. The end of
+         * the matcher/mailet chain must be a matcher that matches all mails and
+         * a mailet that sets every mail to GHOST status. This is necessary to
+         * ensure that mails are removed from the spool in an orderly fashion.
          */
         private static final String TERMINATING_MAILET_NAME = "Terminating%Mailet%Name";
 
         /*
          * (non-Javadoc)
-         * @see org.apache.mailet.base.GenericMailet#service(org.apache.mailet.Mail)
+         * 
+         * @see
+         * org.apache.mailet.base.GenericMailet#service(org.apache.mailet.Mail)
          */
         public void service(Mail mail) {
             if (!(Mail.ERROR.equals(mail.getState()))) {
                 // Don't complain if we fall off the end of the
-                // error processor.  That is currently the
+                // error processor. That is currently the
                 // normal situation for James, and the message
                 // will show up in the error store.
-                StringBuffer warnBuffer = new StringBuffer(256)
-                                      .append("Message ")
-                                      .append(mail.getName())
-                                      .append(" reached the end of this processor, and is automatically deleted.  This may indicate a configuration error.");
+                StringBuffer warnBuffer = new StringBuffer(256).append("Message ").append(mail.getName()).append(" reached the end of this processor, and is automatically deleted.  This may indicate a configuration error.");
                 logger.warn(warnBuffer.toString());
             }
-            
+
             // Set the mail to ghost state
             mail.setState(Mail.GHOST);
         }
-    
+
         @Override
         public String getMailetInfo() {
             return getMailetName();
         }
-    
+
         @Override
         public String getMailetName() {
             return TERMINATING_MAILET_NAME;
         }
     }
-    
+
     /**
-     * A Listener which will get notified after {@link Mailet#service(org.apache.mailet.Mail)} and {@link Matcher#match(org.apache.mailet.Mail)} methods are called from
-     * the container
-     *  
-     *
+     * A Listener which will get notified after
+     * {@link Mailet#service(org.apache.mailet.Mail)} and
+     * {@link Matcher#match(org.apache.mailet.Mail)} methods are called from the
+     * container
      */
     public interface MailetProcessorListener {
 
         /**
-         * Get called after each {@link Mailet} call was complete 
+         * Get called after each {@link Mailet} call was complete
          * 
          * @param m
          * @param mailName
          * @param state
-         * @param processTime in ms
-         * @param e or null if no {@link MessagingException} was thrown
+         * @param processTime
+         *            in ms
+         * @param e
+         *            or null if no {@link MessagingException} was thrown
          */
-        void afterMailet( Mailet m, String mailName, String state, long processTime, MessagingException e);
-        
-        /**
-         * Get called after each {@link Matcher} call was complete 
+        void afterMailet(Mailet m, String mailName, String state, long processTime, MessagingException e);
 
+        /**
+         * Get called after each {@link Matcher} call was complete
+         * 
          * @param m
          * @param mailName
          * @param recipients
-         * @param matches 
-         * @param processTime in ms
-         * @param e or null if no {@link MessagingException} was thrown
-         * 
+         * @param matches
+         * @param processTime
+         *            in ms
+         * @param e
+         *            or null if no {@link MessagingException} was thrown
          */
-        void afterMatcher( Matcher m,  String mailName, Collection<MailAddress> recipients, Collection<MailAddress> matches, long processTime, MessagingException e);
-        
+        void afterMatcher(Matcher m, String mailName, Collection<MailAddress> recipients, Collection<MailAddress> matches, long processTime, MessagingException e);
+
     }
-    
 
 }

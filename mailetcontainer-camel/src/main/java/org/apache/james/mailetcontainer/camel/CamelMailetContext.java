@@ -28,7 +28,6 @@ import org.apache.mailet.HostAddress;
 
 public class CamelMailetContext extends JamesMailetContext {
 
-
     /**
      * Performs DNS lookups as needed to find servers which should or might
      * support SMTP. Returns an Iterator over HostAddress, a specialized

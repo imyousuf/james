@@ -27,10 +27,8 @@ import org.apache.james.user.api.UsersRepositoryException;
 
 /**
  * Utility to instance a {@link MaildirStore} object
- * 
- *
  */
-public class MaildirStoreUtil{
+public class MaildirStoreUtil {
 
     /**
      * Return a {@link MaildirStore} instance
@@ -40,7 +38,7 @@ public class MaildirStoreUtil{
      * @param rootURL
      * @return store
      * @throws FileNotFoundException
-     * @throws UsersRepositoryException 
+     * @throws UsersRepositoryException
      */
     public static MaildirStore create(FileSystem fs, UsersRepository usersRepos, String rootURL) throws FileNotFoundException, UsersRepositoryException {
         StringBuffer root = new StringBuffer();

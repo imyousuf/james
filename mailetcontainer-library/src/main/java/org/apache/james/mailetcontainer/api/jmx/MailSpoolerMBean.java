@@ -19,9 +19,7 @@
 package org.apache.james.mailetcontainer.api.jmx;
 
 /**
- * JMX MBean for MailSpooler 
- * 
- *
+ * JMX MBean for MailSpooler
  */
 public interface MailSpoolerMBean {
 
@@ -31,12 +29,11 @@ public interface MailSpoolerMBean {
      * @return threadCount
      */
     int getThreadCount();
-    
+
     /**
      * 
      * @return
      */
     int getCurrentSpoolCount();
-    
 
 }

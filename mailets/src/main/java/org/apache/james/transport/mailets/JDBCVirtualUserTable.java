@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.transport.mailets;
 
 import org.apache.james.util.sql.JDBCUtil;
@@ -40,16 +38,21 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Implements a Virtual User Table for JAMES.  Derived from the
- * JDBCAlias mailet, but whereas that mailet uses a simple map from a
- * source address to a destination address, this handles simple
- * wildcard selection, verifies that a catchall address is for a domain
- * in the Virtual User Table, and handles forwarding.
- *
- * JDBCVirtualUserTable does not provide any administation tools.
- * You'll have to create the VirtualUserTable yourself.  The standard
- * configuration is as follows:
- *
+ * <p>
+ * Implements a Virtual User Table for JAMES. Derived from the JDBCAlias mailet,
+ * but whereas that mailet uses a simple map from a source address to a
+ * destination address, this handles simple wildcard selection, verifies that a
+ * catchall address is for a domain in the Virtual User Table, and handles
+ * forwarding.
+ * </p>
+ * <p>
+ * JDBCVirtualUserTable does not provide any administation tools. You'll have to
+ * create the VirtualUserTable yourself. The standard configuration is as
+ * follows:
+ * </p>
+ * <p>
+ * 
+ * <pre>
  * CREATE TABLE VirtualUserTable
  * (
  *  user varchar(64) NOT NULL default '',
@@ -57,43 +60,56 @@ import java.util.Map;
  *  target_address varchar(255) NOT NULL default '',
  *  PRIMARY KEY (user,domain)
  * );
- *
+ * </pre>
+ * 
+ * </p>
+ * <p>
  * The user column specifies the username of the virtual recipient, the domain
- * column the domain of the virtual recipient, and the target_address column
- * the email address of the real recipient. The target_address column can contain
+ * column the domain of the virtual recipient, and the target_address column the
+ * email address of the real recipient. The target_address column can contain
  * just the username in the case of a local user, and multiple recipients can be
  * specified in a list separated by commas, semi-colons or colons.
- *
+ * </p>
+ * <p>
  * The standard query used with VirtualUserTable is:
- *
+ * 
+ * <pre>
  * select VirtualUserTable.target_address from VirtualUserTable, VirtualUserTable as VUTDomains
  * where (VirtualUserTable.user like ? or VirtualUserTable.user like "\%")
  * and (VirtualUserTable.domain like ?
  * or (VirtualUserTable.domain like "\%" and VUTDomains.domain like ?))
  * order by concat(VirtualUserTable.user,'@',VirtualUserTable.domain) desc limit 1
- *
- * For a given [user, domain, domain] used with the query, this will
- * match as follows (in precedence order):
- *
- * 1. user@domain    - explicit mapping for user@domain
- * 2. user@%         - catchall mapping for user anywhere
- * 3. %@domain       - catchall mapping for anyone at domain
- * 4. null           - no valid mapping
- *
- * You need to set the connection.  At the moment, there is a limit to
- * what you can change regarding the SQL Query, because there isn't a
- * means to specify where in the query to replace parameters. [TODO]
- *
+ * </pre>
+ * 
+ * </p>
+ * <p>
+ * For a given [user, domain, domain] used with the query, this will match as
+ * follows (in precedence order):
+ * <ol>
+ * <li>user@domain - explicit mapping for user@domain</li>
+ * <li>user@% - catchall mapping for user anywhere</li>
+ * <li>%@domain - catchall mapping for anyone at domain</li>
+ * <li>null - no valid mapping</li>
+ * </ol>
+ * </p>
+ * <p>
+ * You need to set the connection. At the moment, there is a limit to what you
+ * can change regarding the SQL Query, because there isn't a means to specify
+ * where in the query to replace parameters. [TODO]
+ * 
+ * <pre>
  * &lt;mailet match="All" class="JDBCVirtualUserTable"&gt;
  *   &lt;table&gt;db://maildb/VirtualUserTable&lt;/table&gt;
  *   &lt;sqlquery&gt;sqlquery&lt;/sqlquery&gt;
  * &lt;/mailet&gt;
+ * </pre>
+ * 
+ * </p>
  * 
  * @deprecated use the definitions in virtualusertable-store.xml instead
  */
 @Deprecated
-public class JDBCVirtualUserTable extends AbstractVirtualUserTable
-{
+public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     protected DataSource datasource;
 
     /**
@@ -110,13 +126,11 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable
         }
     };
 
-
-    @Resource(name="datasource")
+    @Resource(name = "datasource")
     public void setDataSourceSelector(DataSource datasource) {
         this.datasource = datasource;
     }
-    
-    
+
     /**
      * Initialize the mailet
      */
@@ -138,21 +152,16 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable
 
             // Check if the required table exists. If not, complain.
             DatabaseMetaData dbMetaData = conn.getMetaData();
-            // Need to ask in the case that identifiers are stored, ask the DatabaseMetaInfo.
+            // Need to ask in the case that identifiers are stored, ask the
+            // DatabaseMetaInfo.
             // Try UPPER, lower, and MixedCase, to see if the table is there.
             if (!(theJDBCUtil.tableExists(dbMetaData, tableName))) {
-                StringBuffer exceptionBuffer =
-                                              new StringBuffer(128)
-                                              .append("Could not find table '")
-                                              .append(tableName)
-                                              .append("' in datasource '")
-                                              .append(datasourceName)
-                                              .append("'");
+                StringBuffer exceptionBuffer = new StringBuffer(128).append("Could not find table '").append(tableName).append("' in datasource '").append(datasourceName).append("'");
                 throw new MailetException(exceptionBuffer.toString());
             }
 
-            //Build the query
-            query = getInitParameter("sqlquery",VirtualUserTableUtil.QUERY);
+            // Build the query
+            query = getInitParameter("sqlquery", VirtualUserTableUtil.QUERY);
         } catch (MailetException me) {
             throw me;
         } catch (Exception e) {
@@ -163,12 +172,13 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable
     }
 
     /**
-     * Map any virtual recipients to real recipients using the configured
-     * JDBC connection, table and query.
+     * Map any virtual recipients to real recipients using the configured JDBC
+     * connection, table and query.
      * 
-     * @param recipientsMap the mapping of virtual to real recipients
+     * @param recipientsMap
+     *            the mapping of virtual to real recipients
      */
-    protected void mapRecipients(Map<MailAddress,String> recipientsMap) throws MessagingException {
+    protected void mapRecipients(Map<MailAddress, String> recipientsMap) throws MessagingException {
         Connection conn = null;
         PreparedStatement mappingStmt = null;
 
@@ -178,7 +188,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable
             conn = datasource.getConnection();
             mappingStmt = conn.prepareStatement(query);
 
-            for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext(); ) {
+            for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext();) {
                 ResultSet mappingRS = null;
                 try {
                     MailAddress source = i.next();

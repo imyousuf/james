@@ -30,7 +30,6 @@ import org.apache.mailet.Matcher;
 
 /**
  * This matcher performs And conjunction between the two recipients
- * 
  */
 public class And extends GenericCompositeMatcher {
 

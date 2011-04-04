@@ -22,12 +22,10 @@ import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.oio.OioServerSocketChannelFactory;
 
 /**
- * LMTPServer which use old IO and not NIO. If you want to use NIO you should use {@link LMTPerver}
- * 
- *
+ * LMTPServer which use old IO and not NIO. If you want to use NIO you should
+ * use {@link LMTPerver}
  */
-public class OioLMTPServer extends LMTPServer{
-
+public class OioLMTPServer extends LMTPServer {
 
     @Override
     protected ServerSocketChannelFactory createSocketChannelFactory() {

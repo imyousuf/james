@@ -33,14 +33,8 @@ import org.apache.james.user.api.model.User;
 
 @Entity(name = "JamesUser")
 @Table(name = "JAMES_USER")
-@NamedQueries( { 
-    @NamedQuery(name = "findUserByName", query = "SELECT user FROM JamesUser user WHERE user.name=:name"),
-    @NamedQuery(name = "deleteUserByName", query = "DELETE FROM JamesUser user WHERE user.name=:name"),
-    @NamedQuery(name = "containsUser", query = "SELECT COUNT(user) FROM JamesUser user WHERE user.name=:name") ,
-    @NamedQuery(name = "countUsers", query = "SELECT COUNT(user) FROM JamesUser user"),
-    @NamedQuery(name = "listUserNames", query = "SELECT user.name FROM JamesUser user") 
-})
-
+@NamedQueries({ @NamedQuery(name = "findUserByName", query = "SELECT user FROM JamesUser user WHERE user.name=:name"), @NamedQuery(name = "deleteUserByName", query = "DELETE FROM JamesUser user WHERE user.name=:name"),
+        @NamedQuery(name = "containsUser", query = "SELECT COUNT(user) FROM JamesUser user WHERE user.name=:name"), @NamedQuery(name = "countUsers", query = "SELECT COUNT(user) FROM JamesUser user"), @NamedQuery(name = "listUserNames", query = "SELECT user.name FROM JamesUser user") })
 public class JPAUser implements User {
 
     /**
@@ -54,7 +48,7 @@ public class JPAUser implements User {
      */
     private static String hashPassword(String username, String password, String alg) {
         String newPass;
-        if ( alg == null || alg.equals("MD5")) {
+        if (alg == null || alg.equals("MD5")) {
             newPass = DigestUtils.md5Hex(password);
         } else if (alg.equals("NONE")) {
             newPass = "password";
@@ -82,7 +76,7 @@ public class JPAUser implements User {
     @Basic
     @Column(name = "PASSWORD", nullable = false, length = 100)
     private String password;
-    
+
     @Basic
     @Column(name = "PASSWORD_HASH_ALGORITHM", nullable = false, length = 100)
     private String alg;
@@ -90,7 +84,7 @@ public class JPAUser implements User {
     protected JPAUser() {
     }
 
-    public JPAUser(final String userName, String password,  String alg) {
+    public JPAUser(final String userName, String password, String alg) {
         super();
         this.name = userName;
         this.alg = alg;
@@ -99,6 +93,7 @@ public class JPAUser implements User {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.api.user.User#getUserName()
      */
     public String getUserName() {
@@ -107,6 +102,7 @@ public class JPAUser implements User {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.api.user.User#setPassword(java.lang.String)
      */
     public boolean setPassword(String newPass) {
@@ -122,6 +118,7 @@ public class JPAUser implements User {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.api.user.User#verifyPassword(java.lang.String)
      */
     public boolean verifyPassword(String pass) {

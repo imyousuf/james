@@ -18,7 +18,6 @@
  ****************************************************************/
 package org.apache.james.lmtpserver;
 
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
@@ -51,23 +50,21 @@ import org.apache.mailet.MailAddress;
 
 /**
  * Handler which takes care of deliver the mail to the recipients INBOX
- * 
- *
  */
 public class DataLineLMTPMessageHookHandler implements DataLineFilter {
     private UsersRepository users;
     private MailboxManager mailboxManager;
 
-   @Resource(name="usersrepository")
-   public final void setUsersRepository(UsersRepository users) {
-       this.users = users;
-   }
-   
-   @Resource(name="mailboxmanager")
-   public final void setMailboxManager(MailboxManager mailboxManager) {
-       this.mailboxManager = mailboxManager;
-   }
-   
+    @Resource(name = "usersrepository")
+    public final void setUsersRepository(UsersRepository users) {
+        this.users = users;
+    }
+
+    @Resource(name = "mailboxmanager")
+    public final void setMailboxManager(MailboxManager mailboxManager) {
+        this.mailboxManager = mailboxManager;
+    }
+
     @SuppressWarnings("unchecked")
     public void onLine(SMTPSession session, byte[] line, LineHandler<SMTPSession> next) {
         MimeMessageInputStreamSource mmiss = (MimeMessageInputStreamSource) session.getState().get(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE);
@@ -80,43 +77,40 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
             if (line.length == 3 && line[0] == 46) {
                 out.flush();
                 out.close();
-                
+
                 List recipientCollection = (List) session.getState().get(SMTPSession.RCPT_LIST);
-                MailImpl mail =
-                    new MailImpl(MailImpl.getId(),
-                                 (MailAddress) session.getState().get(SMTPSession.SENDER),
-                                 recipientCollection);
-                
-                // store mail in the session so we can be sure it get disposed later
+                MailImpl mail = new MailImpl(MailImpl.getId(), (MailAddress) session.getState().get(SMTPSession.SENDER), recipientCollection);
+
+                // store mail in the session so we can be sure it get disposed
+                // later
                 session.getState().put(SMTPConstants.MAIL, mail);
-                
+
                 MimeMessageCopyOnWriteProxy mimeMessageCopyOnWriteProxy = null;
                 try {
                     mimeMessageCopyOnWriteProxy = new MimeMessageCopyOnWriteProxy(mmiss);
                     mail.setMessage(mimeMessageCopyOnWriteProxy);
-                    
+
                     deliverMail(session, mail);
-                    
+
                     session.popLineHandler();
-                           
+
                     // do the clean up
                     session.resetState();
-                    
+
                 } catch (MessagingException e) {
                     // TODO probably return a temporary problem
-                    session.getLogger().info("Unexpected error handling DATA stream",e);
+                    session.getLogger().info("Unexpected error handling DATA stream", e);
                     session.writeResponse(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unexpected error handling DATA stream."));
                 } finally {
                     LifecycleUtil.dispose(mimeMessageCopyOnWriteProxy);
                     LifecycleUtil.dispose(mmiss);
                     LifecycleUtil.dispose(mail);
                 }
-    
-                
-            // DotStuffing.
+
+                // DotStuffing.
             } else if (line[0] == 46 && line[1] == 46) {
-                out.write(line,1,line.length-1);
-            // Standard write
+                out.write(line, 1, line.length - 1);
+                // Standard write
             } else {
                 // TODO: maybe we should handle the Header/Body recognition here
                 // and if needed let a filter to cache the headers to apply some
@@ -127,14 +121,12 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
         } catch (IOException e) {
             LifecycleUtil.dispose(mmiss);
 
-            SMTPResponse response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR,DSNStatus.getStatus(DSNStatus.TRANSIENT,
-                            DSNStatus.UNDEFINED_STATUS) + " Error processing message: " + e.getMessage());
-            
-            session.getLogger().error(
-                    "Unknown error occurred while processing DATA.", e);
+            SMTPResponse response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.UNDEFINED_STATUS) + " Error processing message: " + e.getMessage());
+
+            session.getLogger().error("Unknown error occurred while processing DATA.", e);
             session.writeResponse(response);
             return;
-        }  
+        }
     }
 
     /**
@@ -184,9 +176,7 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
             }
             session.writeResponse(response);
         }
-        
-        
+
     }
-   
 
 }

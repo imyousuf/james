@@ -31,31 +31,29 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 /**
- * <P>
+ * <p>
  * Matches recipients having the mail sender in the recipient's private
  * whitelist .
- * </P>
- * <P>
+ * </p>
+ * <p>
  * The recipient name is always converted to its primary name (handling
  * aliases).
- * </P>
- * <P>
+ * </p>
+ * <p>
  * Configuration string: The database name containing the white list table.
- * </P>
- * <P>
+ * </p>
+ * <p>
  * Example:
- * </P>
  * 
- * <PRE>
- * &lt;CODE&gt;
- *    &lt;mailet match=&quot;IsInWhiteList=db://maildb&quot; class=&quot;ToProcessor&quot;&gt;
- *       &lt;processor&gt; transport &lt;/processor&gt;
- *    &lt;/mailet&gt;
- * &lt;/CODE&gt;
- * </PRE>
+ * <pre>
+ *  &lt;mailet match=&quot;IsInWhiteList=db://maildb&quot; class=&quot;ToProcessor&quot;&gt;
+ *     &lt;processor&gt; transport &lt;/processor&gt;
+ *  &lt;/mailet&gt;
+ * </pre>
+ * 
+ * </p>
  * 
  * @see org.apache.james.transport.mailets.WhiteListManager
- * @version SVN $Revision: $ $Date: $
  * @since 2.3.0
  */
 public class IsInWhiteList extends AbstractSQLWhitelistMatcher {
@@ -70,7 +68,9 @@ public class IsInWhiteList extends AbstractSQLWhitelistMatcher {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#getSQLSectionName()
+     * 
+     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#
+     * getSQLSectionName()
      */
     protected String getSQLSectionName() {
         return "WhiteList";
@@ -78,13 +78,15 @@ public class IsInWhiteList extends AbstractSQLWhitelistMatcher {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#matchedWhitelist(org.apache.mailet.MailAddress, org.apache.mailet.Mail)
+     * 
+     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#
+     * matchedWhitelist(org.apache.mailet.MailAddress, org.apache.mailet.Mail)
      */
     protected boolean matchedWhitelist(MailAddress recipientMailAddress, Mail mail) throws MessagingException {
         MailAddress senderMailAddress = mail.getSender();
         String senderUser = senderMailAddress.getLocalPart().toLowerCase(Locale.US);
         String senderHost = senderMailAddress.getDomain().toLowerCase(Locale.US);
-        
+
         Connection conn = null;
         PreparedStatement selectStmt = null;
         ResultSet selectRS = null;
@@ -108,11 +110,10 @@ public class IsInWhiteList extends AbstractSQLWhitelistMatcher {
                 // This address was already in the list
                 return true;
             }
-            
-            
-            // check for wildcard domain entries 
+
+            // check for wildcard domain entries
             selectStmt = conn.prepareStatement(selectByPK);
-            
+
             selectStmt.setString(1, recipientUser);
             selectStmt.setString(2, recipientHost);
             selectStmt.setString(3, "*");
@@ -122,11 +123,10 @@ public class IsInWhiteList extends AbstractSQLWhitelistMatcher {
                 // This address was already in the list
                 return true;
             }
-            
-            
-            // check for wildcard recipient domain entries 
+
+            // check for wildcard recipient domain entries
             selectStmt = conn.prepareStatement(selectByPK);
-            
+
             selectStmt.setString(1, "*");
             selectStmt.setString(2, recipientHost);
             selectStmt.setString(3, senderUser);
@@ -136,9 +136,9 @@ public class IsInWhiteList extends AbstractSQLWhitelistMatcher {
                 // This address was already in the list
                 return true;
             }
-            // check for wildcard domain entries on both 
+            // check for wildcard domain entries on both
             selectStmt = conn.prepareStatement(selectByPK);
-            
+
             selectStmt.setString(1, "*");
             selectStmt.setString(2, recipientHost);
             selectStmt.setString(3, "*");
@@ -161,7 +161,9 @@ public class IsInWhiteList extends AbstractSQLWhitelistMatcher {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#getTableCreateQueryName()
+     * 
+     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#
+     * getTableCreateQueryName()
      */
     protected String getTableCreateQueryName() {
         return "createWhiteListTable";
@@ -169,7 +171,10 @@ public class IsInWhiteList extends AbstractSQLWhitelistMatcher {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#getTableName()
+     * 
+     * @see
+     * org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#getTableName
+     * ()
      */
     protected String getTableName() {
         return "whiteListTableName";

@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.lifecycle.api;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -25,17 +24,17 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 
 /**
  * Classes which needs to access the configuration should implement this
- *
  */
 public interface Configurable {
 
-	/**
-	 * Configure the object. Be aware that no services are injected when this is called. If you need
-	 * to access injected stuff do it in a method annotated with @PostConstruct
-	 * 
-	 * @param config
-	 * @throws ConfigurationException
-	 */
-	void configure(HierarchicalConfiguration config) throws ConfigurationException;
-	
+    /**
+     * Configure the object. Be aware that no services are injected when this is
+     * called. If you need to access injected stuff do it in a method annotated
+     * with @PostConstruct
+     * 
+     * @param config
+     * @throws ConfigurationException
+     */
+    void configure(HierarchicalConfiguration config) throws ConfigurationException;
+
 }

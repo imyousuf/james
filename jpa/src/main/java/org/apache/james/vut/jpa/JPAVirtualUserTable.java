@@ -35,7 +35,8 @@ import org.apache.james.vut.lib.AbstractVirtualUserTable;
 import org.apache.james.vut.lib.VirtualUserTableUtil;
 
 /**
- * Class responsible to implement the Virtual User Table in database with JPA access.
+ * Class responsible to implement the Virtual User Table in database with JPA
+ * access.
  */
 public class JPAVirtualUserTable extends AbstractVirtualUserTable {
 
@@ -55,39 +56,38 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
     }
 
     /**
-     * @throws VirtualUserTableException 
-     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#addMappingInternal(String, String, String)
+     * @throws VirtualUserTableException
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#addMappingInternal(String,
+     *      String, String)
      */
     protected void addMappingInternal(String user, String domain, String regex) throws VirtualUserTableException {
-        
+
         String newUser = getUserString(user);
         String newDomain = getDomainString(domain);
-        Collection<String> map = getUserDomainMappings(newUser,newDomain);
-    
+        Collection<String> map = getUserDomainMappings(newUser, newDomain);
+
         if (map != null && map.size() != 0) {
             map.add(regex);
             updateMapping(newUser, newDomain, VirtualUserTableUtil.CollectionToMapping(map));
         } else {
-            addRawMapping(newUser,newDomain,regex);
+            addRawMapping(newUser, newDomain, regex);
         }
-    
-    
+
     }
 
     /**
-     * @throws VirtualUserTableException 
-     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#mapAddressInternal(java.lang.String, java.lang.String)
+     * @throws VirtualUserTableException
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#mapAddressInternal(java.lang.String,
+     *      java.lang.String)
      */
     protected String mapAddressInternal(String user, String domain) throws VirtualUserTableException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
-            List<JPAVirtualUser> virtualUsers = entityManager.createNamedQuery("selectMappings")
-                .setParameter("user", user)
-                .setParameter("domain", domain).getResultList();
+            List<JPAVirtualUser> virtualUsers = entityManager.createNamedQuery("selectMappings").setParameter("user", user).setParameter("domain", domain).getResultList();
             transaction.commit();
-            if(virtualUsers.size() > 0) {
+            if (virtualUsers.size() > 0) {
                 return virtualUsers.get(0).getTargetAddress();
             }
         } catch (PersistenceException e) {
@@ -101,19 +101,18 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
         }
         return null;
     }
-    
+
     /**
-     * @throws VirtualUserTableException 
-     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
+     * @throws VirtualUserTableException
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#mapAddress(java.lang.String,
+     *      java.lang.String)
      */
     protected Collection<String> getUserDomainMappingsInternal(String user, String domain) throws VirtualUserTableException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
-            List<JPAVirtualUser> virtualUsers = entityManager.createNamedQuery("selectUserDomainMapping")
-                .setParameter("user", user)
-                .setParameter("domain", domain).getResultList();
+            List<JPAVirtualUser> virtualUsers = entityManager.createNamedQuery("selectUserDomainMapping").setParameter("user", user).setParameter("domain", domain).getResultList();
             transaction.commit();
             if (virtualUsers.size() > 0) {
                 return VirtualUserTableUtil.mappingToCollection(virtualUsers.get(0).getTargetAddress());
@@ -132,21 +131,22 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
     }
 
     /**
-     * @throws VirtualUserTableException 
+     * @throws VirtualUserTableException
      * @see org.apache.james.vut.lib.AbstractVirtualUserTable#getAllMappingsInternal()
      */
-    protected Map<String,Collection<String>> getAllMappingsInternal() throws VirtualUserTableException {
+    protected Map<String, Collection<String>> getAllMappingsInternal() throws VirtualUserTableException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
-        Map<String,Collection<String>> mapping = new HashMap<String,Collection<String>>();
+        Map<String, Collection<String>> mapping = new HashMap<String, Collection<String>>();
         try {
             transaction.begin();
             List<JPAVirtualUser> virtualUsers = entityManager.createNamedQuery("selectAllMappings").getResultList();
             transaction.commit();
-            for (JPAVirtualUser virtualUser: virtualUsers) {
-                mapping.put(virtualUser.getUser()+ "@" + virtualUser.getDomain(), VirtualUserTableUtil.mappingToCollection(virtualUser.getTargetAddress()));
+            for (JPAVirtualUser virtualUser : virtualUsers) {
+                mapping.put(virtualUser.getUser() + "@" + virtualUser.getDomain(), VirtualUserTableUtil.mappingToCollection(virtualUser.getTargetAddress()));
             }
-            if (mapping.size() > 0) return mapping;
+            if (mapping.size() > 0)
+                return mapping;
         } catch (PersistenceException e) {
             getLogger().debug("Failed to get all mappings", e);
             if (transaction.isActive()) {
@@ -161,39 +161,40 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
     }
 
     /**
-     * @throws VirtualUserTableException 
-     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#removeMappingInternal(String, String, String)
+     * @throws VirtualUserTableException
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#removeMappingInternal(String,
+     *      String, String)
      */
     protected void removeMappingInternal(String user, String domain, String mapping) throws VirtualUserTableException {
         String newUser = getUserString(user);
         String newDomain = getDomainString(domain);
-        Collection<String> map = getUserDomainMappings(newUser,newDomain);
+        Collection<String> map = getUserDomainMappings(newUser, newDomain);
         if (map != null && map.size() > 1) {
             map.remove(mapping);
-            updateMapping(newUser,newDomain,VirtualUserTableUtil.CollectionToMapping(map));
+            updateMapping(newUser, newDomain, VirtualUserTableUtil.CollectionToMapping(map));
         } else {
-            removeRawMapping(newUser,newDomain,mapping);
+            removeRawMapping(newUser, newDomain, mapping);
         }
     }
 
     /**
      * Update the mapping for the given user and domain
      * 
-     * @param user the user
-     * @param domain the domain
-     * @param mapping the mapping
+     * @param user
+     *            the user
+     * @param domain
+     *            the domain
+     * @param mapping
+     *            the mapping
      * @return true if update was successfully
-     * @throws VirtualUserTableException 
+     * @throws VirtualUserTableException
      */
     private boolean updateMapping(String user, String domain, String mapping) throws VirtualUserTableException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
-            int updated = entityManager.createNamedQuery("updateMapping")
-                .setParameter("targetAddress", mapping)
-                .setParameter("user", user)
-                .setParameter("domain", domain).executeUpdate();
+            int updated = entityManager.createNamedQuery("updateMapping").setParameter("targetAddress", mapping).setParameter("user", user).setParameter("domain", domain).executeUpdate();
             transaction.commit();
             if (updated > 0) {
                 return true;
@@ -209,27 +210,26 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
         }
         return false;
     }
-    
-    
+
     /**
      * Remove a mapping for the given user and domain
      * 
-     * @param user the user
-     * @param domain the domain
-     * @param mapping the mapping
-     * @throws VirtualUserTableException 
+     * @param user
+     *            the user
+     * @param domain
+     *            the domain
+     * @param mapping
+     *            the mapping
+     * @throws VirtualUserTableException
      */
     private void removeRawMapping(String user, String domain, String mapping) throws VirtualUserTableException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
-            int deleted = entityManager.createNamedQuery("deleteMapping")
-                .setParameter("user", user)
-                .setParameter("domain", domain)
-                .setParameter("targetAddress", mapping).executeUpdate();
+            int deleted = entityManager.createNamedQuery("deleteMapping").setParameter("user", user).setParameter("domain", domain).setParameter("targetAddress", mapping).executeUpdate();
             transaction.commit();
-           
+
         } catch (PersistenceException e) {
             getLogger().debug("Failed to remove mapping", e);
             if (transaction.isActive()) {
@@ -241,15 +241,18 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
             entityManager.close();
         }
     }
-    
+
     /**
      * Add mapping for given user and domain
      * 
-     * @param user the user
-     * @param domain the domain
-     * @param mapping the mapping 
+     * @param user
+     *            the user
+     * @param domain
+     *            the domain
+     * @param mapping
+     *            the mapping
      * @return true if successfully
-     * @throws VirtualUserTableException 
+     * @throws VirtualUserTableException
      */
     private void addRawMapping(String user, String domain, String mapping) throws VirtualUserTableException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -269,17 +272,19 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
             entityManager.close();
         }
     }
-    
+
     /**
      * Return user String for the given argument
      * 
-     * @param user the given user String
+     * @param user
+     *            the given user String
      * @return user the user String
-     * @throws InvalidMappingException get thrown on invalid argument
+     * @throws InvalidMappingException
+     *             get thrown on invalid argument
      */
     private String getUserString(String user) {
         if (user != null) {
-            if(user.equals(WILDCARD) || user.indexOf("@") < 0) {
+            if (user.equals(WILDCARD) || user.indexOf("@") < 0) {
                 return user;
             } else {
                 throw new IllegalArgumentException("Invalid user: " + user);
@@ -288,18 +293,20 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
             return WILDCARD;
         }
     }
-    
+
     /**
      * Return domain String for the given argument
      * 
-     * @param domain the given domain String
+     * @param domain
+     *            the given domain String
      * @return domainString the domain String
-     * @throws InvalidMappingException get thrown on invalid argument
+     * @throws InvalidMappingException
+     *             get thrown on invalid argument
      */
     private String getDomainString(String domain) {
-        if(domain != null) {
+        if (domain != null) {
             if (domain.equals(WILDCARD) || domain.indexOf("@") < 0) {
-                return domain;  
+                return domain;
             } else {
                 throw new IllegalArgumentException("Invalid domain: " + domain);
             }
@@ -307,5 +314,5 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
             return WILDCARD;
         }
     }
-    
+
 }

@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.transport.mailets;
 
 import org.apache.mailet.MailAddress;
@@ -29,40 +27,54 @@ import java.util.Collection;
 import java.util.HashSet;
 
 /**
- * <P>Replaces incoming recipients with those specified, and resends the message unaltered.</P>
- * <P>Can be totally replaced by an equivalent usage of {@link Resend} (see below),
- * simply replacing <I>&lt;forwardto&gt;</I> with <I>&lt;recipients&gt</I>.
- *
- * <P>Sample configuration:</P>
- * <PRE><CODE>
+ * <p>
+ * Replaces incoming recipients with those specified, and resends the message
+ * unaltered.
+ * </p>
+ * <p>
+ * Can be totally replaced by an equivalent usage of {@link Resend} (see below),
+ * simply replacing <i>&lt;forwardto&gt;</i> with <i>&lt;recipients&gt</i>.
+ * 
+ * <p>
+ * Sample configuration:
+ * </p>
+ * 
+ * <pre>
+ * <code>
  * &lt;mailet match="All" class="Forward">
- *   &lt;forwardTo&gt;<I>comma delimited list of email addresses</I>&lt;/forwardTo&gt;
- *   &lt;passThrough&gt;<I>true or false, default=false</I>&lt;/passThrough&gt;
- *   &lt;fakeDomainCheck&gt;<I>true or false, default=true</I>&lt;/fakeDomainCheck&gt;
- *   &lt;debug&gt;<I>true or false, default=false</I>&lt;/debug&gt;
+ *   &lt;forwardTo&gt;<i>comma delimited list of email addresses</i>&lt;/forwardTo&gt;
+ *   &lt;passThrough&gt;<i>true or false, default=false</i>&lt;/passThrough&gt;
+ *   &lt;fakeDomainCheck&gt;<i>true or false, default=true</i>&lt;/fakeDomainCheck&gt;
+ *   &lt;debug&gt;<i>true or false, default=false</i>&lt;/debug&gt;
  * &lt;/mailet&gt;
- * </CODE></PRE>
- *
- * <P>The behaviour of this mailet is equivalent to using Resend with the following
- * configuration:</P>
- * <PRE><CODE>
+ * </code>
+ * </pre>
+ * 
+ * <p>
+ * The behaviour of this mailet is equivalent to using Resend with the following
+ * configuration:
+ * </p>
+ * 
+ * <pre>
+ * <code>
  * &lt;mailet match="All" class="Resend">
  *   &lt;recipients&gt;comma delimited list of email addresses&lt;/recipients&gt;
  *   &lt;passThrough&gt;true or false&lt;/passThrough&gt;
- *   &lt;fakeDomainCheck&gt;<I>true or false</I>&lt;/fakeDomainCheck&gt;
- *   &lt;debug&gt;<I>true or false</I>&lt;/debug&gt;
+ *   &lt;fakeDomainCheck&gt;<i>true or false</i>&lt;/fakeDomainCheck&gt;
+ *   &lt;debug&gt;<i>true or false</i>&lt;/debug&gt;
  * &lt;/mailet&gt;
- * </CODE></PRE>
- * <P><I>forwardto</I> can be used instead of
- * <I>forwardTo</I>; such name is kept for backward compatibility.</P>
- *
- * @version CVS $Revision$ $Date$
+ * </code>
+ * </pre>
+ * <p>
+ * <i>forwardto</i> can be used instead of <i>forwardTo</i>; such name is kept
+ * for backward compatibility.
+ * </p>
  */
 public class Forward extends AbstractRedirect {
 
     /**
      * Return a string describing this mailet.
-     *
+     * 
      * @return a string describing this mailet
      */
     public String getMailetInfo() {
@@ -70,21 +82,12 @@ public class Forward extends AbstractRedirect {
     }
 
     /** Gets the expected init parameters. */
-    protected  String[] getAllowedInitParameters() {
+    protected String[] getAllowedInitParameters() {
         String[] allowedArray = {
-//            "static",
-            "debug",
-            "passThrough",
-            "fakeDomainCheck",
-            "forwardto",
-            "forwardTo"
-        };
+                // "static",
+                "debug", "passThrough", "fakeDomainCheck", "forwardto", "forwardTo" };
         return allowedArray;
     }
-
-    /* ******************************************************************** */
-    /* ****************** Begin of getX and setX methods ****************** */
-    /* ******************************************************************** */
 
     /**
      * @return UNALTERED
@@ -108,12 +111,12 @@ public class Forward extends AbstractRedirect {
     }
 
     /**
-     * @return the <CODE>recipients</CODE> init parameter or null if missing
+     * @return the <code>recipients</code> init parameter or null if missing
      */
     protected Collection getRecipients() throws MessagingException {
         Collection newRecipients = new HashSet();
-        String addressList = getInitParameter("forwardto",getInitParameter("forwardTo"));
-        
+        String addressList = getInitParameter("forwardto", getInitParameter("forwardTo"));
+
         // if nothing was specified, throw an exception
         if (addressList == null) {
             throw new MessagingException("Failed to initialize \"recipients\" list: no <forwardTo> or <forwardto> init parameter found");
@@ -123,8 +126,7 @@ public class Forward extends AbstractRedirect {
             InternetAddress[] iaarray = InternetAddress.parse(addressList, false);
             for (int i = 0; i < iaarray.length; i++) {
                 String addressString = iaarray[i].getAddress();
-                MailAddress specialAddress = getSpecialAddress(addressString,
-                new String[] {"postmaster", "sender", "from", "replyTo", "reversePath", "unaltered", "recipients", "to", "null"});
+                MailAddress specialAddress = getSpecialAddress(addressString, new String[] { "postmaster", "sender", "from", "replyTo", "reversePath", "unaltered", "recipients", "to", "null" });
                 if (specialAddress != null) {
                     newRecipients.add(specialAddress);
                 } else {
@@ -197,9 +199,4 @@ public class Forward extends AbstractRedirect {
         return false;
     }
 
-    /* ******************************************************************** */
-    /* ******************* End of getX and setX methods ******************* */
-    /* ******************************************************************** */
-
 }
-

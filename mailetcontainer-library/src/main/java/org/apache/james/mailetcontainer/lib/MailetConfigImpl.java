@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.mailetcontainer.lib;
 
 import org.apache.commons.configuration.Configuration;
@@ -32,27 +30,19 @@ import java.util.List;
 
 /**
  * Implements the configuration object for a Mailet.
- *
- * @version CVS $Revision$ $Date$
  */
 public class MailetConfigImpl implements MailetConfig {
 
-    /**
-     * The mailet MailetContext
-     */
+    /** The mailet MailetContext */
     private MailetContext mailetContext;
 
-    /**
-     * The mailet name
-     */
+    /** The mailet name */
     private String name;
 
-    //This would probably be better.
-    //Properties params = new Properties();
-    //Instead, we're tied to the Configuration object
-    /**
-     * The mailet Avalon Configuration
-     */
+    // This would probably be better.
+    // Properties params = new Properties();
+    // Instead, we're tied to the Configuration object
+    /** The mailet Avalon Configuration */
     private Configuration configuration;
 
     /**
@@ -62,11 +52,12 @@ public class MailetConfigImpl implements MailetConfig {
     }
 
     /**
-     * Get the value of an parameter stored in this MailetConfig.  Multi-valued
+     * Get the value of an parameter stored in this MailetConfig. Multi-valued
      * parameters are returned as a comma-delineated string.
-     *
-     * @param name the name of the parameter whose value is to be retrieved.
-     *
+     * 
+     * @param name
+     *            the name of the parameter whose value is to be retrieved.
+     * 
      * @return the parameter value
      */
     public String getInitParameter(String name) {
@@ -75,7 +66,7 @@ public class MailetConfigImpl implements MailetConfig {
 
     /**
      * Returns an iterator over the set of configuration parameter names.
-     *
+     * 
      * @return an iterator over the set of configuration parameter names.
      */
     @SuppressWarnings("unchecked")
@@ -85,7 +76,7 @@ public class MailetConfigImpl implements MailetConfig {
         while (it.hasNext()) {
             String param = it.next();
             if ((param.startsWith("[@") && param.endsWith("]")) == false) {
-                
+
                 params.add(param);
             }
         }
@@ -94,18 +85,19 @@ public class MailetConfigImpl implements MailetConfig {
 
     /**
      * Get the value of an (XML) attribute stored in this MailetConfig.
-     *
-     * @param name the name of the attribute whose value is to be retrieved.
-     *
+     * 
+     * @param name
+     *            the name of the attribute whose value is to be retrieved.
+     * 
      * @return the attribute value or null if missing
      */
     public String getInitAttribute(String name) {
-        return configuration.getString("[@" +name+ "]", null);
+        return configuration.getString("[@" + name + "]", null);
     }
 
     /**
      * Get the mailet's MailetContext object.
-     *
+     * 
      * @return the MailetContext for the mailet
      */
     public MailetContext getMailetContext() {
@@ -114,8 +106,9 @@ public class MailetConfigImpl implements MailetConfig {
 
     /**
      * Set the mailet's Avalon Configuration object.
-     *
-     * @param newContext the MailetContext for the mailet
+     * 
+     * @param newContext
+     *            the MailetContext for the mailet
      */
     public void setMailetContext(MailetContext newContext) {
         mailetContext = newContext;
@@ -123,31 +116,32 @@ public class MailetConfigImpl implements MailetConfig {
 
     /**
      * Set the Avalon Configuration object for the mailet.
-     *
-     * @param newConfiguration the new Configuration for the mailet
+     * 
+     * @param newConfiguration
+     *            the new Configuration for the mailet
      */
     @SuppressWarnings("unchecked")
     public void setConfiguration(Configuration newConfiguration) {
         DefaultConfigurationBuilder builder = new DefaultConfigurationBuilder();
         Iterator<String> keys = newConfiguration.getKeys();
-        while(keys.hasNext()) {
+        while (keys.hasNext()) {
             String key = keys.next();
             String value = newConfiguration.getString(key);
             // See JAMES-1177
-            // Need to replace ".." with "." 
-            // See http://commons.apache.org/configuration/userguide-1.2/howto_xml.html 
+            // Need to replace ".." with "."
+            // See
+            // http://commons.apache.org/configuration/userguide-1.2/howto_xml.html
             // Escaping dot characters in XML tags
             key = key.replaceAll("\\.\\.", "\\.");
             builder.addProperty(key, value);
         }
-     
-        
+
         configuration = builder;
     }
 
     /**
      * Get the name of the mailet.
-     *
+     * 
      * @return the name of the mailet
      */
     public String getMailetName() {
@@ -156,8 +150,9 @@ public class MailetConfigImpl implements MailetConfig {
 
     /**
      * Set the name for the mailet.
-     *
-     * @param newName the new name for the mailet
+     * 
+     * @param newName
+     *            the new name for the mailet
      */
     public void setMailetName(String newName) {
         name = newName;

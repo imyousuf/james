@@ -28,11 +28,10 @@ import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.mailetcontainer.api.jmx.MailProcessorManagementMBean;
 
 /**
- * Wrapper which helps to expose JMX statistics for {@link MailProcessor} and {@link CamelProcessor} implementations
- * 
- *
+ * Wrapper which helps to expose JMX statistics for {@link MailProcessor} and
+ * {@link CamelProcessor} implementations
  */
-public class MailProcessorManagement extends StandardMBean implements MailProcessorManagementMBean{
+public class MailProcessorManagement extends StandardMBean implements MailProcessorManagementMBean {
     private String processorName;
     private AtomicLong errorCount = new AtomicLong(0);
     private AtomicLong successCount = new AtomicLong(0);
@@ -40,13 +39,10 @@ public class MailProcessorManagement extends StandardMBean implements MailProces
     private AtomicLong slowestProcessing = new AtomicLong(-1);
     private AtomicLong lastProcessing = new AtomicLong(-1);
 
-
-        
     public MailProcessorManagement(String processorName) throws NotCompliantMBeanException {
         super(MailProcessorManagementMBean.class);
         this.processorName = processorName;
     }
-
 
     /**
      * Update the stats
@@ -56,12 +52,11 @@ public class MailProcessorManagement extends StandardMBean implements MailProces
      */
     public void update(long processTime, boolean success) {
         long fastest = fastestProcessing.get();
-        
-        if ( fastest > processTime || fastest == -1) {
+
+        if (fastest > processTime || fastest == -1) {
             fastestProcessing.set(processTime);
         }
-        
-        
+
         if (slowestProcessing.get() < processTime) {
             slowestProcessing.set(processTime);
         }
@@ -70,17 +65,16 @@ public class MailProcessorManagement extends StandardMBean implements MailProces
         } else {
             errorCount.incrementAndGet();
         }
-        
+
         lastProcessing.set(processTime);
 
-       
-     }
-    
-
+    }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#getHandledMailCount()
+     * 
+     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#
+     * getHandledMailCount()
      */
     public long getHandledMailCount() {
         return getSuccessCount() + getErrorCount();
@@ -88,7 +82,10 @@ public class MailProcessorManagement extends StandardMBean implements MailProces
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessorDetailMBean#getName()
+     * 
+     * @see
+     * org.apache.james.mailetcontainer.api.jmx.MailProcessorDetailMBean#getName
+     * ()
      */
     public String getName() {
         return processorName;
@@ -96,7 +93,9 @@ public class MailProcessorManagement extends StandardMBean implements MailProces
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#getFastestProcessing()
+     * 
+     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#
+     * getFastestProcessing()
      */
     public long getFastestProcessing() {
         return fastestProcessing.get();
@@ -104,7 +103,9 @@ public class MailProcessorManagement extends StandardMBean implements MailProces
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#getSlowestProcessing()
+     * 
+     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#
+     * getSlowestProcessing()
      */
     public long getSlowestProcessing() {
         return slowestProcessing.get();
@@ -112,16 +113,21 @@ public class MailProcessorManagement extends StandardMBean implements MailProces
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#getErrorCount()
+     * 
+     * @see
+     * org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#getErrorCount
+     * ()
      */
     public long getErrorCount() {
         return errorCount.get();
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#getSuccessCount()
+     * 
+     * @see
+     * org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#getSuccessCount
+     * ()
      */
     public long getSuccessCount() {
         return successCount.get();
@@ -129,7 +135,9 @@ public class MailProcessorManagement extends StandardMBean implements MailProces
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#getLastProcessing()
+     * 
+     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#
+     * getLastProcessing()
      */
     public long getLastProcessing() {
         return lastProcessing.get();

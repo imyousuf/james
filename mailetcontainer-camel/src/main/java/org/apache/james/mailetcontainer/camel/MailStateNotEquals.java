@@ -24,18 +24,18 @@ import org.apache.mailet.Mail;
 
 /**
  * Check if the Mail state is NOT equal to the one given on the constructor
- * 
- *
  */
-public class MailStateNotEquals implements Predicate{
+public class MailStateNotEquals implements Predicate {
 
     private String state;
+
     public MailStateNotEquals(String state) {
         this.state = state;
     }
-    
+
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.camel.Predicate#matches(org.apache.camel.Exchange)
      */
     public boolean matches(Exchange ex) {

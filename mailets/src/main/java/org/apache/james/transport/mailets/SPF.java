@@ -30,18 +30,24 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 /**
- * Check the ip, sender, helo against SPF.
- * Add the following attributes to the mail object:
+ * Check the ip, sender, helo against SPF. Add the following attributes to the
+ * mail object:
  * 
- * org.apache.james.transport.mailets.spf.explanation
- * org.apache.james.transport.mailets.spf.result
- *
+ * <pre>
+ * <code>
+ *  org.apache.james.transport.mailets.spf.explanation
+ *  org.apache.james.transport.mailets.spf.result
+ * </code>
+ * </pre>
+ * 
  * Sample configuration:
- *
- * <mailet match="All" class="SPF">
- *   <addHeader>true</addHeader>
- *   <debug>false</debug>
- * </mailet>
+ * 
+ * <pre>
+ * &lt;mailet match="All" class="SPF"&gt;
+ *   &lt;addHeader&gt;true&lt;/addHeader&gt;
+ *   &lt;debug&gt;false&lt;/debug&gt;
+ * &lt;/mailet&gt;
+ * </pre>
  */
 public class SPF extends GenericMailet {
     private boolean addHeader = false;
@@ -51,18 +57,19 @@ public class SPF extends GenericMailet {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.mailet.GenericMailet#init()
      */
     public void init() {
         addHeader = Boolean.valueOf(getInitParameter("addHeader", "false"));
-        SPFLoggerAdapter logger = new SPFLoggerAdapter(Boolean.valueOf(
-                getInitParameter("debug", "false")));
+        SPFLoggerAdapter logger = new SPFLoggerAdapter(Boolean.valueOf(getInitParameter("debug", "false")));
 
         spf = new DefaultSPF(logger);
     }
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.mailet.GenericMailet#service(org.apache.mailet.Mail)
      */
     public void service(Mail mail) throws MessagingException {
@@ -81,13 +88,11 @@ public class SPF extends GenericMailet {
             mail.setAttribute(EXPLANATION_ATTRIBUTE, result.getExplanation());
             mail.setAttribute(RESULT_ATTRIBUTE, result.getResult());
 
-            log("ip:" + remoteAddr + " from:" + sender + " helo:" + helo
-                    + " = " + result.getResult());
+            log("ip:" + remoteAddr + " from:" + sender + " helo:" + helo + " = " + result.getResult());
             if (addHeader) {
                 try {
                     MimeMessage msg = mail.getMessage();
-                    msg.addHeader(result.getHeaderName(), result
-                            .getHeaderText());
+                    msg.addHeader(result.getHeaderName(), result.getHeaderText());
                     msg.saveChanges();
                 } catch (MessagingException e) {
                     // Ignore not be able to add headers
@@ -103,7 +108,7 @@ public class SPF extends GenericMailet {
         public SPFLoggerAdapter(boolean debug) {
             this.debug = debug;
         }
-        
+
         public SPFLoggerAdapter(String name, boolean debug) {
             this.name = name;
             this.debug = debug;

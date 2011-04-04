@@ -25,15 +25,13 @@ import java.util.Collection;
 import org.apache.james.protocols.smtp.core.esmtp.EhloCmdHandler;
 
 /**
- * Handles the LHLO command 
- *
+ * Handles the LHLO command
  */
-public class LhloCmdHandler extends EhloCmdHandler{
+public class LhloCmdHandler extends EhloCmdHandler {
 
     @Override
     public Collection<String> getImplCommands() {
         return Arrays.asList("LHLO");
     }
-    
 
 }

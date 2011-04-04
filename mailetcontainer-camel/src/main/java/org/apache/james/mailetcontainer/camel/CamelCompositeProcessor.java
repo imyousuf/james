@@ -33,19 +33,19 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailetContext;
 
 /**
- * Build up the Camel Routes by parsing the mailetcontainer.xml configuration file. 
+ * Build up the Camel Routes by parsing the mailetcontainer.xml configuration
+ * file.
  * 
- * It also offer the {@link AbstractStateCompositeProcessor} implementation which allow to inject {@link Mail} into the routes.
- *
- * 
+ * It also offer the {@link AbstractStateCompositeProcessor} implementation
+ * which allow to inject {@link Mail} into the routes.
  */
-public class CamelCompositeProcessor extends AbstractStateCompositeProcessor implements CamelContextAware{
+public class CamelCompositeProcessor extends AbstractStateCompositeProcessor implements CamelContextAware {
 
     private CamelContext camelContext;
     private MailetContext mailetContext;
     private MatcherLoader matcherLoader;
     private MailetLoader mailetLoader;
-    
+
     @Resource(name = "matcherloader")
     public void setMatcherLoader(MatcherLoader matcherLoader) {
         this.matcherLoader = matcherLoader;
@@ -55,13 +55,12 @@ public class CamelCompositeProcessor extends AbstractStateCompositeProcessor imp
     public void setMailetLoader(MailetLoader mailetLoader) {
         this.mailetLoader = mailetLoader;
     }
-    
-    @Resource(name= "mailetcontext")
+
+    @Resource(name = "mailetcontext")
     public void setMailetContext(MailetContext mailetContext) {
         this.mailetContext = mailetContext;
     }
 
-    
     @PostConstruct
     public void init() throws Exception {
         super.init();
@@ -79,10 +78,9 @@ public class CamelCompositeProcessor extends AbstractStateCompositeProcessor imp
      * 
      * @see org.apache.camel.CamelContextAware#getCamelContext()
      */
-	public CamelContext getCamelContext() {
+    public CamelContext getCamelContext() {
         return camelContext;
     }
-
 
     /*
      * (non-Javadoc)
@@ -96,9 +94,12 @@ public class CamelCompositeProcessor extends AbstractStateCompositeProcessor imp
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.lib.AbstractCompositeMailProcessor#createMailProcessor(java.lang.String, org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see org.apache.james.mailetcontainer.lib.AbstractCompositeMailProcessor#
+     * createMailProcessor(java.lang.String,
+     * org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    protected MailProcessor createMailProcessor(String name, HierarchicalConfiguration config) throws Exception{
+    protected MailProcessor createMailProcessor(String name, HierarchicalConfiguration config) throws Exception {
         CamelMailetProcessor processor = new CamelMailetProcessor();
         try {
             processor.setLog(logger);
@@ -111,10 +112,9 @@ public class CamelCompositeProcessor extends AbstractStateCompositeProcessor imp
             return processor;
         } catch (Exception e) {
             processor.destroy();
-            
+
             throw e;
         }
     }
- 
 
 }

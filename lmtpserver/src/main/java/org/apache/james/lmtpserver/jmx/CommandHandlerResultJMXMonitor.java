@@ -19,7 +19,7 @@
 
 package org.apache.james.lmtpserver.jmx;
 
-public class CommandHandlerResultJMXMonitor extends org.apache.james.smtpserver.jmx.CommandHandlerResultJMXMonitor{
+public class CommandHandlerResultJMXMonitor extends org.apache.james.smtpserver.jmx.CommandHandlerResultJMXMonitor {
 
     @Override
     protected String getDefaultJMXName() {
