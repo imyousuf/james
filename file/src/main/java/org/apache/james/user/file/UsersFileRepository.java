@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.user.file;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -30,36 +28,38 @@ import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.api.model.User;
 import org.apache.james.user.lib.AbstractJamesUsersRepository;
 
-
 import java.util.Iterator;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 /**
+ * <p>
  * Implementation of a Repository to store users on the File System.
- *
+ * </p>
+ * 
+ * <p>
  * Requires a configuration element in the .conf.xml file of the form:
+ * 
+ * <pre>
  *  &lt;repository destinationURL="file://path-to-root-dir-for-repository"
  *              type="USERS"
  *              model="SYNCHRONOUS"/&gt;
+ * </pre>
+ * 
  * Requires a logger called UsersRepository.
- *
- *
- * @version CVS $Revision: 521427 $
- *
+ * </p>
  */
 @Deprecated
-public class UsersFileRepository
-    extends AbstractJamesUsersRepository {
- 
+public class UsersFileRepository extends AbstractJamesUsersRepository {
+
     /**
      * Whether 'deep debugging' is turned on.
      */
     protected static boolean DEEP_DEBUG = false;
 
     private FilePersistentObjectRepository objectRepository;
-    private static String urlSeparator = "/"; 
+    private static String urlSeparator = "/";
 
     /**
      * The destination URL used to define the repository.
@@ -68,8 +68,7 @@ public class UsersFileRepository
 
     private FileSystem fs;
 
-
-    @Resource(name="filesystem")
+    @Resource(name = "filesystem")
     public void setFileSystem(FileSystem fs) {
         this.fs = fs;
     }
@@ -77,10 +76,9 @@ public class UsersFileRepository
     /**
      * @see org.apache.james.user.lib.AbstractJamesUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    protected void doConfigure( final HierarchicalConfiguration configuration )
-        throws ConfigurationException {
+    protected void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         super.doConfigure(configuration);
-        destination = configuration.getString( "destination.[@URL]" );
+        destination = configuration.getString("destination.[@URL]");
 
         if (!destination.endsWith(urlSeparator)) {
             destination += urlSeparator;
@@ -88,32 +86,26 @@ public class UsersFileRepository
     }
 
     @PostConstruct
-    public void init()
-        throws Exception {
+    public void init() throws Exception {
         try {
-            //TODO Check how to remove this!
-            //prepare Configurations for object and stream repositories
-            final DefaultConfigurationBuilder objectConfiguration
-                = new DefaultConfigurationBuilder();
+            // TODO Check how to remove this!
+            // prepare Configurations for object and stream repositories
+            final DefaultConfigurationBuilder objectConfiguration = new DefaultConfigurationBuilder();
 
-            objectConfiguration.addProperty( "[@destinationURL]", destination );
-            
+            objectConfiguration.addProperty("[@destinationURL]", destination);
+
             objectRepository = new FilePersistentObjectRepository();
             objectRepository.setLog(getLogger());
             objectRepository.setFileSystem(fs);
             objectRepository.configure(objectConfiguration);
             objectRepository.init();
             if (getLogger().isDebugEnabled()) {
-                StringBuffer logBuffer =
-                    new StringBuffer(192)
-                            .append(this.getClass().getName())
-                            .append(" created in ")
-                            .append(destination);
+                StringBuffer logBuffer = new StringBuffer(192).append(this.getClass().getName()).append(" created in ").append(destination);
                 getLogger().debug(logBuffer.toString());
             }
         } catch (Exception e) {
             if (getLogger().isErrorEnabled()) {
-                getLogger().error("Failed to initialize repository:" + e.getMessage(), e );
+                getLogger().error("Failed to initialize repository:" + e.getMessage(), e);
             }
             throw e;
         }
@@ -129,33 +121,30 @@ public class UsersFileRepository
     /**
      * @see org.apache.james.user.lib.AbstractJamesUsersRepository#doAddUser(org.apache.james.user.api.model.User)
      */
-    protected void doAddUser(User user) throws UsersRepositoryException{
+    protected void doAddUser(User user) throws UsersRepositoryException {
         try {
             objectRepository.put(user.getUserName(), user);
         } catch (Exception e) {
-            throw new UsersRepositoryException("Exception caught while storing user: " + e );
+            throw new UsersRepositoryException("Exception caught while storing user: " + e);
         }
     }
 
-
-
     /**
-     * @throws UsersRepositoryException 
+     * @throws UsersRepositoryException
      * @see org.apache.james.user.api.UsersRepository#getUserByName(java.lang.String)
      */
     public synchronized User getUserByName(String name) throws UsersRepositoryException {
         if (ignoreCase) {
             name = getRealName(name);
-            if (name == null ) {
+            if (name == null) {
                 return null;
             }
         }
         if (contains(name)) {
             try {
-                return (User)objectRepository.get(name);
+                return (User) objectRepository.get(name);
             } catch (Exception e) {
-                throw new UsersRepositoryException("Exception while retrieving user: "
-                                           + e.getMessage());
+                throw new UsersRepositoryException("Exception while retrieving user: " + e.getMessage());
             }
         } else {
             return null;
@@ -165,7 +154,7 @@ public class UsersFileRepository
     /**
      * Return the real name, given the ignoreCase boolean parameter
      */
-    public String getRealName(String name, boolean ignoreCase)  throws UsersRepositoryException{
+    public String getRealName(String name, boolean ignoreCase) throws UsersRepositoryException {
         if (ignoreCase) {
             Iterator<String> it = list();
             while (it.hasNext()) {
@@ -183,34 +172,33 @@ public class UsersFileRepository
     /**
      * @see org.apache.james.user.api.UsersRepository#getRealName(java.lang.String)
      */
-    public String getRealName(String name) throws UsersRepositoryException{
+    public String getRealName(String name) throws UsersRepositoryException {
         return getRealName(name, ignoreCase);
     }
-    
+
     /**
-     * @throws UsersRepositoryException 
+     * @throws UsersRepositoryException
      * @see org.apache.james.user.lib.AbstractJamesUsersRepository#doUpdateUser(org.apache.james.user.api.model.User)
      */
     public void doUpdateUser(User user) throws UsersRepositoryException {
         try {
             objectRepository.put(user.getUserName(), user);
         } catch (Exception e) {
-            throw new UsersRepositoryException("Exception caught while storing user: "
-                    + e);
+            throw new UsersRepositoryException("Exception caught while storing user: " + e);
         }
     }
 
     /**
      * @see org.apache.james.user.api.UsersRepository#removeUser(java.lang.String)
      */
-    public synchronized void removeUser(String name) throws UsersRepositoryException{
+    public synchronized void removeUser(String name) throws UsersRepositoryException {
         objectRepository.remove(name);
     }
 
     /**
      * @see org.apache.james.user.api.UsersRepository#contains(java.lang.String)
      */
-    public boolean contains(String name) throws UsersRepositoryException{
+    public boolean contains(String name) throws UsersRepositoryException {
         if (ignoreCase) {
             return containsCaseInsensitive(name);
         } else {
@@ -221,10 +209,10 @@ public class UsersFileRepository
     /**
      * @see org.apache.james.user.api.UsersRepository#containsCaseInsensitive(java.lang.String)
      */
-    public boolean containsCaseInsensitive(String name) throws UsersRepositoryException{
+    public boolean containsCaseInsensitive(String name) throws UsersRepositoryException {
         Iterator<String> it = list();
         while (it.hasNext()) {
-            if (name.equalsIgnoreCase((String)it.next())) {
+            if (name.equalsIgnoreCase((String) it.next())) {
                 return true;
             }
         }
@@ -232,13 +220,15 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.user.api.UsersRepository#test(java.lang.String, java.lang.String)
+     * @see org.apache.james.user.api.UsersRepository#test(java.lang.String,
+     *      java.lang.String)
      */
-    public boolean test(String name, String password) throws UsersRepositoryException{
+    public boolean test(String name, String password) throws UsersRepositoryException {
         User user;
         try {
             user = getUserByName(name);
-            if (user == null) return false;
+            if (user == null)
+                return false;
         } catch (Exception e) {
             throw new RuntimeException("Exception retrieving User" + e);
         }
@@ -248,7 +238,7 @@ public class UsersFileRepository
     /**
      * @see org.apache.james.user.api.UsersRepository#countUsers()
      */
-    public int countUsers() throws UsersRepositoryException{
+    public int countUsers() throws UsersRepositoryException {
         int count = 0;
         for (Iterator<String> it = list(); it.hasNext(); it.next()) {
             count++;

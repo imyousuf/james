@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.mailrepository.jdbc;
 
 import org.apache.james.core.MimeMessageSource;
@@ -36,8 +34,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * This class points to a specific message in a repository.  This will return an
- * InputStream to the JDBC field/record, possibly sequenced with the file stream.
+ * This class points to a specific message in a repository. This will return an
+ * InputStream to the JDBC field/record, possibly sequenced with the file
+ * stream.
  */
 public class MimeMessageJDBCSource extends MimeMessageSource {
 
@@ -46,7 +45,7 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
      */
     private static final boolean DEEP_DEBUG = false;
 
-    //Define how to get to the data
+    // Define how to get to the data
     JDBCMailRepository repository = null;
     String key = null;
     StreamRepository sr = null;
@@ -66,25 +65,28 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
     /**
      * The JDBCUtil helper class
      */
-    private static final JDBCUtil theJDBCUtil =
-            new JDBCUtil() {
-                protected void delegatedLog(String logString) {
-                    // No logging available at this point in the code.
-                    // Therefore this is a noop method.
-                }
-            };
+    private static final JDBCUtil theJDBCUtil = new JDBCUtil() {
+        protected void delegatedLog(String logString) {
+            // No logging available at this point in the code.
+            // Therefore this is a noop method.
+        }
+    };
 
     /**
      * Construct a MimeMessageSource based on a JDBC repository, a key, and a
      * stream repository (where we might store the message body)
      * 
-     * @param repository the JDBCMailRepository to use
-     * @param key the key for the particular stream in the stream repository to be used by this data source.
-     * @param sr the stream repository used by this data source.
-     * @throws IOException get thrown if an IO error detected
+     * @param repository
+     *            the JDBCMailRepository to use
+     * @param key
+     *            the key for the particular stream in the stream repository to
+     *            be used by this data source.
+     * @param sr
+     *            the stream repository used by this data source.
+     * @throws IOException
+     *             get thrown if an IO error detected
      */
-    public MimeMessageJDBCSource(JDBCMailRepository repository,
-            String key, StreamRepository sr) throws IOException {
+    public MimeMessageJDBCSource(JDBCMailRepository repository, String key, StreamRepository sr) throws IOException {
         super();
 
         if (repository == null) {
@@ -97,34 +99,29 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
         this.key = key;
         this.sr = sr;
 
-        retrieveMessageBodySQL =
-            repository.sqlQueries.getSqlString("retrieveMessageBodySQL", true);
+        retrieveMessageBodySQL = repository.sqlQueries.getSqlString("retrieveMessageBodySQL", true);
         // this is optional
-        retrieveMessageBodySizeSQL =
-            repository.sqlQueries.getSqlString("retrieveMessageBodySizeSQL");
-    
+        retrieveMessageBodySizeSQL = repository.sqlQueries.getSqlString("retrieveMessageBodySizeSQL");
+
     }
 
     /**
-     * Returns a unique String ID that represents the location from where 
-     * this source is loaded.  This will be used to identify where the data 
-     * is, primarily to avoid situations where this data would get overwritten.
-     *
+     * Returns a unique String ID that represents the location from where this
+     * source is loaded. This will be used to identify where the data is,
+     * primarily to avoid situations where this data would get overwritten.
+     * 
      * @return the String ID
      */
     public String getSourceId() {
-        StringBuffer sourceIdBuffer =
-            new StringBuffer(128)
-                    .append(repository.repositoryName)
-                    .append("/")
-                    .append(key);
+        StringBuffer sourceIdBuffer = new StringBuffer(128).append(repository.repositoryName).append("/").append(key);
         return sourceIdBuffer.toString();
     }
 
     /**
-     * Return the input stream to the database field and then the file stream.  This should
-     * be smart enough to work even if the file does not exist.  This is to support
-     * a repository with the entire message in the database, which is how James 1.2 worked.
+     * Return the input stream to the database field and then the file stream.
+     * This should be smart enough to work even if the file does not exist. This
+     * is to support a repository with the entire message in the database, which
+     * is how James 1.2 worked.
      * 
      * @see org.apache.james.core.MimeMessageSource#getInputStream()
      */
@@ -154,7 +151,7 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
             String getBodyOption = repository.sqlQueries.getDbOption("getBody");
             if (getBodyOption != null && getBodyOption.equalsIgnoreCase("useBlob")) {
                 Blob b = rsRetrieveMessageStream.getBlob(1);
-                headers = b.getBytes(1, (int)b.length());
+                headers = b.getBytes(1, (int) b.length());
             } else {
                 headers = rsRetrieveMessageStream.getBytes(1);
             }
@@ -169,7 +166,7 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
                     in = new SequenceInputStream(in, sr.get(key));
                 }
             } catch (Exception e) {
-                //ignore this... either sr is null, or the file does not exist
+                // ignore this... either sr is null, or the file does not exist
                 // or something else
             }
             return in;
@@ -188,9 +185,11 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
      * @see org.apache.james.core.MimeMessageSource#getMessageSize()
      */
     public synchronized long getMessageSize() throws IOException {
-        if (size != -1) return size;
+        if (size != -1)
+            return size;
         if (retrieveMessageBodySizeSQL == null) {
-            //There was no SQL statement for this repository... figure it out the hard way
+            // There was no SQL statement for this repository... figure it out
+            // the hard way
             System.err.println("no SQL statement to find size");
             return size = super.getMessageSize();
         }
@@ -226,7 +225,7 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
                     }
                 }
             } catch (Exception e) {
-                //ignore this... either sr is null, or the file does not exist
+                // ignore this... either sr is null, or the file does not exist
                 // or something else
             } finally {
                 try {
@@ -237,7 +236,7 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
                     // Ignored - no access to logger at this point in the code
                 }
             }
-            
+
             return size;
         } catch (SQLException sqle) {
             throw new IOException(sqle.toString());
@@ -253,21 +252,21 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
      */
     public boolean equals(Object obj) {
         if (obj instanceof MimeMessageJDBCSource) {
-            // TODO: Figure out whether other instance variables should be part of
+            // TODO: Figure out whether other instance variables should be part
+            // of
             // the equals equation
-            MimeMessageJDBCSource source = (MimeMessageJDBCSource)obj;
-            return ((source.key == key) || ((source.key != null) && source.key.equals(key))) &&
-                   ((source.repository == repository) || ((source.repository != null) && source.repository.equals(repository)));
+            MimeMessageJDBCSource source = (MimeMessageJDBCSource) obj;
+            return ((source.key == key) || ((source.key != null) && source.key.equals(key))) && ((source.repository == repository) || ((source.repository != null) && source.repository.equals(repository)));
         }
         return false;
     }
 
     /**
      * Provide a hash code that is consistent with equals for this class
-     *
+     * 
      * @return the hash code
      */
-     public int hashCode() {
+    public int hashCode() {
         int result = 17;
         if (key != null) {
             result = 37 * key.hashCode();
@@ -276,6 +275,6 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
             result = 37 * repository.hashCode();
         }
         return result;
-     }
+    }
 
 }

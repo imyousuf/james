@@ -17,19 +17,17 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.fetchmail;
 
 import javax.mail.Session;
 
 import org.apache.commons.configuration.ConfigurationException;
 
-public class DynamicAccount extends Account
-{
+public class DynamicAccount extends Account {
 
     /**
      * Constructor for DynamicAccount.
+     * 
      * @param sequenceNumber
      * @param parsedConfiguration
      * @param user
@@ -39,65 +37,28 @@ public class DynamicAccount extends Account
      * @param session
      * @throws ConfigurationException
      */
-    private DynamicAccount(
-        int sequenceNumber,
-        ParsedConfiguration parsedConfiguration,
-        String user,
-        String password,
-        String recipient,
-        boolean ignoreRecipientHeader,
-        String customRecipientHeader,
-        Session session)
-        throws ConfigurationException
-    {
-        super(
-            sequenceNumber,
-            parsedConfiguration,
-            user,
-            password,
-            recipient,
-            ignoreRecipientHeader,
-            customRecipientHeader,
-            session);
+    private DynamicAccount(int sequenceNumber, ParsedConfiguration parsedConfiguration, String user, String password, String recipient, boolean ignoreRecipientHeader, String customRecipientHeader, Session session) throws ConfigurationException {
+        super(sequenceNumber, parsedConfiguration, user, password, recipient, ignoreRecipientHeader, customRecipientHeader, session);
     }
 
     /**
      * Constructor for DynamicAccount.
+     * 
      * @param sequenceNumber
      * @param parsedConfiguration
      * @param userName
-     * @param userPrefix 
+     * @param userPrefix
      * @param userSuffix
      * @param password
-     * @param recipientPrefix 
-     * @param recipientSuffix  
+     * @param recipientPrefix
+     * @param recipientSuffix
      * @param ignoreRecipientHeader
      * @param session
      * @throws ConfigurationException
      */
-    public DynamicAccount(
-        int sequenceNumber,
-        ParsedConfiguration parsedConfiguration,
-        String userName,
-        String userPrefix,
-        String userSuffix,
-        String password,
-        String recipientPrefix,
-        String recipientSuffix,
-        boolean ignoreRecipientHeader,
-        String customRecipientHeader,
-        Session session)
-        throws ConfigurationException
-    {
-        this(
-            sequenceNumber,
-            parsedConfiguration,
-            null,
-            password,
-            null,
-            ignoreRecipientHeader,
-            customRecipientHeader,
-            session);
+    public DynamicAccount(int sequenceNumber, ParsedConfiguration parsedConfiguration, String userName, String userPrefix, String userSuffix, String password, String recipientPrefix, String recipientSuffix, boolean ignoreRecipientHeader, String customRecipientHeader, Session session)
+            throws ConfigurationException {
+        this(sequenceNumber, parsedConfiguration, null, password, null, ignoreRecipientHeader, customRecipientHeader, session);
 
         StringBuffer userBuffer = new StringBuffer(userPrefix);
         userBuffer.append(userName);

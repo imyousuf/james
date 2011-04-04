@@ -26,9 +26,8 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 
 /**
- * Some adapter class which allows to write to {@link Channel} via a {@link WritableByteChannel} interface
- * 
- *
+ * Some adapter class which allows to write to {@link Channel} via a
+ * {@link WritableByteChannel} interface
  */
 public class ChannelWritableByteChannel implements WritableByteChannel {
 
@@ -37,7 +36,7 @@ public class ChannelWritableByteChannel implements WritableByteChannel {
     public ChannelWritableByteChannel(Channel channel) {
         this.channel = channel;
     }
-    
+
     public void close() throws IOException {
         // do nothing
     }
@@ -48,17 +47,18 @@ public class ChannelWritableByteChannel implements WritableByteChannel {
 
     /*
      * (non-Javadoc)
+     * 
      * @see java.nio.channels.WritableByteChannel#write(java.nio.ByteBuffer)
      */
     public int write(ByteBuffer src) throws IOException {
-        if (src.remaining() == 0) return 0;
+        if (src.remaining() == 0)
+            return 0;
         byte data[] = new byte[src.remaining()];
         src.get(data);
-        
+
         channel.write(ChannelBuffers.wrappedBuffer(data));
-      
+
         return data.length;
     }
-   
 
 }

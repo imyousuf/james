@@ -17,30 +17,27 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.dnsservice.api;
 
 /**
  * JMX MBean to manage the DNSService
- * 
  */
 public interface DNSServiceMBean {
 
-	/**
-	 * Return the configured DNSServers
-	 * 
-	 * @return servers
-	 */
+    /**
+     * Return the configured DNSServers
+     * 
+     * @return servers
+     */
     String[] getDNSServers();
-    
+
     /**
      * Return the maximum cache size
      * 
      * @return maxCacheSize
      */
     int getMaximumCacheSize();
-    
+
     /**
      * Return the current size of the cache
      * 

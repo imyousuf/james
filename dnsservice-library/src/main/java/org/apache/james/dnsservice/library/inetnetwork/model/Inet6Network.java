@@ -39,29 +39,34 @@ public class Inet6Network implements InetNetwork {
      * The subnet mask to apply on the IP address.
      */
     private Integer netmask;
-    
+
     /**
-     * You need a IP address (InetAddress) and an subnetmask (Integer) to construct an Inet6Network.<br/>
+     * You need a IP address (InetAddress) and an subnetmask (Integer) to
+     * construct an Inet6Network.
      * 
-     * @param ip the InetAddress to init the class
-     * @param netmask the InetAddress represent the netmask to init the class
+     * @param ip
+     *            the InetAddress to init the class
+     * @param netmask
+     *            the InetAddress represent the netmask to init the class
      */
     public Inet6Network(InetAddress ip, Integer netmask) {
         network = maskIP(ip, netmask);
         this.netmask = netmask;
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.james.api.dnsservice.model.InetNetwork#contains(java.net.InetAddress)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.api.dnsservice.model.InetNetwork#contains(java.net.
+     * InetAddress)
      */
     public boolean contains(final InetAddress ip) {
-        if (! InetNetworkBuilder.isV6(ip.getHostAddress())) {
+        if (!InetNetworkBuilder.isV6(ip.getHostAddress())) {
             return false;
         }
         try {
             return network.equals(maskIP(ip, netmask));
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return false;
         }
     }
@@ -88,11 +93,8 @@ public class Inet6Network implements InetNetwork {
      * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object obj) {
-        return (obj != null)
-                && (obj instanceof InetNetwork)
-                && ((((Inet6Network) obj).network.equals(network)) && (((Inet6Network) obj).netmask.equals(netmask)));
+        return (obj != null) && (obj instanceof InetNetwork) && ((((Inet6Network) obj).network.equals(network)) && (((Inet6Network) obj).netmask.equals(netmask)));
     }
-
 
     /**
      * @see #maskIP(byte[], byte[])
@@ -100,7 +102,7 @@ public class Inet6Network implements InetNetwork {
     private static InetAddress maskIP(final InetAddress ip, Integer mask) {
         byte[] maskBytes = new byte[16];
         int i = 0;
-        while (mask >  0) {
+        while (mask > 0) {
             maskBytes[i] = (byte) 255;
             i++;
             mask = (mask >> 1);
@@ -109,11 +111,13 @@ public class Inet6Network implements InetNetwork {
     }
 
     /**
-     * Return InetAddress generated of the passed arguments. 
-     * Return Null if any error occurs
+     * Return InetAddress generated of the passed arguments. Return Null if any
+     * error occurs
      * 
-     * @param ip the byte[] represent the ip
-     * @param mask the byte[] represent the netmask
+     * @param ip
+     *            the byte[] represent the ip
+     * @param mask
+     *            the byte[] represent the netmask
      * @return inetAddress the InetAddress generated of the passed arguments.
      */
     private static InetAddress maskIP(final byte[] ip, final byte[] mask) {
@@ -125,7 +129,7 @@ public class Inet6Network implements InetNetwork {
         }
         try {
             byte[] maskedIp = new byte[ip.length];
-            for (int i=0; i < ip.length; i++) {
+            for (int i = 0; i < ip.length; i++) {
                 maskedIp[i] = (byte) (ip[i] & mask[i]);
             }
             return getByAddress(maskedIp);
@@ -145,30 +149,16 @@ public class Inet6Network implements InetNetwork {
     private static InetAddress getByAddress(byte[] ip) throws UnknownHostException {
 
         InetAddress addr = Inet6Address.getByAddress(ip);
-        
+
         // TODO Don't know if this is correct?
         if (addr == null) {
-            addr = InetAddress.getByName(
-                    Integer.toString(ip[0] & 0xFF, 10) + ":" 
-                    + Integer.toString(ip[1] & 0xFF, 10) + ":"
-                    + Integer.toString(ip[2] & 0xFF, 10) + ":"
-                    + Integer.toString(ip[3] & 0xFF, 10) + ":"
-                    + Integer.toString(ip[4] & 0xFF, 10) + ":"
-                    + Integer.toString(ip[5] & 0xFF, 10) + ":"
-                    + Integer.toString(ip[6] & 0xFF, 10) + ":"
-                    + Integer.toString(ip[7] & 0xFF, 10) + ":"
-                    + Integer.toString(ip[8] & 0xFF, 10) + ":"
-                    + Integer.toString(ip[9] & 0xFF, 10) + ":"
-                    + Integer.toString(ip[10] & 0xFF, 10) + ":"
-                    + Integer.toString(ip[11] & 0xFF, 10) + ":"
-                    + Integer.toString(ip[12] & 0xFF, 10) + ":"
-                    + Integer.toString(ip[13] & 0xFF, 10) + ":"
-                    + Integer.toString(ip[14] & 0xFF, 10) + ":"
-                    + Integer.toString(ip[15] & 0xFF, 10));
+            addr = InetAddress.getByName(Integer.toString(ip[0] & 0xFF, 10) + ":" + Integer.toString(ip[1] & 0xFF, 10) + ":" + Integer.toString(ip[2] & 0xFF, 10) + ":" + Integer.toString(ip[3] & 0xFF, 10) + ":" + Integer.toString(ip[4] & 0xFF, 10) + ":" + Integer.toString(ip[5] & 0xFF, 10) + ":"
+                    + Integer.toString(ip[6] & 0xFF, 10) + ":" + Integer.toString(ip[7] & 0xFF, 10) + ":" + Integer.toString(ip[8] & 0xFF, 10) + ":" + Integer.toString(ip[9] & 0xFF, 10) + ":" + Integer.toString(ip[10] & 0xFF, 10) + ":" + Integer.toString(ip[11] & 0xFF, 10) + ":"
+                    + Integer.toString(ip[12] & 0xFF, 10) + ":" + Integer.toString(ip[13] & 0xFF, 10) + ":" + Integer.toString(ip[14] & 0xFF, 10) + ":" + Integer.toString(ip[15] & 0xFF, 10));
         }
-        
+
         return addr;
-    
+
     }
 
 }

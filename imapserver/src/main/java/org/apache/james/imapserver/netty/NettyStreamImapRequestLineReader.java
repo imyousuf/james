@@ -27,7 +27,7 @@ import org.apache.james.imap.decode.base.EolInputStream;
 import org.apache.james.imap.decode.base.FixedLengthInputStream;
 import org.jboss.netty.channel.Channel;
 
-public class NettyStreamImapRequestLineReader  extends AbstractNettyImapRequestLineReader{
+public class NettyStreamImapRequestLineReader extends AbstractNettyImapRequestLineReader {
 
     private InputStream in;
 
@@ -54,12 +54,10 @@ public class NettyStreamImapRequestLineReader  extends AbstractNettyImapRequestL
             try {
                 next = in.read();
             } catch (IOException e) {
-                throw new DecodingException(HumanReadableText.SOCKET_IO_FAILURE, 
-                        "Error reading from stream.", e);
+                throw new DecodingException(HumanReadableText.SOCKET_IO_FAILURE, "Error reading from stream.", e);
             }
             if (next == -1) {
-                throw new DecodingException(HumanReadableText.ILLEGAL_ARGUMENTS, 
-                        "Unexpected end of stream.");
+                throw new DecodingException(HumanReadableText.ILLEGAL_ARGUMENTS, "Unexpected end of stream.");
             }
 
             nextSeen = true;
@@ -67,7 +65,6 @@ public class NettyStreamImapRequestLineReader  extends AbstractNettyImapRequestL
         }
         return nextChar;
     }
-
 
     /**
      * Reads and consumes a number of characters from the underlying reader,
@@ -87,15 +84,14 @@ public class NettyStreamImapRequestLineReader  extends AbstractNettyImapRequestL
         nextChar = 0;
         FixedLengthInputStream fin = new FixedLengthInputStream(this.in, size);
         if (extraCRLF) {
-           return new EolInputStream(this, fin);
+            return new EolInputStream(this, fin);
         } else {
             return fin;
         }
     }
-    
+
     public void dispose() throws IOException {
         in.close();
     }
-    
 
 }

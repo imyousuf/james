@@ -25,19 +25,18 @@ import java.io.InputStream;
 import java.io.IOException;
 
 /**
- * This service is used by components that wants to lookup a File resource
- * from the application folder.
+ * This service is used by components that wants to lookup a File resource from
+ * the application folder.
  * 
  * @since James 2.4
  */
 public interface FileSystem {
 
-
     /**
      * Prefix for loading of a filesystem based on the current directory
      */
     static final String FILE_PROTOCOL = "file://";
-    
+
     /**
      * Prefix for loading of a filesystem using the absolute path
      */
@@ -47,39 +46,43 @@ public interface FileSystem {
      * Prefix for loading of the config directory
      */
     static final String FILE_PROTOCOL_AND_CONF = "file://conf/";
-    
+
     /**
      * Prefix for loading of the var directory
      */
     static final String FILE_PROTOCOL_AND_VAR = "file://var/";
-    
+
     /**
      * Prefix for loading of the classpath
      */
     static final String CLASSPATH_PROTOCOL = "classpath:";
 
     /**
-     * to retrieve a resource. this is typically a file resource,
-     * but depending on the implementation, this could also be from classpath or
-     * from another source. 
+     * to retrieve a resource. this is typically a file resource, but depending
+     * on the implementation, this could also be from classpath or from another
+     * source.
      * 
-     * @param url the url of the resource
+     * @param url
+     *            the url of the resource
      * @return the resource as an input stream
-     * @throws IOException if the resource could not be accessed
+     * @throws IOException
+     *             if the resource could not be accessed
      */
     InputStream getResource(String url) throws IOException;
 
     /**
-     * Used to retrieve a specific file in the application context 
+     * Used to retrieve a specific file in the application context
      * 
-     * @param fileURL file
+     * @param fileURL
+     *            file
      * @return the File found
-     * @throws FileNotFoundException if the file cannot be found/read
+     * @throws FileNotFoundException
+     *             if the file cannot be found/read
      */
     File getFile(String fileURL) throws FileNotFoundException;
 
     /**
-     * Return the base folder used by the application 
+     * Return the base folder used by the application
      */
     File getBasedir() throws FileNotFoundException;
 

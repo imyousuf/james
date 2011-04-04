@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.user.lib;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -38,13 +36,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-
 /**
  * A partial implementation of a Repository to store users.
- * <p>This implements common functionality found in different UsersRespository 
- * implementations, and makes it easier to create new User repositories.</p>
- *
- *@deprecated Please implement {@link UsersRepository}
+ * <p>
+ * This implements common functionality found in different UsersRespository
+ * implementations, and makes it easier to create new User repositories.
+ * </p>
+ * 
+ * @deprecated Please implement {@link UsersRepository}
  */
 @Deprecated
 public abstract class AbstractJamesUsersRepository extends AbstractUsersRepository implements JamesUsersRepository, VirtualUserTable {
@@ -53,20 +52,17 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
      * Ignore case in usernames
      */
     protected boolean ignoreCase;
-    
+
     /**
      * Enable Aliases frmo JamesUser
      */
     protected boolean enableAliases;
-    
+
     /**
      * Wether to enable forwarding for JamesUser or not
      */
     protected boolean enableForwarding;
 
-
-    
-    
     @Override
     public void configure(HierarchicalConfiguration configuration) throws ConfigurationException {
         setIgnoreCase(configuration.getBoolean("ignoreCase", false));
@@ -92,14 +88,14 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
      */
     protected abstract void doUpdateUser(User user) throws UsersRepositoryException;
 
-
-
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.lib.AbstractUsersRepository#doAddUser(java.lang.String, java.lang.String)
+     * 
+     * @see
+     * org.apache.james.user.lib.AbstractUsersRepository#doAddUser(java.lang
+     * .String, java.lang.String)
      */
-    protected void doAddUser(String username, String password) throws UsersRepositoryException{
+    protected void doAddUser(String username, String password) throws UsersRepositoryException {
         User newbie = new DefaultJamesUser(username, "SHA");
         newbie.setPassword(password);
         doAddUser(newbie);
@@ -113,7 +109,7 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
      *            the user to be updated
      * 
      * @return true if successful.
-     * @throws UsersRepositoryException 
+     * @throws UsersRepositoryException
      */
     public void updateUser(User user) throws UsersRepositoryException {
         // Return false if it's not found.
@@ -125,12 +121,11 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
     }
 
     /**
-     * @throws VirtualUserTableException 
+     * @throws VirtualUserTableException
      * @see org.apache.james.vut.api.VirtualUserTable#getMappings(java.lang.String,
      *      java.lang.String)
      */
-    public Collection<String> getMappings(String username, String domain)
-            throws ErrorMappingException, VirtualUserTableException {
+    public Collection<String> getMappings(String username, String domain) throws ErrorMappingException, VirtualUserTableException {
         Collection<String> mappings = new ArrayList<String>();
         try {
             User user = getUserByName(username);
@@ -165,7 +160,6 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
         }
     }
 
-    
     /**
      * @see org.apache.james.user.api.JamesUsersRepository#setEnableAliases(boolean)
      */
@@ -189,9 +183,10 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.vut.api.VirtualUserTable#getAllMappings()
      */
-    public Map<String, Collection<String>> getAllMappings() throws VirtualUserTableException{
+    public Map<String, Collection<String>> getAllMappings() throws VirtualUserTableException {
         Map<String, Collection<String>> mappings = new HashMap<String, Collection<String>>();
         if (enableAliases == true || enableForwarding == true) {
             try {
@@ -218,65 +213,68 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
                 throw new VirtualUserTableException("Unable to access forwards/aliases", e);
             }
         }
-       
+
         return mappings;
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.vut.api.VirtualUserTable#getUserDomainMappings(java.lang.String, java.lang.String)
+     * 
+     * @see
+     * org.apache.james.vut.api.VirtualUserTable#getUserDomainMappings(java.
+     * lang.String, java.lang.String)
      */
     public Collection<String> getUserDomainMappings(String user, String domain) throws VirtualUserTableException {
         return new ArrayList<String>();
     }
 
     public void addRegexMapping(String user, String domain, String regex) throws VirtualUserTableException {
-        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");
     }
 
     public void removeRegexMapping(String user, String domain, String regex) throws VirtualUserTableException {
-        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
-        
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");
+
     }
 
     public void addAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
-        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
-        
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");
+
     }
 
     public void removeAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
-        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
-        
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");
+
     }
 
     public void addErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
-        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
-        
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");
+
     }
 
     public void removeErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
-        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
-        
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");
+
     }
 
     public void addMapping(String user, String domain, String mapping) throws VirtualUserTableException {
-        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
-        
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");
+
     }
 
     public void removeMapping(String user, String domain, String mapping) throws VirtualUserTableException {
-        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
-        
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");
+
     }
 
     public void addAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException {
-        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
-        
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");
+
     }
 
     public void removeAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException {
-        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
-        
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");
+
     }
 
 }

@@ -29,27 +29,29 @@ import org.jboss.netty.buffer.ChannelBufferInputStream;
 import org.jboss.netty.channel.Channel;
 
 /**
- * {@link ImapRequestLineReader} implementation which will write to a {@link Channel} and read from a {@link ChannelBuffer}. Please
- * see the docs on {@link #nextChar()} and {@link #read(int)} to understand the special behavior of this implementation
- *
+ * {@link ImapRequestLineReader} implementation which will write to a
+ * {@link Channel} and read from a {@link ChannelBuffer}. Please see the docs on
+ * {@link #nextChar()} and {@link #read(int)} to understand the special behavior
+ * of this implementation
  */
-public class NettyImapRequestLineReader extends AbstractNettyImapRequestLineReader{
+public class NettyImapRequestLineReader extends AbstractNettyImapRequestLineReader {
 
     private ChannelBuffer buffer;
     private int read = 0;
-    
+
     public NettyImapRequestLineReader(Channel channel, ChannelBuffer buffer, boolean retry) {
         super(channel, retry);
         this.buffer = buffer;
-        
+
     }
 
-
     /**
-     * Return the next char to read. This will return the same char on every call till {@link #consume()} was called.
+     * Return the next char to read. This will return the same char on every
+     * call till {@link #consume()} was called.
      * 
-     * This implementation will throw a {@link NotEnoughDataException} if the wrapped {@link ChannelBuffer} contains not enough
-     * data to read the next char
+     * This implementation will throw a {@link NotEnoughDataException} if the
+     * wrapped {@link ChannelBuffer} contains not enough data to read the next
+     * char
      */
     public char nextChar() throws DecodingException {
         if (!nextSeen) {
@@ -68,8 +70,9 @@ public class NettyImapRequestLineReader extends AbstractNettyImapRequestLineRead
     }
 
     /**
-     * Return a {@link ChannelBufferInputStream} if the wrapped {@link ChannelBuffer} contains enough data. If not
-     * it will throw a {@link NotEnoughDataException} 
+     * Return a {@link ChannelBufferInputStream} if the wrapped
+     * {@link ChannelBuffer} contains enough data. If not it will throw a
+     * {@link NotEnoughDataException}
      */
     public InputStream read(int size, boolean extraCRLF) throws DecodingException {
         int crlf = 0;
@@ -77,15 +80,16 @@ public class NettyImapRequestLineReader extends AbstractNettyImapRequestLineRead
             crlf = 2;
         }
         // Check if we have enough data
-        if (size  + crlf> buffer.readableBytes()) {
-            // ok let us throw a exception which till the decoder how many more bytes we need
+        if (size + crlf > buffer.readableBytes()) {
+            // ok let us throw a exception which till the decoder how many more
+            // bytes we need
             throw new NotEnoughDataException(size + read + crlf);
         }
-        
+
         // Unset the next char.
         nextSeen = false;
         nextChar = 0;
-        
+
         ChannelBufferInputStream in = new ChannelBufferInputStream(buffer, size);
         if (extraCRLF) {
             return new EolInputStream(this, in);
@@ -94,14 +98,14 @@ public class NettyImapRequestLineReader extends AbstractNettyImapRequestLineRead
         }
     }
 
-
     /**
-     * {@link RuntimeException} which will get thrown by {@link NettyImapRequestLineReader#nextChar()} and {@link NettyImapRequestLineReader#read(int)} if not 
-     * enough data is readable in the underlying {@link ChannelBuffer}
-     *
+     * {@link RuntimeException} which will get thrown by
+     * {@link NettyImapRequestLineReader#nextChar()} and
+     * {@link NettyImapRequestLineReader#read(int)} if not enough data is
+     * readable in the underlying {@link ChannelBuffer}
      */
     @SuppressWarnings("serial")
-    public final class NotEnoughDataException extends RuntimeException{
+    public final class NotEnoughDataException extends RuntimeException {
 
         public final static int UNKNOWN_SIZE = -1;
         private int size;
@@ -109,11 +113,11 @@ public class NettyImapRequestLineReader extends AbstractNettyImapRequestLineRead
         public NotEnoughDataException(int size) {
             this.size = size;
         }
-        
+
         public NotEnoughDataException() {
             this(UNKNOWN_SIZE);
         }
-        
+
         /**
          * Return the size of the data which is needed
          * 

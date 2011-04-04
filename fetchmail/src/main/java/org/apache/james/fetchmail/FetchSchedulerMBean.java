@@ -17,19 +17,16 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.fetchmail;
 
 /**
  * An interface to expose James management functionality through JMX.
- * 
  */
 public interface FetchSchedulerMBean {
     /**
-    * 
-    * @return boolean The enabled flag     
-    */  
+     * 
+     * @return boolean The enabled flag
+     */
     boolean isEnabled();
 
 }

@@ -38,22 +38,18 @@ public class NettyImapProcessorFactory {
     public static final ImapProcessor createDefaultProcessor(final MailboxManager mailboxManager, final SubscriptionManager subscriptionManager, int batchSize) {
         return createXListSupportingProcessor(mailboxManager, subscriptionManager, null, batchSize);
     }
-    
+
     public static final ImapProcessor createXListSupportingProcessor(final MailboxManager mailboxManager, final SubscriptionManager subscriptionManager, MailboxTyper mailboxTyper) {
         return createXListSupportingProcessor(mailboxManager, subscriptionManager, mailboxTyper, ImapConstants.DEFAULT_BATCH_SIZE);
     }
-    
+
     public static final ImapProcessor createXListSupportingProcessor(final MailboxManager mailboxManager, final SubscriptionManager subscriptionManager, MailboxTyper mailboxTyper, int batchSize) {
         final StatusResponseFactory statusResponseFactory = new UnpooledStatusResponseFactory();
-        final UnknownRequestProcessor unknownRequestImapProcessor = new UnknownRequestProcessor(
-                statusResponseFactory);
-        final ImapProcessor imap4rev1Chain = DefaultProcessorChain
-                .createDefaultChain(unknownRequestImapProcessor,
-                        mailboxManager, subscriptionManager, statusResponseFactory, mailboxTyper, batchSize);
+        final UnknownRequestProcessor unknownRequestImapProcessor = new UnknownRequestProcessor(statusResponseFactory);
+        final ImapProcessor imap4rev1Chain = DefaultProcessorChain.createDefaultChain(unknownRequestImapProcessor, mailboxManager, subscriptionManager, statusResponseFactory, mailboxTyper, batchSize);
         ChunkFetchProcessor fetchProcessor = new ChunkFetchProcessor(imap4rev1Chain, mailboxManager, statusResponseFactory, batchSize);
-        final ImapProcessor result = new ImapResponseMessageProcessor(
-                fetchProcessor);
+        final ImapProcessor result = new ImapResponseMessageProcessor(fetchProcessor);
         return result;
     }
-    
+
 }

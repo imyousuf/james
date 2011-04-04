@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.fetchmail;
 
 import java.util.ArrayList;
@@ -47,139 +45,138 @@ import org.apache.james.user.api.UsersRepositoryException;
 import org.slf4j.Logger;
 
 /**
- * <p>Class <code>FetchMail</code> is an Avalon task that is periodically
- * triggered to fetch mail from a JavaMail Message Store.</p>
+ * <p>
+ * Class <code>FetchMail</code> is an Avalon task that is periodically triggered
+ * to fetch mail from a JavaMail Message Store.
+ * </p>
  * 
- * <p>The lifecycle of an instance of <code>FetchMail</code> is managed by
- * Avalon. The <code>configure(Configuration)</code> method is invoked to parse
- * and validate Configuration properties. The targetTriggered(String) method is
- * invoked to execute the task.</p>
- *  
- * <p>When triggered, a sorted list of Message Store Accounts to be processed is
- * built. Each Message Store Account is processed by delegating to 
- * <code>StoreProcessor</code>.</p>
+ * <p>
+ * The lifecycle of an instance of <code>FetchMail</code> is managed by Avalon.
+ * The <code>configure(Configuration)</code> method is invoked to parse and
+ * validate Configuration properties. The targetTriggered(String) method is
+ * invoked to execute the task.
+ * </p>
  * 
- * <p>There are two kinds of Message Store Accounts, static and dynamic. Static 
+ * <p>
+ * When triggered, a sorted list of Message Store Accounts to be processed is
+ * built. Each Message Store Account is processed by delegating to
+ * <code>StoreProcessor</code>.
+ * </p>
+ * 
+ * <p>
+ * There are two kinds of Message Store Accounts, static and dynamic. Static
  * accounts are expliciltly declared in the Configuration. Dynamic accounts are
  * built each time the task is executed, one per each user defined to James,
- * using the James user name with a configurable prefix and suffix to define
- * the host user identity and recipient identity for each Account. Dynamic
- * accounts allow <code>FetchMail</code> to fetch mail for all James users
- * without modifying the Configuration parameters or restarting the Avalon 
- * server.</p>
+ * using the James user name with a configurable prefix and suffix to define the
+ * host user identity and recipient identity for each Account. Dynamic accounts
+ * allow <code>FetchMail</code> to fetch mail for all James users without
+ * modifying the Configuration parameters or restarting the Avalon server.
+ * </p>
  * 
- * <p>To fully understand the operations supported by this task, read the Class
- * documention for each Class in the delegation chain starting with this 
- * class' delegate, <code>StoreProcessor</code>. </p>
- * 
- * <p>Creation Date: 24-May-03</p>
- * 
+ * <p>
+ * To fully understand the operations supported by this task, read the Class
+ * documention for each Class in the delegation chain starting with this class'
+ * delegate, <code>StoreProcessor</code>.
+ * </p>
  */
 public class FetchMail implements Runnable, LogEnabled, Configurable {
     /**
      * Key fields for DynamicAccounts.
      */
-    private final static class DynamicAccountKey
-    {
+    private final static class DynamicAccountKey {
         /**
          * The base user name without prfix or suffix
          */
         private String fieldUserName;
-        
+
         /**
          * The sequence number of the parameters used to construct the Account
          */
-        private int fieldSequenceNumber;                
+        private int fieldSequenceNumber;
 
         /**
          * Constructor for DynamicAccountKey.
          */
-        private DynamicAccountKey()
-        {
+        private DynamicAccountKey() {
             super();
         }
-        
+
         /**
          * Constructor for DynamicAccountKey.
          */
-        public DynamicAccountKey(String userName, int sequenceNumber)
-        {
+        public DynamicAccountKey(String userName, int sequenceNumber) {
             this();
             setUserName(userName);
             setSequenceNumber(sequenceNumber);
-        }        
+        }
 
         /**
          * @see java.lang.Object#equals(Object)
          */
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (null == obj)
                 return false;
             if (!(obj.getClass() == getClass()))
                 return false;
-            return (
-                getUserName().equals(((DynamicAccountKey) obj).getUserName())
-                    && getSequenceNumber()
-                        == ((DynamicAccountKey) obj).getSequenceNumber());
+            return (getUserName().equals(((DynamicAccountKey) obj).getUserName()) && getSequenceNumber() == ((DynamicAccountKey) obj).getSequenceNumber());
         }
 
         /**
          * @see java.lang.Object#hashCode()
          */
-        public int hashCode()
-        {
+        public int hashCode() {
             return getUserName().hashCode() ^ getSequenceNumber();
         }
 
         /**
          * Returns the sequenceNumber.
+         * 
          * @return int
          */
-        public int getSequenceNumber()
-        {
+        public int getSequenceNumber() {
             return fieldSequenceNumber;
         }
 
         /**
          * Returns the userName.
+         * 
          * @return String
          */
-        public String getUserName()
-        {
+        public String getUserName() {
             return fieldUserName;
         }
 
         /**
          * Sets the sequenceNumber.
-         * @param sequenceNumber The sequenceNumber to set
+         * 
+         * @param sequenceNumber
+         *            The sequenceNumber to set
          */
-        protected void setSequenceNumber(int sequenceNumber)
-        {
+        protected void setSequenceNumber(int sequenceNumber) {
             fieldSequenceNumber = sequenceNumber;
         }
 
         /**
          * Sets the userName.
-         * @param userName The userName to set
+         * 
+         * @param userName
+         *            The userName to set
          */
-        protected void setUserName(String userName)
-        {
+        protected void setUserName(String userName) {
             fieldUserName = userName;
         }
 
     }
 
-    private final static class ParsedDynamicAccountParameters
-    {
+    private final static class ParsedDynamicAccountParameters {
         private String fieldUserPrefix;
         private String fieldUserSuffix;
-        
+
         private String fieldPassword;
-        
+
         private int fieldSequenceNumber;
 
-        private boolean fieldIgnoreRecipientHeader;     
+        private boolean fieldIgnoreRecipientHeader;
         private String fieldRecipientPrefix;
         private String fieldRecipientSuffix;
         private String customRecipientHeader;
@@ -187,19 +184,14 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
         /**
          * Constructor for ParsedDynamicAccountParameters.
          */
-        private ParsedDynamicAccountParameters()
-        {
+        private ParsedDynamicAccountParameters() {
             super();
         }
 
         /**
          * Constructor for ParsedDynamicAccountParameters.
          */
-        public ParsedDynamicAccountParameters(
-            int sequenceNumber,
-            Configuration configuration)
-            throws ConfigurationException
-        {
+        public ParsedDynamicAccountParameters(int sequenceNumber, Configuration configuration) throws ConfigurationException {
             this();
             setSequenceNumber(sequenceNumber);
             setUserPrefix(configuration.getString("[@userprefix]", ""));
@@ -207,13 +199,13 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
             setRecipientPrefix(configuration.getString("[@recipientprefix]", ""));
             setRecipientSuffix(configuration.getString("[@recipientsuffix]", ""));
             setPassword(configuration.getString("[@password]"));
-            setIgnoreRecipientHeader(
-                configuration.getBoolean("[@ignorercpt-header]"));
+            setIgnoreRecipientHeader(configuration.getBoolean("[@ignorercpt-header]"));
             setCustomRecipientHeader(configuration.getString("[@customrcpt-header]", ""));
-        }                       
+        }
 
         /**
          * Returns the custom recipient header.
+         * 
          * @return String
          */
         public String getCustomRecipientHeader() {
@@ -222,43 +214,45 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
 
         /**
          * Returns the recipientprefix.
+         * 
          * @return String
          */
-        public String getRecipientPrefix()
-        {
+        public String getRecipientPrefix() {
             return fieldRecipientPrefix;
         }
 
         /**
          * Returns the recipientsuffix.
+         * 
          * @return String
          */
-        public String getRecipientSuffix()
-        {
+        public String getRecipientSuffix() {
             return fieldRecipientSuffix;
         }
 
         /**
          * Returns the userprefix.
+         * 
          * @return String
          */
-        public String getUserPrefix()
-        {
+        public String getUserPrefix() {
             return fieldUserPrefix;
         }
 
         /**
          * Returns the userSuffix.
+         * 
          * @return String
          */
-        public String getUserSuffix()
-        {
+        public String getUserSuffix() {
             return fieldUserSuffix;
         }
 
         /**
          * Sets the custom recipient header.
-         * @param customRecipientHeader The header to be used
+         * 
+         * @param customRecipientHeader
+         *            The header to be used
          */
         public void setCustomRecipientHeader(String customRecipientHeader) {
             this.customRecipientHeader = customRecipientHeader;
@@ -266,135 +260,142 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
 
         /**
          * Sets the recipientprefix.
-         * @param recipientprefix The recipientprefix to set
+         * 
+         * @param recipientprefix
+         *            The recipientprefix to set
          */
-        protected void setRecipientPrefix(String recipientprefix)
-        {
+        protected void setRecipientPrefix(String recipientprefix) {
             fieldRecipientPrefix = recipientprefix;
         }
 
         /**
          * Sets the recipientsuffix.
-         * @param recipientsuffix The recipientsuffix to set
+         * 
+         * @param recipientsuffix
+         *            The recipientsuffix to set
          */
-        protected void setRecipientSuffix(String recipientsuffix)
-        {
+        protected void setRecipientSuffix(String recipientsuffix) {
             fieldRecipientSuffix = recipientsuffix;
         }
 
         /**
          * Sets the userprefix.
-         * @param userprefix The userprefix to set
+         * 
+         * @param userprefix
+         *            The userprefix to set
          */
-        protected void setUserPrefix(String userprefix)
-        {
+        protected void setUserPrefix(String userprefix) {
             fieldUserPrefix = userprefix;
         }
 
         /**
          * Sets the userSuffix.
-         * @param userSuffix The userSuffix to set
+         * 
+         * @param userSuffix
+         *            The userSuffix to set
          */
-        protected void setUserSuffix(String userSuffix)
-        {
+        protected void setUserSuffix(String userSuffix) {
             fieldUserSuffix = userSuffix;
         }
 
         /**
          * Returns the password.
+         * 
          * @return String
          */
-        public String getPassword()
-        {
+        public String getPassword() {
             return fieldPassword;
         }
 
         /**
          * Sets the ignoreRecipientHeader.
-         * @param ignoreRecipientHeader The ignoreRecipientHeader to set
+         * 
+         * @param ignoreRecipientHeader
+         *            The ignoreRecipientHeader to set
          */
-        protected void setIgnoreRecipientHeader(boolean ignoreRecipientHeader)
-        {
+        protected void setIgnoreRecipientHeader(boolean ignoreRecipientHeader) {
             fieldIgnoreRecipientHeader = ignoreRecipientHeader;
         }
 
         /**
          * Sets the password.
-         * @param password The password to set
+         * 
+         * @param password
+         *            The password to set
          */
-        protected void setPassword(String password)
-        {
+        protected void setPassword(String password) {
             fieldPassword = password;
         }
 
         /**
          * Returns the ignoreRecipientHeader.
+         * 
          * @return boolean
          */
-        public boolean isIgnoreRecipientHeader()
-        {
+        public boolean isIgnoreRecipientHeader() {
             return fieldIgnoreRecipientHeader;
         }
 
         /**
          * Returns the sequenceNumber.
+         * 
          * @return int
          */
-        public int getSequenceNumber()
-        {
+        public int getSequenceNumber() {
             return fieldSequenceNumber;
         }
 
         /**
          * Sets the sequenceNumber.
-         * @param sequenceNumber The sequenceNumber to set
+         * 
+         * @param sequenceNumber
+         *            The sequenceNumber to set
          */
-        protected void setSequenceNumber(int sequenceNumber)
-        {
+        protected void setSequenceNumber(int sequenceNumber) {
             fieldSequenceNumber = sequenceNumber;
         }
 
     }
+
     /**
      * @see org.apache.avalon.cornerstone.services.scheduler.Target#targetTriggered(String)
      */
     private boolean fieldFetching = false;
-    
+
     /**
      * The Configuration for this task
      */
     private ParsedConfiguration fieldConfiguration;
-    
+
     /**
      * A List of ParsedDynamicAccountParameters, one for every <alllocal> entry
      * in the configuration.
      */
-    private List<ParsedDynamicAccountParameters> fieldParsedDynamicAccountParameters;    
-    
+    private List<ParsedDynamicAccountParameters> fieldParsedDynamicAccountParameters;
+
     /**
-     * The Static Accounts for this task.
-     * These are setup when the task is configured.
+     * The Static Accounts for this task. These are setup when the task is
+     * configured.
      */
     private List<Account> fieldStaticAccounts;
-    
+
     /**
      * The JavaMail Session for this fetch task.
-     */ 
+     */
 
     private Session fieldSession;
-    
+
     /**
-     * The Dynamic Accounts for this task.
-     * These are setup each time the fetchtask is run.
+     * The Dynamic Accounts for this task. These are setup each time the
+     * fetchtask is run.
      */
-    private Map<DynamicAccountKey, DynamicAccount> fieldDynamicAccounts;        
-    
-    
-   /**
+    private Map<DynamicAccountKey, DynamicAccount> fieldDynamicAccounts;
+
+    /**
      * The Local Users repository
      */
-    private UsersRepository fieldLocalUsers;     
-    
+    private UsersRepository fieldLocalUsers;
+
     /**
      * The DNSService
      */
@@ -405,38 +406,30 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
     private MailQueue queue;
 
     private DomainList domainList;
-    
+
     /**
      * Constructor for POP3mail.
      */
-    public FetchMail()
-    {
+    public FetchMail() {
         super();
     }
 
     /**
      * Method configure parses and validates the Configuration data and creates
      * a new <code>ParsedConfiguration</code>, an <code>Account</code> for each
-     * configured static account and a <code>ParsedDynamicAccountParameters</code>
-     * for each dynamic account.
+     * configured static account and a
+     * <code>ParsedDynamicAccountParameters</code> for each dynamic account.
      * 
      * @see org.apache.james.lifecycle.api.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     @SuppressWarnings("unchecked")
-    public void configure(HierarchicalConfiguration configuration)
-        throws ConfigurationException
-    {
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException {
         // Set any Session parameters passed in the Configuration
         setSessionParameters(configuration);
 
         // Create the ParsedConfiguration used in the delegation chain
-        ParsedConfiguration parsedConfiguration =
-            new ParsedConfiguration(
-                configuration,
-                logger,
-                getLocalUsers(),
-                getDNSService(), getDomainList(), getMailQueue());
-        
+        ParsedConfiguration parsedConfiguration = new ParsedConfiguration(configuration, logger, getLocalUsers(), getDNSService(), getDomainList(), getMailQueue());
+
         setParsedConfiguration(parsedConfiguration);
 
         // Setup the Accounts
@@ -447,7 +440,6 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
             throw new ConfigurationException("Too many <accounts> sections, there must be exactly one");
         HierarchicalConfiguration accounts = allAccounts.get(0);
 
-    
         if (accounts.getKeys().hasNext() == false)
             throw new ConfigurationException("Missing <account> section.");
 
@@ -455,66 +447,45 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
         int i = 0;
 
         // Create an Account for every configured account
-        for (Node accountsChild: accountsChildren) {
-            
+        for (Node accountsChild : accountsChildren) {
+
             String accountsChildName = accountsChild.getName();
-        
+
             List<HierarchicalConfiguration> accountsChildConfig = accounts.configurationsAt(accountsChildName);
             HierarchicalConfiguration conf = accountsChildConfig.get(i);
-            
-            if ("alllocal".equals(accountsChildName))
-            {
+
+            if ("alllocal".equals(accountsChildName)) {
                 // <allLocal> is dynamic, save the parameters for accounts to
                 // be created when the task is triggered
-                getParsedDynamicAccountParameters().add(
-                    new ParsedDynamicAccountParameters(i, conf));
+                getParsedDynamicAccountParameters().add(new ParsedDynamicAccountParameters(i, conf));
                 continue;
             }
 
-            if ("account".equals(accountsChildName))
-            {
+            if ("account".equals(accountsChildName)) {
                 // Create an Account for the named user and
                 // add it to the list of static accounts
-                getStaticAccounts().add(
-                    new Account(
-                        i,
-                        parsedConfiguration,
-                        conf.getString("[@user]"),
-                        conf.getString("[@password]"),
-                        conf.getString("[@recipient]"),
-                        conf.getBoolean(
-                            "[@ignorercpt-header]"),
-                            conf.getString("[@customrcpt-header]",""),
-                        getSession()));
+                getStaticAccounts().add(new Account(i, parsedConfiguration, conf.getString("[@user]"), conf.getString("[@password]"), conf.getString("[@recipient]"), conf.getBoolean("[@ignorercpt-header]"), conf.getString("[@customrcpt-header]", ""), getSession()));
                 continue;
             }
 
-            throw new ConfigurationException(
-                "Illegal token: <"
-                    + accountsChildName
-                    + "> in <accounts>");
+            throw new ConfigurationException("Illegal token: <" + accountsChildName + "> in <accounts>");
         }
         i++;
     }
-    
 
     /**
      * Method target triggered fetches mail for each configured account.
      * 
      */
-    public void run()
-    {
+    public void run() {
         // if we are already fetching then just return
-        if (isFetching())
-        {
-            logger.info(
-                "Triggered fetch cancelled. A fetch is already in progress.");
+        if (isFetching()) {
+            logger.info("Triggered fetch cancelled. A fetch is already in progress.");
             return;
         }
 
         // Enter Fetching State
-        try
-        {
+        try {
             setFetching(true);
             logger.info("Fetcher starting fetches");
 
@@ -525,9 +496,7 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
             // sort the accounts so they are in the order
             // they were entered in config.xml
             updateDynamicAccounts();
-            ArrayList<Account> mergedAccounts =
-                new ArrayList<Account>(
-                    getDynamicAccounts().size() + getStaticAccounts().size());
+            ArrayList<Account> mergedAccounts = new ArrayList<Account>(getDynamicAccounts().size() + getStaticAccounts().size());
             mergedAccounts.addAll(getDynamicAccounts().values());
             mergedAccounts.addAll(getStaticAccounts());
             Collections.sort(mergedAccounts);
@@ -542,26 +511,16 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
 
             // Fetch each account
             Iterator<Account> accounts = mergedAccounts.iterator();
-            while (accounts.hasNext())
-            {
-                try
-                {
+            while (accounts.hasNext()) {
+                try {
                     new StoreProcessor(accounts.next()).process();
-                }
-                catch (MessagingException ex)
-                {
-                    logger.error(
-                        "A MessagingException has terminated processing of this Account",
-                        ex);
+                } catch (MessagingException ex) {
+                    logger.error("A MessagingException has terminated processing of this Account", ex);
                 }
             }
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             logger.error("An Exception has terminated this fetch.", ex);
-        }
-        finally
-        {
+        } finally {
             logger.info("Fetcher completed fetches");
 
             // Exit Fetching State
@@ -573,17 +532,14 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
     private void logJavaMailProperties() {
         // if debugging, list the JavaMail property key/value pairs
         // for this Session
-        if (logger.isDebugEnabled())
-        {
+        if (logger.isDebugEnabled()) {
             logger.debug("Session properties:");
             Properties properties = getSession().getProperties();
             Enumeration e = properties.keys();
-            while (e.hasMoreElements())
-            {
+            while (e.hasMoreElements()) {
                 String key = (String) e.nextElement();
                 String val = (String) properties.get(key);
-                if (val.length() > 40)
-                {
+                if (val.length() > 40) {
                     val = val.substring(0, 37) + "...";
                 }
                 logger.debug(key + "=" + val);
@@ -594,68 +550,64 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
 
     /**
      * Returns the fetching.
+     * 
      * @return boolean
      */
-    protected boolean isFetching()
-    {
+    protected boolean isFetching() {
         return fieldFetching;
     }
 
-
     /**
      * Sets the fetching.
-     * @param fetching The fetching to set
+     * 
+     * @param fetching
+     *            The fetching to set
      */
-    protected void setFetching(boolean fetching)
-    {
+    protected void setFetching(boolean fetching) {
         fieldFetching = fetching;
     }
 
-
     /**
      * Returns the configuration.
+     * 
      * @return ParsedConfiguration
      */
-    protected ParsedConfiguration getConfiguration()
-    {
+    protected ParsedConfiguration getConfiguration() {
         return fieldConfiguration;
     }
 
     /**
      * Sets the configuration.
-     * @param configuration The configuration to set
+     * 
+     * @param configuration
+     *            The configuration to set
      */
-    protected void setParsedConfiguration(ParsedConfiguration configuration)
-    {
+    protected void setParsedConfiguration(ParsedConfiguration configuration) {
         fieldConfiguration = configuration;
     }
 
-   
     /**
      * Returns the localUsers.
+     * 
      * @return UsersRepository
      */
-    protected UsersRepository getLocalUsers()
-    {
+    protected UsersRepository getLocalUsers() {
         return fieldLocalUsers;
     }
-    
-    
-    
+
     /**
      * Returns the DNSService.
-     * @return DNSService 
+     * 
+     * @return DNSService
      */
-    protected DNSService getDNSService()
-    {
+    protected DNSService getDNSService() {
         return dnsServer;
     }
-    
-    
+
     public void setDNSService(DNSService dns) {
         this.dnsServer = dns;
     }
-   
+
     public void setUsersRepository(UsersRepository urepos) {
         this.fieldLocalUsers = urepos;
     }
@@ -663,113 +615,98 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
     public final void setLog(Logger logger) {
         this.logger = logger;
     }
-    
 
     /**
      * Returns the accounts. Initializes if required.
+     * 
      * @return List
      */
-    protected List<Account> getStaticAccounts()
-    {
-        if (null == getStaticAccountsBasic())
-        {
+    protected List<Account> getStaticAccounts() {
+        if (null == getStaticAccountsBasic()) {
             updateStaticAccounts();
             return getStaticAccounts();
-        }   
+        }
         return fieldStaticAccounts;
     }
-    
+
     /**
      * Returns the staticAccounts.
+     * 
      * @return List
      */
-    private List<Account> getStaticAccountsBasic()
-    {
+    private List<Account> getStaticAccountsBasic() {
         return fieldStaticAccounts;
-    }   
+    }
 
     /**
      * Sets the accounts.
-     * @param accounts The accounts to set
+     * 
+     * @param accounts
+     *            The accounts to set
      */
-    protected void setStaticAccounts(List<Account> accounts)
-    {
+    protected void setStaticAccounts(List<Account> accounts) {
         fieldStaticAccounts = accounts;
     }
-    
+
     /**
      * Updates the staticAccounts.
      */
-    protected void updateStaticAccounts()
-    {
+    protected void updateStaticAccounts() {
         setStaticAccounts(computeStaticAccounts());
     }
-    
+
     /**
      * Updates the ParsedDynamicAccountParameters.
      */
-    protected void updateParsedDynamicAccountParameters()
-    {
+    protected void updateParsedDynamicAccountParameters() {
         setParsedDynamicAccountParameters(computeParsedDynamicAccountParameters());
-    }   
-    
+    }
+
     /**
      * Updates the dynamicAccounts.
      */
-    protected void updateDynamicAccounts() throws ConfigurationException
-    {
+    protected void updateDynamicAccounts() throws ConfigurationException {
         setDynamicAccounts(computeDynamicAccounts());
-    }   
-    
+    }
+
     /**
      * Computes the staticAccounts.
      */
-    protected List<Account> computeStaticAccounts()
-    {
+    protected List<Account> computeStaticAccounts() {
         return new ArrayList<Account>();
     }
-    
+
     /**
      * Computes the ParsedDynamicAccountParameters.
      */
-    protected List<ParsedDynamicAccountParameters> computeParsedDynamicAccountParameters()
-    {
+    protected List<ParsedDynamicAccountParameters> computeParsedDynamicAccountParameters() {
         return new ArrayList<ParsedDynamicAccountParameters>();
-    }   
-    
+    }
+
     /**
      * Computes the dynamicAccounts.
      */
-    protected Map<DynamicAccountKey, DynamicAccount>  computeDynamicAccounts() throws ConfigurationException
-    {
+    protected Map<DynamicAccountKey, DynamicAccount> computeDynamicAccounts() throws ConfigurationException {
         Map<DynamicAccountKey, DynamicAccount> newAccounts;
         try {
-            newAccounts = new HashMap<DynamicAccountKey, DynamicAccount> (
-                getLocalUsers().countUsers()
-                    * getParsedDynamicAccountParameters().size());
+            newAccounts = new HashMap<DynamicAccountKey, DynamicAccount>(getLocalUsers().countUsers() * getParsedDynamicAccountParameters().size());
         } catch (UsersRepositoryException e) {
             throw new ConfigurationException("Unable to acces UsersRepository", e);
         }
-        Map<DynamicAccountKey, DynamicAccount>  oldAccounts = getDynamicAccountsBasic();
+        Map<DynamicAccountKey, DynamicAccount> oldAccounts = getDynamicAccountsBasic();
         if (null == oldAccounts)
-            oldAccounts = new HashMap<DynamicAccountKey, DynamicAccount> (0);
+            oldAccounts = new HashMap<DynamicAccountKey, DynamicAccount>(0);
 
-        Iterator<ParsedDynamicAccountParameters> parameterIterator =
-            getParsedDynamicAccountParameters().iterator();
+        Iterator<ParsedDynamicAccountParameters> parameterIterator = getParsedDynamicAccountParameters().iterator();
 
         // Process each ParsedDynamicParameters
-        while (parameterIterator.hasNext())
-        {
-            Map<DynamicAccountKey, DynamicAccount> accounts =
-                computeDynamicAccounts(
-                    oldAccounts,
-                    (ParsedDynamicAccountParameters) parameterIterator.next());
+        while (parameterIterator.hasNext()) {
+            Map<DynamicAccountKey, DynamicAccount> accounts = computeDynamicAccounts(oldAccounts, (ParsedDynamicAccountParameters) parameterIterator.next());
             // Remove accounts from oldAccounts.
-            // This avoids an average 2*N increase in heapspace used as the 
-            // newAccounts are created. 
+            // This avoids an average 2*N increase in heapspace used as the
+            // newAccounts are created.
             Iterator<DynamicAccountKey> oldAccountsIterator = oldAccounts.keySet().iterator();
-            while (oldAccountsIterator.hasNext())
-            {
+            while (oldAccountsIterator.hasNext()) {
                 if (accounts.containsKey(oldAccountsIterator.next()))
                     oldAccountsIterator.remove();
             }
@@ -778,54 +715,50 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
         }
         return newAccounts;
     }
-    
+
     /**
      * Returns the dynamicAccounts. Initializes if required.
+     * 
      * @return Map
      */
-    protected Map<DynamicAccountKey, DynamicAccount> getDynamicAccounts() throws ConfigurationException
-    {
-        if (null == getDynamicAccountsBasic())
-        {
+    protected Map<DynamicAccountKey, DynamicAccount> getDynamicAccounts() throws ConfigurationException {
+        if (null == getDynamicAccountsBasic()) {
             updateDynamicAccounts();
             return getDynamicAccounts();
-        }   
+        }
         return fieldDynamicAccounts;
     }
-    
+
     /**
      * Returns the dynamicAccounts.
+     * 
      * @return Map
      */
-    private Map<DynamicAccountKey, DynamicAccount> getDynamicAccountsBasic()
-    {
+    private Map<DynamicAccountKey, DynamicAccount> getDynamicAccountsBasic() {
         return fieldDynamicAccounts;
-    }   
+    }
 
     /**
      * Sets the dynamicAccounts.
-     * @param dynamicAccounts The dynamicAccounts to set
+     * 
+     * @param dynamicAccounts
+     *            The dynamicAccounts to set
      */
-    protected void setDynamicAccounts(Map<DynamicAccountKey, DynamicAccount>  dynamicAccounts)
-    {
+    protected void setDynamicAccounts(Map<DynamicAccountKey, DynamicAccount> dynamicAccounts) {
         fieldDynamicAccounts = dynamicAccounts;
     }
-    
+
     /**
-     * Compute the dynamicAccounts for the passed parameters.
-     * Accounts for existing users are copied and accounts for new users are 
-     * created.
+     * Compute the dynamicAccounts for the passed parameters. Accounts for
+     * existing users are copied and accounts for new users are created.
+     * 
      * @param oldAccounts
      * @param parameters
      * @return Map - The current Accounts
      * @throws ConfigurationException
      */
-    protected Map<DynamicAccountKey, DynamicAccount> computeDynamicAccounts(
-        Map<DynamicAccountKey, DynamicAccount> oldAccounts,
-        ParsedDynamicAccountParameters parameters)
-        throws ConfigurationException
-    {
-        
+    protected Map<DynamicAccountKey, DynamicAccount> computeDynamicAccounts(Map<DynamicAccountKey, DynamicAccount> oldAccounts, ParsedDynamicAccountParameters parameters) throws ConfigurationException {
+
         Map<DynamicAccountKey, DynamicAccount> accounts;
         Iterator<String> usersIterator;
         try {
@@ -835,167 +768,142 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
         } catch (UsersRepositoryException e) {
             throw new ConfigurationException("Unable to access UsersRepository", e);
         }
-        while (usersIterator.hasNext())
-        {
+        while (usersIterator.hasNext()) {
             String userName = usersIterator.next();
-            DynamicAccountKey key =
-                new DynamicAccountKey(userName, parameters.getSequenceNumber());
+            DynamicAccountKey key = new DynamicAccountKey(userName, parameters.getSequenceNumber());
             DynamicAccount account = oldAccounts.get(key);
-            if (null == account)
-            {
+            if (null == account) {
                 // Create a new DynamicAccount
-                account =
-                    new DynamicAccount(
-                        parameters.getSequenceNumber(),
-                        getConfiguration(),
-                        userName,
-                        parameters.getUserPrefix(),
-                        parameters.getUserSuffix(),
-                        parameters.getPassword(),
-                        parameters.getRecipientPrefix(),
-                        parameters.getRecipientSuffix(),
-                        parameters.isIgnoreRecipientHeader(),
-                        parameters.getCustomRecipientHeader(),
-                        getSession());
+                account = new DynamicAccount(parameters.getSequenceNumber(), getConfiguration(), userName, parameters.getUserPrefix(), parameters.getUserSuffix(), parameters.getPassword(), parameters.getRecipientPrefix(), parameters.getRecipientSuffix(), parameters.isIgnoreRecipientHeader(),
+                        parameters.getCustomRecipientHeader(), getSession());
             }
             accounts.put(key, account);
         }
         return accounts;
     }
-    
+
     /**
      * Resets the dynamicAccounts.
      */
-    protected void resetDynamicAccounts()
-    {
+    protected void resetDynamicAccounts() {
         setDynamicAccounts(null);
-    }   
+    }
 
     /**
      * Returns the ParsedDynamicAccountParameters.
+     * 
      * @return List
      */
-    protected List<ParsedDynamicAccountParameters> getParsedDynamicAccountParameters()
-    {
-        if (null == getParsedDynamicAccountParametersBasic())
-        {
+    protected List<ParsedDynamicAccountParameters> getParsedDynamicAccountParameters() {
+        if (null == getParsedDynamicAccountParametersBasic()) {
             updateParsedDynamicAccountParameters();
             return getParsedDynamicAccountParameters();
-        }   
+        }
         return fieldParsedDynamicAccountParameters;
     }
-    
+
     /**
      * Returns the ParsedDynamicAccountParameters.
+     * 
      * @return List
      */
-    private List<ParsedDynamicAccountParameters> getParsedDynamicAccountParametersBasic()
-    {
+    private List<ParsedDynamicAccountParameters> getParsedDynamicAccountParametersBasic() {
         return fieldParsedDynamicAccountParameters;
-    }   
+    }
 
     /**
      * Sets the ParsedDynamicAccountParameters.
-     * @param parsedDynamicAccountParameters The ParsedDynamicAccountParameters to set
+     * 
+     * @param parsedDynamicAccountParameters
+     *            The ParsedDynamicAccountParameters to set
      */
-    protected void setParsedDynamicAccountParameters(List<ParsedDynamicAccountParameters> parsedDynamicAccountParameters)
-    {
+    protected void setParsedDynamicAccountParameters(List<ParsedDynamicAccountParameters> parsedDynamicAccountParameters) {
         fieldParsedDynamicAccountParameters = parsedDynamicAccountParameters;
     }
 
     /**
      * Returns the session, lazily initialized if required.
+     * 
      * @return Session
      */
-    protected Session getSession()
-    {
+    protected Session getSession() {
         Session session = null;
-        if (null == (session = getSessionBasic()))
-        {
+        if (null == (session = getSessionBasic())) {
             updateSession();
             return getSession();
-        }    
+        }
         return session;
     }
-    
+
     /**
      * Returns the session.
+     * 
      * @return Session
      */
-    private Session getSessionBasic()
-    {
+    private Session getSessionBasic() {
         return fieldSession;
-    }    
+    }
 
     /**
      * Answers a new Session.
+     * 
      * @return Session
      */
-    protected Session computeSession()
-    {
+    protected Session computeSession() {
         // Make separate properties instance so the
         // fetchmail.xml <javaMailProperties> can override the
-         // property values without interfering with other fetchmail instances
-        return Session.getInstance( new Properties( System.getProperties()) );     
+        // property values without interfering with other fetchmail instances
+        return Session.getInstance(new Properties(System.getProperties()));
     }
-    
+
     /**
      * Updates the current Session.
      */
-    protected void updateSession()
-    {
+    protected void updateSession() {
         setSession(computeSession());
-    }    
+    }
 
     /**
      * Sets the session.
-     * @param session The session to set
+     * 
+     * @param session
+     *            The session to set
      */
-    protected void setSession(Session session)
-    {
+    protected void setSession(Session session) {
         fieldSession = session;
     }
-    
-    
+
     /**
-     * Propogate any Session parameters in the configuration to the Session.
-     * @param configuration The configuration containing the parameters
+     * Propagate any Session parameters in the configuration to the Session.
+     * 
+     * @param configuration
+     *            The configuration containing the parameters
      * @throws ConfigurationException
      */
     @SuppressWarnings("unchecked")
-    protected void setSessionParameters(HierarchicalConfiguration configuration)
-        throws ConfigurationException
-    {
-        
-        if (configuration.getKeys("javaMailProperties.property").hasNext())
-        {
+    protected void setSessionParameters(HierarchicalConfiguration configuration) throws ConfigurationException {
+
+        if (configuration.getKeys("javaMailProperties.property").hasNext()) {
             Properties properties = getSession().getProperties();
-            List<HierarchicalConfiguration> allProperties =
-                configuration.configurationsAt("javaMailProperties.property");
-            for (int i = 0; i < allProperties.size(); i++)
-            {
+            List<HierarchicalConfiguration> allProperties = configuration.configurationsAt("javaMailProperties.property");
+            for (int i = 0; i < allProperties.size(); i++) {
                 HierarchicalConfiguration propConf = allProperties.get(i);
-                properties.setProperty(
-                        propConf.getString("[@name]"),
-                        propConf.getString("[@value]"));
-                if (logger.isDebugEnabled())
-                {
-                    StringBuilder messageBuffer =
-                        new StringBuilder("Set property name: ");
+                properties.setProperty(propConf.getString("[@name]"), propConf.getString("[@value]"));
+                if (logger.isDebugEnabled()) {
+                    StringBuilder messageBuffer = new StringBuilder("Set property name: ");
                     messageBuffer.append(propConf.getString("[@name]"));
                     messageBuffer.append(" to: ");
-                    messageBuffer.append(
-                        propConf.getString("[@value]"));
+                    messageBuffer.append(propConf.getString("[@value]"));
                     logger.debug(messageBuffer.toString());
                 }
             }
         }
-    }    
-    
+    }
+
     public void setMailQueue(MailQueue queue) {
         this.queue = queue;
     }
-    
+
     public MailQueue getMailQueue() {
         return queue;
     }

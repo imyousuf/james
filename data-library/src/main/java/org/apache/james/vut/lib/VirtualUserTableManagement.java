@@ -32,7 +32,6 @@ import org.apache.james.vut.api.VirtualUserTableManagementMBean;
 
 /**
  * Management for VirtualUserTables
- * 
  */
 public class VirtualUserTableManagement extends StandardMBean implements VirtualUserTableManagementMBean {
 

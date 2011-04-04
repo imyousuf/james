@@ -33,11 +33,11 @@ import org.apache.james.dnsservice.library.inetnetwork.model.InetNetwork;
 /**
  * NetMatcher Class is used to check if an ipAddress match a network.
  * 
- * NetMatcher provides a means for checking whether
- * a particular IPv4 or IPv6 address or domain name is within a set of subnets.
+ * NetMatcher provides a means for checking whether a particular IPv4 or IPv6
+ * address or domain name is within a set of subnets.
  */
 public class NetMatcher {
-    
+
     /**
      * The DNS Service used to build InetNetworks.
      */
@@ -51,8 +51,10 @@ public class NetMatcher {
     /**
      * Create a new instance of Netmatcher.
      * 
-     * @param nets a String[] which holds all networks
-     * @param dnsServer the DNSService which will be used in this class
+     * @param nets
+     *            a String[] which holds all networks
+     * @param dnsServer
+     *            the DNSService which will be used in this class
      */
     public NetMatcher(final String[] nets, DNSService dnsServer) {
         this.dnsServer = dnsServer;
@@ -62,8 +64,10 @@ public class NetMatcher {
     /**
      * Create a new instance of Netmatcher.
      * 
-     * @param nets a Collection which holds all networks
-     * @param dnsServer the DNSService which will be used in this class
+     * @param nets
+     *            a Collection which holds all networks
+     * @param dnsServer
+     *            the DNSService which will be used in this class
      */
     public NetMatcher(final Collection<String> nets, DNSService dnsServer) {
         this.dnsServer = dnsServer;
@@ -73,11 +77,12 @@ public class NetMatcher {
     /**
      * The given String may represent an IP address or a host name.
      * 
-     * @param hostIP the ipAddress or host name to check
+     * @param hostIP
+     *            the ipAddress or host name to check
      * @see #matchInetNetwork(InetAddress)
      */
     public boolean matchInetNetwork(final String hostIP) {
-        
+
         InetAddress ip = null;
 
         try {
@@ -92,23 +97,24 @@ public class NetMatcher {
     }
 
     /**
-     * Return true if passed InetAddress match a network which 
-     * was used to construct the Netmatcher.
+     * Return true if passed InetAddress match a network which was used to
+     * construct the Netmatcher.
      * 
-     * @param an InetAddress
+     * @param an
+     *            InetAddress
      * @return true if match the network
      */
     public boolean matchInetNetwork(final InetAddress ip) {
-        
+
         boolean sameNet = false;
 
         for (Iterator<InetNetwork> iter = networks.iterator(); (!sameNet) && iter.hasNext();) {
             InetNetwork network = iter.next();
             sameNet = network.contains(ip);
         }
-        
+
         return sameNet;
-    
+
     }
 
     /**
@@ -123,24 +129,27 @@ public class NetMatcher {
     /**
      * Can be overwritten for logging
      * 
-     * @param s  the String to log
+     * @param s
+     *            the String to log
      */
     protected void log(String s) {
-    }
-    
-    /**
-     * Init the class with the given networks.
-     * 
-     * @param nets a Collection which holds all networks
-     */
-    private void initInetNetworks(final Collection<String> nets) {
-        initInetNetworks(nets.toArray(new String[]{}));
     }
 
     /**
      * Init the class with the given networks.
      * 
-     * @param nets a String[] which holds all networks
+     * @param nets
+     *            a Collection which holds all networks
+     */
+    private void initInetNetworks(final Collection<String> nets) {
+        initInetNetworks(nets.toArray(new String[] {}));
+    }
+
+    /**
+     * Init the class with the given networks.
+     * 
+     * @param nets
+     *            a String[] which holds all networks
      */
     private void initInetNetworks(final String[] nets) {
 
@@ -152,7 +161,7 @@ public class NetMatcher {
 
         final InetNetworkBuilder inetNetwork = new InetNetworkBuilder(dnsServer);
 
-        for (String net: nets) {
+        for (String net : nets) {
             try {
                 InetNetwork inet = inetNetwork.getFromString(net);
                 networks.add(inet);
@@ -160,7 +169,7 @@ public class NetMatcher {
                 log("Cannot resolve address: " + uhe.getMessage());
             }
         }
-        
+
     }
 
 }

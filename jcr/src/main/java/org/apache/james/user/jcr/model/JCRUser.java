@@ -23,22 +23,24 @@ import org.apache.jackrabbit.util.Text;
 import org.apache.james.user.api.model.User;
 
 /**
- * User backed by JCR data. 
- * Differs from standard James by improved hash.
- * TODO: think about improving DefaultUser.
+ * User backed by JCR data. Differs from standard James by improved hash. TODO:
+ * think about improving DefaultUser.
  */
 public class JCRUser implements User {
 
-    /** 
-     * Static salt for hashing password.
-     * Modifying this value will render all passwords unrecognizable.
+    /**
+     * Static salt for hashing password. Modifying this value will render all
+     * passwords unrecognizable.
      */
     public static final String SALT = "JCRUsersRepository";
-    
+
     /**
      * Hashes salted password.
-     * @param username not null
-     * @param password not null
+     * 
+     * @param username
+     *            not null
+     * @param password
+     *            not null
      * @return not null
      */
     public static String hashPassword(String username, String password) {
@@ -46,10 +48,10 @@ public class JCRUser implements User {
         final String hashedSaltedPassword = Text.md5(Text.md5(username + password) + SALT);
         return hashedSaltedPassword;
     }
-    
+
     private final String userName;
     private String hashedSaltedPassword;
-    
+
     public JCRUser(final String userName, String hashedSaltedPassword) {
         super();
         this.userName = userName;
@@ -59,9 +61,10 @@ public class JCRUser implements User {
     public String getUserName() {
         return userName;
     }
-    
+
     /**
      * Gets salted, hashed password.
+     * 
      * @return the hashedSaltedPassword
      */
     public final String getHashedSaltedPassword() {

@@ -43,9 +43,8 @@ import org.jboss.netty.handler.codec.frame.FrameDecoder;
 
 /**
  * {@link FrameDecoder} which will decode via and {@link ImapDecoder} instance
- *
  */
-public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttributeSupport{
+public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttributeSupport {
 
     private final ImapDecoder decoder;
     private final int inMemorySizeLimit;
@@ -57,7 +56,7 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttr
         this.decoder = decoder;
         this.inMemorySizeLimit = inMemorySizeLimit;
     }
-    
+
     @Override
     public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         ctx.setAttachment(new HashMap<String, Object>());
@@ -66,31 +65,39 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttr
 
     /*
      * (non-Javadoc)
-     * @see org.jboss.netty.handler.codec.frame.FrameDecoder#decode(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.Channel, org.jboss.netty.buffer.ChannelBuffer)
+     * 
+     * @see
+     * org.jboss.netty.handler.codec.frame.FrameDecoder#decode(org.jboss.netty
+     * .channel.ChannelHandlerContext, org.jboss.netty.channel.Channel,
+     * org.jboss.netty.buffer.ChannelBuffer)
      */
     @SuppressWarnings("unchecked")
     protected Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer) throws Exception {
         buffer.markReaderIndex();
         boolean retry = false;
-       
+
         ImapRequestLineReader reader;
-        // check if we failed before and if we already know how much data we need to sucess next run
-        Map<String,Object> attachment = (Map<String, Object>) ctx.getAttachment();
+        // check if we failed before and if we already know how much data we
+        // need to sucess next run
+        Map<String, Object> attachment = (Map<String, Object>) ctx.getAttachment();
         int size = -1;
         if (attachment.containsKey(NEEDED_DATA)) {
             retry = true;
-             size = (Integer) attachment.get(NEEDED_DATA);
+            size = (Integer) attachment.get(NEEDED_DATA);
             // now see if the buffer hold enough data to process.
             if (size != NettyImapRequestLineReader.NotEnoughDataException.UNKNOWN_SIZE && size > buffer.readableBytes()) {
-                
-                // check if we have a inMemorySize limit and if so if the expected size will fit into it
+
+                // check if we have a inMemorySize limit and if so if the
+                // expected size will fit into it
                 if (inMemorySizeLimit > 0 && inMemorySizeLimit < size) {
-                    
-                    // ok seems like it will not fit in the memory limit so we need to store it in a temporary file
+
+                    // ok seems like it will not fit in the memory limit so we
+                    // need to store it in a temporary file
                     final File f;
                     int written;
-                    
-                    // check if we have created a temporary file already or if we need to create a new one
+
+                    // check if we have created a temporary file already or if
+                    // we need to create a new one
                     if (attachment.containsKey(STORED_DATA)) {
                         f = (File) attachment.get(STORED_DATA);
                         written = (Integer) attachment.get(WRITTEN_DATA);
@@ -101,28 +108,25 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttr
                         attachment.put(WRITTEN_DATA, written);
 
                     }
-                    
-                   
-                    InputStream bufferIn = null; 
+
+                    InputStream bufferIn = null;
                     OutputStream out = null;
                     try {
                         bufferIn = new ChannelBufferInputStream(buffer);
                         out = new FileOutputStream(f, true);
-                        
+
                         // write the needed data to the file
                         int i = -1;
                         while (written < size && (i = bufferIn.read()) != -1) {
-                           out.write(i);
-                           written++;
+                            out.write(i);
+                            written++;
                         }
-                        
-                       
-                        
+
                     } finally {
-                       IOUtils.closeQuietly(bufferIn);
-                       IOUtils.closeQuietly(out);
-                    }                    
-                    // Check if all needed data was streamed to the file. 
+                        IOUtils.closeQuietly(bufferIn);
+                        IOUtils.closeQuietly(out);
+                    }
+                    // Check if all needed data was streamed to the file.
                     if (written == size) {
                         reader = new NettyStreamImapRequestLineReader(channel, new FileInputStream(f) {
                             /**
@@ -133,30 +137,31 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttr
                                 super.close();
                                 f.delete();
                             }
-                            
-                        }, retry); 
+
+                        }, retry);
                     } else {
                         attachment.put(WRITTEN_DATA, written);
                         return null;
                     }
-                    
+
                 } else {
                     buffer.resetReaderIndex();
                     return null;
                 }
-                
+
             } else {
-                
+
                 reader = new NettyImapRequestLineReader(channel, buffer, retry);
             }
         } else {
             reader = new NettyImapRequestLineReader(channel, buffer, retry);
         }
-        
-        try {      
+
+        try {
             ImapMessage message = decoder.decode(reader, (ImapSession) attributes.get(channel));
-            
-            // if size is != -1 the case was a literal. if thats the case we should not consume the line
+
+            // if size is != -1 the case was a literal. if thats the case we
+            // should not consume the line
             // See JAMES-1199
             if (size == -1) {
                 reader.consumeLine();
@@ -164,7 +169,7 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttr
             attachment.clear();
             return message;
         } catch (NettyImapRequestLineReader.NotEnoughDataException e) {
-            // this exception was thrown because we don't have enough data yet 
+            // this exception was thrown because we don't have enough data yet
             int neededData = e.getNeededSize();
             // store the needed data size for later usage
             attachment.put(NEEDED_DATA, neededData);

@@ -33,9 +33,8 @@ import org.apache.james.mailbox.MessageRange;
 import org.jboss.netty.channel.Channel;
 
 /**
- * {@link FetchProcessor} implementation which does some optimization to support good performance in NIO and IO related to NETTY
- * 
- *
+ * {@link FetchProcessor} implementation which does some optimization to support
+ * good performance in NIO and IO related to NETTY
  */
 public class ChunkFetchProcessor extends FetchProcessor {
 
@@ -44,12 +43,12 @@ public class ChunkFetchProcessor extends FetchProcessor {
     }
 
     /**
-     * Wrap the given parameters in a {@link FetchChunkedInput} and write it the the {@link Channel}
-     * 
+     * Wrap the given parameters in a {@link FetchChunkedInput} and write it the
+     * the {@link Channel}
      */
     @Override
     protected void processMessageRanges(ImapSession session, MessageManager mailbox, List<MessageRange> range, FetchData fetch, boolean useUids, MailboxSession mailboxSession, Responder responder) throws MailboxException {
-        Channel channel  = ((NettyImapSession) session).getChannel();
+        Channel channel = ((NettyImapSession) session).getChannel();
         channel.write(new FetchChunkedInput(session, mailbox, range, fetch, getFetchGroup(fetch), useUids, mailboxSession, responder));
     }
 

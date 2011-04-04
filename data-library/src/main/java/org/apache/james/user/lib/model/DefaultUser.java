@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.user.lib.model;
 
 import org.apache.james.user.api.model.User;
@@ -28,26 +26,24 @@ import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Implementation of User Interface. Instances of this class do not allow
- * the the user name to be reset.
- *
- *
- * @version CVS $Revision: 521427 $
+ * Implementation of User Interface. Instances of this class do not allow the
+ * the user name to be reset.
  */
-
 public class DefaultUser implements User, Serializable {
-    
+
     private static final long serialVersionUID = 5178048915868531270L;
-    
+
     private String userName;
     private String hashedPassword;
-    private String algorithm ;
+    private String algorithm;
 
     /**
      * Standard constructor.
-     *
-     * @param name the String name of this user
-     * @param hashAlg the algorithm used to generate the hash of the password
+     * 
+     * @param name
+     *            the String name of this user
+     * @param hashAlg
+     *            the algorithm used to generate the hash of the password
      */
     public DefaultUser(String name, String hashAlg) {
         userName = name;
@@ -57,11 +53,13 @@ public class DefaultUser implements User, Serializable {
     /**
      * Constructor for repositories that are construcing user objects from
      * separate fields, e.g. databases.
-     *
-     * @param name the String name of this user
-     * @param passwordHash the String hash of this users current password
-     * @param hashAlg the String algorithm used to generate the hash of the
-     * password
+     * 
+     * @param name
+     *            the String name of this user
+     * @param passwordHash
+     *            the String hash of this users current password
+     * @param hashAlg
+     *            the String algorithm used to generate the hash of the password
      */
     public DefaultUser(String name, String passwordHash, String hashAlg) {
         userName = name;
@@ -102,7 +100,7 @@ public class DefaultUser implements User, Serializable {
 
     /**
      * Method to access hash of password
-     *
+     * 
      * @return the String of the hashed Password
      */
     public String getHashedPassword() {
@@ -111,7 +109,7 @@ public class DefaultUser implements User, Serializable {
 
     /**
      * Method to access the hashing algorithm of the password.
-     *
+     * 
      * @return the name of the hashing algorithm used for this user's password
      */
     public String getHashAlgorithm() {

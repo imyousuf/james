@@ -24,24 +24,30 @@ import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 
-public abstract class AbstractNettyImapRequestLineReader extends ImapRequestLineReader{
+public abstract class AbstractNettyImapRequestLineReader extends ImapRequestLineReader {
     private Channel channel;
     private ChannelBuffer cRequest = ChannelBuffers.wrappedBuffer("+\r\n".getBytes());
     private boolean retry;
-    
+
     public AbstractNettyImapRequestLineReader(Channel channel, boolean retry) {
         this.channel = channel;
         this.retry = retry;
-        
+
     }
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.imap.decode.ImapRequestLineReader#commandContinuationRequest()
+     * 
+     * @see
+     * org.apache.james.imap.decode.ImapRequestLineReader#commandContinuationRequest
+     * ()
      */
     protected void commandContinuationRequest() throws DecodingException {
-        // only write the request out if this is not a retry to process the request..
-        
-        if (!retry) channel.write(cRequest);
+        // only write the request out if this is not a retry to process the
+        // request..
+
+        if (!retry)
+            channel.write(cRequest);
     }
-    
+
 }

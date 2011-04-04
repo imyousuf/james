@@ -21,7 +21,6 @@ package org.apache.james.domainlist.api;
 /**
  * This interface should be implemented by services which offer domains for
  * which email will accepted.
- * 
  */
 public interface DomainList {
 

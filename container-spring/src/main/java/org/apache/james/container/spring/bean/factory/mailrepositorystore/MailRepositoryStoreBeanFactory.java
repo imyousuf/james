@@ -158,11 +158,11 @@ public class MailRepositoryStoreBeanFactory extends AbstractBeanFactory implemen
      * corresponding MailRepository. The Configuration must be in the form of:
      * 
      * <pre>
-     * <repository destinationURL="[URL of this mail repository]"
+     * &lt;repository destinationURL="[URL of this mail repository]"
      *             type="[repository type ex. OBJECT or STREAM or MAIL etc.]"
-     *             model="[repository model ex. PERSISTENT or CACHE etc.]">
+     *             model="[repository model ex. PERSISTENT or CACHE etc.]"&gt;
      *   [addition configuration]
-     * </repository>
+     * &lt;/repository&gt;
      * </pre>
      * 
      * @param hint

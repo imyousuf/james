@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
- 
 package org.apache.james.fetchmail;
 
 import javax.mail.Folder;
@@ -26,34 +24,31 @@ import javax.mail.MessagingException;
 import javax.mail.Store;
 
 /**
- * <p>Class <code>StoreProcessor</code> connects to a message store, gets the
- * target Folder and delegates its processing to <code>FolderProcessor</code>.</p>
+ * Class <code>StoreProcessor</code> connects to a message store, gets the
+ * target Folder and delegates its processing to <code>FolderProcessor</code>.
  */
-public class StoreProcessor extends ProcessorAbstract
-{
+public class StoreProcessor extends ProcessorAbstract {
     /**
      * Constructor for StoreProcessor.
-     * @param account 
+     * 
+     * @param account
      */
-    protected StoreProcessor(Account account)
-    {
-        super(account);        
+    protected StoreProcessor(Account account) {
+        super(account);
     }
-    
+
     /**
      * Method process connects to a Folder in a Message Store, creates a
-     * <code>FolderProcessor</code> and runs it to process the messages in
-     * the Folder.
+     * <code>FolderProcessor</code> and runs it to process the messages in the
+     * Folder.
      * 
      * @see org.apache.james.fetchmail.ProcessorAbstract#process()
      */
-    public void process() throws MessagingException
-    {
+    public void process() throws MessagingException {
         Store store = null;
         Folder folder = null;
 
-        StringBuilder logMessageBuffer =
-            new StringBuilder("Starting fetching mail from server '");
+        StringBuilder logMessageBuffer = new StringBuilder("Starting fetching mail from server '");
         logMessageBuffer.append(getHost());
         logMessageBuffer.append("' for user '");
         logMessageBuffer.append(getUser());
@@ -62,15 +57,12 @@ public class StoreProcessor extends ProcessorAbstract
         logMessageBuffer.append("'");
         getLogger().info(logMessageBuffer.toString());
 
-        try
-        {
+        try {
             // Get a Store object
             store = getSession().getStore(getJavaMailProviderName());
 
             // Connect
-            if (getHost() != null
-                || getUser() != null
-                || getPassword() != null)
+            if (getHost() != null || getUser() != null || getPassword() != null)
                 store.connect(getHost(), getUser(), getPassword());
             else
                 store.connect();
@@ -83,28 +75,16 @@ public class StoreProcessor extends ProcessorAbstract
             // Process the Folder
             new FolderProcessor(folder, getAccount()).process();
 
-        }
-        catch (MessagingException ex)
-        {
-            getLogger().error(
-                "A MessagingException has terminated processing of this Folder",
-                ex);
-        }
-        finally
-        {
-            try
-            {
+        } catch (MessagingException ex) {
+            getLogger().error("A MessagingException has terminated processing of this Folder", ex);
+        } finally {
+            try {
                 if (null != store && store.isConnected())
                     store.close();
+            } catch (MessagingException ex) {
+                getLogger().error("A MessagingException occured while closing the Store", ex);
             }
-            catch (MessagingException ex)
-            {
-                getLogger().error(
-                    "A MessagingException occured while closing the Store",
-                    ex);
-            }
-            logMessageBuffer =
-                new StringBuilder("Finished fetching mail from server '");
+            logMessageBuffer = new StringBuilder("Finished fetching mail from server '");
             logMessageBuffer.append(getHost());
             logMessageBuffer.append("' for user '");
             logMessageBuffer.append(getUser());

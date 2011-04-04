@@ -30,9 +30,8 @@ import org.slf4j.Logger;
  * 
  *
  */
-public class MXHostAddressIterator implements Iterator<HostAddress>{
+public class MXHostAddressIterator implements Iterator<HostAddress> {
 
-    
     private Iterator<HostAddress> addresses = null;
     private Iterator<String> hosts;
     private DNSService dns;
@@ -43,7 +42,6 @@ public class MXHostAddressIterator implements Iterator<HostAddress>{
     public MXHostAddressIterator(Iterator<String> hosts, DNSService dns, boolean useSingleIP, Logger logger) {
         this(hosts, 25, dns, useSingleIP, logger);
     }
-    
 
     public MXHostAddressIterator(Iterator<String> hosts, int defaultPort, DNSService dns, boolean useSingleIP, Logger logger) {
         this.hosts = hosts;
@@ -52,75 +50,73 @@ public class MXHostAddressIterator implements Iterator<HostAddress>{
         this.logger = logger;
         this.defaultPort = defaultPort;
     }
-    
+
     /*
      * (non-Javadoc)
+     * 
      * @see java.util.Iterator#hasNext()
      */
     public boolean hasNext() {
-        /* Make sure that when next() is called, that we can
-         * provide a HostAddress.  This means that we need to
-         * have an inner iterator, and verify that it has
-         * addresses.  We could, for example, run into a
-         * situation where the next mxHost didn't have any valid
-         * addresses.
+        /*
+         * Make sure that when next() is called, that we can provide a
+         * HostAddress. This means that we need to have an inner iterator, and
+         * verify that it has addresses. We could, for example, run into a
+         * situation where the next mxHost didn't have any valid addresses.
          */
-        if ((addresses == null || !addresses.hasNext()) && hosts.hasNext()) do {
-            String nextHostname = (String)hosts.next();
-            final String hostname;
-            final String port;
-            
+        if ((addresses == null || !addresses.hasNext()) && hosts.hasNext())
+            do {
+                String nextHostname = (String) hosts.next();
+                final String hostname;
+                final String port;
 
-            int idx = nextHostname.indexOf(':');
-            if ( idx > 0) {
-                port = nextHostname.substring(idx+1);
-                hostname = nextHostname.substring(0,idx);
-            } else {
-                hostname = nextHostname;
-                port = defaultPort + "";
-            }
-            
-            InetAddress[] addrs = null;
-            try {
-                if (useSingleIP) {
-                    addrs = new InetAddress[] {dns.getByName(hostname)};
+                int idx = nextHostname.indexOf(':');
+                if (idx > 0) {
+                    port = nextHostname.substring(idx + 1);
+                    hostname = nextHostname.substring(0, idx);
                 } else {
-                    addrs = dns.getAllByName(hostname);
-                }
-            } catch (UnknownHostException uhe) {
-                // this should never happen, since we just got
-                // this host from mxHosts, which should have
-                // already done this check.
-                StringBuffer logBuffer = new StringBuffer(128)
-                                         .append("Couldn't resolve IP address for discovered host ")
-                                         .append(hostname)
-                                         .append(".");
-                logger.error(logBuffer.toString());
-            }
-            final InetAddress[] ipAddresses = addrs;
-
-            addresses = new Iterator<HostAddress>() {
-                int i = 0;
-
-                public boolean hasNext() {
-                    return ipAddresses != null && i < ipAddresses.length;
+                    hostname = nextHostname;
+                    port = defaultPort + "";
                 }
 
-                public HostAddress next() {
-                    return new org.apache.mailet.HostAddress(hostname, "smtp://" + ipAddresses[i++].getHostAddress() +":" + port);
+                InetAddress[] addrs = null;
+                try {
+                    if (useSingleIP) {
+                        addrs = new InetAddress[] { dns.getByName(hostname) };
+                    } else {
+                        addrs = dns.getAllByName(hostname);
+                    }
+                } catch (UnknownHostException uhe) {
+                    // this should never happen, since we just got
+                    // this host from mxHosts, which should have
+                    // already done this check.
+                    StringBuffer logBuffer = new StringBuffer(128).append("Couldn't resolve IP address for discovered host ").append(hostname).append(".");
+                    logger.error(logBuffer.toString());
                 }
+                final InetAddress[] ipAddresses = addrs;
 
-                public void remove() {
-                    throw new UnsupportedOperationException ("remove not supported by this iterator");
-                }
-            };
-        } while (!addresses.hasNext() && hosts.hasNext());
+                addresses = new Iterator<HostAddress>() {
+                    int i = 0;
+
+                    public boolean hasNext() {
+                        return ipAddresses != null && i < ipAddresses.length;
+                    }
+
+                    public HostAddress next() {
+                        return new org.apache.mailet.HostAddress(hostname, "smtp://" + ipAddresses[i++].getHostAddress() + ":" + port);
+                    }
+
+                    public void remove() {
+                        throw new UnsupportedOperationException("remove not supported by this iterator");
+                    }
+                };
+            } while (!addresses.hasNext() && hosts.hasNext());
 
         return addresses != null && addresses.hasNext();
     }
 
     /*
      * (non-Javadoc)
+     * 
      * @see java.util.Iterator#next()
      */
     public HostAddress next() {
@@ -128,10 +124,10 @@ public class MXHostAddressIterator implements Iterator<HostAddress>{
     }
 
     /**
-     * Not supported. 
+     * Not supported.
      */
     public void remove() {
-        throw new UnsupportedOperationException ("remove not supported by this iterator");
+        throw new UnsupportedOperationException("remove not supported by this iterator");
     }
 
 }

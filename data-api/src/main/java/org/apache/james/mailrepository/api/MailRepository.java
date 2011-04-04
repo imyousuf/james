@@ -28,8 +28,6 @@ import java.util.Iterator;
 
 /**
  * Interface for a Repository to store Mails.
- * 
- * @version 1.0.0, 24/04/1999
  */
 public interface MailRepository {
 

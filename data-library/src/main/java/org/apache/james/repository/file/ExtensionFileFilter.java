@@ -38,9 +38,6 @@ import java.io.FilenameFilter;
  *     System.out.println(files[i]);
  * }
  * </pre>
- * 
- * @version CVS $Revision$ $Date: 2010-12-16 10:36:43 +0100 (Thu, 16
- *          Dec 2010) $
  */
 public class ExtensionFileFilter implements FilenameFilter {
     private String[] m_extensions;

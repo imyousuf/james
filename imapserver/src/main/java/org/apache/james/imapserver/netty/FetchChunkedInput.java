@@ -39,10 +39,8 @@ import org.apache.james.mime4j.field.address.parser.ParseException;
 import org.jboss.netty.handler.stream.ChunkedInput;
 
 /**
- * {@link ChunkedInput} implementation which  fetch {@link MessageRange} in batches and hand them over the the {@link Responder}
- * 
- * 
- *
+ * {@link ChunkedInput} implementation which fetch {@link MessageRange} in
+ * batches and hand them over the the {@link Responder}
  */
 public class FetchChunkedInput implements ChunkedInput {
 
@@ -55,7 +53,7 @@ public class FetchChunkedInput implements ChunkedInput {
     private FetchGroup group;
     private FetchResponseBuilder builder;
     private Responder responder;
-    
+
     public FetchChunkedInput(final ImapSession session, final MessageManager mailbox, final List<MessageRange> ranges, final FetchData fetch, FetchGroup group, final boolean useUids, final MailboxSession mailboxSession, final Responder responder) {
         this.ranges = ranges.iterator();
         this.mailbox = mailbox;
@@ -68,7 +66,7 @@ public class FetchChunkedInput implements ChunkedInput {
         this.responder = responder;
 
     }
-    
+
     /**
      * Do nothing
      */
@@ -77,6 +75,7 @@ public class FetchChunkedInput implements ChunkedInput {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.jboss.netty.handler.stream.ChunkedInput#hasNextChunk()
      */
     public boolean hasNextChunk() throws Exception {
@@ -85,6 +84,7 @@ public class FetchChunkedInput implements ChunkedInput {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.jboss.netty.handler.stream.ChunkedInput#isEndOfInput()
      */
     public boolean isEndOfInput() throws Exception {
@@ -92,10 +92,11 @@ public class FetchChunkedInput implements ChunkedInput {
     }
 
     /**
-     * Fetch the next batch of messages and write the {@link FetchResponse} to the {@link Responder}. After that is done this method will return null
+     * Fetch the next batch of messages and write the {@link FetchResponse} to
+     * the {@link Responder}. After that is done this method will return null
      * 
-     * TODO: Maybe it would make sense to only write one FetchResponse per {@link #nextChunk()} call. Need to test this
-     * 
+     * TODO: Maybe it would make sense to only write one FetchResponse per
+     * {@link #nextChunk()} call. Need to test this
      */
     public Object nextChunk() throws Exception {
         if (hasNextChunk()) {
@@ -118,9 +119,9 @@ public class FetchChunkedInput implements ChunkedInput {
                         }
                     }
                 }
-            }); 
+            });
         }
-        
+
         return null;
     }
 }

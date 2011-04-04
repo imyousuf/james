@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.user.lib;
 
 import javax.annotation.Resource;
@@ -32,52 +31,53 @@ import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersRepositoryException;
 import org.slf4j.Logger;
 
-public abstract class AbstractUsersRepository implements UsersRepository, LogEnabled, Configurable{
+public abstract class AbstractUsersRepository implements UsersRepository, LogEnabled, Configurable {
 
     private DomainList domainList;
     private boolean virtualHosting;
     private Logger logger;
 
-
     protected Logger getLogger() {
         return logger;
     }
-    
-    
+
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger logger) {
         this.logger = logger;
     }
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons
+     * .configuration.HierarchicalConfiguration)
      */
-    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
-       
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException {
+
         virtualHosting = configuration.getBoolean("enableVirtualHosting", false);
 
         doConfigure(configuration);
     }
-   
-    
-    protected void doConfigure(HierarchicalConfiguration config) throws ConfigurationException{
-        
+
+    protected void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
+
     }
 
     public void setEnableVirtualHosting(boolean virtualHosting) {
         this.virtualHosting = virtualHosting;
     }
-    
-    @Resource(name="domainlist")
+
+    @Resource(name = "domainlist")
     public void setDomainList(DomainList domainList) {
         this.domainList = domainList;
     }
-    
-    protected void isValidUsername(String username) throws  UsersRepositoryException {
+
+    protected void isValidUsername(String username) throws UsersRepositoryException {
         int i = username.indexOf("@");
         if (supportVirtualHosting()) {
             // need a @ in the username
@@ -103,10 +103,11 @@ public abstract class AbstractUsersRepository implements UsersRepository, LogEna
         }
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UsersRepository#addUser(java.lang.String, java.lang.String)
+     * 
+     * @see org.apache.james.user.api.UsersRepository#addUser(java.lang.String,
+     * java.lang.String)
      */
     public void addUser(String username, String password) throws UsersRepositoryException {
 
@@ -121,12 +122,13 @@ public abstract class AbstractUsersRepository implements UsersRepository, LogEna
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.user.api.UsersRepository#supportVirtualHosting()
      */
-    public boolean supportVirtualHosting() throws UsersRepositoryException{
+    public boolean supportVirtualHosting() throws UsersRepositoryException {
         return virtualHosting;
     }
-    
+
     /**
      * Add the user with the given username and password
      * 

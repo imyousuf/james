@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.mailrepository.file;
 
 import java.io.IOException;
@@ -46,35 +44,39 @@ import org.apache.james.repository.file.FilePersistentStreamRepository;
 import org.apache.mailet.Mail;
 
 /**
+ * <p>
  * Implementation of a MailRepository on a FileSystem.
- *
+ * </p>
+ * <p>
  * Requires a configuration element in the .conf.xml file of the form:
+ * 
+ * <pre>
  *  &lt;repository destinationURL="file://path-to-root-dir-for-repository"
  *              type="MAIL"
  *              model="SYNCHRONOUS"/&gt;
+ * </pre>
+ * 
  * Requires a logger called MailRepository.
- *
- * @version 1.0.0, 24/04/1999
+ * </p>
  */
-public class FileMailRepository
-    extends AbstractMailRepository {
+public class FileMailRepository extends AbstractMailRepository {
 
     private FilePersistentStreamRepository streamRepository;
     private FilePersistentObjectRepository objectRepository;
     private String destination;
     private Set keys;
     private boolean fifo;
-    private boolean cacheKeys; // experimental: for use with write mostly repositories such as spam and error
+    private boolean cacheKeys; // experimental: for use with write mostly
+                               // repositories such as spam and error
     private FileSystem fs;
 
-    @Resource(name="filesystem")
+    @Resource(name = "filesystem")
     public void setFileSystem(FileSystem fs) {
         this.fs = fs;
     }
-    
+
     @Override
-    protected void doConfigure(HierarchicalConfiguration config)
-            throws org.apache.commons.configuration.ConfigurationException {
+    protected void doConfigure(HierarchicalConfiguration config) throws org.apache.commons.configuration.ConfigurationException {
         super.doConfigure(config);
         destination = config.getString("[@destinationURL]");
         if (getLogger().isDebugEnabled()) {
@@ -85,10 +87,8 @@ public class FileMailRepository
         // ignore model
     }
 
-
     @PostConstruct
-    public void init()
-            throws Exception {
+    public void init() throws Exception {
         try {
             DefaultConfigurationBuilder reposConfiguration = new DefaultConfigurationBuilder();
 
@@ -98,36 +98,37 @@ public class FileMailRepository
             objectRepository.setFileSystem(fs);
             objectRepository.configure(reposConfiguration);
             objectRepository.init();
-            
+
             streamRepository = new FilePersistentStreamRepository();
             streamRepository.setLog(getLogger());
             streamRepository.setFileSystem(fs);
             streamRepository.configure(reposConfiguration);
             streamRepository.init();
-            
-            if (cacheKeys) keys = Collections.synchronizedSet(new HashSet());
 
-            //Finds non-matching pairs and deletes the extra files
+            if (cacheKeys)
+                keys = Collections.synchronizedSet(new HashSet());
+
+            // Finds non-matching pairs and deletes the extra files
             HashSet streamKeys = new HashSet();
-            for (Iterator i = streamRepository.list(); i.hasNext(); ) {
+            for (Iterator i = streamRepository.list(); i.hasNext();) {
                 streamKeys.add(i.next());
             }
             HashSet objectKeys = new HashSet();
-            for (Iterator i = objectRepository.list(); i.hasNext(); ) {
+            for (Iterator i = objectRepository.list(); i.hasNext();) {
                 objectKeys.add(i.next());
             }
 
-            Collection strandedStreams = (Collection)streamKeys.clone();
+            Collection strandedStreams = (Collection) streamKeys.clone();
             strandedStreams.removeAll(objectKeys);
-            for (Iterator i = strandedStreams.iterator(); i.hasNext(); ) {
-                String key = (String)i.next();
+            for (Iterator i = strandedStreams.iterator(); i.hasNext();) {
+                String key = (String) i.next();
                 remove(key);
             }
 
-            Collection strandedObjects = (Collection)objectKeys.clone();
+            Collection strandedObjects = (Collection) objectKeys.clone();
             strandedObjects.removeAll(streamKeys);
-            for (Iterator i = strandedObjects.iterator(); i.hasNext(); ) {
-                String key = (String)i.next();
+            for (Iterator i = strandedObjects.iterator(); i.hasNext();) {
+                String key = (String) i.next();
                 remove(key);
             }
 
@@ -135,21 +136,17 @@ public class FileMailRepository
                 // Next get a list from the object repository
                 // and use that for the list of keys
                 keys.clear();
-                for (Iterator i = objectRepository.list(); i.hasNext(); ) {
+                for (Iterator i = objectRepository.list(); i.hasNext();) {
                     keys.add(i.next());
                 }
             }
             if (getLogger().isDebugEnabled()) {
-                StringBuffer logBuffer =
-                    new StringBuffer(128)
-                            .append(getClass().getName())
-                            .append(" created in ")
-                            .append(destination);
+                StringBuffer logBuffer = new StringBuffer(128).append(getClass().getName()).append(" created in ").append(destination);
                 getLogger().debug(logBuffer.toString());
             }
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
-            getLogger().error( message, e );
+            getLogger().error(message, e);
             throw e;
         }
     }
@@ -176,28 +173,21 @@ public class FileMailRepository
             MimeMessageWrapper wrapper = (MimeMessageWrapper) message;
             if (DEEP_DEBUG) {
                 System.out.println("Retrieving from: " + wrapper.getSourceId());
-                StringBuffer debugBuffer =
-                    new StringBuffer(64)
-                            .append("Saving to:       ")
-                            .append(destination)
-                            .append("/")
-                            .append(mc.getName());
+                StringBuffer debugBuffer = new StringBuffer(64).append("Saving to:       ").append(destination).append("/").append(mc.getName());
                 System.out.println(debugBuffer.toString());
                 System.out.println("Modified: " + wrapper.isModified());
             }
-            StringBuffer destinationBuffer =
-                new StringBuffer(128)
-                    .append(destination)
-                    .append("/")
-                    .append(mc.getName());
+            StringBuffer destinationBuffer = new StringBuffer(128).append(destination).append("/").append(mc.getName());
             if (destinationBuffer.toString().equals(wrapper.getSourceId())) {
                 if (!wrapper.isModified()) {
-                    //We're trying to save to the same place, and it's not modified... we shouldn't save.
-                    //More importantly, if we try to save, we will create a 0-byte file since we're
-                    //retrying to retrieve from a file we'll be overwriting.
+                    // We're trying to save to the same place, and it's not
+                    // modified... we shouldn't save.
+                    // More importantly, if we try to save, we will create a
+                    // 0-byte file since we're
+                    // retrying to retrieve from a file we'll be overwriting.
                     saveStream = false;
                 }
-                
+
                 // its an update
                 update = true;
             }
@@ -206,11 +196,12 @@ public class FileMailRepository
             OutputStream out = null;
             try {
                 if (update && message instanceof MimeMessageWrapper) {
-                    // we need to force the loading of the message from the stream as we want to override the old message
-                    ((MimeMessageWrapper)message).loadMessage();
+                    // we need to force the loading of the message from the
+                    // stream as we want to override the old message
+                    ((MimeMessageWrapper) message).loadMessage();
                     out = streamRepository.put(key);
 
-                    ((MimeMessageWrapper)message).writeTo(out, out, null, true);
+                    ((MimeMessageWrapper) message).writeTo(out, out, null, true);
 
                 } else {
                     out = streamRepository.put(key);
@@ -218,12 +209,12 @@ public class FileMailRepository
 
                 }
 
-
             } finally {
-                if (out != null) out.close();
+                if (out != null)
+                    out.close();
             }
         }
-        //Always save the header information
+        // Always save the header information
         objectRepository.put(key, mc);
     }
 
@@ -238,16 +229,12 @@ public class FileMailRepository
             Mail mc = null;
             try {
                 mc = (Mail) objectRepository.get(key);
-            } 
-            catch (RuntimeException re){
+            } catch (RuntimeException re) {
                 StringBuffer exceptionBuffer = new StringBuffer(128);
-                if(re.getCause() instanceof Error){
-                    exceptionBuffer.append("Error when retrieving mail, not deleting: ")
-                            .append(re.toString());
-                }else{
-                    exceptionBuffer.append("Exception retrieving mail: ")
-                            .append(re.toString())
-                            .append(", so we're deleting it.");
+                if (re.getCause() instanceof Error) {
+                    exceptionBuffer.append("Error when retrieving mail, not deleting: ").append(re.toString());
+                } else {
+                    exceptionBuffer.append("Exception retrieving mail: ").append(re.toString()).append(", so we're deleting it.");
                     remove(key);
                 }
                 final String errorMessage = exceptionBuffer.toString();
@@ -265,33 +252,36 @@ public class FileMailRepository
         }
     }
 
-
     /**
      * @see org.apache.james.mailrepository.lib.AbstractMailRepository#internalRemove(String)
      */
     protected void internalRemove(String key) throws MessagingException {
-        if (keys != null) keys.remove(key);
+        if (keys != null)
+            keys.remove(key);
         streamRepository.remove(key);
         objectRepository.remove(key);
     }
-
 
     /**
      * @see org.apache.james.mailrepository.api.MailRepository#list()
      */
     public Iterator list() {
-        // Fix ConcurrentModificationException by cloning 
+        // Fix ConcurrentModificationException by cloning
         // the keyset before getting an iterator
         final ArrayList clone;
-        if (keys != null) synchronized(keys) {
-            clone = new ArrayList(keys);
-        } else {
+        if (keys != null)
+            synchronized (keys) {
+                clone = new ArrayList(keys);
+            }
+        else {
             clone = new ArrayList();
-            for (Iterator i = objectRepository.list(); i.hasNext(); ) {
+            for (Iterator i = objectRepository.list(); i.hasNext();) {
                 clone.add(i.next());
             }
         }
-        if (fifo) Collections.sort(clone); // Keys is a HashSet; impose FIFO for apps that need it
+        if (fifo)
+            Collections.sort(clone); // Keys is a HashSet; impose FIFO for apps
+                                     // that need it
         return clone.iterator();
     }
 }

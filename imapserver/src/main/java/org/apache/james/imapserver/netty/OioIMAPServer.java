@@ -22,11 +22,10 @@ import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.oio.OioServerSocketChannelFactory;
 
 /**
- * IMAPServer which use old IO and not NIO. If you want to use NIO you should use {@link IMAPServer}
- * 
- *
+ * IMAPServer which use old IO and not NIO. If you want to use NIO you should
+ * use {@link IMAPServer}
  */
-public class OioIMAPServer extends IMAPServer{
+public class OioIMAPServer extends IMAPServer {
 
     @Override
     protected ServerSocketChannelFactory createSocketChannelFactory() {
@@ -35,13 +34,10 @@ public class OioIMAPServer extends IMAPServer{
 
     /**
      * Return -1 as it is not known
-     * 
-     * 
      */
     @Override
     public int getIoWorkerCount() {
         return -1;
     }
 
-    
 }

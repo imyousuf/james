@@ -27,9 +27,6 @@ import org.apache.james.user.api.model.User;
  * Interface for a repository of users. A repository represents a logical
  * grouping of users, typically by common purpose. E.g. the users served by an
  * email server or the members of a mailing list.
- * 
- * 
- * @version $Revision$
  */
 public interface UsersRepository {
 

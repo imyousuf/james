@@ -56,39 +56,37 @@ import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
 
 /**
- * Provides DNS client functionality to services running
- * inside James
+ * Provides DNS client functionality to services running inside James
  */
 public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, Configurable {
 
     /**
-     * A resolver instance used to retrieve DNS records.  This
-     * is a reference to a third party library object.
+     * A resolver instance used to retrieve DNS records. This is a reference to
+     * a third party library object.
      */
     protected Resolver resolver;
 
     /**
-     * A TTL cache of results received from the DNS server.  This
-     * is a reference to a third party library object.
+     * A TTL cache of results received from the DNS server. This is a reference
+     * to a third party library object.
      */
     protected Cache cache;
 
     /**
      * Maximum number of RR to cache.
      */
-
     private int maxCacheSize = 50000;
 
     /**
      * Whether the DNS response is required to be authoritative
      */
     private int dnsCredibility;
-    
+
     /**
      * The DNS servers to be used by this service
      */
     private List<String> dnsServers = new ArrayList<String>();
-    
+
     /**
      * The search paths to be used
      */
@@ -98,48 +96,49 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
      * The MX Comparator used in the MX sort.
      */
     private Comparator<MXRecord> mxComparator = new MXRecordComparator();
-    
+
     /**
-     * If true register this service as the default resolver/cache for DNSJava static
-     * calls
+     * If true register this service as the default resolver/cache for DNSJava
+     * static calls
      */
     private boolean setAsDNSJavaDefault;
-    
+
     private String localHostName;
-    
+
     private String localCanonicalHostName;
-    
+
     private String localAddress;
-    
-    
+
     private Logger logger;
-    
-    
+
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger logger) {
         this.logger = logger;
     }
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
     @SuppressWarnings("unchecked")
-	public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException {
 
-        final boolean autodiscover =
-            configuration.getBoolean( "autodiscover", true );
+        final boolean autodiscover = configuration.getBoolean("autodiscover", true);
 
         List<Name> sPaths = new ArrayList<Name>();
         if (autodiscover) {
             logger.info("Autodiscovery is enabled - trying to discover your system's DNS Servers");
             String[] serversArray = ResolverConfig.getCurrentConfig().servers();
             if (serversArray != null) {
-                for ( int i = 0; i < serversArray.length; i++ ) {
-                    dnsServers.add(serversArray[ i ]);
+                for (int i = 0; i < serversArray.length; i++) {
+                    dnsServers.add(serversArray[i]);
                     logger.info("Adding autodiscovered server " + serversArray[i]);
                 }
             }
@@ -155,29 +154,28 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
             }
         }
 
-        //singleIPPerMX = configuration.getBoolean( "singleIPperMX", false ); 
+        // singleIPPerMX = configuration.getBoolean( "singleIPperMX", false );
 
-        setAsDNSJavaDefault = configuration.getBoolean( "setAsDNSJavaDefault" ,true );
-        
+        setAsDNSJavaDefault = configuration.getBoolean("setAsDNSJavaDefault", true);
+
         // Get the DNS servers that this service will use for lookups
-        final List<String> serversConfigurations = configuration.getList( "servers.server" );
-      
+        final List<String> serversConfigurations = configuration.getList("servers.server");
 
-        for ( int i = 0; i < serversConfigurations.size(); i++ ) {
-            dnsServers.add( serversConfigurations.get(i) );
+        for (int i = 0; i < serversConfigurations.size(); i++) {
+            dnsServers.add(serversConfigurations.get(i));
         }
 
         // Get the DNS servers that this service will use for lookups
-        final List<String> searchPathsConfiguration = configuration.getList( "searchpaths.searchpath" );
+        final List<String> searchPathsConfiguration = configuration.getList("searchpaths.searchpath");
 
-        for ( int i = 0; i < searchPathsConfiguration.size(); i++ ) {
+        for (int i = 0; i < searchPathsConfiguration.size(); i++) {
             try {
-                sPaths.add( Name.fromString(searchPathsConfiguration.get(i)) );
+                sPaths.add(Name.fromString(searchPathsConfiguration.get(i)));
             } catch (TextParseException e) {
-                throw new ConfigurationException("Unable to parse searchpath host: "+searchPathsConfiguration.get(i),e);
+                throw new ConfigurationException("Unable to parse searchpath host: " + searchPathsConfiguration.get(i), e);
             }
         }
-        
+
         searchPaths = (Name[]) sPaths.toArray(new Name[0]);
 
         if (dnsServers.isEmpty()) {
@@ -185,59 +183,55 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
             dnsServers.add("127.0.0.1");
         }
 
-        final boolean authoritative =
-           configuration.getBoolean( "authoritative" , false);
-        // TODO: Check to see if the credibility field is being used correctly.  From the
-        //      docs I don't think so
+        final boolean authoritative = configuration.getBoolean("authoritative", false);
+        // TODO: Check to see if the credibility field is being used correctly.
+        // From the
+        // docs I don't think so
         dnsCredibility = authoritative ? Credibility.AUTH_ANSWER : Credibility.NONAUTH_ANSWER;
 
-        maxCacheSize = configuration.getInt( "maxcachesize",maxCacheSize );
+        maxCacheSize = configuration.getInt("maxcachesize", maxCacheSize);
     }
-    
-    
-    
 
     @PostConstruct
-    public void init()
-        throws Exception {
-        logger.debug("DNSService init...");        
+    public void init() throws Exception {
+        logger.debug("DNSService init...");
 
         // If no DNS servers were configured, default to local host
         if (dnsServers.isEmpty()) {
             try {
-                dnsServers.add( InetAddress.getLocalHost().getHostName() );
-            } catch ( UnknownHostException ue ) {
-                dnsServers.add( "127.0.0.1" );
+                dnsServers.add(InetAddress.getLocalHost().getHostName());
+            } catch (UnknownHostException ue) {
+                dnsServers.add("127.0.0.1");
             }
         }
 
-        //Create the extended resolver...
-        final String[] serversArray = (String[])dnsServers.toArray(new String[0]);
+        // Create the extended resolver...
+        final String[] serversArray = (String[]) dnsServers.toArray(new String[0]);
 
         if (logger.isInfoEnabled()) {
-            for(int c = 0; c < serversArray.length; c++) {
+            for (int c = 0; c < serversArray.length; c++) {
                 logger.info("DNS Server is: " + serversArray[c]);
             }
         }
 
         try {
-            resolver = new ExtendedResolver( serversArray );
+            resolver = new ExtendedResolver(serversArray);
         } catch (UnknownHostException uhe) {
             logger.error("DNS service could not be initialized.  The DNS servers specified are not recognized hosts.", uhe);
             throw uhe;
         }
 
-        cache = new Cache (DClass.IN);
+        cache = new Cache(DClass.IN);
         cache.setMaxEntries(maxCacheSize);
-        
+
         if (setAsDNSJavaDefault) {
             Lookup.setDefaultResolver(resolver);
             Lookup.setDefaultCache(cache, DClass.IN);
             Lookup.setDefaultSearchPath(searchPaths);
             logger.info("Registered cache, resolver and search paths as DNSJava defaults");
         }
-        
-        // Cache the local hostname and local address. This is needed because 
+
+        // Cache the local hostname and local address. This is needed because
         // the following issues:
         // JAMES-787
         // JAMES-302
@@ -245,37 +239,38 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
         localCanonicalHostName = addr.getCanonicalHostName();
         localHostName = addr.getHostName();
         localAddress = addr.getHostAddress();
-        
+
         logger.debug("DNSService ...init end");
     }
 
     /**
-     * <p>Return the list of DNS servers in use by this service</p>
-     *
+     * Return the list of DNS servers in use by this service
+     * 
      * @return an array of DNS server names
      */
     public String[] getDNSServers() {
-        return (String[])dnsServers.toArray(new String[0]);
+        return (String[]) dnsServers.toArray(new String[0]);
     }
 
     /**
-     * <p>Return the list of DNS servers in use by this service</p>
-     *
+     * Return the list of DNS servers in use by this service
+     * 
      * @return an array of DNS server names
      */
     public Name[] getSearchPaths() {
         return searchPaths;
     }
 
-    
     /**
-     * <p>Return a prioritized unmodifiable list of MX records
-     * obtained from the server.</p>
-     *
-     * @param hostname domain name to look up
-     *
+     * Return a prioritized unmodifiable list of MX records obtained from the
+     * server.
+     * 
+     * @param hostname
+     *            domain name to look up
+     * 
      * @return a list of MX records corresponding to this mail domain
-     * @throws TemporaryResolutionException get thrown on temporary problems
+     * @throws TemporaryResolutionException
+     *             get thrown on temporary problems
      */
     private List<String> findMXRecordsRaw(String hostname) throws TemporaryResolutionException {
         Record answers[] = lookup(hostname, Type.MX, "MX");
@@ -285,11 +280,12 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
         }
 
         MXRecord[] mxAnswers = new MXRecord[answers.length];
-        
+
         for (int i = 0; i < answers.length; i++) {
             mxAnswers[i] = (MXRecord) answers[i];
         }
-        // just sort for now.. This will ensure that mx records with same prio are in sequence
+        // just sort for now.. This will ensure that mx records with same prio
+        // are in sequence
         Arrays.sort(mxAnswers, mxComparator);
 
         // now add the mx records to the right list and take care of shuffle
@@ -311,22 +307,22 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
                 }
             }
             // see if we need to insert the elements now
-            if (same == false || i +1 == mxAnswers.length) {
+            if (same == false || i + 1 == mxAnswers.length) {
                 // shuffle entries with same prio
-                //  JAMES-913
+                // JAMES-913
                 Collections.shuffle(samePrio);
                 servers.addAll(samePrio);
-                
-                if (same == false && i +1 < mxAnswers.length) {
+
+                if (same == false && i + 1 < mxAnswers.length) {
                     samePrio.clear();
                     samePrio.add(mx.getTarget().toString());
                 }
             }
-            logger.debug(new StringBuffer("Found MX record ").append(mx.getTarget ().toString ()).toString());
+            logger.debug(new StringBuffer("Found MX record ").append(mx.getTarget().toString()).toString());
         }
         return servers;
     }
-    
+
     /**
      * @see org.apache.james.dnsservice.api.DNSService#findMXRecords(String)
      */
@@ -336,26 +332,19 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
             servers = findMXRecordsRaw(hostname);
             return Collections.unmodifiableCollection(servers);
         } finally {
-            //If we found no results, we'll add the original domain name if
-            //it's a valid DNS entry
-            if (servers.size () == 0) {
-                StringBuffer logBuffer =
-                    new StringBuffer(128)
-                            .append("Couldn't resolve MX records for domain ")
-                            .append(hostname)
-                            .append(".");
+            // If we found no results, we'll add the original domain name if
+            // it's a valid DNS entry
+            if (servers.size() == 0) {
+                StringBuffer logBuffer = new StringBuffer(128).append("Couldn't resolve MX records for domain ").append(hostname).append(".");
                 logger.info(logBuffer.toString());
                 try {
                     getByName(hostname);
                     servers.add(hostname);
                 } catch (UnknownHostException uhe) {
                     // The original domain name is not a valid host,
-                    // so we can't add it to the server list.  In this
+                    // so we can't add it to the server list. In this
                     // case we return an empty list of servers
-                    logBuffer = new StringBuffer(128)
-                              .append("Couldn't resolve IP address for host ")
-                              .append(hostname)
-                              .append(".");
+                    logBuffer = new StringBuffer(128).append("Couldn't resolve IP address for host ").append(hostname).append(".");
                     logger.error(logBuffer.toString());
                 }
             }
@@ -364,41 +353,41 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
 
     /**
      * Looks up DNS records of the specified type for the specified name.
-     *
-     * This method is a public wrapper for the private implementation
-     * method
-     *
-     * @param namestr the name of the host to be looked up
-     * @param type the type of record desired
-     * @param typeDesc the description of the record type, for debugging purpose
+     * 
+     * This method is a public wrapper for the private implementation method
+     * 
+     * @param namestr
+     *            the name of the host to be looked up
+     * @param type
+     *            the type of record desired
+     * @param typeDesc
+     *            the description of the record type, for debugging purpose
      */
     protected Record[] lookup(String namestr, int type, String typeDesc) throws TemporaryResolutionException {
         // Name name = null;
         try {
             // name = Name.fromString(namestr, Name.root);
             Lookup l = new Lookup(namestr, type);
-            
+
             l.setCache(cache);
             l.setResolver(resolver);
             l.setCredibility(dnsCredibility);
             l.setSearchPath(searchPaths);
             Record[] r = l.run();
-            
+
             try {
                 if (l.getResult() == Lookup.TRY_AGAIN) {
-                    throw new TemporaryResolutionException(
-                            "DNSService is temporary not reachable");
+                    throw new TemporaryResolutionException("DNSService is temporary not reachable");
                 } else {
                     return r;
                 }
             } catch (IllegalStateException ise) {
                 // This is okay, because it mimics the original behaviour
-                // TODO find out if it's a bug in DNSJava 
+                // TODO find out if it's a bug in DNSJava
                 logger.debug("Error determining result ", ise);
-                throw new TemporaryResolutionException(
-                        "DNSService is temporary not reachable");
+                throw new TemporaryResolutionException("DNSService is temporary not reachable");
             }
-            
+
             // return rawDNSLookup(name, false, type, typeDesc);
         } catch (TextParseException tpe) {
             // TODO: Figure out how to handle this correctly.
@@ -406,7 +395,7 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
             return null;
         }
     }
-    
+
     protected Record[] lookupNoException(String namestr, int type, String typeDesc) {
         try {
             return lookup(namestr, type, typeDesc);
@@ -414,40 +403,37 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
             return null;
         }
     }
-    
-    /* RFC 2821 section 5 requires that we sort the MX records by their
-     * preference.
-     * Reminder for maintainers: the return value on a Comparator can
-     * be counter-intuitive for those who aren't used to the old C
-     * strcmp function:
-     *
-     * < 0 ==> a < b
-     * = 0 ==> a = b
-     * > 0 ==> a > b
+
+    /*
+     * RFC 2821 section 5 requires that we sort the MX records by their
+     * preference. Reminder for maintainers: the return value on a Comparator
+     * can be counter-intuitive for those who aren't used to the old C strcmp
+     * function:
+     * 
+     * < 0 ==> a < b = 0 ==> a = b > 0 ==> a > b
      */
     private static class MXRecordComparator implements Comparator<MXRecord> {
-        public int compare (MXRecord a, MXRecord b) {
+        public int compare(MXRecord a, MXRecord b) {
             int pa = a.getPriority();
             int pb = b.getPriority();
             return pa - pb;
         }
     }
 
-
-    /* java.net.InetAddress.get[All]ByName(String) allows an IP literal
-     * to be passed, and will recognize it even with a trailing '.'.
-     * However, org.xbill.DNS.Address does not recognize an IP literal
-     * with a trailing '.' character.  The problem is that when we
-     * lookup an MX record for some domains, we may find an IP address,
-     * which will have had the trailing '.' appended by the time we get
-     * it back from dnsjava.  An MX record is not allowed to have an IP
-     * address as the right-hand-side, but there are still plenty of
-     * such records on the Internet.  Since java.net.InetAddress can
+    /*
+     * java.net.InetAddress.get[All]ByName(String) allows an IP literal to be
+     * passed, and will recognize it even with a trailing '.'. However,
+     * org.xbill.DNS.Address does not recognize an IP literal with a trailing
+     * '.' character. The problem is that when we lookup an MX record for some
+     * domains, we may find an IP address, which will have had the trailing '.'
+     * appended by the time we get it back from dnsjava. An MX record is not
+     * allowed to have an IP address as the right-hand-side, but there are still
+     * plenty of such records on the Internet. Since java.net.InetAddress can
      * handle them, for the time being we've decided to support them.
-     *
-     * These methods are NOT intended for use outside of James, and are
-     * NOT declared by the org.apache.james.services.DNSServer.  This is
-     * currently a stopgap measure to be revisited for the next release.
+     * 
+     * These methods are NOT intended for use outside of James, and are NOT
+     * declared by the org.apache.james.services.DNSServer. This is currently a
+     * stopgap measure to be revisited for the next release.
      */
 
     private static String allowIPLiteral(String host) {
@@ -465,13 +451,13 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
      */
     public InetAddress getByName(String host) throws UnknownHostException {
         String name = allowIPLiteral(host);
-         
+
         try {
             // Check if its local
-            if (name.equalsIgnoreCase(localHostName) || name.equalsIgnoreCase(localCanonicalHostName) ||name.equals(localAddress)) {
+            if (name.equalsIgnoreCase(localHostName) || name.equalsIgnoreCase(localCanonicalHostName) || name.equals(localAddress)) {
                 return getLocalHost();
             }
-            
+
             return org.xbill.DNS.Address.getByAddress(name);
         } catch (UnknownHostException e) {
             Record[] records = lookupNoException(name, Type.A, "A");
@@ -479,7 +465,8 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
             if (records != null && records.length >= 1) {
                 ARecord a = (ARecord) records[0];
                 return InetAddress.getByAddress(name, a.getAddress().getAddress());
-            } else throw e;
+            } else
+                throw e;
         }
     }
 
@@ -490,39 +477,40 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
         String name = allowIPLiteral(host);
         try {
             // Check if its local
-            if (name.equalsIgnoreCase(localHostName) || name.equalsIgnoreCase(localCanonicalHostName) ||name.equals(localAddress)) {
-                return new InetAddress[] {getLocalHost()};
+            if (name.equalsIgnoreCase(localHostName) || name.equalsIgnoreCase(localCanonicalHostName) || name.equals(localAddress)) {
+                return new InetAddress[] { getLocalHost() };
             }
-            
+
             InetAddress addr = org.xbill.DNS.Address.getByAddress(name);
-            return new InetAddress[] {addr};
+            return new InetAddress[] { addr };
         } catch (UnknownHostException e) {
             Record[] records = lookupNoException(name, Type.A, "A");
-            
+
             if (records != null && records.length >= 1) {
-                InetAddress [] addrs = new InetAddress[records.length];
+                InetAddress[] addrs = new InetAddress[records.length];
                 for (int i = 0; i < records.length; i++) {
                     ARecord a = (ARecord) records[i];
                     addrs[i] = InetAddress.getByAddress(name, a.getAddress().getAddress());
                 }
                 return addrs;
-            } else throw e;
+            } else
+                throw e;
         }
     }
-    
+
     /**
      * @see org.apache.james.dnsservice.api.DNSService#findTXTRecords(String)
      */
-    public Collection<String> findTXTRecords(String hostname){
+    public Collection<String> findTXTRecords(String hostname) {
         List<String> txtR = new ArrayList<String>();
         Record[] records = lookupNoException(hostname, Type.TXT, "TXT");
-    
+
         if (records != null) {
-           for (int i = 0; i < records.length; i++) {
-               TXTRecord txt = (TXTRecord) records[i];
-               txtR.add(txt.rdataToString());
-           }
-        
+            for (int i = 0; i < records.length; i++) {
+                TXTRecord txt = (TXTRecord) records[i];
+                txtR.add(txt.rdataToString());
+            }
+
         }
         return txtR;
     }
@@ -530,7 +518,7 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
     /**
      * @see org.apache.james.dnsservice.api.DNSService#getHostName(java.net.InetAddress)
      */
-    public String getHostName(InetAddress addr){
+    public String getHostName(InetAddress addr) {
         String result = null;
         Name name = ReverseMap.fromAddress(addr);
         Record[] records = lookupNoException(name.toString(), Type.PTR, "PTR");

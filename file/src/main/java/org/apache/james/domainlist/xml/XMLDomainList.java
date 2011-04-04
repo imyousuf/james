@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.domainlist.xml;
 
 import java.util.ArrayList;
@@ -31,79 +29,84 @@ import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.domainlist.lib.AbstractDomainList;
 import org.apache.james.lifecycle.api.Configurable;
 
-
 /**
  * Mimic the old behavoir of JAMES
  */
-public class XMLDomainList extends AbstractDomainList implements Configurable{
-    
+public class XMLDomainList extends AbstractDomainList implements Configurable {
+
     private List<String> domainNames = new ArrayList<String>();
-    
+
     private boolean managementDisabled = false;
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
     @SuppressWarnings("unchecked")
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         super.configure(config);
-        List<String> serverNameConfs = config.getList( "domainnames.domainname" );
-        for ( int i = 0; i < serverNameConfs.size(); i++ ) {
+        List<String> serverNameConfs = config.getList("domainnames.domainname");
+        for (int i = 0; i < serverNameConfs.size(); i++) {
             try {
-                addDomain( serverNameConfs.get(i));
+                addDomain(serverNameConfs.get(i));
             } catch (DomainListException e) {
                 throw new ConfigurationException("Unable to add domain to memory", e);
             }
         }
-        
+
         managementDisabled = true;
 
-        
     }
-   
-   
-    
-    
+
     /**
      * @see org.apache.james.domainlist.lib.AbstractDomainList#getDomainListInternal()
      */
     protected List<String> getDomainListInternal() {
-        
+
         return new ArrayList<String>(domainNames);
     }
 
     /**
      * @see org.apache.james.domainlist.api.DomainList#containsDomain(java.lang.String)
      */
-    public boolean containsDomain(String domains) throws DomainListException{
+    public boolean containsDomain(String domains) throws DomainListException {
         return domainNames.contains(domains);
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.domainlist.api.DomainList#addDomain(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.domainlist.api.DomainList#addDomain(java.lang.String)
      */
-    public void addDomain(String domain) throws DomainListException{
-        // TODO: Remove later. Temporary fix to get sure no domains can be added to the XMLDomainList
-        if (managementDisabled) throw new DomainListException("Read-Only DomainList implementation");
-        
+    public void addDomain(String domain) throws DomainListException {
+        // TODO: Remove later. Temporary fix to get sure no domains can be added
+        // to the XMLDomainList
+        if (managementDisabled)
+            throw new DomainListException("Read-Only DomainList implementation");
+
         String newDomain = domain.toLowerCase(Locale.US);
         if (containsDomain(newDomain) == false) {
             domainNames.add(newDomain);
         }
-        
-    }
 
+    }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.domainlist.api.DomainList#removeDomain(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.domainlist.api.DomainList#removeDomain(java.lang.String)
      */
     public void removeDomain(String domain) throws DomainListException {
-        // TODO: Remove later. Temporary fix to get sure no domains can be added to the XMLDomainList
-        if (managementDisabled) throw new DomainListException("Read-Only DomainList implementation");
-       
+        // TODO: Remove later. Temporary fix to get sure no domains can be added
+        // to the XMLDomainList
+        if (managementDisabled)
+            throw new DomainListException("Read-Only DomainList implementation");
+
         domainNames.remove(domain.toLowerCase(Locale.US));
     }
 }

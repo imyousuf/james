@@ -21,18 +21,20 @@ package org.apache.james.dnsservice.library.inetnetwork.model;
 import java.net.InetAddress;
 
 /**
- * An InetNetwork represents a IPv4 or IPv6 address with a subnet mask.<br/>
+ * An InetNetwork represents a IPv4 or IPv6 address with a subnet mask.<br>
  * The subnet mask allows to represent one or more host (a "network of hosts").
  * 
- * Do not confuse the InetAddress.toString() returning a "hostname/ip_address" (optional hostname)
- * with the InetNetwork.toString() that returns a "ip_address/subnet_mask".
+ * Do not confuse the InetAddress.toString() returning a "hostname/ip_address"
+ * (optional hostname) with the InetNetwork.toString() that returns a
+ * "ip_address/subnet_mask".
  */
 public interface InetNetwork {
 
     /**
      * Return true if the network contains the given name
      * 
-     * @param name hostname or ipAddress
+     * @param name
+     *            hostname or ipAddress
      * @return true if the network contains the ip address
      */
     boolean contains(InetAddress ip);

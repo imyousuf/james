@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
- 
 package org.apache.james.fetchmail;
 
 import java.util.ArrayList;
@@ -45,10 +43,7 @@ import org.apache.james.util.concurrent.JMXEnabledScheduledThreadPoolExecutor;
 import org.slf4j.Logger;
 
 /**
- *  A class to instantiate and schedule a set of mail fetching tasks
- *
- * $Id$
- *
+ * A class to instantiate and schedule a set of mail fetching tasks
  */
 public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configurable {
 
@@ -56,7 +51,6 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
      * Configuration object for this service
      */
     private HierarchicalConfiguration conf;
-
 
     /**
      * The scheduler service that is used to trigger fetch tasks.
@@ -70,88 +64,77 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
 
     private List<ScheduledFuture<?>> schedulers = new ArrayList<ScheduledFuture<?>>();
 
-
     private DNSService dns;
 
-
-
     private UsersRepository urepos;
-    
-    private Logger logger;
 
+    private Logger logger;
 
     private MailQueue queue;
     private MailQueueFactory queueFactory;
 
-
     private DomainList domainList;
- 
 
-    
-    @Resource(name="mailqueuefactory")
+    @Resource(name = "mailqueuefactory")
     public void setMailQueueFactory(MailQueueFactory queueFactory) {
         this.queueFactory = queueFactory;
     }
 
-    
-    @Resource(name="dnsservice")
+    @Resource(name = "dnsservice")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
     }
 
-   
-    @Resource(name="usersrepository")
+    @Resource(name = "usersrepository")
     public void setUsersRepository(UsersRepository urepos) {
         this.urepos = urepos;
     }
 
-
-    
-    @Resource(name="domainlist")
+    @Resource(name = "domainlist")
     public void setDomainList(DomainList domainList) {
         this.domainList = domainList;
     }
-    
+
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
     public final void setLog(Logger logger) {
         this.logger = logger;
     }
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
-    public final void configure(HierarchicalConfiguration config) throws ConfigurationException{
+    public final void configure(HierarchicalConfiguration config) throws ConfigurationException {
         this.conf = config;
     }
-    
-    
+
     @SuppressWarnings("unchecked")
     @PostConstruct
-    public void init() throws Exception
-    {
+    public void init() throws Exception {
         enabled = conf.getBoolean("[@enabled]", false);
-        if (enabled)
-        {
+        if (enabled) {
             int numThreads = conf.getInt("threads", 5);
-            String jmxName = conf.getString("jmxName","fetchmail");
+            String jmxName = conf.getString("jmxName", "fetchmail");
             String jmxPath = "org.apache.james:type=component,name=" + jmxName + ",sub-type=threadpool";
-            
+
             scheduler = new JMXEnabledScheduledThreadPoolExecutor(numThreads, jmxPath, "scheduler");
             queue = queueFactory.getQueue(MailQueueFactory.SPOOL);
 
             List<HierarchicalConfiguration> fetchConfs = conf.configurationsAt("fetch");
-            for (int i = 0; i < fetchConfs.size(); i++)
-            {
+            for (int i = 0; i < fetchConfs.size(); i++) {
                 // read configuration
                 HierarchicalConfiguration fetchConf = fetchConfs.get(i);
                 Long interval = fetchConf.getLong("interval");
 
                 FetchMail fetcher = new FetchMail();
-                    
+
                 fetcher.setLog(logger);
                 fetcher.setDNSService(dns);
                 fetcher.setUsersRepository(urepos);
@@ -159,41 +142,38 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
                 fetcher.setDomainList(domainList);
 
                 fetcher.configure(fetchConf);
-                
+
                 // initialize scheduling
                 schedulers.add(scheduler.scheduleWithFixedDelay(fetcher, 0, interval, TimeUnit.MILLISECONDS));
             }
 
-            if (logger.isInfoEnabled()) logger.info("FetchMail Started");
-        }
-        else
-        {
-            if (logger.isInfoEnabled()) logger.info("FetchMail Disabled");
+            if (logger.isInfoEnabled())
+                logger.info("FetchMail Started");
+        } else {
+            if (logger.isInfoEnabled())
+                logger.info("FetchMail Disabled");
         }
     }
 
     @PreDestroy
-    public void dispose()
-    {
-        if (enabled)
-        {
+    public void dispose() {
+        if (enabled) {
             logger.info("FetchMail dispose...");
             Iterator<ScheduledFuture<?>> schedulersIt = schedulers.iterator();
-            while (schedulersIt.hasNext())
-            {
+            while (schedulersIt.hasNext()) {
                 schedulersIt.next().cancel(false);
             }
             logger.info("FetchMail ...dispose end");
         }
     }
-    
+
     /**
      * Describes whether this service is enabled by configuration.
-     *
+     * 
      * @return is the service enabled.
      */
     public final boolean isEnabled() {
         return enabled;
     }
-    
+
 }

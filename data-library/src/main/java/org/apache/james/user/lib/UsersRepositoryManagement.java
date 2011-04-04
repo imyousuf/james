@@ -17,9 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
-
 package org.apache.james.user.lib;
 
 import java.util.ArrayList;
@@ -37,35 +34,37 @@ import org.apache.james.user.api.model.JamesUser;
 import org.apache.james.user.api.model.User;
 
 public class UsersRepositoryManagement extends StandardMBean implements UsersRepositoryManagementMBean {
-    
+
     /**
      * The administered UsersRepository
      */
     private UsersRepository localUsers;
 
-    @Resource(name="usersrepository")
+    @Resource(name = "usersrepository")
     public void setUsersRepository(UsersRepository localUsers) {
         this.localUsers = localUsers;
     }
-    
-    
+
     public UsersRepositoryManagement() throws NotCompliantMBeanException {
         super(UsersRepositoryManagementMBean.class);
     }
 
-
     private JamesUser getJamesUser(String userName) throws UsersRepositoryException {
         User baseuser = localUsers.getUserByName(userName);
-        if (baseuser == null) throw new IllegalArgumentException("user not found: " + userName);
-        if (! (baseuser instanceof JamesUser ) ) throw new IllegalArgumentException("user is not of type JamesUser: " + userName);
+        if (baseuser == null)
+            throw new IllegalArgumentException("user not found: " + userName);
+        if (!(baseuser instanceof JamesUser))
+            throw new IllegalArgumentException("user is not of type JamesUser: " + userName);
 
         return (JamesUser) baseuser;
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#addUser(java.lang.String, java.lang.String)
+     * 
+     * @see
+     * org.apache.james.user.api.UsersRepositoryManagementMBean#addUser(java
+     * .lang.String, java.lang.String)
      */
     public void addUser(String userName, String password) throws Exception {
         try {
@@ -77,7 +76,10 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#deleteUser(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.user.api.UsersRepositoryManagementMBean#deleteUser(java
+     * .lang.String)
      */
     public void deleteUser(String userName) throws Exception {
         try {
@@ -87,10 +89,12 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
         }
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#verifyExists(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.user.api.UsersRepositoryManagementMBean#verifyExists
+     * (java.lang.String)
      */
     public boolean verifyExists(String userName) throws Exception {
         try {
@@ -100,10 +104,11 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
         }
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#countUsers()
+     * 
+     * @see
+     * org.apache.james.user.api.UsersRepositoryManagementMBean#countUsers()
      */
     public long countUsers() throws Exception {
         try {
@@ -113,11 +118,11 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
         }
     }
 
-
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#listAllUsers()
+     * 
+     * @see
+     * org.apache.james.user.api.UsersRepositoryManagementMBean#listAllUsers()
      */
     public String[] listAllUsers() throws Exception {
         List<String> userNames = new ArrayList<String>();
@@ -129,19 +134,21 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
             throw new Exception(e.getMessage());
 
         }
-        return (String[])userNames.toArray(new String[]{});
+        return (String[]) userNames.toArray(new String[] {});
     }
-
-
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#setPassword(java.lang.String, java.lang.String)
+     * 
+     * @see
+     * org.apache.james.user.api.UsersRepositoryManagementMBean#setPassword(
+     * java.lang.String, java.lang.String)
      */
     public void setPassword(String userName, String password) throws Exception {
         try {
             User user = localUsers.getUserByName(userName);
-            if (user == null) throw new UsersRepositoryException("user not found: " + userName);
+            if (user == null)
+                throw new UsersRepositoryException("user not found: " + userName);
             if (user.setPassword(password) == false) {
                 throw new UsersRepositoryException("Unable to update password for user " + user);
             }
@@ -150,19 +157,22 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
             throw new Exception(e.getMessage());
 
         }
-      
-    }
 
+    }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#unsetAlias(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.user.api.UsersRepositoryManagementMBean#unsetAlias(java
+     * .lang.String)
      */
     public void unsetAlias(String userName) throws Exception {
         try {
             JamesUser user = getJamesUser(userName);
-            if (!user.getAliasing()) throw new UsersRepositoryException("User " + user + " is no alias");
-            
+            if (!user.getAliasing())
+                throw new UsersRepositoryException("User " + user + " is no alias");
+
             user.setAliasing(false);
             localUsers.updateUser(user);
         } catch (UsersRepositoryException e) {
@@ -172,15 +182,18 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
 
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#getAlias(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.user.api.UsersRepositoryManagementMBean#getAlias(java
+     * .lang.String)
      */
     public String getAlias(String userName) throws Exception {
         try {
             JamesUser user = getJamesUser(userName);
-            if (!user.getAliasing()) return null;
+            if (!user.getAliasing())
+                return null;
             return user.getAlias();
         } catch (UsersRepositoryException e) {
             throw new Exception(e.getMessage());
@@ -189,16 +202,19 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
 
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#unsetForwardAddress(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.user.api.UsersRepositoryManagementMBean#unsetForwardAddress
+     * (java.lang.String)
      */
     public void unsetForwardAddress(String userName) throws Exception {
         try {
             JamesUser user = getJamesUser(userName);
-            if (!user.getForwarding()) throw new UsersRepositoryException("User " + user + " is no forward");
-            
+            if (!user.getForwarding())
+                throw new UsersRepositoryException("User " + user + " is no forward");
+
             user.setForwarding(false);
             localUsers.updateUser(user);
         } catch (UsersRepositoryException e) {
@@ -206,18 +222,20 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
 
         }
 
-
     }
-
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#getForwardAddress(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.user.api.UsersRepositoryManagementMBean#getForwardAddress
+     * (java.lang.String)
      */
     public String getForwardAddress(String userName) throws Exception {
         try {
-            JamesUser  user = getJamesUser(userName);
-            if (!user.getForwarding()) return null;
+            JamesUser user = getJamesUser(userName);
+            if (!user.getForwarding())
+                return null;
             return user.getForwardingDestination().toString();
         } catch (UsersRepositoryException e) {
             throw new Exception(e.getMessage());
@@ -228,7 +246,9 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#getVirtualHostingEnabled()
+     * 
+     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#
+     * getVirtualHostingEnabled()
      */
     public boolean getVirtualHostingEnabled() throws Exception {
         try {

@@ -43,8 +43,6 @@ import java.util.List;
  * object is GC'd.
  * 
  * @see MimeMessageWrapper
- * 
- * 
  */
 public class MimeMessageInputStreamSource extends MimeMessageSource implements Disposable {
 

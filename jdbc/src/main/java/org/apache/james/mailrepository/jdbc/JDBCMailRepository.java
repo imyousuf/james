@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.mailrepository.jdbc;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -65,22 +63,32 @@ import java.util.StringTokenizer;
 
 /**
  * Implementation of a MailRepository on a database.
- *
- * <p>Requires a configuration element in the .conf.xml file of the form:
- *  <br>&lt;repository destinationURL="db://&lt;datasource&gt;/&lt;table_name&gt;/&lt;repository_name&gt;"
- *  <br>            type="MAIL"
- *  <br>            model="SYNCHRONOUS"/&gt;
- *  <br>&lt;/repository&gt;
- * <p>destinationURL specifies..(Serge??)
- * <br>Type can be SPOOL or MAIL
- * <br>Model is currently not used and may be dropped
- *
- * <p>Requires a logger called MailRepository.
- *
- * @version CVS $Revision$ $Date$
+ * 
+ * <p>
+ * Requires a configuration element in the .conf.xml file of the form:
+ * 
+ * <pre>
+ *  &lt;repository destinationURL="db://&lt;datasource&gt;/&lt;table_name&gt;/&lt;repository_name&gt;"
+ *              type="MAIL"
+ *              model="SYNCHRONOUS"/&gt;
+ *  &lt;/repository&gt;
+ * </pre>
+ * 
+ * </p>
+ * <p>
+ * destinationURL specifies..(Serge??) <br>
+ * Type can be SPOOL or MAIL <br>
+ * Model is currently not used and may be dropped
+ * </p>
+ * 
+ * <p>
+ * Requires a logger called MailRepository.
+ * </p>
+ * 
+ * @version CVS $Revision$ $Date: 2010-12-29 21:47:46 +0100 (Wed, 29
+ *          Dec 2010) $
  */
-public class JDBCMailRepository
-    extends AbstractMailRepository {
+public class JDBCMailRepository extends AbstractMailRepository {
 
     /**
      * The table name parsed from the destination URL
@@ -93,7 +101,8 @@ public class JDBCMailRepository
     protected String repositoryName;
 
     /**
-     * The name of the SQL configuration file to be used to configure this repository.
+     * The name of the SQL configuration file to be used to configure this
+     * repository.
      */
     private String sqlFileName;
 
@@ -101,7 +110,6 @@ public class JDBCMailRepository
      * The stream repository used in dbfile mode
      */
     private FilePersistentStreamRepository sr = null;
-
 
     /**
      * The JDBC datasource that provides the JDBC connection
@@ -122,7 +130,7 @@ public class JDBCMailRepository
      * The JDBCUtil helper class
      */
     protected JDBCUtil theJDBCUtil;
-    
+
     /**
      * "Support for Mail Attributes under JDBC repositories is ready" indicator.
      */
@@ -135,21 +143,20 @@ public class JDBCMailRepository
 
     private FileSystem fileSystem;
 
-	private String filestore;
+    private String filestore;
 
-	private String destination;
+    private String destination;
 
-    @Resource(name="datasource")
+    @Resource(name = "datasource")
     public void setDatasource(DataSource datasource) {
         this.datasource = datasource;
     }
 
-
-    @Resource(name="filesystem")
+    @Resource(name = "filesystem")
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }
-    
+
     protected void doConfigure(HierarchicalConfiguration configuration) throws ConfigurationException {
         super.doConfigure(configuration);
         if (getLogger().isDebugEnabled()) {
@@ -158,7 +165,7 @@ public class JDBCMailRepository
         destination = configuration.getString("[@destinationURL]");
 
         // normalize the destination, to simplify processing.
-        if ( ! destination.endsWith("/") ) {
+        if (!destination.endsWith("/")) {
             destination += "/";
         }
         // Parse the DestinationURL for the name of the datasource,
@@ -167,11 +174,11 @@ public class JDBCMailRepository
         List<String> urlParams = new ArrayList<String>();
         int start = 5;
         if (destination.startsWith("dbfile")) {
-            //this is dbfile:// instead of db://
+            // this is dbfile:// instead of db://
             start += 4;
         }
         int end = destination.indexOf('/', start);
-        while ( end > -1 ) {
+        while (end > -1) {
             urlParams.add(destination.substring(start, end));
             start = end + 1;
             end = destination.indexOf('/', start);
@@ -179,18 +186,14 @@ public class JDBCMailRepository
 
         // Build SqlParameters and get datasource name from URL parameters
         if (urlParams.size() == 0) {
-            StringBuffer exceptionBuffer =
-                new StringBuffer(256)
-                        .append("Malformed destinationURL - Must be of the format '")
-                        .append("db://<data-source>[/<table>[/<repositoryName>]]'.  Was passed ")
-                        .append(configuration.getString("[@destinationURL]"));
+            StringBuffer exceptionBuffer = new StringBuffer(256).append("Malformed destinationURL - Must be of the format '").append("db://<data-source>[/<table>[/<repositoryName>]]'.  Was passed ").append(configuration.getString("[@destinationURL]"));
             throw new ConfigurationException(exceptionBuffer.toString());
         }
         if (urlParams.size() >= 1) {
-            datasourceName = (String)urlParams.get(0);
+            datasourceName = (String) urlParams.get(0);
         }
         if (urlParams.size() >= 2) {
-            tableName = (String)urlParams.get(1);
+            tableName = (String) urlParams.get(1);
         }
         if (urlParams.size() >= 3) {
             repositoryName = "";
@@ -198,89 +201,76 @@ public class JDBCMailRepository
                 if (i >= 3) {
                     repositoryName += '/';
                 }
-                repositoryName += (String)urlParams.get(i);
+                repositoryName += (String) urlParams.get(i);
             }
-        }        
-
+        }
 
         if (getLogger().isDebugEnabled()) {
-            StringBuffer logBuffer =
-                new StringBuffer(128)
-                        .append("Parsed URL: table = '")
-                        .append(tableName)
-                        .append("', repositoryName = '")
-                        .append(repositoryName)
-                        .append("'");
+            StringBuffer logBuffer = new StringBuffer(128).append("Parsed URL: table = '").append(tableName).append("', repositoryName = '").append(repositoryName).append("'");
             getLogger().debug(logBuffer.toString());
         }
-        
-        inMemorySizeLimit = configuration.getInt("inMemorySizeLimit", 409600000); 
+
+        inMemorySizeLimit = configuration.getInt("inMemorySizeLimit", 409600000);
 
         filestore = configuration.getString("filestore", null);
         sqlFileName = configuration.getString("sqlFile");
-      
-        
-    }
 
+    }
 
     /**
      * Initialises the JDBC repository.
-     * 1) Tests the connection to the database.
-     * 2) Loads SQL strings from the SQL definition file,
-     *     choosing the appropriate SQL for this connection,
-     *     and performing paramter substitution,
-     * 3) Initialises the database with the required tables, if necessary.
-     *
-     * @throws Exception if an error occurs
+     * <ol>
+     * <li>Tests the connection to the database.</li>
+     * <li>Loads SQL strings from the SQL definition file, choosing the
+     * appropriate SQL for this connection, and performing paramter
+     * substitution,</li>
+     * <li>Initialises the database with the required tables, if necessary.</li>
+     * </ol>
+     * 
+     * @throws Exception
+     *             if an error occurs
      */
     @PostConstruct
-    public void init() throws Exception {        
+    public void init() throws Exception {
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled()) {
             getLogger().debug(this.getClass().getName() + ".initialize()");
         }
-        
+
         try {
             if (filestore != null) {
-                
-                //prepare Configurations for stream repositories
-                DefaultConfigurationBuilder streamConfiguration
-                    = new DefaultConfigurationBuilder();
 
-                streamConfiguration.addProperty( "[@destinationURL]", filestore );
-              
+                // prepare Configurations for stream repositories
+                DefaultConfigurationBuilder streamConfiguration = new DefaultConfigurationBuilder();
+
+                streamConfiguration.addProperty("[@destinationURL]", filestore);
+
                 sr = new FilePersistentStreamRepository();
                 sr.setLog(getLogger());
                 sr.setFileSystem(fileSystem);
                 sr.configure(streamConfiguration);
                 sr.init();
-                
+
                 if (getLogger().isDebugEnabled()) {
                     getLogger().debug("Got filestore for JdbcMailRepository: " + filestore);
                 }
             }
 
             if (getLogger().isDebugEnabled()) {
-                StringBuffer logBuf =
-                    new StringBuffer(128)
-                            .append(this.getClass().getName())
-                            .append(" created according to ")
-                            .append(destination);
+                StringBuffer logBuf = new StringBuffer(128).append(this.getClass().getName()).append(" created according to ").append(destination);
                 getLogger().debug(logBuf.toString());
             }
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error(message, e);
             throw new ConfigurationException(message, e);
-        } 
+        }
 
-        theJDBCUtil =
-            new JDBCUtil() {
-                protected void delegatedLog(String logString) {
-                    JDBCMailRepository.this.getLogger().warn("JDBCMailRepository: " + logString);
-                }
-            };
-      
+        theJDBCUtil = new JDBCUtil() {
+            protected void delegatedLog(String logString) {
+                JDBCMailRepository.this.getLogger().warn("JDBCMailRepository: " + logString);
+            }
+        };
 
         // Test the connection to the database, by getting the DatabaseMetaData.
         Connection conn = datasource.getConnection();
@@ -298,18 +288,12 @@ public class JDBCMailRepository
             }
 
             if (getLogger().isDebugEnabled()) {
-                logBuffer =
-                    new StringBuffer(128)
-                            .append("Reading SQL resources from file: ")
-                            .append(sqlFileName)
-                            .append(", section ")
-                            .append(this.getClass().getName())
-                            .append(".");
+                logBuffer = new StringBuffer(128).append("Reading SQL resources from file: ").append(sqlFileName).append(", section ").append(this.getClass().getName()).append(".");
                 getLogger().debug(logBuffer.toString());
             }
 
             // Build the statement parameters
-            Map<String,String> sqlParameters = new HashMap<String,String>();
+            Map<String, String> sqlParameters = new HashMap<String, String>();
             if (tableName != null) {
                 sqlParameters.put("table", tableName);
             }
@@ -318,29 +302,24 @@ public class JDBCMailRepository
             }
 
             sqlQueries = new SqlResources();
-            sqlQueries.init(sqlFile, this.getClass().getName(),
-                            conn, sqlParameters);
+            sqlQueries.init(sqlFile, this.getClass().getName(), conn, sqlParameters);
 
             // Check if the required table exists. If not, create it.
             DatabaseMetaData dbMetaData = conn.getMetaData();
-            // Need to ask in the case that identifiers are stored, ask the DatabaseMetaInfo.
+            // Need to ask in the case that identifiers are stored, ask the
+            // DatabaseMetaInfo.
             // Try UPPER, lower, and MixedCase, to see if the table is there.
             if (!(theJDBCUtil.tableExists(dbMetaData, tableName))) {
                 // Users table doesn't exist - create it.
-                createStatement =
-                    conn.prepareStatement(sqlQueries.getSqlString("createTable", true));
+                createStatement = conn.prepareStatement(sqlQueries.getSqlString("createTable", true));
                 createStatement.execute();
 
                 if (getLogger().isInfoEnabled()) {
-                    logBuffer =
-                        new StringBuffer(64)
-                                .append("JdbcMailRepository: Created table '")
-                                .append(tableName)
-                                .append("'.");
+                    logBuffer = new StringBuffer(64).append("JdbcMailRepository: Created table '").append(tableName).append("'.");
                     getLogger().info(logBuffer.toString());
                 }
             }
-            
+
             checkJdbcAttributesSupport(dbMetaData);
 
         } finally {
@@ -348,73 +327,56 @@ public class JDBCMailRepository
             theJDBCUtil.closeJDBCConnection(conn);
         }
     }
-    
-    /** Checks whether support for JDBC Mail atributes is activated for this repository
-     * and if everything is consistent.
-     * Looks for both the "updateMessageAttributesSQL" and "retrieveMessageAttributesSQL"
-     * statements in sqlResources and for a table column named "message_attributes".
-     *
-     * @param dbMetaData the database metadata to be used to look up the column
-     * @throws SQLException if a fatal situation is met
+
+    /**
+     * Checks whether support for JDBC Mail atributes is activated for this
+     * repository and if everything is consistent.<br>
+     * Looks for both the "updateMessageAttributesSQL" and
+     * "retrieveMessageAttributesSQL" statements in sqlResources and for a table
+     * column named "message_attributes".
+     * 
+     * @param dbMetaData
+     *            the database metadata to be used to look up the column
+     * @throws SQLException
+     *             if a fatal situation is met
      */
     protected void checkJdbcAttributesSupport(DatabaseMetaData dbMetaData) throws SQLException {
         String attributesColumnName = "message_attributes";
         boolean hasUpdateMessageAttributesSQL = false;
         boolean hasRetrieveMessageAttributesSQL = false;
-        
+
         boolean hasMessageAttributesColumn = theJDBCUtil.columnExists(dbMetaData, tableName, attributesColumnName);
-        
-        StringBuffer logBuffer = new StringBuffer(64)
-                                    .append("JdbcMailRepository '"
-                                            + repositoryName
-                                            + ", table '"
-                                            + tableName
-                                            + "': ");
-        
-        //Determine whether attributes are used and available for storing
-        //Do we have updateMessageAttributesSQL?
-        String updateMessageAttrSql =
-            sqlQueries.getSqlString("updateMessageAttributesSQL", false);
-        if (updateMessageAttrSql!=null) {
+
+        StringBuffer logBuffer = new StringBuffer(64).append("JdbcMailRepository '" + repositoryName + ", table '" + tableName + "': ");
+
+        // Determine whether attributes are used and available for storing
+        // Do we have updateMessageAttributesSQL?
+        String updateMessageAttrSql = sqlQueries.getSqlString("updateMessageAttributesSQL", false);
+        if (updateMessageAttrSql != null) {
             hasUpdateMessageAttributesSQL = true;
         }
-        
-        //Determine whether attributes are used and retrieve them
-        //Do we have retrieveAttributesSQL?
-        String retrieveMessageAttrSql =
-            sqlQueries.getSqlString("retrieveMessageAttributesSQL", false);
-        if (retrieveMessageAttrSql!=null) {
+
+        // Determine whether attributes are used and retrieve them
+        // Do we have retrieveAttributesSQL?
+        String retrieveMessageAttrSql = sqlQueries.getSqlString("retrieveMessageAttributesSQL", false);
+        if (retrieveMessageAttrSql != null) {
             hasRetrieveMessageAttributesSQL = true;
         }
-        
+
         if (hasUpdateMessageAttributesSQL && !hasRetrieveMessageAttributesSQL) {
-            logBuffer.append("JDBC Mail Attributes support was activated for update but not for retrieval"
-                             + "(found 'updateMessageAttributesSQL' but not 'retrieveMessageAttributesSQL'"
-                             + "in table '"
-                             + tableName
-                             + "').");
+            logBuffer.append("JDBC Mail Attributes support was activated for update but not for retrieval" + "(found 'updateMessageAttributesSQL' but not 'retrieveMessageAttributesSQL'" + "in table '" + tableName + "').");
             getLogger().error(logBuffer.toString());
             throw new SQLException(logBuffer.toString());
         }
         if (!hasUpdateMessageAttributesSQL && hasRetrieveMessageAttributesSQL) {
-            logBuffer.append("JDBC Mail Attributes support was activated for retrieval but not for update"
-                             + "(found 'retrieveMessageAttributesSQL' but not 'updateMessageAttributesSQL'"
-                             + "in table '"
-                             + tableName
-                             + "'.");
+            logBuffer.append("JDBC Mail Attributes support was activated for retrieval but not for update" + "(found 'retrieveMessageAttributesSQL' but not 'updateMessageAttributesSQL'" + "in table '" + tableName + "'.");
             getLogger().error(logBuffer.toString());
             throw new SQLException(logBuffer.toString());
         }
-        if (!hasMessageAttributesColumn
-            && (hasUpdateMessageAttributesSQL || hasRetrieveMessageAttributesSQL)
-            ) {
-                logBuffer.append("JDBC Mail Attributes support was activated but column '"
-                                 + attributesColumnName
-                                 + "' is missing in table '"
-                                 + tableName
-                                 + "'.");
-                getLogger().error(logBuffer.toString());
-                throw new SQLException(logBuffer.toString());
+        if (!hasMessageAttributesColumn && (hasUpdateMessageAttributesSQL || hasRetrieveMessageAttributesSQL)) {
+            logBuffer.append("JDBC Mail Attributes support was activated but column '" + attributesColumnName + "' is missing in table '" + tableName + "'.");
+            getLogger().error(logBuffer.toString());
+            throw new SQLException(logBuffer.toString());
         }
         if (hasUpdateMessageAttributesSQL && hasRetrieveMessageAttributesSQL) {
             jdbcMailAttributesReady = true;
@@ -424,19 +386,10 @@ public class JDBCMailRepository
             }
         } else {
             jdbcMailAttributesReady = false;
-            logBuffer.append("JDBC Mail Attributes support not activated. "
-                             + "Missing both 'updateMessageAttributesSQL' "
-                             + "and 'retrieveMessageAttributesSQL' "
-                             + "statements for table '"
-                             + tableName
-                             + "' in sqlResources.xml. "
-                             + "Will not persist in the repository '"
-                             + repositoryName
-                             + "'.");
+            logBuffer.append("JDBC Mail Attributes support not activated. " + "Missing both 'updateMessageAttributesSQL' " + "and 'retrieveMessageAttributesSQL' " + "statements for table '" + tableName + "' in sqlResources.xml. " + "Will not persist in the repository '" + repositoryName + "'.");
             getLogger().warn(logBuffer.toString());
         }
     }
-
 
     /**
      * @see org.apache.james.mailrepository.lib.AbstractMailRepository#internalStore(Mail)
@@ -445,20 +398,23 @@ public class JDBCMailRepository
         Connection conn = null;
         try {
             conn = datasource.getConnection();
-            //Need to determine whether need to insert this record, or update it.
-    
-            //Determine whether the message body has changed, and possibly avoid
-            //  updating the database.
+            // Need to determine whether need to insert this record, or update
+            // it.
+
+            // Determine whether the message body has changed, and possibly
+            // avoid
+            // updating the database.
             boolean saveBody = false;
-            
+
             MimeMessage messageBody = mc.getMessage();
-            // if the message is a CopyOnWrite proxy we check the modified wrapped object.
+            // if the message is a CopyOnWrite proxy we check the modified
+            // wrapped object.
             if (messageBody instanceof MimeMessageCopyOnWriteProxy) {
                 MimeMessageCopyOnWriteProxy messageCow = (MimeMessageCopyOnWriteProxy) messageBody;
                 messageBody = messageCow.getWrappedMessage();
             }
             if (messageBody instanceof MimeMessageWrapper) {
-                MimeMessageWrapper message = (MimeMessageWrapper)messageBody;
+                MimeMessageWrapper message = (MimeMessageWrapper) messageBody;
                 saveBody = message.isModified();
                 if (saveBody) {
                     message.loadMessage();
@@ -466,19 +422,16 @@ public class JDBCMailRepository
             } else {
                 saveBody = true;
             }
-            MessageInputStream is = new MessageInputStream(mc,sr,inMemorySizeLimit, true);
+            MessageInputStream is = new MessageInputStream(mc, sr, inMemorySizeLimit, true);
 
-            
-
-            //Begin a transaction
+            // Begin a transaction
             conn.setAutoCommit(false);
-    
+
             PreparedStatement checkMessageExists = null;
             ResultSet rsExists = null;
             boolean exists = false;
             try {
-                checkMessageExists = 
-                    conn.prepareStatement(sqlQueries.getSqlString("checkMessageExistsSQL", true));
+                checkMessageExists = conn.prepareStatement(sqlQueries.getSqlString("checkMessageExistsSQL", true));
                 checkMessageExists.setString(1, mc.getName());
                 checkMessageExists.setString(2, repositoryName);
                 rsExists = checkMessageExists.executeQuery();
@@ -487,16 +440,16 @@ public class JDBCMailRepository
                 theJDBCUtil.closeJDBCResultSet(rsExists);
                 theJDBCUtil.closeJDBCStatement(checkMessageExists);
             }
-    
-            if (exists) {
-                //MessageInputStream is = new MessageInputStream(mc,sr,inMemorySizeLimit, true);
 
-                //Update the existing record
+            if (exists) {
+                // MessageInputStream is = new
+                // MessageInputStream(mc,sr,inMemorySizeLimit, true);
+
+                // Update the existing record
                 PreparedStatement updateMessage = null;
-    
+
                 try {
-                    updateMessage =
-                        conn.prepareStatement(sqlQueries.getSqlString("updateMessageSQL", true));
+                    updateMessage = conn.prepareStatement(sqlQueries.getSqlString("updateMessageSQL", true));
                     updateMessage.setString(1, mc.getState());
                     updateMessage.setString(2, mc.getErrorMessage());
                     if (mc.getSender() == null) {
@@ -505,7 +458,7 @@ public class JDBCMailRepository
                         updateMessage.setString(3, mc.getSender().toString());
                     }
                     StringBuffer recipients = new StringBuffer();
-                    for (Iterator<MailAddress> i = mc.getRecipients().iterator(); i.hasNext(); ) {
+                    for (Iterator<MailAddress> i = mc.getRecipients().iterator(); i.hasNext();) {
                         recipients.append(i.next().toString());
                         if (i.hasNext()) {
                             recipients.append("\r\n");
@@ -524,31 +477,29 @@ public class JDBCMailRepository
                     updateMessage = null;
                     theJDBCUtil.closeJDBCStatement(localUpdateMessage);
                 }
-    
-                //Determine whether attributes are used and available for storing
+
+                // Determine whether attributes are used and available for
+                // storing
                 if (jdbcMailAttributesReady && mc.hasAttributes()) {
-                    String updateMessageAttrSql =
-                        sqlQueries.getSqlString("updateMessageAttributesSQL", false);
+                    String updateMessageAttrSql = sqlQueries.getSqlString("updateMessageAttributesSQL", false);
                     PreparedStatement updateMessageAttr = null;
                     try {
-                        updateMessageAttr =
-                            conn.prepareStatement(updateMessageAttrSql);
+                        updateMessageAttr = conn.prepareStatement(updateMessageAttrSql);
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         ObjectOutputStream oos = new ObjectOutputStream(baos);
                         try {
                             if (mc instanceof MailImpl) {
-                            oos.writeObject(((MailImpl)mc).getAttributesRaw());
+                                oos.writeObject(((MailImpl) mc).getAttributesRaw());
                             } else {
                                 HashMap temp = new HashMap();
-                                for (Iterator i = mc.getAttributeNames(); i.hasNext(); ) {
+                                for (Iterator i = mc.getAttributeNames(); i.hasNext();) {
                                     String hashKey = (String) i.next();
-                                    temp.put(hashKey,mc.getAttribute(hashKey));
+                                    temp.put(hashKey, mc.getAttribute(hashKey));
                                 }
                                 oos.writeObject(temp);
                             }
                             oos.flush();
-                            ByteArrayInputStream attrInputStream =
-                                new ByteArrayInputStream(baos.toByteArray());
+                            ByteArrayInputStream attrInputStream = new ByteArrayInputStream(baos.toByteArray());
                             updateMessageAttr.setBinaryStream(1, attrInputStream, baos.size());
                         } finally {
                             try {
@@ -556,46 +507,41 @@ public class JDBCMailRepository
                                     oos.close();
                                 }
                             } catch (IOException ioe) {
-                                getLogger().debug("JDBCMailRepository: Unexpected exception while closing output stream.",ioe);
+                                getLogger().debug("JDBCMailRepository: Unexpected exception while closing output stream.", ioe);
                             }
                         }
                         updateMessageAttr.setString(2, mc.getName());
                         updateMessageAttr.setString(3, repositoryName);
                         updateMessageAttr.execute();
                     } catch (SQLException sqle) {
-                        getLogger().info("JDBCMailRepository: Trying to update mail attributes failed.",sqle);
-                        
+                        getLogger().info("JDBCMailRepository: Trying to update mail attributes failed.", sqle);
+
                     } finally {
                         theJDBCUtil.closeJDBCStatement(updateMessageAttr);
                     }
                 }
-    
 
-                
                 if (saveBody) {
 
-                    PreparedStatement updateMessageBody = 
-                        conn.prepareStatement(sqlQueries.getSqlString("updateMessageBodySQL", true));
+                    PreparedStatement updateMessageBody = conn.prepareStatement(sqlQueries.getSqlString("updateMessageBodySQL", true));
                     try {
-                        updateMessageBody.setBinaryStream(1,is,(int) is.getSize());
+                        updateMessageBody.setBinaryStream(1, is, (int) is.getSize());
                         updateMessageBody.setString(2, mc.getName());
                         updateMessageBody.setString(3, repositoryName);
                         updateMessageBody.execute();
-                        
+
                     } finally {
                         theJDBCUtil.closeJDBCStatement(updateMessageBody);
                     }
                 }
-                
-    
+
             } else {
-                //Insert the record into the database
+                // Insert the record into the database
                 PreparedStatement insertMessage = null;
                 try {
                     String insertMessageSQL = sqlQueries.getSqlString("insertMessageSQL", true);
-                    int number_of_parameters = getNumberOfParameters (insertMessageSQL);
-                    insertMessage =
-                        conn.prepareStatement(insertMessageSQL);
+                    int number_of_parameters = getNumberOfParameters(insertMessageSQL);
+                    insertMessage = conn.prepareStatement(insertMessageSQL);
                     insertMessage.setString(1, mc.getName());
                     insertMessage.setString(2, repositoryName);
                     insertMessage.setString(3, mc.getState());
@@ -606,7 +552,7 @@ public class JDBCMailRepository
                         insertMessage.setString(5, mc.getSender().toString());
                     }
                     StringBuffer recipients = new StringBuffer();
-                    for (Iterator<MailAddress> i = mc.getRecipients().iterator(); i.hasNext(); ) {
+                    for (Iterator<MailAddress> i = mc.getRecipients().iterator(); i.hasNext();) {
                         recipients.append(i.next().toString());
                         if (i.hasNext()) {
                             recipients.append("\r\n");
@@ -616,28 +562,26 @@ public class JDBCMailRepository
                     insertMessage.setString(7, mc.getRemoteHost());
                     insertMessage.setString(8, mc.getRemoteAddr());
                     insertMessage.setTimestamp(9, new java.sql.Timestamp(mc.getLastUpdated().getTime()));
-    
-    
+
                     insertMessage.setBinaryStream(10, is, (int) is.getSize());
-                    
-                    //Store attributes
+
+                    // Store attributes
                     if (number_of_parameters > 10) {
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         ObjectOutputStream oos = new ObjectOutputStream(baos);
                         try {
                             if (mc instanceof MailImpl) {
-                            oos.writeObject(((MailImpl)mc).getAttributesRaw());
+                                oos.writeObject(((MailImpl) mc).getAttributesRaw());
                             } else {
                                 HashMap temp = new HashMap();
-                                for (Iterator i = mc.getAttributeNames(); i.hasNext(); ) {
+                                for (Iterator i = mc.getAttributeNames(); i.hasNext();) {
                                     String hashKey = (String) i.next();
-                                    temp.put(hashKey,mc.getAttribute(hashKey));
+                                    temp.put(hashKey, mc.getAttribute(hashKey));
                                 }
                                 oos.writeObject(temp);
                             }
                             oos.flush();
-                            ByteArrayInputStream attrInputStream =
-                                new ByteArrayInputStream(baos.toByteArray());
+                            ByteArrayInputStream attrInputStream = new ByteArrayInputStream(baos.toByteArray());
                             insertMessage.setBinaryStream(11, attrInputStream, baos.size());
                         } finally {
                             try {
@@ -645,18 +589,17 @@ public class JDBCMailRepository
                                     oos.close();
                                 }
                             } catch (IOException ioe) {
-                                getLogger().debug("JDBCMailRepository: Unexpected exception while closing output stream.",ioe);
+                                getLogger().debug("JDBCMailRepository: Unexpected exception while closing output stream.", ioe);
                             }
-                        }                        
+                        }
                     }
-                    
+
                     insertMessage.execute();
                 } finally {
                     theJDBCUtil.closeJDBCStatement(insertMessage);
                 }
             }
-    
-    
+
             conn.commit();
             conn.setAutoCommit(true);
         } catch (SQLException e) {
@@ -666,7 +609,6 @@ public class JDBCMailRepository
             theJDBCUtil.closeJDBCConnection(conn);
         }
     }
-
 
     /**
      * @see org.apache.james.mailrepository.api.MailRepository#retrieve(String)
@@ -684,8 +626,7 @@ public class JDBCMailRepository
                 System.err.println("got a conn " + key);
             }
 
-            retrieveMessage =
-                conn.prepareStatement(sqlQueries.getSqlString("retrieveMessageSQL", true));
+            retrieveMessage = conn.prepareStatement(sqlQueries.getSqlString("retrieveMessageSQL", true));
             retrieveMessage.setString(1, key);
             retrieveMessage.setString(2, repositoryName);
             rsMessage = retrieveMessage.executeQuery();
@@ -694,38 +635,31 @@ public class JDBCMailRepository
             }
             if (!rsMessage.next()) {
                 if (getLogger().isDebugEnabled()) {
-                    StringBuffer debugBuffer =
-                        new StringBuffer(64)
-                                .append("Did not find a record ")
-                                .append(key)
-                                .append(" in ")
-                                .append(repositoryName);
+                    StringBuffer debugBuffer = new StringBuffer(64).append("Did not find a record ").append(key).append(" in ").append(repositoryName);
                     getLogger().debug(debugBuffer.toString());
                 }
                 return null;
             }
-            //Determine whether attributes are used and retrieve them
+            // Determine whether attributes are used and retrieve them
             PreparedStatement retrieveMessageAttr = null;
             HashMap attributes = null;
             if (jdbcMailAttributesReady) {
-                String retrieveMessageAttrSql =
-                    sqlQueries.getSqlString("retrieveMessageAttributesSQL", false);
+                String retrieveMessageAttrSql = sqlQueries.getSqlString("retrieveMessageAttributesSQL", false);
                 ResultSet rsMessageAttr = null;
                 try {
-                    retrieveMessageAttr =
-                        conn.prepareStatement(retrieveMessageAttrSql);
-                    
+                    retrieveMessageAttr = conn.prepareStatement(retrieveMessageAttrSql);
+
                     retrieveMessageAttr.setString(1, key);
                     retrieveMessageAttr.setString(2, repositoryName);
                     rsMessageAttr = retrieveMessageAttr.executeQuery();
-                    
+
                     if (rsMessageAttr.next()) {
                         try {
                             byte[] serialized_attr = null;
                             String getAttributesOption = sqlQueries.getDbOption("getAttributes");
                             if (getAttributesOption != null && (getAttributesOption.equalsIgnoreCase("useBlob") || getAttributesOption.equalsIgnoreCase("useBinaryStream"))) {
                                 Blob b = rsMessageAttr.getBlob(1);
-                                serialized_attr = b.getBytes(1, (int)b.length());
+                                serialized_attr = b.getBytes(1, (int) b.length());
                             } else {
                                 serialized_attr = rsMessageAttr.getBytes(1);
                             }
@@ -733,38 +667,23 @@ public class JDBCMailRepository
                             if (serialized_attr != null) {
                                 ByteArrayInputStream bais = new ByteArrayInputStream(serialized_attr);
                                 ObjectInputStream ois = new ObjectInputStream(bais);
-                                attributes = (HashMap)ois.readObject();
+                                attributes = (HashMap) ois.readObject();
                                 ois.close();
                             }
                         } catch (IOException ioe) {
                             if (getLogger().isDebugEnabled()) {
-                                StringBuffer debugBuffer =
-                                    new StringBuffer(64)
-                                    .append("Exception reading attributes ")
-                                    .append(key)
-                                    .append(" in ")
-                                    .append(repositoryName);
+                                StringBuffer debugBuffer = new StringBuffer(64).append("Exception reading attributes ").append(key).append(" in ").append(repositoryName);
                                 getLogger().debug(debugBuffer.toString(), ioe);
                             }
                         }
                     } else {
                         if (getLogger().isDebugEnabled()) {
-                            StringBuffer debugBuffer =
-                                new StringBuffer(64)
-                                .append("Did not find a record (attributes) ")
-                                .append(key)
-                                .append(" in ")
-                            .append(repositoryName);
+                            StringBuffer debugBuffer = new StringBuffer(64).append("Did not find a record (attributes) ").append(key).append(" in ").append(repositoryName);
                             getLogger().debug(debugBuffer.toString());
                         }
                     }
                 } catch (SQLException sqle) {
-                    StringBuffer errorBuffer =  new StringBuffer(256)
-                                                .append("Error retrieving message")
-                                                .append(sqle.getMessage())
-                                                .append(sqle.getErrorCode())
-                                                .append(sqle.getSQLState())
-                                                .append(sqle.getNextException());
+                    StringBuffer errorBuffer = new StringBuffer(256).append("Error retrieving message").append(sqle.getMessage()).append(sqle.getErrorCode()).append(sqle.getSQLState()).append(sqle.getNextException());
                     getLogger().error(errorBuffer.toString());
                 } finally {
                     theJDBCUtil.closeJDBCResultSet(rsMessageAttr);
@@ -773,7 +692,7 @@ public class JDBCMailRepository
             }
 
             MailImpl mc = new MailImpl();
-            mc.setAttributesRaw (attributes);
+            mc.setAttributesRaw(attributes);
             mc.setName(key);
             mc.setState(rsMessage.getString(1));
             mc.setErrorMessage(rsMessage.getString(2));
@@ -798,12 +717,7 @@ public class JDBCMailRepository
             mc.setMessage(message);
             return mc;
         } catch (SQLException sqle) {
-            StringBuffer errorBuffer =  new StringBuffer(256)
-                                        .append("Error retrieving message")
-                                        .append(sqle.getMessage())
-                                        .append(sqle.getErrorCode())
-                                        .append(sqle.getSQLState())
-                                        .append(sqle.getNextException());
+            StringBuffer errorBuffer = new StringBuffer(256).append("Error retrieving message").append(sqle.getMessage()).append(sqle.getErrorCode()).append(sqle.getSQLState()).append(sqle.getNextException());
             getLogger().error(errorBuffer.toString());
             getLogger().debug("Failed to retrieve mail", sqle);
             throw new MessagingException("Exception while retrieving mail: " + sqle.getMessage(), sqle);
@@ -824,8 +738,7 @@ public class JDBCMailRepository
         PreparedStatement removeMessage = null;
         try {
             conn = datasource.getConnection();
-            removeMessage =
-                conn.prepareStatement(sqlQueries.getSqlString("removeMessageSQL", true));
+            removeMessage = conn.prepareStatement(sqlQueries.getSqlString("removeMessageSQL", true));
             removeMessage.setString(1, key);
             removeMessage.setString(2, repositoryName);
             removeMessage.execute();
@@ -845,14 +758,13 @@ public class JDBCMailRepository
      * @see org.apache.james.mailrepository.api.MailRepository#list()
      */
     public Iterator list() throws MessagingException {
-        //System.err.println("listing messages");
+        // System.err.println("listing messages");
         Connection conn = null;
         PreparedStatement listMessages = null;
         ResultSet rsListMessages = null;
         try {
             conn = datasource.getConnection();
-            listMessages =
-                conn.prepareStatement(sqlQueries.getSqlString("listMessagesSQL", true));
+            listMessages = conn.prepareStatement(sqlQueries.getSqlString("listMessagesSQL", true));
             listMessages.setString(1, repositoryName);
             rsListMessages = listMessages.executeQuery();
 
@@ -872,9 +784,10 @@ public class JDBCMailRepository
 
     /**
      * Gets the SQL connection to be used by this JDBCMailRepository
-     *
+     * 
      * @return the connection
-     * @throws SQLException if there is an issue with getting the connection
+     * @throws SQLException
+     *             if there is an issue with getting the connection
      */
     protected Connection getConnection() throws SQLException {
         return datasource.getConnection();
@@ -889,17 +802,16 @@ public class JDBCMailRepository
         }
         // TODO: Figure out whether other instance variables should be part of
         // the equals equation
-        JDBCMailRepository repository = (JDBCMailRepository)obj;
-        return  ((repository.tableName == tableName) || ((repository.tableName != null) && repository.tableName.equals(tableName))) && 
-                ((repository.repositoryName == repositoryName) || ((repository.repositoryName != null) && repository.repositoryName.equals(repositoryName)));
+        JDBCMailRepository repository = (JDBCMailRepository) obj;
+        return ((repository.tableName == tableName) || ((repository.tableName != null) && repository.tableName.equals(tableName))) && ((repository.repositoryName == repositoryName) || ((repository.repositoryName != null) && repository.repositoryName.equals(repositoryName)));
     }
 
     /**
      * Provide a hash code that is consistent with equals for this class
-     *
+     * 
      * @return the hash code
      */
-     public int hashCode() {
+    public int hashCode() {
         int result = 17;
         if (tableName != null) {
             result = 37 * tableName.hashCode();
@@ -908,21 +820,23 @@ public class JDBCMailRepository
             result = 37 * repositoryName.hashCode();
         }
         return result;
-     }
+    }
 
     /**
-     * This method calculates number of parameters in a prepared statement SQL String.
-     * It does so by counting the number of '?' in the string 
-     * @param sqlstring to return parameter count for
+     * This method calculates number of parameters in a prepared statement SQL
+     * String. It does so by counting the number of '?' in the string
+     * 
+     * @param sqlstring
+     *            to return parameter count for
      * @return number of parameters
      **/
-    private int getNumberOfParameters (String sqlstring) {
-        //it is alas a java 1.4 feature to be able to call
-        //getParameterMetaData which could provide us with the parameterCount
+    private int getNumberOfParameters(String sqlstring) {
+        // it is alas a java 1.4 feature to be able to call
+        // getParameterMetaData which could provide us with the parameterCount
         char[] chars = sqlstring.toCharArray();
         int count = 0;
         for (int i = 0; i < chars.length; i++) {
-            count += chars[i]=='?' ? 1 : 0;
+            count += chars[i] == '?' ? 1 : 0;
         }
         return count;
     }

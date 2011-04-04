@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.user.lib.model;
 
 import org.apache.james.user.api.model.JamesUser;
@@ -26,14 +24,11 @@ import org.apache.mailet.MailAddress;
 
 /**
  * Implementation of User Interface.
- *
- *
+ * 
  * @deprecated Use {@link DefaultUser}
  */
-@Deprecated 
-public class DefaultJamesUser 
-        extends DefaultUser
-        implements JamesUser {
+@Deprecated
+public class DefaultJamesUser extends DefaultUser implements JamesUser {
 
     private static final long serialVersionUID = 6323959976390389529L;
 
@@ -52,7 +47,6 @@ public class DefaultJamesUser
      */
     private boolean aliasing;
 
-
     /**
      * The user name that this user name is aliasing.
      */
@@ -67,7 +61,6 @@ public class DefaultJamesUser
         super(name, passwordHash, hashAlg);
         initialize();
     }
-
 
     /**
      * Initializes default values for local fields.

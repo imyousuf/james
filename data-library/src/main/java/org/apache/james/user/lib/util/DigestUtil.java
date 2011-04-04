@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.user.lib.util;
 
 import javax.mail.MessagingException;
@@ -33,48 +31,44 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
 
-
 /**
  * Computes and verifies digests of files and strings
- *
- *
- * @version $Revision$
  */
 public class DigestUtil {
 
     /**
      * Command line interface. Use -help for arguments.
-     *
-     * @param args the arguments passed in on the command line
+     * 
+     * @param args
+     *            the arguments passed in on the command line
      */
     public static void main(String[] args) {
 
         String alg = "SHA";
         boolean file = false;
-    
+
         if (args.length == 0 || args.length > 4) {
             printUsage();
             return;
         }
-    
+
         for (int i = 0; i < args.length; i++) {
             String currArg = args[i].toLowerCase(Locale.US);
-            if (currArg.equals("-help")
-                || currArg.equals("-usage")) {
+            if (currArg.equals("-help") || currArg.equals("-usage")) {
                 printUsage();
                 return;
             }
             if (currArg.equals("-alg")) {
-                alg = args[i+1];
+                alg = args[i + 1];
             }
             if (currArg.equals("-file")) {
                 file = true;
             }
         }
-    
+
         if (file) {
             digestFile(args[args.length - 1], alg);
-            return ;
+            return;
         } else {
             try {
                 String hash = digestString(args[args.length - 1], alg);
@@ -90,18 +84,17 @@ public class DigestUtil {
      * Print the command line usage string.
      */
     public static void printUsage() {
-        System.out.println("Usage: " 
-                           + "java org.apache.james.security.DigestUtil"
-                           + " [-alg algorithm]"
-                           + " [-file] filename|string");
+        System.out.println("Usage: " + "java org.apache.james.security.DigestUtil" + " [-alg algorithm]" + " [-file] filename|string");
     }
 
     /**
-     * Calculate digest of given file with given algorithm.
-     * Writes digest to file named filename.algorithm .
-     *
-     * @param filename the String name of the file to be hashed
-     * @param algorithm the algorithm to be used to compute the digest
+     * Calculate digest of given file with given algorithm. Writes digest to
+     * file named filename.algorithm .
+     * 
+     * @param filename
+     *            the String name of the file to be hashed
+     * @param algorithm
+     *            the algorithm to be used to compute the digest
      */
     public static void digestFile(String filename, String algorithm) {
         byte[] b = new byte[65536];
@@ -113,16 +106,12 @@ public class DigestUtil {
             MessageDigest md = MessageDigest.getInstance(algorithm);
             fis = new FileInputStream(filename);
             while (fis.available() > 0) {
-                read =  fis.read(b);
+                read = fis.read(b);
                 md.update(b, 0, read);
                 count += read;
             }
             byte[] digest = md.digest();
-            StringBuffer fileNameBuffer =
-                new StringBuffer(128)
-                        .append(filename)
-                        .append(".")
-                        .append(algorithm);
+            StringBuffer fileNameBuffer = new StringBuffer(128).append(filename).append(".").append(algorithm);
             fos = new FileOutputStream(fileNameBuffer.toString());
             OutputStream encodedStream = MimeUtility.encode(fos, "base64");
             encodedStream.write(digest);
@@ -133,22 +122,25 @@ public class DigestUtil {
             try {
                 fis.close();
                 fos.close();
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
     }
 
     /**
-     * Calculate digest of given String using given algorithm.
-     * Encode digest in MIME-like base64.
-     *
-     * @param pass the String to be hashed
-     * @param algorithm the algorithm to be used
+     * Calculate digest of given String using given algorithm. Encode digest in
+     * MIME-like base64.
+     * 
+     * @param pass
+     *            the String to be hashed
+     * @param algorithm
+     *            the algorithm to be used
      * @return String Base-64 encoding of digest
-     *
-     * @throws NoSuchAlgorithmException if the algorithm passed in cannot be found
+     * 
+     * @throws NoSuchAlgorithmException
+     *             if the algorithm passed in cannot be found
      */
-    public static String digestString(String pass, String algorithm )
-            throws NoSuchAlgorithmException  {
+    public static String digestString(String pass, String algorithm) throws NoSuchAlgorithmException {
 
         MessageDigest md;
         ByteArrayOutputStream bos;
@@ -170,5 +162,6 @@ public class DigestUtil {
     /**
      * Private constructor to prevent instantiation of the class
      */
-    private DigestUtil() {}
+    private DigestUtil() {
+    }
 }

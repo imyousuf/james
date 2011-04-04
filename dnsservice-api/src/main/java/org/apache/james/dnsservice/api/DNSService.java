@@ -22,72 +22,76 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
 
-
 /**
- * Provides abstraction for DNS resolutions. The interface is Mail specific.
- * It may be a good idea to make the interface more generic or expose 
- * commonly needed DNS methods.
+ * Provides abstraction for DNS resolutions. The interface is Mail specific. It
+ * may be a good idea to make the interface more generic or expose commonly
+ * needed DNS methods.
  */
 public interface DNSService {
 
     /**
-     * <p>Return a prioritized unmodifiable list of host handling mail
-     * for the domain.</p>
+     * <p>
+     * Return a prioritized unmodifiable list of host handling mail for the
+     * domain.
+     * </p>
      * 
-     * <p>First lookup MX hosts, then MX hosts of the CNAME address, and
-     * if no server is found return the IP of the hostname</p>
-     *
-     * @param hostname domain name to look up
-     *
-     * @return a unmodifiable list of handling servers corresponding to
-     *         this mail domain name
-     * @throws TemporaryResolutionException get thrown on temporary problems 
+     * <p>
+     * First lookup MX hosts, then MX hosts of the CNAME address, and if no
+     * server is found return the IP of the hostname
+     * </p>
+     * 
+     * @param hostname
+     *            domain name to look up
+     * 
+     * @return a unmodifiable list of handling servers corresponding to this
+     *         mail domain name
+     * @throws TemporaryResolutionException
+     *             get thrown on temporary problems
      */
     Collection<String> findMXRecords(String hostname) throws TemporaryResolutionException;
 
     /**
      * Get a collection of DNS TXT Records
      * 
-     * @param hostname The hostname to check
+     * @param hostname
+     *            The hostname to check
      * @return collection of strings representing TXT record values
      */
     Collection<String> findTXTRecords(String hostname);
 
-
-
     /**
-     * Resolve the given hostname to an array of InetAddress based on the DNS Server.
-     * It should not take into account the hostnames defined in the local
-     * host table
+     * Resolve the given hostname to an array of InetAddress based on the DNS
+     * Server. It should not take into account the hostnames defined in the
+     * local host table
      * 
      * @return An array of InetAddress
      */
     InetAddress[] getAllByName(String host) throws UnknownHostException;
- 
+
     /**
-     * Resolve the given hostname to an InetAddress based on the DNS Server.
-     * It should not take into account the hostnames defined in the local
-     * host table
+     * Resolve the given hostname to an InetAddress based on the DNS Server. It
+     * should not take into account the hostnames defined in the local host
+     * table
      * 
      * @return The resolved InetAddress or null if not resolved
      */
     InetAddress getByName(String host) throws UnknownHostException;
 
     /**
-     * Resolve the local hostname of the machine and returns it.
-     * It relies on the hostname defined in the local host table
+     * Resolve the local hostname of the machine and returns it. It relies on
+     * the hostname defined in the local host table
      * 
      * @return The local InetAddress of the machine.
      */
     InetAddress getLocalHost() throws UnknownHostException;
 
     /**
-     * Resolve the given InetAddress to an host name based on the DNS Server.
-     * It should not take into account the hostnames defined in the local
-     * host table
+     * Resolve the given InetAddress to an host name based on the DNS Server. It
+     * should not take into account the hostnames defined in the local host
+     * table
      * 
      * @return The resolved hostname String or null if not resolved
      */
     String getHostName(InetAddress addr);
-    
+
 }

@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
- 
 package org.apache.james.fetchmail;
 
 import java.net.UnknownHostException;
@@ -39,87 +37,77 @@ import org.apache.mailet.MailAddress;
 import org.slf4j.Logger;
 
 /**
- * <p>Parses and validates an 
- * <code>org.apache.avalon.framework.configuration.Configuration</code>.</p>
- * 
- * <p>Creation Date: 27-May-03</p>
- * 
+ * <p>
+ * Parses and validates an
+ * <code>org.apache.avalon.framework.configuration.Configuration</code>.
+ * </p>
  */
-class ParsedConfiguration
-{
+class ParsedConfiguration {
     /**
      * The logger.
      */
     private Logger fieldLogger;
-    
+
     /**
      * The name of the folder to fetch from the javamail provider
-     *
+     * 
      */
-    private String fieldJavaMailFolderName = "INBOX";    
-    
+    private String fieldJavaMailFolderName = "INBOX";
 
     /**
      * The name of the javamail provider we want to user (pop3,imap,nntp,etc...)
-     *
+     * 
      */
     private String fieldJavaMailProviderName = "pop3";
 
-
     /**
      * Returns the javaMailFolderName.
+     * 
      * @return String
      */
-    public String getJavaMailFolderName()
-    {
+    public String getJavaMailFolderName() {
         return fieldJavaMailFolderName;
     }
 
-
     /**
      * Returns the javaMailProviderName.
+     * 
      * @return String
      */
-    public String getJavaMailProviderName()
-    {
+    public String getJavaMailProviderName() {
         return fieldJavaMailProviderName;
     }
 
-
     /**
      * Sets the javaMailFolderName.
-     * @param javaMailFolderName The javaMailFolderName to set
+     * 
+     * @param javaMailFolderName
+     *            The javaMailFolderName to set
      */
-    protected void setJavaMailFolderName(String javaMailFolderName)
-    {
+    protected void setJavaMailFolderName(String javaMailFolderName) {
         fieldJavaMailFolderName = javaMailFolderName;
     }
 
-
     /**
      * Sets the javaMailProviderName.
-     * @param javaMailProviderName The javaMailProviderName to set
+     * 
+     * @param javaMailProviderName
+     *            The javaMailProviderName to set
      */
-    protected void setJavaMailProviderName(String javaMailProviderName)
-    {
+    protected void setJavaMailProviderName(String javaMailProviderName) {
         fieldJavaMailProviderName = javaMailProviderName;
     }
 
-
-    
-    
     /**
-     * Fetch both old (seen) and new messages from the mailserver.  The default
+     * Fetch both old (seen) and new messages from the mailserver. The default
      * is to fetch only messages the server are not marked as seen.
      */
     private boolean fieldFetchAll = false;
-
 
     /**
      * The unique, identifying name for this task
      */
     private String fieldFetchTaskName;
-    
 
     /**
      * The server host name for this fetch task
@@ -127,179 +115,171 @@ class ParsedConfiguration
     private String fieldHost;
 
     /**
-     * Keep retrieved messages on the remote mailserver.  Normally, messages
-     * are deleted from the folder on the mailserver after they have been retrieved
+     * Keep retrieved messages on the remote mailserver. Normally, messages are
+     * deleted from the folder on the mailserver after they have been retrieved
      */
     private boolean fieldLeave = false;
-    
+
     /**
-     * Keep blacklisted messages on the remote mailserver.  Normally, messages
+     * Keep blacklisted messages on the remote mailserver. Normally, messages
      * are kept in the folder on the mailserver if they have been rejected
      */
     private boolean fieldLeaveBlacklisted = true;
-    
+
     /**
-     * Keep messages for remote recipients on the remote mailserver.  Normally,
-     * messages are kept in the folder on the mailserver if they have been 
+     * Keep messages for remote recipients on the remote mailserver. Normally,
+     * messages are kept in the folder on the mailserver if they have been
      * rejected.
      */
-    private boolean fieldLeaveRemoteRecipient = true;    
-    
+    private boolean fieldLeaveRemoteRecipient = true;
+
     /**
-     * Keep messages for undefined users on the remote mailserver.  Normally, 
-     * messages are kept in the folder on the mailserver if they have been 
+     * Keep messages for undefined users on the remote mailserver. Normally,
+     * messages are kept in the folder on the mailserver if they have been
      * rejected.
      */
     private boolean fieldLeaveUserUndefined = true;
-    
-    /**
-     * Keep undeliverable messages on the remote mailserver.  Normally, 
-     * messages are kept in the folder on the mailserver if they cannot 
-     * be delivered.
-     */
-    private boolean fieldLeaveUndeliverable = true;            
-    
 
     /**
-     * Mark retrieved messages on the remote mailserver as seen.  Normally, 
+     * Keep undeliverable messages on the remote mailserver. Normally, messages
+     * are kept in the folder on the mailserver if they cannot be delivered.
+     */
+    private boolean fieldLeaveUndeliverable = true;
+
+    /**
+     * Mark retrieved messages on the remote mailserver as seen. Normally,
      * messages are marked as seen after they have been retrieved
      */
     private boolean fieldMarkSeen = true;
-    
+
     /**
-     * Mark blacklisted messages on the remote mailserver as seen.  Normally, 
+     * Mark blacklisted messages on the remote mailserver as seen. Normally,
      * messages are not marked as seen if they have been rejected
      */
     private boolean fieldMarkBlacklistedSeen = false;
-    
+
     /**
-     * Mark remote recipient messages on the remote mailserver as seen. Normally, 
-     * messages are not marked as seen if they have been rejected
+     * Mark remote recipient messages on the remote mailserver as seen.
+     * Normally, messages are not marked as seen if they have been rejected
      */
-    private boolean fieldMarkRemoteRecipientSeen = false;    
-    
+    private boolean fieldMarkRemoteRecipientSeen = false;
+
     /**
      * Mark messages for undefined users on the remote mail server as seen.
      * Normally, messages are not marked as seen if they have been rejected.
      */
     private boolean fieldMarkUserUndefinedSeen = false;
-    
-    /**
-     * Mark undeliverable messages on the remote mail server as seen.
-     * Normally, messages are not marked as seen if they are undeliverable.
-     */
-    private boolean fieldMarkUndeliverableSeen = false; 
-    
-    /**
-     * Defer processing of messages for which the intended recipient cannot
-     * be determined to the next pass.
-     */
-    private boolean fieldDeferRecipientNotFound = false;                 
 
+    /**
+     * Mark undeliverable messages on the remote mail server as seen. Normally,
+     * messages are not marked as seen if they are undeliverable.
+     */
+    private boolean fieldMarkUndeliverableSeen = false;
+
+    /**
+     * Defer processing of messages for which the intended recipient cannot be
+     * determined to the next pass.
+     */
+    private boolean fieldDeferRecipientNotFound = false;
 
     /**
      * Recurse folders if available?
      */
     private boolean fieldRecurse = false;
-    
-    
 
     /**
      * The domain part to use to complete partial addresses
      */
-    private String fieldDefaultDomainName; 
-    
+    private String fieldDefaultDomainName;
+
     /**
-     * Only accept mail for defined recipients.
-     * All other mail is rejected.
+     * Only accept mail for defined recipients. All other mail is rejected.
      */
     private boolean fieldRejectUserUndefined;
-    
+
     /**
-     * The index of the received header to use to compute the remote address
-     * and remote host name for a message. This is 0 based and defaults to -1.
+     * The index of the received header to use to compute the remote address and
+     * remote host name for a message. This is 0 based and defaults to -1.
      */
     private int fieldRemoteReceivedHeaderIndex = -1;
-    
+
     /**
      * Keep messages with an invalid received header on the remote mailserver.
-     * Normally, messages are kept in the folder on the mailserver if they have been
-     * rejected
+     * Normally, messages are kept in the folder on the mailserver if they have
+     * been rejected
      */
     private boolean fieldLeaveRemoteReceivedHeaderInvalid = true;
-    
+
     /**
-     * Mark messages with an invalid received header on the remote mailserver as 
-     * seen.  Normally, messages are not marked as seen if they have been rejected.
+     * Mark messages with an invalid received header on the remote mailserver as
+     * seen. Normally, messages are not marked as seen if they have been
+     * rejected.
      */
     private boolean fieldMarkRemoteReceivedHeaderInvalidSeen = false;
-    
+
     /**
      * Reject messages with an invalid received header.
      */
-    private boolean fieldRejectRemoteReceivedHeaderInvalid;                
-    
+    private boolean fieldRejectRemoteReceivedHeaderInvalid;
+
     /**
      * Reject messages for which a recipient could not be determined.
      */
     private boolean fieldRejectRecipientNotFound;
-    
+
     /**
      * Leave messages on the server for which a recipient could not be
      * determined.
      */
-    private boolean fieldLeaveRecipientNotFound; 
-    
+    private boolean fieldLeaveRecipientNotFound;
+
     /**
      * Mark as seen messages on the server for which a recipient could not be
      * determined.
      */
-    private boolean fieldMarkRecipientNotFoundSeen;       
-    
+    private boolean fieldMarkRecipientNotFoundSeen;
+
     /**
      * Reject mail for blacklisted users
      */
     private boolean fieldRejectBlacklisted;
 
     /**
-     * Only accept mail for local recipients.
-     * All other mail is rejected.
+     * Only accept mail for local recipients. All other mail is rejected.
      */
-    private boolean fieldRejectRemoteRecipient;    
+    private boolean fieldRejectRemoteRecipient;
 
     /**
      * The Set of MailAddresses for whom mail should be rejected
-     */    
-    private Set<MailAddress> fieldBlacklist; 
+     */
+    private Set<MailAddress> fieldBlacklist;
 
     /**
-     * The maximum message size limit
-     * 0 means no limit.
+     * The maximum message size limit 0 means no limit.
      */
     private int fieldMaxMessageSizeLimit = 0;
-    
+
     /**
      * Reject mail exceeding the maximum message size limit
      */
     private boolean fieldRejectMaxMessageSizeExceeded;
-    
+
     /**
      * Leave messages on the server that exceed the maximum message size limit.
      */
-    private boolean fieldLeaveMaxMessageSizeExceeded; 
-    
+    private boolean fieldLeaveMaxMessageSizeExceeded;
+
     /**
      * Mark as seen messages on the server that exceed the maximum message size
      * limit.
      */
-    private boolean fieldMarkMaxMessageSizeExceededSeen;        
-    
-   /**
+    private boolean fieldMarkMaxMessageSizeExceededSeen;
+
+    /**
      * The Local Users repository
      */
-    private UsersRepository fieldLocalUsers;    
-    
-    
+    private UsersRepository fieldLocalUsers;
+
     /**
      * The DNSService
      */
@@ -309,55 +289,45 @@ class ParsedConfiguration
 
     private DomainList domainList;
 
-
-
     /**
      * Constructor for ParsedConfiguration.
      */
-    private ParsedConfiguration()
-    {
+    private ParsedConfiguration() {
         super();
     }
-    
+
     /**
      * Constructor for ParsedConfiguration.
+     * 
      * @param configuration
      * @param logger
      * @param localUsers
      * @param dnsServer
      * @throws ConfigurationException
      */
-    public ParsedConfiguration(HierarchicalConfiguration configuration, Logger logger, UsersRepository localUsers,DNSService dnsServer, DomainList domainList, MailQueue queue) throws ConfigurationException
-    {
+    public ParsedConfiguration(HierarchicalConfiguration configuration, Logger logger, UsersRepository localUsers, DNSService dnsServer, DomainList domainList, MailQueue queue) throws ConfigurationException {
         this();
         setLogger(logger);
-        setLocalUsers(localUsers);   
+        setLocalUsers(localUsers);
         setDNSServer(dnsServer);
         setDomainList(domainList);
         setMailQueue(queue);
         configure(configuration);
     }
-    
-    
-    protected void configure(HierarchicalConfiguration conf) throws ConfigurationException
-    {
+
+    protected void configure(HierarchicalConfiguration conf) throws ConfigurationException {
         setHost(conf.getString("host"));
 
         setFetchTaskName(conf.getString("[@name]"));
-        setJavaMailProviderName(
-            conf.getString("javaMailProviderName"));
+        setJavaMailProviderName(conf.getString("javaMailProviderName"));
         setJavaMailFolderName(conf.getString("javaMailFolderName"));
         setRecurse(conf.getBoolean("recursesubfolders"));
 
         HierarchicalConfiguration recipientNotFound = conf.configurationAt("recipientnotfound");
-        setDeferRecipientNotFound(
-            recipientNotFound.getBoolean("[@defer]"));
-        setRejectRecipientNotFound(
-            recipientNotFound.getBoolean("[@reject]"));
-        setLeaveRecipientNotFound(
-            recipientNotFound.getBoolean("[@leaveonserver]"));
-        setMarkRecipientNotFoundSeen(
-            recipientNotFound.getBoolean("[@markseen]"));
+        setDeferRecipientNotFound(recipientNotFound.getBoolean("[@defer]"));
+        setRejectRecipientNotFound(recipientNotFound.getBoolean("[@reject]"));
+        setLeaveRecipientNotFound(recipientNotFound.getBoolean("[@leaveonserver]"));
+        setMarkRecipientNotFoundSeen(recipientNotFound.getBoolean("[@markseen]"));
         setDefaultDomainName(conf.getString("defaultdomain", "localhost"));
 
         setFetchAll(conf.getBoolean("fetchall"));
@@ -367,811 +337,791 @@ class ParsedConfiguration
         setMarkSeen(fetched.getBoolean("[@markseen]"));
 
         HierarchicalConfiguration remoterecipient = conf.configurationAt("remoterecipient");
-        setRejectRemoteRecipient(
-            remoterecipient.getBoolean("[@reject]"));
-        setLeaveRemoteRecipient(
-            remoterecipient.getBoolean("[@leaveonserver]"));
-        setMarkRemoteRecipientSeen(
-            remoterecipient.getBoolean("[@markseen]"));
+        setRejectRemoteRecipient(remoterecipient.getBoolean("[@reject]"));
+        setLeaveRemoteRecipient(remoterecipient.getBoolean("[@leaveonserver]"));
+        setMarkRemoteRecipientSeen(remoterecipient.getBoolean("[@markseen]"));
 
         HierarchicalConfiguration blacklist = conf.configurationAt("blacklist");
-        setBlacklist(conf.getString("blacklist",""));
+        setBlacklist(conf.getString("blacklist", ""));
         setRejectBlacklisted(blacklist.getBoolean("[@reject]"));
         setLeaveBlacklisted(blacklist.getBoolean("[@leaveonserver]"));
         setMarkBlacklistedSeen(blacklist.getBoolean("[@markseen]"));
 
         HierarchicalConfiguration userundefined = conf.configurationAt("userundefined");
         setRejectUserUndefined(userundefined.getBoolean("[@reject]"));
-        setLeaveUserUndefined(
-            userundefined.getBoolean("[@leaveonserver]"));
-        setMarkUserUndefinedSeen(
-            userundefined.getBoolean("[@markseen]"));
+        setLeaveUserUndefined(userundefined.getBoolean("[@leaveonserver]"));
+        setMarkUserUndefinedSeen(userundefined.getBoolean("[@markseen]"));
 
         HierarchicalConfiguration undeliverable = conf.configurationAt("undeliverable");
-        setLeaveUndeliverable(
-            undeliverable.getBoolean("[@leaveonserver]"));
-        setMarkUndeliverableSeen(
-            undeliverable.getBoolean("[@markseen]"));
+        setLeaveUndeliverable(undeliverable.getBoolean("[@leaveonserver]"));
+        setMarkUndeliverableSeen(undeliverable.getBoolean("[@markseen]"));
 
-        if (conf.getKeys("remotereceivedheader").hasNext())
-        {
+        if (conf.getKeys("remotereceivedheader").hasNext()) {
             HierarchicalConfiguration remotereceivedheader = conf.configurationAt("remotereceivedheader");
 
-            setRemoteReceivedHeaderIndex(
-                remotereceivedheader.getInt("[@index]"));
-            setRejectRemoteReceivedHeaderInvalid(
-                remotereceivedheader.getBoolean("[@reject]"));
-            setLeaveRemoteReceivedHeaderInvalid(
-                remotereceivedheader.getBoolean("[@leaveonserver]"));
-            setMarkRemoteReceivedHeaderInvalidSeen(
-                remotereceivedheader.getBoolean("[@markseen]"));
-        }            
-
-        if (conf.getKeys("maxmessagesize").hasNext())
-        {
-            HierarchicalConfiguration maxmessagesize = conf.configurationAt("maxmessagesize");
-
-            setMaxMessageSizeLimit(
-                maxmessagesize.getInt("[@limit]") * 1024);
-            setRejectMaxMessageSizeExceeded(
-                maxmessagesize.getBoolean("[@reject]"));
-            setLeaveMaxMessageSizeExceeded(
-                maxmessagesize.getBoolean("[@leaveonserver]"));
-            setMarkMaxMessageSizeExceededSeen(
-                maxmessagesize.getBoolean("[@markseen]"));
+            setRemoteReceivedHeaderIndex(remotereceivedheader.getInt("[@index]"));
+            setRejectRemoteReceivedHeaderInvalid(remotereceivedheader.getBoolean("[@reject]"));
+            setLeaveRemoteReceivedHeaderInvalid(remotereceivedheader.getBoolean("[@leaveonserver]"));
+            setMarkRemoteReceivedHeaderInvalidSeen(remotereceivedheader.getBoolean("[@markseen]"));
         }
 
-        if (getLogger().isDebugEnabled())
-        {
-            getLogger().info(
-                "Configured FetchMail fetch task " + getFetchTaskName());
+        if (conf.getKeys("maxmessagesize").hasNext()) {
+            HierarchicalConfiguration maxmessagesize = conf.configurationAt("maxmessagesize");
+
+            setMaxMessageSizeLimit(maxmessagesize.getInt("[@limit]") * 1024);
+            setRejectMaxMessageSizeExceeded(maxmessagesize.getBoolean("[@reject]"));
+            setLeaveMaxMessageSizeExceeded(maxmessagesize.getBoolean("[@leaveonserver]"));
+            setMarkMaxMessageSizeExceededSeen(maxmessagesize.getBoolean("[@markseen]"));
+        }
+
+        if (getLogger().isDebugEnabled()) {
+            getLogger().info("Configured FetchMail fetch task " + getFetchTaskName());
         }
     }
 
-
-        
-    
     /**
      * Returns the fetchAll.
+     * 
      * @return boolean
      */
-    public boolean isFetchAll()
-    {
+    public boolean isFetchAll() {
         return fieldFetchAll;
     }
 
     /**
      * Returns the fetchTaskName.
+     * 
      * @return String
      */
-    public String getFetchTaskName()
-    {
+    public String getFetchTaskName() {
         return fieldFetchTaskName;
     }
 
     /**
      * Returns the host.
+     * 
      * @return String
      */
-    public String getHost()
-    {
+    public String getHost() {
         return fieldHost;
     }
 
     /**
      * Returns the keep.
+     * 
      * @return boolean
      */
-    public boolean isLeave()
-    {
+    public boolean isLeave() {
         return fieldLeave;
     }
 
     /**
      * Returns the markSeen.
-     * @return boolean
-     */
-    public boolean isMarkSeen()
-    {
-        return fieldMarkSeen;
-    }
-    
-    /**
-     * Answers true if the folder should be opened read only.
-     * For this to be true the configuration options must not require
-     * folder updates.
      * 
      * @return boolean
      */
-    protected boolean isOpenReadOnly()
-    {
-        return isLeave()
-            && !isMarkSeen()
-            && isLeaveBlacklisted()
-            && !isMarkBlacklistedSeen()
-            && isLeaveRemoteRecipient()
-            && !isMarkRemoteRecipientSeen()
-            && isLeaveUserUndefined()
-            && !isMarkUserUndefinedSeen()
-            && isLeaveUndeliverable()
-            && !isMarkUndeliverableSeen()
-            && isLeaveMaxMessageSizeExceeded()
-            && !isMarkMaxMessageSizeExceededSeen()              
-            && isLeaveRemoteReceivedHeaderInvalid()
-            && !isMarkRemoteReceivedHeaderInvalidSeen()             
-            ;
-    }   
+    public boolean isMarkSeen() {
+        return fieldMarkSeen;
+    }
+
+    /**
+     * Answers true if the folder should be opened read only. For this to be
+     * true the configuration options must not require folder updates.
+     * 
+     * @return boolean
+     */
+    protected boolean isOpenReadOnly() {
+        return isLeave() && !isMarkSeen() && isLeaveBlacklisted() && !isMarkBlacklistedSeen() && isLeaveRemoteRecipient() && !isMarkRemoteRecipientSeen() && isLeaveUserUndefined() && !isMarkUserUndefinedSeen() && isLeaveUndeliverable() && !isMarkUndeliverableSeen()
+                && isLeaveMaxMessageSizeExceeded() && !isMarkMaxMessageSizeExceededSeen() && isLeaveRemoteReceivedHeaderInvalid() && !isMarkRemoteReceivedHeaderInvalidSeen();
+    }
 
     /**
      * Returns the recurse.
+     * 
      * @return boolean
      */
-    public boolean isRecurse()
-    {
+    public boolean isRecurse() {
         return fieldRecurse;
     }
 
     /**
      * Sets the fetchAll.
-     * @param fetchAll The fetchAll to set
+     * 
+     * @param fetchAll
+     *            The fetchAll to set
      */
-    protected void setFetchAll(boolean fetchAll)
-    {
+    protected void setFetchAll(boolean fetchAll) {
         fieldFetchAll = fetchAll;
     }
 
     /**
      * Sets the fetchTaskName.
-     * @param fetchTaskName The fetchTaskName to set
+     * 
+     * @param fetchTaskName
+     *            The fetchTaskName to set
      */
-    protected void setFetchTaskName(String fetchTaskName)
-    {
+    protected void setFetchTaskName(String fetchTaskName) {
         fieldFetchTaskName = fetchTaskName;
     }
 
     /**
      * Sets the host.
-     * @param host The host to set
+     * 
+     * @param host
+     *            The host to set
      */
-    protected void setHost(String host)
-    {
+    protected void setHost(String host) {
         fieldHost = host;
     }
 
     /**
      * Sets the keep.
-     * @param keep The keep to set
+     * 
+     * @param keep
+     *            The keep to set
      */
-    protected void setLeave(boolean keep)
-    {
+    protected void setLeave(boolean keep) {
         fieldLeave = keep;
     }
 
     /**
      * Sets the markSeen.
-     * @param markSeen The markSeen to set
+     * 
+     * @param markSeen
+     *            The markSeen to set
      */
-    protected void setMarkSeen(boolean markSeen)
-    {
+    protected void setMarkSeen(boolean markSeen) {
         fieldMarkSeen = markSeen;
     }
 
     /**
      * Sets the recurse.
-     * @param recurse The recurse to set
+     * 
+     * @param recurse
+     *            The recurse to set
      */
-    protected void setRecurse(boolean recurse)
-    {
+    protected void setRecurse(boolean recurse) {
         fieldRecurse = recurse;
     }
 
     /**
      * Returns the logger.
+     * 
      * @return Logger
      */
-    public Logger getLogger()
-    {
+    public Logger getLogger() {
         return fieldLogger;
     }
 
     /**
      * Sets the logger.
-     * @param logger The logger to set
+     * 
+     * @param logger
+     *            The logger to set
      */
-    protected void setLogger(Logger logger)
-    {
+    protected void setLogger(Logger logger) {
         fieldLogger = logger;
     }
 
-/**
- * Returns the localUsers.
- * @return UsersRepository
- */
-public UsersRepository getLocalUsers()
-{
-    return fieldLocalUsers;
-}
+    /**
+     * Returns the localUsers.
+     * 
+     * @return UsersRepository
+     */
+    public UsersRepository getLocalUsers() {
+        return fieldLocalUsers;
+    }
 
-/**
- * Sets the localUsers.
- * @param localUsers The localUsers to set
- */
-protected void setLocalUsers(UsersRepository localUsers)
-{
-    fieldLocalUsers = localUsers;
-}
+    /**
+     * Sets the localUsers.
+     * 
+     * @param localUsers
+     *            The localUsers to set
+     */
+    protected void setLocalUsers(UsersRepository localUsers) {
+        fieldLocalUsers = localUsers;
+    }
 
+    /**
+     * Return the DNSService
+     * 
+     * @return dnsServer The DNSService
+     */
+    public DNSService getDNSServer() {
+        return dnsServer;
+    }
 
-/**
- * Return the DNSService
- * @return dnsServer The DNSService
- */
-public DNSService getDNSServer()
-{
-    return dnsServer;
-}
-
-
-/**
- * Set the DNSService
- * @param dnsServer The dnsServer to use
- */
-protected void setDNSServer(DNSService dnsServer)
-{
-    this.dnsServer = dnsServer;
-}
+    /**
+     * Set the DNSService
+     * 
+     * @param dnsServer
+     *            The dnsServer to use
+     */
+    protected void setDNSServer(DNSService dnsServer) {
+        this.dnsServer = dnsServer;
+    }
 
     /**
      * Returns the keepRejected.
+     * 
      * @return boolean
      */
-    public boolean isLeaveBlacklisted()
-    {
+    public boolean isLeaveBlacklisted() {
         return fieldLeaveBlacklisted;
     }
 
     /**
      * Returns the markRejectedSeen.
+     * 
      * @return boolean
      */
-    public boolean isMarkBlacklistedSeen()
-    {
+    public boolean isMarkBlacklistedSeen() {
         return fieldMarkBlacklistedSeen;
     }
 
     /**
      * Sets the keepRejected.
-     * @param keepRejected The keepRejected to set
+     * 
+     * @param keepRejected
+     *            The keepRejected to set
      */
-    protected void setLeaveBlacklisted(boolean keepRejected)
-    {
+    protected void setLeaveBlacklisted(boolean keepRejected) {
         fieldLeaveBlacklisted = keepRejected;
     }
 
     /**
      * Sets the markRejectedSeen.
-     * @param markRejectedSeen The markRejectedSeen to set
+     * 
+     * @param markRejectedSeen
+     *            The markRejectedSeen to set
      */
-    protected void setMarkBlacklistedSeen(boolean markRejectedSeen)
-    {
+    protected void setMarkBlacklistedSeen(boolean markRejectedSeen) {
         fieldMarkBlacklistedSeen = markRejectedSeen;
     }
 
     /**
      * Returns the blacklist.
+     * 
      * @return Set
      */
-    public Set<MailAddress> getBlacklist()
-    {
+    public Set<MailAddress> getBlacklist() {
         return fieldBlacklist;
     }
 
     /**
      * Sets the blacklist.
-     * @param blacklist The blacklist to set
+     * 
+     * @param blacklist
+     *            The blacklist to set
      */
-    protected void setBlacklist(Set<MailAddress> blacklist)
-    {
+    protected void setBlacklist(Set<MailAddress> blacklist) {
         fieldBlacklist = blacklist;
     }
-    
+
     /**
      * Sets the blacklist.
-     * @param blacklistValue The blacklist to set
+     * 
+     * @param blacklistValue
+     *            The blacklist to set
      */
-    protected void setBlacklist(String blacklistValue)
-        throws ConfigurationException
-    {
+    protected void setBlacklist(String blacklistValue) throws ConfigurationException {
         StringTokenizer st = new StringTokenizer(blacklistValue, ", \t", false);
         Set<MailAddress> blacklist = new HashSet<MailAddress>();
         String token = null;
-        while (st.hasMoreTokens())
-        {
-            try
-            {
+        while (st.hasMoreTokens()) {
+            try {
                 token = st.nextToken();
                 blacklist.add(new MailAddress(token));
-            }
-            catch (ParseException pe)
-            {
-                throw new ConfigurationException(
-                    "Invalid blacklist mail address specified: " + token);
+            } catch (ParseException pe) {
+                throw new ConfigurationException("Invalid blacklist mail address specified: " + token);
             }
         }
         setBlacklist(blacklist);
-    }   
+    }
 
     /**
      * Returns the localRecipientsOnly.
+     * 
      * @return boolean
      */
-    public boolean isRejectUserUndefined()
-    {
+    public boolean isRejectUserUndefined() {
         return fieldRejectUserUndefined;
     }
 
     /**
      * Sets the localRecipientsOnly.
-     * @param localRecipientsOnly The localRecipientsOnly to set
+     * 
+     * @param localRecipientsOnly
+     *            The localRecipientsOnly to set
      */
-    protected void setRejectUserUndefined(boolean localRecipientsOnly)
-    {
+    protected void setRejectUserUndefined(boolean localRecipientsOnly) {
         fieldRejectUserUndefined = localRecipientsOnly;
     }
 
     /**
      * Returns the markExternalSeen.
+     * 
      * @return boolean
      */
-    public boolean isMarkUserUndefinedSeen()
-    {
+    public boolean isMarkUserUndefinedSeen() {
         return fieldMarkUserUndefinedSeen;
     }
 
     /**
      * Sets the markExternalSeen.
-     * @param markExternalSeen The markExternalSeen to set
+     * 
+     * @param markExternalSeen
+     *            The markExternalSeen to set
      */
-    protected void setMarkUserUndefinedSeen(boolean markExternalSeen)
-    {
+    protected void setMarkUserUndefinedSeen(boolean markExternalSeen) {
         fieldMarkUserUndefinedSeen = markExternalSeen;
     }
 
     /**
      * Returns the leaveExternal.
+     * 
      * @return boolean
      */
-    public boolean isLeaveUserUndefined()
-    {
+    public boolean isLeaveUserUndefined() {
         return fieldLeaveUserUndefined;
     }
 
     /**
      * Sets the leaveExternal.
-     * @param leaveExternal The leaveExternal to set
+     * 
+     * @param leaveExternal
+     *            The leaveExternal to set
      */
-    protected void setLeaveUserUndefined(boolean leaveExternal)
-    {
+    protected void setLeaveUserUndefined(boolean leaveExternal) {
         fieldLeaveUserUndefined = leaveExternal;
     }
 
     /**
      * Returns the leaveRemoteRecipient.
+     * 
      * @return boolean
      */
-    public boolean isLeaveRemoteRecipient()
-    {
+    public boolean isLeaveRemoteRecipient() {
         return fieldLeaveRemoteRecipient;
     }
 
     /**
      * Returns the markRemoteRecipientSeen.
+     * 
      * @return boolean
      */
-    public boolean isMarkRemoteRecipientSeen()
-    {
+    public boolean isMarkRemoteRecipientSeen() {
         return fieldMarkRemoteRecipientSeen;
     }
 
     /**
      * Sets the leaveRemoteRecipient.
-     * @param leaveRemoteRecipient The leaveRemoteRecipient to set
+     * 
+     * @param leaveRemoteRecipient
+     *            The leaveRemoteRecipient to set
      */
-    protected void setLeaveRemoteRecipient(boolean leaveRemoteRecipient)
-    {
+    protected void setLeaveRemoteRecipient(boolean leaveRemoteRecipient) {
         fieldLeaveRemoteRecipient = leaveRemoteRecipient;
     }
 
     /**
      * Sets the markRemoteRecipientSeen.
-     * @param markRemoteRecipientSeen The markRemoteRecipientSeen to set
+     * 
+     * @param markRemoteRecipientSeen
+     *            The markRemoteRecipientSeen to set
      */
-    protected void setMarkRemoteRecipientSeen(boolean markRemoteRecipientSeen)
-    {
+    protected void setMarkRemoteRecipientSeen(boolean markRemoteRecipientSeen) {
         fieldMarkRemoteRecipientSeen = markRemoteRecipientSeen;
     }
 
     /**
      * Returns the rejectRemoteRecipient.
+     * 
      * @return boolean
      */
-    public boolean isRejectRemoteRecipient()
-    {
+    public boolean isRejectRemoteRecipient() {
         return fieldRejectRemoteRecipient;
     }
 
     /**
      * Sets the rejectRemoteRecipient.
-     * @param rejectRemoteRecipient The rejectRemoteRecipient to set
+     * 
+     * @param rejectRemoteRecipient
+     *            The rejectRemoteRecipient to set
      */
-    protected void setRejectRemoteRecipient(boolean rejectRemoteRecipient)
-    {
+    protected void setRejectRemoteRecipient(boolean rejectRemoteRecipient) {
         fieldRejectRemoteRecipient = rejectRemoteRecipient;
     }
 
     /**
      * Returns the defaultDomainName. Lazy initializes if required.
+     * 
      * @return String
      */
-    public String getDefaultDomainName()
-    {
+    public String getDefaultDomainName() {
         String defaultDomainName = null;
-        if (null == (defaultDomainName = getDefaultDomainNameBasic()))
-        {
+        if (null == (defaultDomainName = getDefaultDomainNameBasic())) {
             updateDefaultDomainName();
             return getDefaultDomainName();
-        }   
+        }
         return defaultDomainName;
     }
-    
+
     /**
      * Returns the defaultDomainName.
+     * 
      * @return String
      */
-    private String getDefaultDomainNameBasic()
-    {
+    private String getDefaultDomainNameBasic() {
         return fieldDefaultDomainName;
-    }   
+    }
 
     /**
      * Validates and sets the defaultDomainName.
-     * @param defaultDomainName The defaultDomainName to set
+     * 
+     * @param defaultDomainName
+     *            The defaultDomainName to set
      */
-    protected void setDefaultDomainName(String defaultDomainName) throws ConfigurationException
-    {
+    protected void setDefaultDomainName(String defaultDomainName) throws ConfigurationException {
         validateDefaultDomainName(defaultDomainName);
         setDefaultDomainNameBasic(defaultDomainName);
     }
 
     /**
      * Sets the defaultDomainName.
-     * @param defaultDomainName The defaultDomainName to set
+     * 
+     * @param defaultDomainName
+     *            The defaultDomainName to set
      */
-    private void setDefaultDomainNameBasic(String defaultDomainName)
-    {
+    private void setDefaultDomainNameBasic(String defaultDomainName) {
         fieldDefaultDomainName = defaultDomainName;
     }
 
     /**
      * Validates the defaultDomainName.
-     * @param defaultDomainName The defaultDomainName to validate
+     * 
+     * @param defaultDomainName
+     *            The defaultDomainName to validate
      */
-    protected void validateDefaultDomainName(String defaultDomainName) throws ConfigurationException
-    {
+    protected void validateDefaultDomainName(String defaultDomainName) throws ConfigurationException {
         try {
-            if (!getDomainList().containsDomain(defaultDomainName))
-            {
-                throw new ConfigurationException(
-                    "Default domain name is not a local server: "
-                        + defaultDomainName);
+            if (!getDomainList().containsDomain(defaultDomainName)) {
+                throw new ConfigurationException("Default domain name is not a local server: " + defaultDomainName);
             }
         } catch (DomainListException e) {
             throw new ConfigurationException("Unable to access DomainList", e);
         }
     }
-    
+
     /**
      * Computes the defaultDomainName.
      */
-    protected String computeDefaultDomainName()
-    {
+    protected String computeDefaultDomainName() {
         String hostName = null;
-        try
-        {
+        try {
             hostName = getDNSServer().getLocalHost().getCanonicalHostName();
-        }
-        catch (UnknownHostException ue)
-        {
+        } catch (UnknownHostException ue) {
             hostName = "localhost";
         }
         return hostName;
-    }   
-    
+    }
+
     /**
      * Updates the defaultDomainName.
      */
-    protected void updateDefaultDomainName()
-    {
+    protected void updateDefaultDomainName() {
         setDefaultDomainNameBasic(computeDefaultDomainName());
-    }   
+    }
 
     /**
      * Returns the leaveUndeliverable.
+     * 
      * @return boolean
      */
-    public boolean isLeaveUndeliverable()
-    {
+    public boolean isLeaveUndeliverable() {
         return fieldLeaveUndeliverable;
     }
 
     /**
      * Returns the markUndeliverableSeen.
+     * 
      * @return boolean
      */
-    public boolean isMarkUndeliverableSeen()
-    {
+    public boolean isMarkUndeliverableSeen() {
         return fieldMarkUndeliverableSeen;
     }
 
     /**
      * Sets the leaveUndeliverable.
-     * @param leaveUndeliverable The leaveUndeliverable to set
+     * 
+     * @param leaveUndeliverable
+     *            The leaveUndeliverable to set
      */
-    protected void setLeaveUndeliverable(boolean leaveUndeliverable)
-    {
+    protected void setLeaveUndeliverable(boolean leaveUndeliverable) {
         fieldLeaveUndeliverable = leaveUndeliverable;
     }
 
     /**
      * Sets the markUndeliverableSeen.
-     * @param markUndeliverableSeen The markUndeliverableSeen to set
+     * 
+     * @param markUndeliverableSeen
+     *            The markUndeliverableSeen to set
      */
-    protected void setMarkUndeliverableSeen(boolean markUndeliverableSeen)
-    {
+    protected void setMarkUndeliverableSeen(boolean markUndeliverableSeen) {
         fieldMarkUndeliverableSeen = markUndeliverableSeen;
     }
 
     /**
      * Returns the rejectBlacklisted.
+     * 
      * @return boolean
      */
-    public boolean isRejectBlacklisted()
-    {
+    public boolean isRejectBlacklisted() {
         return fieldRejectBlacklisted;
     }
 
     /**
      * Sets the rejectBlacklisted.
-     * @param rejectBlacklisted The rejectBlacklisted to set
+     * 
+     * @param rejectBlacklisted
+     *            The rejectBlacklisted to set
      */
-    protected void setRejectBlacklisted(boolean rejectBlacklisted)
-    {
+    protected void setRejectBlacklisted(boolean rejectBlacklisted) {
         fieldRejectBlacklisted = rejectBlacklisted;
     }
 
     /**
      * Returns the leaveRecipientNotFound.
+     * 
      * @return boolean
      */
-    public boolean isLeaveRecipientNotFound()
-    {
+    public boolean isLeaveRecipientNotFound() {
         return fieldLeaveRecipientNotFound;
     }
 
     /**
      * Returns the markRecipientNotFoundSeen.
+     * 
      * @return boolean
      */
-    public boolean isMarkRecipientNotFoundSeen()
-    {
+    public boolean isMarkRecipientNotFoundSeen() {
         return fieldMarkRecipientNotFoundSeen;
     }
 
     /**
      * Returns the rejectRecipientNotFound.
+     * 
      * @return boolean
      */
-    public boolean isRejectRecipientNotFound()
-    {
+    public boolean isRejectRecipientNotFound() {
         return fieldRejectRecipientNotFound;
     }
 
     /**
      * Sets the leaveRecipientNotFound.
-     * @param leaveRecipientNotFound The leaveRecipientNotFound to set
+     * 
+     * @param leaveRecipientNotFound
+     *            The leaveRecipientNotFound to set
      */
-    protected void setLeaveRecipientNotFound(boolean leaveRecipientNotFound)
-    {
+    protected void setLeaveRecipientNotFound(boolean leaveRecipientNotFound) {
         fieldLeaveRecipientNotFound = leaveRecipientNotFound;
     }
 
     /**
      * Sets the markRecipientNotFoundSeen.
-     * @param markRecipientNotFoundSeen The markRecipientNotFoundSeen to set
+     * 
+     * @param markRecipientNotFoundSeen
+     *            The markRecipientNotFoundSeen to set
      */
-    protected void setMarkRecipientNotFoundSeen(boolean markRecipientNotFoundSeen)
-    {
+    protected void setMarkRecipientNotFoundSeen(boolean markRecipientNotFoundSeen) {
         fieldMarkRecipientNotFoundSeen = markRecipientNotFoundSeen;
     }
 
     /**
      * Sets the rejectRecipientNotFound.
-     * @param rejectRecipientNotFound The rejectRecipientNotFound to set
+     * 
+     * @param rejectRecipientNotFound
+     *            The rejectRecipientNotFound to set
      */
-    protected void setRejectRecipientNotFound(boolean rejectRecipientNotFound)
-    {
+    protected void setRejectRecipientNotFound(boolean rejectRecipientNotFound) {
         fieldRejectRecipientNotFound = rejectRecipientNotFound;
     }
 
     /**
      * Returns the deferRecipientNotFound.
+     * 
      * @return boolean
      */
-    public boolean isDeferRecipientNotFound()
-    {
+    public boolean isDeferRecipientNotFound() {
         return fieldDeferRecipientNotFound;
     }
 
     /**
      * Sets the deferRecipientNotFound.
-     * @param deferRecipientNotFound The deferRecepientNotFound to set
+     * 
+     * @param deferRecipientNotFound
+     *            The deferRecepientNotFound to set
      */
-    protected void setDeferRecipientNotFound(boolean deferRecipientNotFound)
-    {
+    protected void setDeferRecipientNotFound(boolean deferRecipientNotFound) {
         fieldDeferRecipientNotFound = deferRecipientNotFound;
     }
 
     /**
      * Returns the remoteReceivedHeaderIndex.
+     * 
      * @return int
      */
-    public int getRemoteReceivedHeaderIndex()
-    {
+    public int getRemoteReceivedHeaderIndex() {
         return fieldRemoteReceivedHeaderIndex;
     }
 
     /**
      * Sets the remoteReceivedHeaderIndex.
-     * @param remoteReceivedHeaderIndex The remoteReceivedHeaderIndex to set
+     * 
+     * @param remoteReceivedHeaderIndex
+     *            The remoteReceivedHeaderIndex to set
      */
-    protected void setRemoteReceivedHeaderIndex(int remoteReceivedHeaderIndex)
-    {
+    protected void setRemoteReceivedHeaderIndex(int remoteReceivedHeaderIndex) {
         fieldRemoteReceivedHeaderIndex = remoteReceivedHeaderIndex;
     }
 
     /**
      * Returns the leaveMaxMessageSize.
+     * 
      * @return boolean
      */
-    public boolean isLeaveMaxMessageSizeExceeded()
-    {
+    public boolean isLeaveMaxMessageSizeExceeded() {
         return fieldLeaveMaxMessageSizeExceeded;
     }
 
     /**
      * Returns the markMaxMessageSizeSeen.
+     * 
      * @return boolean
      */
-    public boolean isMarkMaxMessageSizeExceededSeen()
-    {
+    public boolean isMarkMaxMessageSizeExceededSeen() {
         return fieldMarkMaxMessageSizeExceededSeen;
     }
 
     /**
      * Returns the maxMessageSizeLimit.
+     * 
      * @return int
      */
-    public int getMaxMessageSizeLimit()
-    {
+    public int getMaxMessageSizeLimit() {
         return fieldMaxMessageSizeLimit;
     }
 
     /**
      * Returns the rejectMaxMessageSize.
+     * 
      * @return boolean
      */
-    public boolean isRejectMaxMessageSizeExceeded()
-    {
+    public boolean isRejectMaxMessageSizeExceeded() {
         return fieldRejectMaxMessageSizeExceeded;
     }
 
     /**
      * Sets the leaveMaxMessageSize.
-     * @param leaveMaxMessageSize The leaveMaxMessageSize to set
+     * 
+     * @param leaveMaxMessageSize
+     *            The leaveMaxMessageSize to set
      */
-    protected void setLeaveMaxMessageSizeExceeded(boolean leaveMaxMessageSize)
-    {
+    protected void setLeaveMaxMessageSizeExceeded(boolean leaveMaxMessageSize) {
         fieldLeaveMaxMessageSizeExceeded = leaveMaxMessageSize;
     }
 
     /**
      * Sets the markMaxMessageSizeSeen.
-     * @param markMaxMessageSizeSeen The markMaxMessageSizeSeen to set
+     * 
+     * @param markMaxMessageSizeSeen
+     *            The markMaxMessageSizeSeen to set
      */
-    protected void setMarkMaxMessageSizeExceededSeen(boolean markMaxMessageSizeSeen)
-    {
+    protected void setMarkMaxMessageSizeExceededSeen(boolean markMaxMessageSizeSeen) {
         fieldMarkMaxMessageSizeExceededSeen = markMaxMessageSizeSeen;
     }
 
     /**
      * Sets the maxMessageSizeLimit.
-     * @param maxMessageSizeLimit The maxMessageSizeLimit to set
+     * 
+     * @param maxMessageSizeLimit
+     *            The maxMessageSizeLimit to set
      */
-    protected void setMaxMessageSizeLimit(int maxMessageSizeLimit)
-    {
+    protected void setMaxMessageSizeLimit(int maxMessageSizeLimit) {
         fieldMaxMessageSizeLimit = maxMessageSizeLimit;
     }
 
     /**
      * Sets the rejectMaxMessageSize.
-     * @param rejectMaxMessageSize The rejectMaxMessageSize to set
+     * 
+     * @param rejectMaxMessageSize
+     *            The rejectMaxMessageSize to set
      */
-    protected void setRejectMaxMessageSizeExceeded(boolean rejectMaxMessageSize)
-    {
+    protected void setRejectMaxMessageSizeExceeded(boolean rejectMaxMessageSize) {
         fieldRejectMaxMessageSizeExceeded = rejectMaxMessageSize;
     }
 
     /**
      * Returns the leaveRemoteReceivedHeaderInvalid.
+     * 
      * @return boolean
      */
-    public boolean isLeaveRemoteReceivedHeaderInvalid()
-    {
+    public boolean isLeaveRemoteReceivedHeaderInvalid() {
         return fieldLeaveRemoteReceivedHeaderInvalid;
     }
 
     /**
      * Returns the markRemoteReceivedHeaderInvalidSeen.
+     * 
      * @return boolean
      */
-    public boolean isMarkRemoteReceivedHeaderInvalidSeen()
-    {
+    public boolean isMarkRemoteReceivedHeaderInvalidSeen() {
         return fieldMarkRemoteReceivedHeaderInvalidSeen;
     }
 
     /**
      * Returns the rejectRemoteReceivedHeaderInvalid.
+     * 
      * @return boolean
      */
-    public boolean isRejectRemoteReceivedHeaderInvalid()
-    {
+    public boolean isRejectRemoteReceivedHeaderInvalid() {
         return fieldRejectRemoteReceivedHeaderInvalid;
     }
 
     /**
      * Sets the leaveRemoteReceivedHeaderInvalid.
-     * @param leaveRemoteReceivedHeaderInvalid The leaveRemoteReceivedHeaderInvalid to set
+     * 
+     * @param leaveRemoteReceivedHeaderInvalid
+     *            The leaveRemoteReceivedHeaderInvalid to set
      */
-    protected void setLeaveRemoteReceivedHeaderInvalid(boolean leaveRemoteReceivedHeaderInvalid)
-    {
-        fieldLeaveRemoteReceivedHeaderInvalid =
-            leaveRemoteReceivedHeaderInvalid;
+    protected void setLeaveRemoteReceivedHeaderInvalid(boolean leaveRemoteReceivedHeaderInvalid) {
+        fieldLeaveRemoteReceivedHeaderInvalid = leaveRemoteReceivedHeaderInvalid;
     }
 
     /**
      * Sets the markRemoteReceivedHeaderInvalidSeen.
-     * @param markRemoteReceivedHeaderInvalidSeen The markRemoteReceivedHeaderInvalidSeen to set
+     * 
+     * @param markRemoteReceivedHeaderInvalidSeen
+     *            The markRemoteReceivedHeaderInvalidSeen to set
      */
-    protected void setMarkRemoteReceivedHeaderInvalidSeen(boolean markRemoteReceivedHeaderInvalidSeen)
-    {
-        fieldMarkRemoteReceivedHeaderInvalidSeen =
-            markRemoteReceivedHeaderInvalidSeen;
+    protected void setMarkRemoteReceivedHeaderInvalidSeen(boolean markRemoteReceivedHeaderInvalidSeen) {
+        fieldMarkRemoteReceivedHeaderInvalidSeen = markRemoteReceivedHeaderInvalidSeen;
     }
 
     /**
      * Sets the rejectRemoteReceivedHeaderInvalid.
-     * @param rejectRemoteReceivedHeaderInvalid The rejectRemoteReceivedHeaderInvalid to set
+     * 
+     * @param rejectRemoteReceivedHeaderInvalid
+     *            The rejectRemoteReceivedHeaderInvalid to set
      */
-    protected void setRejectRemoteReceivedHeaderInvalid(boolean rejectRemoteReceivedHeaderInvalid)
-    {
-        fieldRejectRemoteReceivedHeaderInvalid =
-            rejectRemoteReceivedHeaderInvalid;
+    protected void setRejectRemoteReceivedHeaderInvalid(boolean rejectRemoteReceivedHeaderInvalid) {
+        fieldRejectRemoteReceivedHeaderInvalid = rejectRemoteReceivedHeaderInvalid;
     }
-    
+
     public void setMailQueue(MailQueue queue) {
         this.queue = queue;
     }
-    
+
     public MailQueue getMailQueue() {
         return queue;
     }
@@ -1179,7 +1129,7 @@ protected void setDNSServer(DNSService dnsServer)
     public DomainList getDomainList() {
         return domainList;
     }
-    
+
     public void setDomainList(DomainList domainList) {
         this.domainList = domainList;
     }

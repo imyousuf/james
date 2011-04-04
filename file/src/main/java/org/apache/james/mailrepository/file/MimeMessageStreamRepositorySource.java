@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.mailrepository.file;
 
 import org.apache.james.core.MimeMessageSource;
@@ -29,8 +27,8 @@ import java.io.InputStream;
 
 public class MimeMessageStreamRepositorySource extends MimeMessageSource {
 
-    //Define how to get to the data
-    
+    // Define how to get to the data
+
     /**
      * The stream repository used by this data source.
      */
@@ -42,8 +40,8 @@ public class MimeMessageStreamRepositorySource extends MimeMessageSource {
     String repositoryName = null;
 
     /**
-     * The key for the particular stream in the stream repository
-     * to be used by this data source.
+     * The key for the particular stream in the stream repository to be used by
+     * this data source.
      */
     String key = null;
 
@@ -52,9 +50,13 @@ public class MimeMessageStreamRepositorySource extends MimeMessageSource {
     /**
      * Main constructor
      * 
-     * @param sr The stream repository used by this data source.
-     * @param repositoryName The name of the repository
-     * @param key The key for the particular stream in the stream repository to be used by this data source.
+     * @param sr
+     *            The stream repository used by this data source.
+     * @param repositoryName
+     *            The name of the repository
+     * @param key
+     *            The key for the particular stream in the stream repository to
+     *            be used by this data source.
      */
     public MimeMessageStreamRepositorySource(StreamRepository sr, String repositoryName, String key) {
         super();
@@ -65,18 +67,14 @@ public class MimeMessageStreamRepositorySource extends MimeMessageSource {
     }
 
     /**
-     * Returns a unique String ID that represents the location from where 
-     * this source is loaded.  This will be used to identify where the data 
-     * is, primarily to avoid situations where this data would get overwritten.
-     *
+     * Returns a unique String ID that represents the location from where this
+     * source is loaded. This will be used to identify where the data is,
+     * primarily to avoid situations where this data would get overwritten.
+     * 
      * @return the String ID
      */
     public String getSourceId() {
-        StringBuffer sourceIdBuffer =
-            new StringBuffer(128)
-                    .append(repositoryName)
-                    .append("/")
-                    .append(key);
+        StringBuffer sourceIdBuffer = new StringBuffer(128).append(repositoryName).append("/").append(key);
         return sourceIdBuffer.toString();
     }
 
@@ -96,7 +94,8 @@ public class MimeMessageStreamRepositorySource extends MimeMessageSource {
         if (size == -1) {
             if (sr instanceof org.apache.james.repository.file.FilePersistentStreamRepository) {
                 size = ((org.apache.james.repository.file.FilePersistentStreamRepository) sr).getSize(key);
-            } else size = super.getMessageSize();
+            } else
+                size = super.getMessageSize();
         }
         return size;
     }

@@ -20,8 +20,6 @@ package org.apache.james.imapserver.netty;
 
 /**
  * Just some constants which are used with the Netty implementation
- * 
- *
  */
 public interface NettyConstants {
     final static String ZLIB_DECODER = "zlibDecoder";
@@ -34,7 +32,7 @@ public interface NettyConstants {
     final static String GROUP_HANDLER = "groupHandler";
     final static String CONNECTION_LIMIT_HANDLER = "connectionLimitHandler";
     final static String CONNECTION_LIMIT_PER_IP_HANDLER = "connectionPerIpLimitHandler";
-    final static String CONNECTION_COUNT_HANDLER= "connectionCountHandler";
-    final static String CHUNK_WRITE_HANDLER= "chunkWriteHandler";
+    final static String CONNECTION_COUNT_HANDLER = "connectionCountHandler";
+    final static String CHUNK_WRITE_HANDLER = "chunkWriteHandler";
 
 }

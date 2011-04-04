@@ -69,61 +69,58 @@ import org.slf4j.Logger;
  */
 public class JCRMailRepository extends AbstractMailRepository implements MailRepository {
 
-	private final static String MAIL_PATH = "mailrepository";
+    private final static String MAIL_PATH = "mailrepository";
 
+    private Repository repository;
+    private SimpleCredentials creds;
+    private String workspace;
 
-	private Repository repository;
-	private SimpleCredentials creds;
-	private String workspace;
+    private Logger logger;
 
-	private Logger logger;
-	
-    @Resource(name="jcrRepository")
+    @Resource(name = "jcrRepository")
     public void setRepository(Repository repository) {
-    	this.repository = repository;
+        this.repository = repository;
     }
-    
+
     @PostConstruct
     public void init() throws Exception {
-    	// register the nodetype
-    	CndImporter.registerNodeTypes(new InputStreamReader(Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("org/apache/james/imap/jcr/james.cnd")), login());
+        // register the nodetype
+        CndImporter.registerNodeTypes(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream("org/apache/james/imap/jcr/james.cnd")), login());
     }
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailrepository.AbstractMailRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.mailrepository.AbstractMailRepository#doConfigure(org
+     * .apache.commons.configuration.HierarchicalConfiguration)
      */
-	public void doConfigure(HierarchicalConfiguration config)
-			throws ConfigurationException {
-		this.workspace = config.getString("workspace",null);
-		String username = config.getString("username", null);
-		String password = config.getString("password",null);
-		
-		if (username != null && password != null) {
-			this.creds = new SimpleCredentials(username, password.toCharArray());
-		}
-	}
+    public void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
+        this.workspace = config.getString("workspace", null);
+        String username = config.getString("username", null);
+        String password = config.getString("password", null);
 
-    
+        if (username != null && password != null) {
+            this.creds = new SimpleCredentials(username, password.toCharArray());
+        }
+    }
+
     protected String toSafeName(String key) {
         String name = ISO9075.encode(Text.escapeIllegalJcrChars(key));
         return name;
     }
-    
-    private Session login() throws RepositoryException{
-    	return repository.login(creds, workspace);
+
+    private Session login() throws RepositoryException {
+        return repository.login(creds, workspace);
     }
-    
+
     public Iterator<String> list() throws MessagingException {
         try {
             Session session = login();
             try {
                 Collection<String> keys = new ArrayList<String>();
                 QueryManager manager = session.getWorkspace().getQueryManager();
-                Query query = manager.createQuery(
-                        "/jcr:root/" + MAIL_PATH + "//element(*,james:mail)",
-                        Query.XPATH);
+                Query query = manager.createQuery("/jcr:root/" + MAIL_PATH + "//element(*,james:mail)", Query.XPATH);
                 NodeIterator iterator = query.execute().getNodes();
                 while (iterator.hasNext()) {
                     String name = iterator.nextNode().getName();
@@ -144,9 +141,7 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
             try {
                 String name = toSafeName(key);
                 QueryManager manager = session.getWorkspace().getQueryManager();
-                Query query = manager.createQuery(
-                        "/jcr:root/" + MAIL_PATH + "//element(" + name + ",james:mail)",
-                        Query.XPATH);
+                Query query = manager.createQuery("/jcr:root/" + MAIL_PATH + "//element(" + name + ",james:mail)", Query.XPATH);
                 NodeIterator iterator = query.execute().getNodes();
                 if (iterator.hasNext()) {
                     return getMail(iterator.nextNode());
@@ -157,32 +152,30 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
                 session.logout();
             }
         } catch (IOException e) {
-            throw new MessagingException(
-                    "Unable to retrieve message: " + key, e);
+            throw new MessagingException("Unable to retrieve message: " + key, e);
         } catch (RepositoryException e) {
-            throw new MessagingException(
-                    "Unable to retrieve message: " + key, e);
-        } 
+            throw new MessagingException("Unable to retrieve message: " + key, e);
+        }
     }
 
-
-    //-------------------------------------------------------------< private >
+    // -------------------------------------------------------------< private >
 
     /**
      * Reads a mail message from the given mail node.
-     *
-     * @param node mail node
+     * 
+     * @param node
+     *            mail node
      * @return mail message
-     * @throws MessagingException if a messaging error occurs
-     * @throws RepositoryException if a repository error occurs
-     * @throws IOException if an IO error occurs
+     * @throws MessagingException
+     *             if a messaging error occurs
+     * @throws RepositoryException
+     *             if a repository error occurs
+     * @throws IOException
+     *             if an IO error occurs
      */
-    private Mail getMail(Node node)
-            throws MessagingException, RepositoryException, IOException {
+    private Mail getMail(Node node) throws MessagingException, RepositoryException, IOException {
         String name = Text.unescapeIllegalJcrChars(node.getName());
-        MailImpl mail = new MailImpl(
-                name, getSender(node), getRecipients(node),
-                getMessage(node));
+        MailImpl mail = new MailImpl(name, getSender(node), getRecipients(node), getMessage(node));
         mail.setState(getState(node));
         mail.setLastUpdated(getLastUpdated(node));
         mail.setErrorMessage(getError(node));
@@ -194,15 +187,19 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
 
     /**
      * Writes the mail message to the given mail node.
-     *
-     * @param node mail node
-     * @param mail mail message
-     * @throws MessagingException if a messaging error occurs
-     * @throws RepositoryException if a repository error occurs
-     * @throws IOException if an IO error occurs
+     * 
+     * @param node
+     *            mail node
+     * @param mail
+     *            mail message
+     * @throws MessagingException
+     *             if a messaging error occurs
+     * @throws RepositoryException
+     *             if a repository error occurs
+     * @throws IOException
+     *             if an IO error occurs
      */
-    private void setMail(Node node, Mail mail)
-            throws MessagingException, RepositoryException, IOException {
+    private void setMail(Node node, Mail mail) throws MessagingException, RepositoryException, IOException {
         setState(node, mail.getState());
         setLastUpdated(node, mail.getLastUpdated());
         setError(node, mail.getErrorMessage());
@@ -215,11 +212,13 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
     }
 
     /**
-     * Reads the message state from the james:state property.
-     *
-     * @param node mail node
+     * Reads the message state from the <code>james:state</code> property.
+     * 
+     * @param node
+     *            mail node
      * @return message state, or {@link Mail#DEFAULT} if not set
-     * @throws RepositoryException if a repository error occurs
+     * @throws RepositoryException
+     *             if a repository error occurs
      */
     private String getState(Node node) throws RepositoryException {
         try {
@@ -230,22 +229,28 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
     }
 
     /**
-     * Writes the message state to the james:state property.
-     *
-     * @param node mail node
-     * @param state message state
-     * @throws RepositoryException if a repository error occurs
+     * Writes the message state to the <code>james:state</code> property.
+     * 
+     * @param node
+     *            mail node
+     * @param state
+     *            message state
+     * @throws RepositoryException
+     *             if a repository error occurs
      */
     private void setState(Node node, String state) throws RepositoryException {
         node.setProperty("james:state", state);
     }
 
     /**
-     * Reads the update timestamp from the jcr:content/jcr:lastModified property.
-     *
-     * @param node mail node
+     * Reads the update timestamp from the
+     * <code>jcr:content/jcr:lastModified</code> property.
+     * 
+     * @param node
+     *            mail node
      * @return update timestamp
-     * @throws RepositoryException if a repository error occurs
+     * @throws RepositoryException
+     *             if a repository error occurs
      */
     private Date getLastUpdated(Node node) throws RepositoryException {
         try {
@@ -257,14 +262,17 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
     }
 
     /**
-     * Writes the update timestamp to the jcr:content/jcr:lastModified property.
-     *
-     * @param node mail node
-     * @param updated update timestamp, or <code>null</code> if not set
-     * @throws RepositoryException if a repository error occurs
+     * Writes the update timestamp to the
+     * <code>jcr:content/jcr:lastModified</code> property.
+     * 
+     * @param node
+     *            mail node
+     * @param updated
+     *            update timestamp, or <code>null</code> if not set
+     * @throws RepositoryException
+     *             if a repository error occurs
      */
-    private void setLastUpdated(Node node, Date updated)
-            throws RepositoryException {
+    private void setLastUpdated(Node node, Date updated) throws RepositoryException {
         try {
             node = node.getNode("jcr:content");
         } catch (PathNotFoundException e) {
@@ -278,11 +286,13 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
     }
 
     /**
-     * Reads the error message from the james:error property.
-     *
-     * @param node mail node
+     * Reads the error message from the <code>james:error</code> property.
+     * 
+     * @param node
+     *            mail node
      * @return error message, or <code>null</code> if not set
-     * @throws RepositoryException if a repository error occurs
+     * @throws RepositoryException
+     *             if a repository error occurs
      */
     private String getError(Node node) throws RepositoryException {
         try {
@@ -293,22 +303,28 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
     }
 
     /**
-     * Writes the error message to the james:error property.
-     *
-     * @param node mail node
-     * @param error error message
-     * @throws RepositoryException if a repository error occurs
+     * Writes the error message to the <code>james:error</code> property.
+     * 
+     * @param node
+     *            mail node
+     * @param error
+     *            error message
+     * @throws RepositoryException
+     *             if a repository error occurs
      */
     private void setError(Node node, String error) throws RepositoryException {
         node.setProperty("james:error", error);
     }
 
     /**
-     * Reads the remote host name from the james:remotehost property.
-     *
-     * @param node mail node
+     * Reads the remote host name from the <code>james:remotehost</code>
+     * property.
+     * 
+     * @param node
+     *            mail node
      * @return remote host name, or <code>null</code> if not set
-     * @throws RepositoryException if a repository error occurs
+     * @throws RepositoryException
+     *             if a repository error occurs
      */
     private String getRemoteHost(Node node) throws RepositoryException {
         try {
@@ -319,23 +335,28 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
     }
 
     /**
-     * Writes the remote host name to the james:remotehost property.
-     *
-     * @param node mail node
-     * @param host remote host name
-     * @throws RepositoryException if a repository error occurs
+     * Writes the remote host name to the <code>james:remotehost</code>
+     * property.
+     * 
+     * @param node
+     *            mail node
+     * @param host
+     *            remote host name
+     * @throws RepositoryException
+     *             if a repository error occurs
      */
-    private void setRemoteHost(Node node, String host)
-            throws RepositoryException {
+    private void setRemoteHost(Node node, String host) throws RepositoryException {
         node.setProperty("james:remotehost", host);
     }
 
     /**
-     * Reads the remote address from the james:remoteaddr property.
-     *
-     * @param node mail node
+     * Reads the remote address from the <code>james:remoteaddr</code> property.
+     * 
+     * @param node
+     *            mail node
      * @return remote address, or <code>null</code> if not set
-     * @throws RepositoryException if a repository error occurs
+     * @throws RepositoryException
+     *             if a repository error occurs
      */
     private String getRemoteAddr(Node node) throws RepositoryException {
         try {
@@ -346,27 +367,31 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
     }
 
     /**
-     * Writes the remote address to the james:remoteaddr property.
-     *
-     * @param node mail node
-     * @param addr remote address
-     * @throws RepositoryException if a repository error occurs
+     * Writes the remote address to the <code>james:remoteaddr</code> property.
+     * 
+     * @param node
+     *            mail node
+     * @param addr
+     *            remote address
+     * @throws RepositoryException
+     *             if a repository error occurs
      */
-    private void setRemoteAddr(Node node, String addr)
-            throws RepositoryException {
+    private void setRemoteAddr(Node node, String addr) throws RepositoryException {
         node.setProperty("james:remoteaddr", addr);
     }
 
     /**
-     * Reads the envelope sender from the james:sender property.
-     *
-     * @param node mail node
+     * Reads the envelope sender from the <code>james:sender</code> property.
+     * 
+     * @param node
+     *            mail node
      * @return envelope sender, or <code>null</code> if not set
-     * @throws MessagingException if a messaging error occurs
-     * @throws RepositoryException if a repository error occurs
+     * @throws MessagingException
+     *             if a messaging error occurs
+     * @throws RepositoryException
+     *             if a repository error occurs
      */
-    private MailAddress getSender(Node node)
-            throws MessagingException, RepositoryException {
+    private MailAddress getSender(Node node) throws MessagingException, RepositoryException {
         try {
             String sender = node.getProperty("james:sender").getString();
             return new MailAddress(sender);
@@ -376,29 +401,35 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
     }
 
     /**
-     * Writes the envelope sender to the james:sender property.
-     *
-     * @param node mail node
-     * @param sender envelope sender
-     * @throws MessagingException if a messaging error occurs
-     * @throws RepositoryException if a repository error occurs
+     * Writes the envelope sender to the <code>james:sender</code> property.
+     * 
+     * @param node
+     *            mail node
+     * @param sender
+     *            envelope sender
+     * @throws MessagingException
+     *             if a messaging error occurs
+     * @throws RepositoryException
+     *             if a repository error occurs
      */
-    private void setSender(Node node, MailAddress sender)
-            throws MessagingException, RepositoryException {
+    private void setSender(Node node, MailAddress sender) throws MessagingException, RepositoryException {
         node.setProperty("james:sender", sender.toString());
     }
 
     /**
-     * Reads the list of recipients from the james:recipients property.
-     *
-     * @param node mail node
+     * Reads the list of recipients from the <code>james:recipients</code>
+     * property.
+     * 
+     * @param node
+     *            mail node
      * @return list of recipient, or an empty list if not set
-     * @throws MessagingException if a messaging error occurs
-     * @throws RepositoryException if a repository error occurs
+     * @throws MessagingException
+     *             if a messaging error occurs
+     * @throws RepositoryException
+     *             if a repository error occurs
      */
     @SuppressWarnings("unchecked")
-    private Collection<MailAddress> getRecipients(Node node)
-            throws MessagingException, RepositoryException {
+    private Collection<MailAddress> getRecipients(Node node) throws MessagingException, RepositoryException {
         try {
             Value[] values = node.getProperty("james:recipients").getValues();
             Collection<MailAddress> recipients = new ArrayList<MailAddress>(values.length);
@@ -412,15 +443,19 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
     }
 
     /**
-     * Writes the list of recipients to the james:recipients property.
-     *
-     * @param node mail node
-     * @param recipients list of recipient
-     * @throws MessagingException if a messaging error occurs
-     * @throws RepositoryException if a repository error occurs
+     * Writes the list of recipients to the <code>james:recipients</code>
+     * property.
+     * 
+     * @param node
+     *            mail node
+     * @param recipients
+     *            list of recipient
+     * @throws MessagingException
+     *             if a messaging error occurs
+     * @throws RepositoryException
+     *             if a repository error occurs
      */
-    private void setRecipients(Node node, Collection<MailAddress> recipients)
-            throws MessagingException, RepositoryException {
+    private void setRecipients(Node node, Collection<MailAddress> recipients) throws MessagingException, RepositoryException {
         String[] values = new String[recipients.size()];
         Iterator<MailAddress> iterator = recipients.iterator();
         for (int i = 0; iterator.hasNext(); i++) {
@@ -430,16 +465,20 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
     }
 
     /**
-     * Reads the message content from the jcr:content/jcr:data binary property.
-     *
-     * @param node mail node
+     * Reads the message content from the <code>jcr:content/jcr:data</code>
+     * binary property.
+     * 
+     * @param node
+     *            mail node
      * @return mail message
-     * @throws MessagingException if a messaging error occurs
-     * @throws RepositoryException if a repository error occurs
-     * @throws IOException if an IO error occurs
+     * @throws MessagingException
+     *             if a messaging error occurs
+     * @throws RepositoryException
+     *             if a repository error occurs
+     * @throws IOException
+     *             if an IO error occurs
      */
-    private MimeMessage getMessage(Node node)
-            throws MessagingException, RepositoryException, IOException {
+    private MimeMessage getMessage(Node node) throws MessagingException, RepositoryException, IOException {
         try {
             node = node.getNode("jcr:content");
         } catch (PathNotFoundException e) {
@@ -449,25 +488,28 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
         InputStream stream = node.getProperty("jcr:data").getStream();
         try {
             Properties properties = System.getProperties();
-            return new MimeMessage(
-                    javax.mail.Session.getDefaultInstance(properties),
-                    stream);
+            return new MimeMessage(javax.mail.Session.getDefaultInstance(properties), stream);
         } finally {
             stream.close();
         }
     }
 
     /**
-     * Writes the message content to the jcr:content/jcr:data binary property.
-     *
-     * @param node mail node
-     * @param message mail message
-     * @throws MessagingException if a messaging error occurs
-     * @throws RepositoryException if a repository error occurs
-     * @throws IOException if an IO error occurs
+     * Writes the message content to the <code>jcr:content/jcr:data</code>
+     * binary property.
+     * 
+     * @param node
+     *            mail node
+     * @param message
+     *            mail message
+     * @throws MessagingException
+     *             if a messaging error occurs
+     * @throws RepositoryException
+     *             if a repository error occurs
+     * @throws IOException
+     *             if an IO error occurs
      */
-    private void setMessage(Node node, final MimeMessage message)
-            throws MessagingException, RepositoryException, IOException {
+    private void setMessage(Node node, final MimeMessage message) throws MessagingException, RepositoryException, IOException {
         try {
             node = node.getNode("jcr:content");
         } catch (PathNotFoundException e) {
@@ -493,20 +535,22 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
     }
 
     /**
-     * Writes the mail attributes from the jamesattr:* property.
-     *
-     * @param node mail node
-     * @param mail mail message
-     * @throws RepositoryException if a repository error occurs
-     * @throws IOException if an IO error occurs
+     * Writes the mail attributes from the <code>jamesattr:*</code> property.
+     * 
+     * @param node
+     *            mail node
+     * @param mail
+     *            mail message
+     * @throws RepositoryException
+     *             if a repository error occurs
+     * @throws IOException
+     *             if an IO error occurs
      */
-    private void getAttributes(Node node, Mail mail)
-            throws RepositoryException, IOException {
+    private void getAttributes(Node node, Mail mail) throws RepositoryException, IOException {
         PropertyIterator iterator = node.getProperties("jamesattr:*");
         while (iterator.hasNext()) {
             Property property = iterator.nextProperty();
-            String name = Text.unescapeIllegalJcrChars(
-                    property.getName().substring("jamesattr:".length()));
+            String name = Text.unescapeIllegalJcrChars(property.getName().substring("jamesattr:".length()));
             if (property.getType() == PropertyType.BINARY) {
                 InputStream input = property.getStream();
                 try {
@@ -522,17 +566,20 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
             }
         }
     }
-    
+
     /**
-     * Writes the mail attributes to the jamesattr:* property.
-     *
-     * @param node mail node
-     * @param mail mail message
-     * @throws RepositoryException if a repository error occurs
-     * @throws IOException if an IO error occurs
+     * Writes the mail attributes to the <code>jamesattr:*</code> property.
+     * 
+     * @param node
+     *            mail node
+     * @param mail
+     *            mail message
+     * @throws RepositoryException
+     *             if a repository error occurs
+     * @throws IOException
+     *             if an IO error occurs
      */
-    private void setAttributes(Node node, Mail mail)
-            throws RepositoryException, IOException {
+    private void setAttributes(Node node, Mail mail) throws RepositoryException, IOException {
         Iterator<String> iterator = mail.getAttributeNames();
         while (iterator.hasNext()) {
             String name = (String) iterator.next();
@@ -545,23 +592,19 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
                 ObjectOutputStream output = new ObjectOutputStream(buffer);
                 output.writeObject(value);
                 output.close();
-                node.setProperty(
-                        name,
-                        new ByteArrayInputStream(buffer.toByteArray()));
+                node.setProperty(name, new ByteArrayInputStream(buffer.toByteArray()));
             }
         }
     }
 
-	@Override
-	protected void internalRemove(String key) throws MessagingException {
-		try {
+    @Override
+    protected void internalRemove(String key) throws MessagingException {
+        try {
             Session session = login();
             try {
                 String name = ISO9075.encode(Text.escapeIllegalJcrChars(key));
                 QueryManager manager = session.getWorkspace().getQueryManager();
-                Query query = manager.createQuery(
-                        "/jcr:root/" + MAIL_PATH + "//element(" + name + ",james:mail)",
-                        Query.XPATH);
+                Query query = manager.createQuery("/jcr:root/" + MAIL_PATH + "//element(" + name + ",james:mail)", Query.XPATH);
                 NodeIterator nodes = query.execute().getNodes();
                 if (nodes.hasNext()) {
                     while (nodes.hasNext()) {
@@ -577,22 +620,21 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
             }
         } catch (RepositoryException e) {
             throw new MessagingException("Unable to remove message: " + key, e);
-        }		
-	}
+        }
+    }
 
-	@Override
-	protected void internalStore(Mail mail) throws MessagingException,
-			IOException {
-		try {
+    @Override
+    protected void internalStore(Mail mail) throws MessagingException, IOException {
+        try {
             Session session = login();
             try {
                 String name = Text.escapeIllegalJcrChars(mail.getName());
                 final String xpath = "/jcr:root/" + MAIL_PATH + "//element(" + name + ",james:mail)";
-                
+
                 QueryManager manager = session.getWorkspace().getQueryManager();
                 Query query = manager.createQuery(xpath, Query.XPATH);
                 NodeIterator iterator = query.execute().getNodes();
-                
+
                 if (iterator.hasNext()) {
                     while (iterator.hasNext()) {
                         setMail(iterator.nextNode(), mail);
@@ -610,12 +652,10 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
                 session.logout();
             }
         } catch (IOException e) {
-            throw new MessagingException(
-                    "Unable to store message: " + mail.getName(), e);
+            throw new MessagingException("Unable to store message: " + mail.getName(), e);
         } catch (RepositoryException e) {
-            throw new MessagingException(
-                    "Unable to store message: " + mail.getName(), e);
-        }		
-	}
+            throw new MessagingException("Unable to store message: " + mail.getName(), e);
+        }
+    }
 
 }

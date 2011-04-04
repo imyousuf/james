@@ -61,9 +61,6 @@ import java.util.UUID;
  * attributes.</li>
  * </ul>
  * </p>
- * 
- * @version CVS $Revision$ $Date: 2010-12-16 15:18:27 +0100 (Thu, 16
- *          Dec 2010) $
  */
 public class MailImpl implements Disposable, Mail {
 

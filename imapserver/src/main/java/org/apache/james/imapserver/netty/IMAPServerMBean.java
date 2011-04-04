@@ -20,6 +20,6 @@ package org.apache.james.imapserver.netty;
 
 import org.apache.james.protocols.lib.jmx.ServerMBean;
 
-public interface IMAPServerMBean extends ServerMBean{
+public interface IMAPServerMBean extends ServerMBean {
 
 }

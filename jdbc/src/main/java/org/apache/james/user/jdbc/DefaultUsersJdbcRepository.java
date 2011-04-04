@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.user.jdbc;
 
 import org.apache.james.user.api.UsersRepositoryException;
@@ -29,29 +27,24 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
-
 /**
- * A Jdbc-backed UserRepository which handles User instances
- * of the <CODE>DefaultUser</CODE> class.
- * Although this repository can handle subclasses of DefaultUser,
- * like <CODE>DefaultJamesUser</CODE>, only properties from
- * the DefaultUser class are persisted.
+ * A Jdbc-backed UserRepository which handles User instances of the
+ * <code>DefaultUser</code> class.<br>
+ * Although this repository can handle subclasses of DefaultUser, like
+ * <code>DefaultJamesUser</code>, only properties from the DefaultUser class are
+ * persisted.
  * 
  * TODO Please note that default configuration uses JamesUsersJdbcRepository
  * instead of this class. So we could also delete this implementation.
  * 
  */
 @Deprecated
-public class DefaultUsersJdbcRepository extends AbstractJdbcUsersRepository
-{
+public class DefaultUsersJdbcRepository extends AbstractJdbcUsersRepository {
 
-    
     /**
      * @see org.apache.james.user.jdbc.AbstractJdbcUsersRepository#readUserFromResultSet(java.sql.ResultSet)
      */
-    protected User readUserFromResultSet(ResultSet rsUsers) throws SQLException 
-    {
+    protected User readUserFromResultSet(ResultSet rsUsers) throws SQLException {
         // Get the username, and build a DefaultUser with it.
         String username = rsUsers.getString(1);
         String passwordHash = rsUsers.getString(2);
@@ -61,33 +54,30 @@ public class DefaultUsersJdbcRepository extends AbstractJdbcUsersRepository
     }
 
     /**
-     * @see org.apache.james.user.jdbc.AbstractJdbcUsersRepository#setUserForInsertStatement(org.apache.james.user.api.model.User, java.sql.PreparedStatement)
+     * @see org.apache.james.user.jdbc.AbstractJdbcUsersRepository#setUserForInsertStatement(org.apache.james.user.api.model.User,
+     *      java.sql.PreparedStatement)
      */
-    protected void setUserForInsertStatement(User user, 
-                                             PreparedStatement userInsert) 
-        throws SQLException 
-    {
-        DefaultUser defUser = (DefaultUser)user;
+    protected void setUserForInsertStatement(User user, PreparedStatement userInsert) throws SQLException {
+        DefaultUser defUser = (DefaultUser) user;
         userInsert.setString(1, defUser.getUserName());
         userInsert.setString(2, defUser.getHashedPassword());
         userInsert.setString(3, defUser.getHashAlgorithm());
     }
 
     /**
-     * @see org.apache.james.user.jdbc.AbstractJdbcUsersRepository#setUserForUpdateStatement(org.apache.james.user.api.model.User, java.sql.PreparedStatement)
+     * @see org.apache.james.user.jdbc.AbstractJdbcUsersRepository#setUserForUpdateStatement(org.apache.james.user.api.model.User,
+     *      java.sql.PreparedStatement)
      */
-    protected void setUserForUpdateStatement(User user, 
-                                             PreparedStatement userUpdate) 
-        throws SQLException 
-    {
-        DefaultUser defUser = (DefaultUser)user;
+    protected void setUserForUpdateStatement(User user, PreparedStatement userUpdate) throws SQLException {
+        DefaultUser defUser = (DefaultUser) user;
         userUpdate.setString(1, defUser.getHashedPassword());
         userUpdate.setString(2, defUser.getHashAlgorithm());
         userUpdate.setString(3, defUser.getUserName());
     }
-    
+
     /**
-     * @see org.apache.james.user.api.UsersRepository#addUser(java.lang.String, java.lang.String)
+     * @see org.apache.james.user.api.UsersRepository#addUser(java.lang.String,
+     *      java.lang.String)
      */
     public void addUser(String username, String password) throws UsersRepositoryException {
         if (contains(username) == true) {
@@ -99,6 +89,4 @@ public class DefaultUsersJdbcRepository extends AbstractJdbcUsersRepository
         doAddUser(newbie);
     }
 
-
 }
-

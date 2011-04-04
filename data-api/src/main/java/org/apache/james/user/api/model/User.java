@@ -21,11 +21,7 @@ package org.apache.james.user.api.model;
 
 /**
  * Interface for objects representing users.
- * 
- * 
- * @version $Revision$
  */
-
 public interface User {
 
     /**

@@ -24,8 +24,6 @@ import org.apache.mailet.MailAddress;
 /**
  * Interface for objects representing users of an email/ messaging system.
  * 
- * 
- * @version $Revision$
  * @deprecated Just use the User interface for Users. Forwarding and Aliasing
  *             should get done via VirtualUserTable
  */

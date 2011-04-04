@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.user.jdbc;
 
 import org.apache.james.user.api.model.User;
@@ -31,8 +29,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * A Jdbc-backed UserRepository which handles User instances of the <CODE>DefaultJamesUser</CODE>
- * class, or any superclass.
+ * A Jdbc-backed UserRepository which handles User instances of the
+ * <code>DefaultJamesUser</code> class, or any superclass.
  */
 @Deprecated
 public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository {
@@ -51,21 +49,17 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository {
         String alias = rsUsers.getString(7);
 
         MailAddress forwardAddress = null;
-        if ( forwardingDestination != null ) {
+        if (forwardingDestination != null) {
             try {
                 forwardAddress = new MailAddress(forwardingDestination);
             } catch (javax.mail.internet.ParseException pe) {
-                StringBuffer exceptionBuffer = new StringBuffer(256).append(
-                        "Invalid mail address in database: ").append(
-                        forwardingDestination).append(", for user ").append(
-                        username).append(".");
+                StringBuffer exceptionBuffer = new StringBuffer(256).append("Invalid mail address in database: ").append(forwardingDestination).append(", for user ").append(username).append(".");
                 throw new RuntimeException(exceptionBuffer.toString());
             }
         }
 
         // Build a DefaultJamesUser with these values, and add to the list.
-        DefaultJamesUser user = new DefaultJamesUser(username, pwdHash,
-                pwdAlgorithm);
+        DefaultJamesUser user = new DefaultJamesUser(username, pwdHash, pwdAlgorithm);
         user.setForwarding(useForwarding);
         user.setForwardingDestination(forwardAddress);
         user.setAliasing(useAlias);
@@ -74,13 +68,11 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository {
         return user;
     }
 
-
     /**
      * @see org.apache.james.user.jdbc.AbstractJdbcUsersRepository#setUserForInsertStatement(org.apache.james.user.api.model.User,
      *      java.sql.PreparedStatement)
      */
-    protected void setUserForInsertStatement(User user, 
-            PreparedStatement userInsert) throws SQLException {
+    protected void setUserForInsertStatement(User user, PreparedStatement userInsert) throws SQLException {
         setUserForStatement(user, userInsert, false);
     }
 
@@ -88,15 +80,14 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository {
      * @see org.apache.james.user.jdbc.AbstractJdbcUsersRepository#setUserForUpdateStatement(org.apache.james.user.api.model.User,
      *      java.sql.PreparedStatement)
      */
-    protected void setUserForUpdateStatement(User user, 
-            PreparedStatement userUpdate) throws SQLException {
+    protected void setUserForUpdateStatement(User user, PreparedStatement userUpdate) throws SQLException {
         setUserForStatement(user, userUpdate, true);
     }
 
     /**
      * Sets the data for the prepared statement to match the information in the
      * user object.
-     *
+     * 
      * @param user
      *            the user whose data is to be stored in the PreparedStatement.
      * @param stmt
@@ -104,12 +95,11 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository {
      * @param userNameLast
      *            whether the user id is the last or the first column
      */
-    private void setUserForStatement(User user, PreparedStatement stmt,
-                                     boolean userNameLast) throws SQLException {
+    private void setUserForStatement(User user, PreparedStatement stmt, boolean userNameLast) throws SQLException {
         // Determine column offsets to use, based on username column pos.
         int nameIndex = 1;
         int colOffset = 1;
-        if ( userNameLast ) {
+        if (userNameLast) {
             nameIndex = 7;
             colOffset = 0;
         }
@@ -117,17 +107,14 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository {
         // Can handle instances of DefaultJamesUser and DefaultUser.
         DefaultJamesUser jamesUser;
         if (user instanceof DefaultJamesUser) {
-            jamesUser = (DefaultJamesUser)user;
+            jamesUser = (DefaultJamesUser) user;
         } else if (user instanceof DefaultUser) {
-            DefaultUser aUser = (DefaultUser)user;
-            jamesUser = new DefaultJamesUser(aUser.getUserName(), aUser
-                    .getHashedPassword(), aUser.getHashAlgorithm());
-        } 
+            DefaultUser aUser = (DefaultUser) user;
+            jamesUser = new DefaultJamesUser(aUser.getUserName(), aUser.getHashedPassword(), aUser.getHashAlgorithm());
+        }
         // Can't handle any other implementations.
         else {
-            throw new RuntimeException("An unknown implementation of User was "
-                    + "found. This implementation cannot be "
-                    + "persisted to a UsersJDBCRepsitory.");
+            throw new RuntimeException("An unknown implementation of User was " + "found. This implementation cannot be " + "persisted to a UsersJDBCRepsitory.");
         }
 
         // Get the user details to save.
@@ -138,15 +125,12 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository {
 
         MailAddress forwardAddress = jamesUser.getForwardingDestination();
         String forwardDestination = null;
-        if ( forwardAddress != null ) {
+        if (forwardAddress != null) {
             forwardDestination = forwardAddress.toString();
         }
         stmt.setString(4 + colOffset, forwardDestination);
         stmt.setInt(5 + colOffset, (jamesUser.getAliasing() ? 1 : 0));
         stmt.setString(6 + colOffset, jamesUser.getAlias());
     }
-    
-    
-    
-    
+
 }

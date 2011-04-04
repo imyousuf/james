@@ -29,22 +29,25 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 
 /**
- * {@link AbstractImapResponseWriter} implementation which writes the data to a {@link Channel}
- * 
- *
+ * {@link AbstractImapResponseWriter} implementation which writes the data to a
+ * {@link Channel}
  */
-public class ChannelImapResponseWriter extends AbstractImapResponseWriter{
+public class ChannelImapResponseWriter extends AbstractImapResponseWriter {
 
     private Channel channel;
     private WritableByteChannel wChannel;
+
     public ChannelImapResponseWriter(Channel channel) {
         this.channel = channel;
         this.wChannel = new ChannelWritableByteChannel(channel);
     }
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.imap.main.AbstractImapResponseWriter#write(java.nio.ByteBuffer)
+     * 
+     * @see
+     * org.apache.james.imap.main.AbstractImapResponseWriter#write(java.nio.
+     * ByteBuffer)
      */
     protected void write(ByteBuffer buffer) throws IOException {
         channel.write(ChannelBuffers.wrappedBuffer(buffer));
@@ -52,11 +55,13 @@ public class ChannelImapResponseWriter extends AbstractImapResponseWriter{
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.imap.main.AbstractImapResponseWriter#write(org.apache.james.imap.message.response.Literal)
+     * 
+     * @see
+     * org.apache.james.imap.main.AbstractImapResponseWriter#write(org.apache
+     * .james.imap.message.response.Literal)
      */
     protected void write(Literal literal) throws IOException {
         literal.writeTo(wChannel);
     }
 
-   
 }

@@ -37,16 +37,16 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 /**
- * This class provides an inputStream for a Mail object.
- * If the Mail is larger than 4KB it uses Piped streams and a worker threads
- * Otherwise it simply create a temporary byte buffer and does not create
- * the worker thread.
+ * This class provides an inputStream for a Mail object.<br>
+ * If the Mail is larger than 4KB it uses Piped streams and a worker thread,
+ * otherwise it simply creates a temporary byte buffer and does not create the
+ * worker thread.
  * 
- * Note: Javamail (or the Activation Framework) already uses a worker threads when
- * asked for an inputstream.
+ * <strong>Note</strong>: Javamail (or the Activation Framework) already uses a
+ * worker thread when asked for an inputstream.
  */
 final class MessageInputStream extends InputStream {
-    
+
     /**
      * The size of the current message
      */
@@ -63,27 +63,34 @@ final class MessageInputStream extends InputStream {
      * Stream repository used for dbfiles (null otherwise)
      */
     private StreamRepository streamRep;
-    
 
     /**
-     * Main constructor. If srep is not null than we are using dbfiles and we stream
-     * the body to file and only the header to db.
+     * Main constructor. If srep is not null than we are using dbfiles and we
+     * stream the body to file and only the header to db.
      * 
-     * @param mc the Mail 
-     * @param srep the StreamRepository the StreamRepository used for dbfiles.
-     * @param sizeLimit the sizeLimit which set the limit after which the streaming will be disabled
-     * @throws IOException get thrown if an IO error detected
-     * @throws MessagingException get thrown if an error detected while reading informations of the mail 
+     * @param mc
+     *            the Mail
+     * @param srep
+     *            the StreamRepository the StreamRepository used for dbfiles.
+     * @param sizeLimit
+     *            the sizeLimit which set the limit after which the streaming
+     *            will be disabled
+     * @throws IOException
+     *             get thrown if an IO error detected
+     * @throws MessagingException
+     *             get thrown if an error detected while reading informations of
+     *             the mail
      */
     public MessageInputStream(Mail mc, StreamRepository srep, int sizeLimit, final boolean update) throws IOException, MessagingException {
         super();
         caughtException = null;
         streamRep = srep;
         size = mc.getMessageSize();
-        
-        
-        // we use the pipes only when streamRep is null and the message size is greater than 4096
-        // Otherwise we should calculate the header size and not the message size when streamRep is not null (JAMES-475)
+
+        // we use the pipes only when streamRep is null and the message size is
+        // greater than 4096
+        // Otherwise we should calculate the header size and not the message
+        // size when streamRep is not null (JAMES-475)
         if (streamRep == null && size > sizeLimit) {
             PipedOutputStream headerOut = new PipedOutputStream();
             new Thread() {
@@ -93,7 +100,7 @@ final class MessageInputStream extends InputStream {
 
                 public void run() {
                     try {
-                        writeStream(mail,out, update);
+                        writeStream(mail, out, update);
                     } catch (IOException e) {
                         caughtException = e;
                     } catch (MessagingException e) {
@@ -106,16 +113,15 @@ final class MessageInputStream extends InputStream {
                     this.out = headerOut;
                     return this;
                 }
-            }.setParam(mc,(PipedOutputStream) headerOut).start();
+            }.setParam(mc, (PipedOutputStream) headerOut).start();
             wrapped = new PipedInputStream(headerOut);
         } else {
             ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
-            writeStream(mc,headerOut, update);
+            writeStream(mc, headerOut, update);
             wrapped = new ByteArrayInputStream(headerOut.toByteArray());
             size = headerOut.size();
         }
     }
-    
 
     /**
      * Returns the size of the full message
@@ -126,53 +132,58 @@ final class MessageInputStream extends InputStream {
         return size;
     }
 
-
     /**
-     * Write the full mail to the stream
-     * This can be used by this object or by the worker threads.
+     * Write the full mail to the stream This can be used by this object or by
+     * the worker threads.
      * 
-     * @param mail the Mail used as source
-     * @param out the OutputStream writting the mail to
-     * @throws IOException get thrown if an IO error detected
-     * @throws MessagingException get thrown if an error detected while reading informations of the mail 
+     * @param mail
+     *            the Mail used as source
+     * @param out
+     *            the OutputStream writting the mail to
+     * @throws IOException
+     *             get thrown if an IO error detected
+     * @throws MessagingException
+     *             get thrown if an error detected while reading informations of
+     *             the mail
      */
     private void writeStream(Mail mail, OutputStream out, boolean update) throws IOException, MessagingException {
         MimeMessage msg = mail.getMessage();
 
         if (update) {
-        
+
             if (msg instanceof MimeMessageCopyOnWriteProxy) {
-                msg = ((MimeMessageCopyOnWriteProxy)msg).getWrappedMessage();
+                msg = ((MimeMessageCopyOnWriteProxy) msg).getWrappedMessage();
             }
-        
+
             if (msg instanceof MimeMessageWrapper) {
                 MimeMessageWrapper wrapper = (MimeMessageWrapper) msg;
                 wrapper.loadMessage();
-                
+
             }
         }
-        
+
         OutputStream bodyOut = null;
         try {
             if (streamRep == null) {
-                //If there is no filestore, use the byte array to store headers
-                //  and the body
+                // If there is no filestore, use the byte array to store headers
+                // and the body
                 bodyOut = out;
             } else {
-                //Store the body in the stream repository
+                // Store the body in the stream repository
                 bodyOut = streamRep.put(mail.getName());
             }
-        
+
             if (msg instanceof MimeMessageWrapper) {
-                ((MimeMessageWrapper)msg).writeTo(out, bodyOut, null, true);
+                ((MimeMessageWrapper) msg).writeTo(out, bodyOut, null, true);
             } else {
-                //Write the message to the headerOut and bodyOut.  bodyOut goes straight to the file
-                MimeMessageUtil.writeTo(mail.getMessage(), out, bodyOut); 
+                // Write the message to the headerOut and bodyOut. bodyOut goes
+                // straight to the file
+                MimeMessageUtil.writeTo(mail.getMessage(), out, bodyOut);
             }
 
             out.flush();
             bodyOut.flush();
-        
+
         } finally {
             closeOutputStreams(out, bodyOut);
         }
@@ -186,7 +197,7 @@ final class MessageInputStream extends InputStream {
             } else if (caughtException instanceof IOException) {
                 throw (IOException) caughtException;
             } else {
-                throw new IOException("Exception caugth in worker thread "+caughtException.getMessage()) {
+                throw new IOException("Exception caugth in worker thread " + caughtException.getMessage()) {
                     /**
                      * @see java.lang.Throwable#getCause()
                      */
@@ -201,14 +212,15 @@ final class MessageInputStream extends InputStream {
         }
     }
 
-
     /**
      * Closes output streams used to update message
      * 
-     * @param headerStream the stream containing header information - potentially the same
-     *               as the body stream
-     * @param bodyStream the stream containing body information
-     * @throws IOException 
+     * @param headerStream
+     *            the stream containing header information - potentially the
+     *            same as the body stream
+     * @param bodyStream
+     *            the stream containing body information
+     * @throws IOException
      */
     private void closeOutputStreams(OutputStream headerStream, OutputStream bodyStream) throws IOException {
         try {

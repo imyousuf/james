@@ -34,12 +34,12 @@ import org.apache.james.vut.lib.VirtualUserTableUtil;
  * Class responsible to implement the Virtual User Table in XML disk file.
  */
 public class XMLVirtualUserTable extends AbstractVirtualUserTable {
-    
+
     /**
      * Holds the configured mappings
      */
-    private Map<String,String> mappings;
-    
+    private Map<String, String> mappings;
+
     /**
      * @see org.apache.james.vut.lib.AbstractVirtualUserTable#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
@@ -47,21 +47,22 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
     protected void doConfigure(HierarchicalConfiguration arg0) throws ConfigurationException {
 
         List<String> mapConf = arg0.getList("mapping");
-    
-        mappings = new HashMap<String,String>();
-        
+
+        mappings = new HashMap<String, String>();
+
         if (mapConf != null && mapConf.size() > 0) {
-            for (int i = 0; i < mapConf.size(); i ++) {       
+            for (int i = 0; i < mapConf.size(); i++) {
                 mappings.putAll(VirtualUserTableUtil.getXMLMappings(mapConf.get(i)));
             }
         } else {
             throw new ConfigurationException("No mapping configured");
         }
-        
+
     }
 
     /**
-     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#mapAddressInternal(java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#mapAddressInternal(java.lang.String,
+     *      java.lang.String)
      */
     protected String mapAddressInternal(String user, String domain) throws VirtualUserTableException {
         if (mappings == null) {
@@ -72,9 +73,10 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
     }
 
     /**
-     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#getUserDomainMappingsInternal(java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#getUserDomainMappingsInternal(java.lang.String,
+     *      java.lang.String)
      */
-    protected Collection<String> getUserDomainMappingsInternal(String user, String domain) throws VirtualUserTableException{
+    protected Collection<String> getUserDomainMappingsInternal(String user, String domain) throws VirtualUserTableException {
         if (mappings == null) {
             return null;
         } else {
@@ -90,9 +92,9 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
     /**
      * @see org.apache.james.vut.lib.AbstractVirtualUserTable#getAllMappingsInternal()
      */
-    protected Map<String,Collection<String>> getAllMappingsInternal() throws VirtualUserTableException{
-        if ( mappings != null && mappings.size() > 0) {
-            Map<String,Collection<String>> mappingsNew = new HashMap<String,Collection<String>>();
+    protected Map<String, Collection<String>> getAllMappingsInternal() throws VirtualUserTableException {
+        if (mappings != null && mappings.size() > 0) {
+            Map<String, Collection<String>> mappingsNew = new HashMap<String, Collection<String>>();
             Iterator<String> maps = mappings.keySet().iterator();
             while (maps.hasNext()) {
                 String key = maps.next();
@@ -106,12 +108,12 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
 
     @Override
     protected void addMappingInternal(String user, String domain, String mapping) throws VirtualUserTableException {
-        throw new VirtualUserTableException("Read-Only implementation");              
+        throw new VirtualUserTableException("Read-Only implementation");
     }
 
     @Override
     protected void removeMappingInternal(String user, String domain, String mapping) throws VirtualUserTableException {
-        throw new VirtualUserTableException("Read-Only implementation");      
+        throw new VirtualUserTableException("Read-Only implementation");
     }
-    
+
 }

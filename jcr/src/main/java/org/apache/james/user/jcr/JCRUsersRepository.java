@@ -43,12 +43,12 @@ import org.apache.james.user.jcr.model.JCRUser;
 import org.apache.james.user.lib.AbstractUsersRepository;
 
 /**
- * {@link UsersRepository} implementation which stores users to a JCR {@link Repository}
- *
+ * {@link UsersRepository} implementation which stores users to a JCR
+ * {@link Repository}
  */
 public class JCRUsersRepository extends AbstractUsersRepository {
-    
-    //TODO: Add namespacing
+
+    // TODO: Add namespacing
     private static final String PASSWD_PROPERTY = "passwd";
 
     private static final String USERNAME_PROPERTY = "username";
@@ -58,9 +58,9 @@ public class JCRUsersRepository extends AbstractUsersRepository {
     private SimpleCredentials creds;
     private String workspace;
 
-    @Resource(name="jcrRepository")
+    @Resource(name = "jcrRepository")
     public void setRepository(Repository repository) {
-    	this.repository = repository;
+        this.repository = repository;
     }
 
     public void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
@@ -77,18 +77,19 @@ public class JCRUsersRepository extends AbstractUsersRepository {
         String name = ISO9075.encode(Text.escapeIllegalJcrChars(key));
         return name;
     }
-    
-    private Session login() throws RepositoryException{
-    	return repository.login(creds, workspace);
+
+    private Session login() throws RepositoryException {
+        return repository.login(creds, workspace);
     }
-    
+
     /**
-     * Get the user object with the specified user name.  Return null if no
-     * such user.
-     *
-     * @param name the name of the user to retrieve
+     * Get the user object with the specified user name. Return null if no such
+     * user.
+     * 
+     * @param name
+     *            the name of the user to retrieve
      * @return the user being retrieved, null if the user doesn't exist
-     *
+     * 
      */
     public User getUserByName(String username) {
         User user;
@@ -98,11 +99,10 @@ public class JCRUsersRepository extends AbstractUsersRepository {
                 final String name = toSafeName(username);
                 final String path = USERS_PATH + "/" + name;
                 final Node rootNode = session.getRootNode();
-                
+
                 try {
                     final Node node = rootNode.getNode(path);
-                    user = new JCRUser(node.getProperty(USERNAME_PROPERTY).getString(), 
-                            node.getProperty(PASSWD_PROPERTY).getString());
+                    user = new JCRUser(node.getProperty(USERNAME_PROPERTY).getString(), node.getProperty(PASSWD_PROPERTY).getString());
                 } catch (PathNotFoundException e) {
                     // user not found
                     user = null;
@@ -110,7 +110,7 @@ public class JCRUsersRepository extends AbstractUsersRepository {
             } finally {
                 session.logout();
             }
-            
+
         } catch (RepositoryException e) {
             if (getLogger().isInfoEnabled()) {
                 getLogger().info("Failed to add user: " + username, e);
@@ -120,12 +120,12 @@ public class JCRUsersRepository extends AbstractUsersRepository {
         return user;
     }
 
-
     /**
      * Returns the user name of the user matching name on an equalsIgnoreCase
      * basis. Returns null if no match.
-     *
-     * @param name the name to case-correct
+     * 
+     * @param name
+     *            the name to case-correct
      * @return the case-correct name of the user, null if the user doesn't exist
      */
     public String getRealName(String name) {
@@ -133,14 +133,13 @@ public class JCRUsersRepository extends AbstractUsersRepository {
     }
 
     /**
-     * Update the repository with the specified user object. A user object
-     * with this username must already exist.
-     *
+     * Update the repository with the specified user object. A user object with
+     * this username must already exist.
+     * 
      * @return true if successful.
      */
-    public void updateUser(final User user) throws UsersRepositoryException{
-        if (user != null && user instanceof JCRUser)
-        {
+    public void updateUser(final User user) throws UsersRepositoryException {
+        if (user != null && user instanceof JCRUser) {
             final JCRUser jcrUser = (JCRUser) user;
             final String userName = jcrUser.getUserName();
             try {
@@ -149,7 +148,7 @@ public class JCRUsersRepository extends AbstractUsersRepository {
                     final String name = toSafeName(userName);
                     final String path = USERS_PATH + "/" + name;
                     final Node rootNode = session.getRootNode();
-                    
+
                     try {
                         final String hashedSaltedPassword = jcrUser.getHashedSaltedPassword();
                         rootNode.getNode(path).setProperty(PASSWD_PROPERTY, hashedSaltedPassword);
@@ -163,7 +162,7 @@ public class JCRUsersRepository extends AbstractUsersRepository {
                 } finally {
                     session.logout();
                 }
-                
+
             } catch (RepositoryException e) {
                 if (getLogger().isInfoEnabled()) {
                     getLogger().info("Failed to add user: " + userName, e);
@@ -176,9 +175,10 @@ public class JCRUsersRepository extends AbstractUsersRepository {
 
     /**
      * Removes a user from the repository
-     *
-     * @param name the user to remove from the repository
-     * @throws UsersRepositoryException 
+     * 
+     * @param name
+     *            the user to remove from the repository
+     * @throws UsersRepositoryException
      */
     public void removeUser(String username) throws UsersRepositoryException {
         try {
@@ -196,7 +196,7 @@ public class JCRUsersRepository extends AbstractUsersRepository {
             } finally {
                 session.logout();
             }
-            
+
         } catch (RepositoryException e) {
             if (getLogger().isInfoEnabled()) {
                 getLogger().info("Failed to remove user: " + username, e);
@@ -208,17 +208,18 @@ public class JCRUsersRepository extends AbstractUsersRepository {
 
     /**
      * Returns whether or not this user is in the repository
-     *
-     * @param name the name to check in the repository
+     * 
+     * @param name
+     *            the name to check in the repository
      * @return whether the user is in the repository
-     * @throws UsersRepositoryException 
+     * @throws UsersRepositoryException
      */
     public boolean contains(String name) throws UsersRepositoryException {
         try {
             final Session session = login();
             try {
                 final Node rootNode = session.getRootNode();
-                final String path = USERS_PATH + "/" + toSafeName(name);                
+                final String path = USERS_PATH + "/" + toSafeName(name);
                 rootNode.getNode(path);
                 return true;
             } finally {
@@ -236,17 +237,18 @@ public class JCRUsersRepository extends AbstractUsersRepository {
         return false;
     }
 
-
     /**
      * Test if user with name 'name' has password 'password'.
-     *
-     * @param name the name of the user to be tested
-     * @param password the password to be tested
-     *
-     * @return true if the test is successful, false if the user
-     *              doesn't exist or if the password is incorrect
-     * @throws UsersRepositoryException 
-     *
+     * 
+     * @param name
+     *            the name of the user to be tested
+     * @param password
+     *            the password to be tested
+     * 
+     * @return true if the test is successful, false if the user doesn't exist
+     *         or if the password is incorrect
+     * @throws UsersRepositoryException
+     * 
      * @since James 1.2.2
      */
     public boolean test(String username, String password) throws UsersRepositoryException {
@@ -256,12 +258,11 @@ public class JCRUsersRepository extends AbstractUsersRepository {
                 final String name = toSafeName(username);
                 final String path = USERS_PATH + "/" + name;
                 final Node rootNode = session.getRootNode();
-                
+
                 try {
                     final Node node = rootNode.getNode(path);
                     final String current = node.getProperty(PASSWD_PROPERTY).getString();
-                    if (current == null || current == "")
-                    {
+                    if (current == null || current == "") {
                         return password == null || password == "";
                     }
                     final String hashPassword = JCRUser.hashPassword(username, password);
@@ -274,7 +275,7 @@ public class JCRUsersRepository extends AbstractUsersRepository {
             } finally {
                 session.logout();
             }
-            
+
         } catch (RepositoryException e) {
             if (getLogger().isInfoEnabled()) {
                 getLogger().info("Failed to search user: " + username, e);
@@ -287,9 +288,9 @@ public class JCRUsersRepository extends AbstractUsersRepository {
 
     /**
      * Returns a count of the users in the repository.
-     *
+     * 
      * @return the number of users in the repository
-     * @throws UsersRepositoryException 
+     * @throws UsersRepositoryException
      */
     public int countUsers() throws UsersRepositoryException {
         try {
@@ -298,8 +299,8 @@ public class JCRUsersRepository extends AbstractUsersRepository {
                 final Node rootNode = session.getRootNode();
                 try {
                     final Node node = rootNode.getNode(USERS_PATH);
-                    //TODO: Use query
-                    //TODO: Use namespacing to avoid unwanted nodes
+                    // TODO: Use query
+                    // TODO: Use namespacing to avoid unwanted nodes
                     NodeIterator it = node.getNodes();
                     return (int) it.getSize();
                 } catch (PathNotFoundException e) {
@@ -319,9 +320,10 @@ public class JCRUsersRepository extends AbstractUsersRepository {
 
     /**
      * List users in repository.
-     *
-     * @return Iterator over a collection of Strings, each being one user in the repository.
-     * @throws UsersRepositoryException 
+     * 
+     * @return Iterator over a collection of Strings, each being one user in the
+     *         repository.
+     * @throws UsersRepositoryException
      */
     public Iterator<String> list() throws UsersRepositoryException {
         final Collection<String> userNames = new ArrayList<String>();
@@ -331,9 +333,9 @@ public class JCRUsersRepository extends AbstractUsersRepository {
                 final Node rootNode = session.getRootNode();
                 try {
                     final Node baseNode = rootNode.getNode(USERS_PATH);
-                    //TODO: Use query
+                    // TODO: Use query
                     final NodeIterator it = baseNode.getNodes();
-                    while(it.hasNext()) {
+                    while (it.hasNext()) {
                         final Node node = it.nextNode();
                         try {
                             final String userName = node.getProperty(USERNAME_PROPERTY).getString();
@@ -352,11 +354,10 @@ public class JCRUsersRepository extends AbstractUsersRepository {
             if (getLogger().isInfoEnabled()) {
                 getLogger().info("Failed to list users", e);
             }
-            throw new UsersRepositoryException("Failed to list users",e );
+            throw new UsersRepositoryException("Failed to list users", e);
         }
         return userNames.iterator();
     }
-
 
     @Override
     protected void doAddUser(String username, String password) throws UsersRepositoryException {
@@ -381,17 +382,14 @@ public class JCRUsersRepository extends AbstractUsersRepository {
                     // TODO: path exists.
                     parent = rootNode.addNode(USERS_PATH);
                 }
-                
+
                 Node node = parent.addNode(name);
                 node.setProperty(USERNAME_PROPERTY, username);
                 final String hashedPassword;
-                if (password == null)
-                {
+                if (password == null) {
                     // Support easy password reset
                     hashedPassword = "";
-                }
-                else
-                {
+                } else {
                     hashedPassword = JCRUser.hashPassword(username, password);
                 }
                 node.setProperty(PASSWD_PROPERTY, hashedPassword);
@@ -399,7 +397,7 @@ public class JCRUsersRepository extends AbstractUsersRepository {
             } finally {
                 session.logout();
             }
-            
+
         } catch (RepositoryException e) {
             if (getLogger().isInfoEnabled()) {
                 getLogger().info("Failed to add user: " + username, e);
