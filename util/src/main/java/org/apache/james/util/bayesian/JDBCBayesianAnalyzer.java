@@ -25,7 +25,6 @@ import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import java.io.File;
@@ -85,7 +84,7 @@ extends BayesianAnalyzer {
     /**
      * Holds value of property sqlParameters.
      */
-    private Map sqlParameters = new HashMap();
+    private Map<String, String> sqlParameters = new HashMap<String, String>();
 
     /**
      * Holds value of property lastDatabaseUpdateTime.
@@ -115,7 +114,7 @@ extends BayesianAnalyzer {
      * Getter for property sqlParameters.
      * @return Value of property sqlParameters.
      */
-    public Map getSqlParameters() {
+    public Map<String, String> getSqlParameters() {
 
         return this.sqlParameters;
     }
@@ -124,7 +123,7 @@ extends BayesianAnalyzer {
      * Setter for property sqlParameters.
      * @param sqlParameters New value of property sqlParameters.
      */
-    public void setSqlParameters(Map sqlParameters) {
+    public void setSqlParameters(Map<String, String> sqlParameters) {
 
         this.sqlParameters = sqlParameters;
     }
@@ -166,7 +165,7 @@ extends BayesianAnalyzer {
             pstmt = conn.prepareStatement(sqlQueries.getSqlString("selectHamTokens", true));
             rs = pstmt.executeQuery();
             
-            Map ham = getHamTokenCounts();
+            Map<String, Integer> ham = getHamTokenCounts();
             while (rs.next()) {
                 String token = rs.getString(1);
                 int count = rs.getInt(2);
@@ -185,7 +184,7 @@ extends BayesianAnalyzer {
             pstmt = conn.prepareStatement(sqlQueries.getSqlString("selectSpamTokens", true));
             rs = pstmt.executeQuery();
             
-            Map spam = getSpamTokenCounts();
+            Map<String, Integer> spam = getSpamTokenCounts();
             while (rs.next()) {
                 String token = rs.getString(1);
                 int count = rs.getInt(2);
@@ -306,7 +305,7 @@ extends BayesianAnalyzer {
         }
     }
     
-    private void updateTokens(Connection conn, Map tokens, String insertSqlStatement, String updateSqlStatement)
+    private void updateTokens(Connection conn, Map<String, Integer> tokens, String insertSqlStatement, String updateSqlStatement)
     throws java.sql.SQLException {
         PreparedStatement insert = null;
         PreparedStatement update = null;
@@ -318,19 +317,15 @@ extends BayesianAnalyzer {
             //Used to update existing token entries.
             update = conn.prepareStatement(updateSqlStatement);
             
-            Iterator i = tokens.keySet().iterator();
-            while (i.hasNext()) {
-                String key = (String) i.next();
-                int value = ((Integer) tokens.get(key)).intValue();
-                
-                update.setInt(1, value);
-                update.setString(2, key);
+            for (Map.Entry<String, Integer> entry : tokens.entrySet()) {
+                update.setInt(1, entry.getValue());
+                update.setString(2, entry.getKey());
                 
                 //If the update affected 0 (zero) rows, then the token hasn't been
                 //encountered before, and we need to add it to the corpus.
                 if (update.executeUpdate() == 0) {
-                    insert.setString(1, key);
-                    insert.setInt(2, value);
+                    insert.setString(1, entry.getKey());
+                    insert.setInt(2, entry.getValue());
                     
                     insert.executeUpdate();
                 }

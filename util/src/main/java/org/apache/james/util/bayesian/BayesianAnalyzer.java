@@ -102,19 +102,13 @@ public class BayesianAnalyzer {
     
     /**
      * Map of ham tokens and their occurrences.
-     *
-     * String key
-     * Integer value
      */
-    private Map hamTokenCounts = new HashMap();
+    private Map<String, Integer> hamTokenCounts = new HashMap<String, Integer>();
     
     /**
      * Map of spam tokens and their occurrences.
-     *
-     * String key
-     * Integer value
      */
-    private Map spamTokenCounts = new HashMap();
+    private Map<String, Integer> spamTokenCounts = new HashMap<String, Integer>();
     
     /**
      * Number of ham messages analyzed.
@@ -132,7 +126,7 @@ public class BayesianAnalyzer {
      * String key
      * Double value
      */
-    private Map corpus = new HashMap();
+    private Map<String, Double> corpus = new HashMap<String, Double>();
     
     /**
      * Inner class for managing Token Probability Strengths during the
@@ -144,7 +138,7 @@ public class BayesianAnalyzer {
      * It implements Comparable so that it's sorting is automatic.
      */
     private class TokenProbabilityStrength
-    implements Comparable {
+    implements Comparable<TokenProbabilityStrength> {
         /**
          * Message token.
          */
@@ -163,7 +157,7 @@ public class BayesianAnalyzer {
          *
          * @return The result of the comparison (before, equal, after).
          */
-        public final int compareTo(Object anotherTokenProbabilityStrength) {
+        public final int compareTo(TokenProbabilityStrength anotherTokenProbabilityStrength) {
             int result = (int) ((((TokenProbabilityStrength) anotherTokenProbabilityStrength).strength - strength) * 1000000);
             if (result == 0) {
                 return this.token.compareTo(((TokenProbabilityStrength) anotherTokenProbabilityStrength).token);
@@ -199,14 +193,14 @@ public class BayesianAnalyzer {
      *
      * @param hamTokenCounts The new ham Token counts Map.
      */
-    public void setHamTokenCounts(Map hamTokenCounts) {
+    public void setHamTokenCounts(Map<String, Integer> hamTokenCounts) {
         this.hamTokenCounts = hamTokenCounts;
     }
     
     /**
      * Public getter for the hamTokenCounts Map.
      */
-    public Map getHamTokenCounts() {
+    public Map<String, Integer> getHamTokenCounts() {
         return this.hamTokenCounts;
     }
     
@@ -215,14 +209,14 @@ public class BayesianAnalyzer {
      *
      * @param spamTokenCounts The new spam Token counts Map.
      */
-    public void setSpamTokenCounts(Map spamTokenCounts) {
+    public void setSpamTokenCounts(Map<String, Integer> spamTokenCounts) {
         this.spamTokenCounts = spamTokenCounts;
     }
     
     /**
      * Public getter for the spamTokenCounts Map.
      */
-    public Map getSpamTokenCounts() {
+    public Map<String, Integer> getSpamTokenCounts() {
         return this.spamTokenCounts;
     }
     
@@ -283,14 +277,14 @@ public class BayesianAnalyzer {
      *
      * @param corpus The new corpus.
      */
-    public void setCorpus(Map corpus) {
+    public void setCorpus(Map<String, Double> corpus) {
         this.corpus = corpus;
     }
     
     /**
      * Public getter for corpus.
      */
-    public Map getCorpus() {
+    public Map<String, Double> getCorpus() {
         return this.corpus;
     }
     
@@ -299,16 +293,16 @@ public class BayesianAnalyzer {
      */
     public void buildCorpus() {
         //Combine the known ham & spam tokens.
-        Set set = new HashSet(hamTokenCounts.size() + spamTokenCounts.size());
+        Set<String> set = new HashSet<String>(hamTokenCounts.size() + spamTokenCounts.size());
         set.addAll(hamTokenCounts.keySet());
         set.addAll(spamTokenCounts.keySet());
-        Map tempCorpus = new HashMap(set.size());
+        Map<String, Double> tempCorpus = new HashMap<String, Double>(set.size());
         
         //Iterate through all the tokens and compute their new
         //individual probabilities.
-        Iterator i = set.iterator();
+        Iterator<String> i = set.iterator();
         while (i.hasNext()) {
-            String token = (String) i.next();
+            String token = i.next();
             tempCorpus.put(token, new Double(computeProbability(token)));
         }
         setCorpus(tempCorpus);
@@ -345,15 +339,15 @@ public class BayesianAnalyzer {
     public double computeSpamProbability(Reader stream)
     throws java.io.IOException {
         //Build a set of the tokens in the Stream.
-        Set tokens = parse(stream);
+        Set<String> tokens = parse(stream);
         
         // Get the corpus to use in this run
         // A new corpus may be being built in the meantime
-        Map workCorpus = getCorpus();
+        Map<String, Double> workCorpus = getCorpus();
         
         //Assign their probabilities from the Corpus (using an additional
         //calculation to determine spamminess).
-        SortedSet tokenProbabilityStrengths = getTokenProbabilityStrengths(tokens, workCorpus);
+        SortedSet<TokenProbabilityStrength> tokenProbabilityStrengths = getTokenProbabilityStrengths(tokens, workCorpus);
         
         //Compute and return the overall probability that the
         //stream is SPAM.
@@ -367,7 +361,7 @@ public class BayesianAnalyzer {
      * @param stream
      * @param target
      */
-    private void addTokenOccurrences(Reader stream, Map target)
+    private void addTokenOccurrences(Reader stream, Map<String, Integer> target)
     throws java.io.IOException {
         String token;
         String header = "";
@@ -418,9 +412,9 @@ public class BayesianAnalyzer {
      * @param stream
      * @return Set
      */
-    private Set parse(Reader stream)
+    private Set<String> parse(Reader stream)
     throws java.io.IOException {
-        Set tokens = new HashSet();
+        Set<String> tokens = new HashSet<String>();
         String token;
         String header = "";
         
@@ -594,11 +588,11 @@ public class BayesianAnalyzer {
      * @param workCorpus
      * @return  SortedSet of TokenProbabilityStrength objects.
      */
-    private SortedSet getTokenProbabilityStrengths(Set tokens, Map workCorpus) {
+    private SortedSet<TokenProbabilityStrength> getTokenProbabilityStrengths(Set<String> tokens, Map<String, Double> workCorpus) {
         //Convert to a SortedSet of token probability strengths.
-        SortedSet tokenProbabilityStrengths = new TreeSet();
+        SortedSet<TokenProbabilityStrength> tokenProbabilityStrengths = new TreeSet<TokenProbabilityStrength>();
         
-        Iterator i = tokens.iterator();
+        Iterator<String> i = tokens.iterator();
         while (i.hasNext()) {
             TokenProbabilityStrength tps = new TokenProbabilityStrength();
             
@@ -614,8 +608,8 @@ public class BayesianAnalyzer {
                 tps.strength = Math.abs(0.5 - DEFAULT_TOKEN_PROBABILITY);
                 boolean isTokenDegeneratedFound = false;
                 
-                Collection degeneratedTokens = buildDegenerated(tps.token);
-                Iterator iDegenerated = degeneratedTokens.iterator();
+                Collection<String> degeneratedTokens = buildDegenerated(tps.token);
+                Iterator<String> iDegenerated = degeneratedTokens.iterator();
                 String tokenDegenerated = null;
                 double strengthDegenerated;
                 while (iDegenerated.hasNext()) {
@@ -644,8 +638,8 @@ public class BayesianAnalyzer {
         return tokenProbabilityStrengths;
     }
     
-    private Collection buildDegenerated(String fullToken) {
-        ArrayList tokens = new ArrayList();
+    private Collection<String> buildDegenerated(String fullToken) {
+        ArrayList<String> tokens = new ArrayList<String>();
         String header;
         String token;
         String tokenLower;
@@ -701,14 +695,14 @@ public class BayesianAnalyzer {
      * @param workCorpus
      * @return  Computed spamminess.
      */
-    private double computeOverallProbability(SortedSet tokenProbabilityStrengths, Map workCorpus) {
+    private double computeOverallProbability(SortedSet<TokenProbabilityStrength> tokenProbabilityStrengths, Map<String, Double> workCorpus) {
         double p = 1.0;
         double np = 1.0;
         double tempStrength = 0.5;
         int count = MAX_INTERESTING_TOKENS;
-        Iterator iterator = tokenProbabilityStrengths.iterator();
+        Iterator<TokenProbabilityStrength> iterator = tokenProbabilityStrengths.iterator();
         while ((iterator.hasNext()) && (count-- > 0 || tempStrength >= INTERESTINGNESS_THRESHOLD)) {
-            TokenProbabilityStrength tps = (TokenProbabilityStrength) iterator.next();
+            TokenProbabilityStrength tps = iterator.next();
             tempStrength = tps.strength;
             
             //      System.out.println(tps);
