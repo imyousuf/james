@@ -24,19 +24,18 @@ import org.apache.james.mailbox.MailboxManager;
 
 /**
  * Allow to copy {@link MailboxManager} contents from one to the other via JMX
- * 
- *
  */
 public interface MailboxCopierManagementMBean {
 
     /**
-     * Return a {@link Map} which contains the bean name of the registered {@link MailboxManager} instances as keys
-     * and the classname of them as values
+     * Return a {@link Map} which contains the bean name of the registered
+     * {@link MailboxManager} instances as keys and the classname of them as
+     * values
      * 
      * @return managers
      */
-    Map<String,String> getMailboxManagerBeans();
-    
+    Map<String, String> getMailboxManagerBeans();
+
     /**
      * Copy from srcBean to dstBean all messages
      * 
@@ -45,5 +44,5 @@ public interface MailboxCopierManagementMBean {
      * @return true if successful, false otherwise
      */
     void copy(String srcBean, String dstBean) throws Exception;
-    
+
 }

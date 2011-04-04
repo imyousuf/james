@@ -21,7 +21,6 @@ package org.apache.james.mailrepository.api;
 
 import java.util.List;
 
-
 public interface MailRepositoryStore {
 
     /**
@@ -32,20 +31,21 @@ public interface MailRepositoryStore {
      * @throws MailRepositoryStoreException
      */
     MailRepository select(String url) throws MailRepositoryStoreException;
-    
+
     /**
-     * Return a {@link List} which contains all urls of the selected {@link MailRepository}'s
+     * Return a {@link List} which contains all urls of the selected
+     * {@link MailRepository}'s
      * 
      * @return urls
      */
     List<String> getUrls();
-    
+
     @SuppressWarnings("serial")
     class MailRepositoryStoreException extends Exception {
         public MailRepositoryStoreException(String msg, Throwable t) {
             super(msg, t);
         }
-        
+
         public MailRepositoryStoreException(String msg) {
             super(msg);
         }

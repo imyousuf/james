@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.repository.file;
 
 import java.io.IOException;
@@ -28,38 +26,28 @@ import java.io.ObjectStreamClass;
 import java.io.StreamCorruptedException;
 
 /**
- * A special ObjectInputStream to handle highly transient classes hosted
- * by Avalon components that are juggling many classloaders.
- *
- * @version $Revision$ $Date$
+ * A special ObjectInputStream to handle highly transient classes hosted by
+ * Avalon components that are juggling many classloaders.
+ * 
+ * @version $Revision$ $Date: 2010-12-16 09:20:25 +0100 (Thu, 16 Dec
+ *          2010) $
  */
-public class ClassLoaderObjectInputStream
-    extends ObjectInputStream
-{
+public class ClassLoaderObjectInputStream extends ObjectInputStream {
     private ClassLoader m_classLoader;
 
-    public ClassLoaderObjectInputStream( final ClassLoader classLoader,
-                                         final InputStream inputStream )
-        throws IOException, StreamCorruptedException
-    {
-        super( inputStream );
+    public ClassLoaderObjectInputStream(final ClassLoader classLoader, final InputStream inputStream) throws IOException, StreamCorruptedException {
+        super(inputStream);
         m_classLoader = classLoader;
     }
 
-    protected Class resolveClass( final ObjectStreamClass objectStreamClass )
-        throws IOException, ClassNotFoundException
-    {
-        final Class clazz =
-            Class.forName( objectStreamClass.getName(), false, m_classLoader );
+    protected Class resolveClass(final ObjectStreamClass objectStreamClass) throws IOException, ClassNotFoundException {
+        final Class clazz = Class.forName(objectStreamClass.getName(), false, m_classLoader);
 
-        if( null != clazz )
-        {
+        if (null != clazz) {
             return clazz; // the classloader knows of the class
-        }
-        else
-        {
+        } else {
             // classloader knows not of class, let the super classloader do it
-            return super.resolveClass( objectStreamClass );
+            return super.resolveClass(objectStreamClass);
         }
     }
 }

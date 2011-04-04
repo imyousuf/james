@@ -29,26 +29,27 @@ import org.slf4j.LoggerFactory;
 /**
  * Bootstraps James using a Spring container.
  */
-public class Main implements Daemon{
+public class Main implements Daemon {
 
     private static Logger log = LoggerFactory.getLogger(Main.class.getName());
     private JamesServerApplicationContext context;
-    
+
     public static void main(String[] args) throws Exception {
-        
+
         long start = Calendar.getInstance().getTimeInMillis();
-        
+
         Main main = new Main();
         main.init(null);
-        
+
         long end = Calendar.getInstance().getTimeInMillis();
 
-        log.info("Apache James Server is successfully started in " + (end-start) + " milliseconds.");
-        
+        log.info("Apache James Server is successfully started in " + (end - start) + " milliseconds.");
+
     }
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.commons.daemon.Daemon#destroy()
      */
     public void destroy() {
@@ -56,24 +57,29 @@ public class Main implements Daemon{
 
     /*
      * (non-Javadoc)
-     * @see org.apache.commons.daemon.Daemon#init(org.apache.commons.daemon.DaemonContext)
+     * 
+     * @see
+     * org.apache.commons.daemon.Daemon#init(org.apache.commons.daemon.DaemonContext
+     * )
      */
     public void init(DaemonContext arg0) throws Exception {
         context = new JamesServerApplicationContext(new String[] { "context/james-server-context.xml" });
-        context.registerShutdownHook();       
+        context.registerShutdownHook();
         context.start();
     }
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.commons.daemon.Daemon#start()
      */
     public void start() throws Exception {
-       context.start();
+        context.start();
     }
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.commons.daemon.Daemon#stop()
      */
     public void stop() throws Exception {

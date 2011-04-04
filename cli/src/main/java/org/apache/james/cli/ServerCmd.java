@@ -21,7 +21,6 @@ package org.apache.james.cli;
 import java.io.IOException;
 import java.io.PrintStream;
 
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -37,7 +36,6 @@ public class ServerCmd {
     private static final String PORT_OPT_SHORT = "p";
     private static final int defaultPort = 9999;
     private static Options options = null;
-
 
     static {
         options = new Options();

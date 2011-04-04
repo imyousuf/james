@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.repository.file;
 
 import java.io.InputStream;
@@ -29,128 +27,108 @@ import java.io.OutputStream;
 import org.apache.james.repository.api.ObjectRepository;
 
 /**
- * This is a simple implementation of persistent object store using
- * object serialization on the file system.
- *
+ * This is a simple implementation of persistent object store using object
+ * serialization on the file system.
  */
-public class FilePersistentObjectRepository
-    extends AbstractFileRepository
-    implements ObjectRepository
-{
+public class FilePersistentObjectRepository extends AbstractFileRepository implements ObjectRepository {
     /*
      * (non-Javadoc)
-     * @see org.apache.james.repository.file.AbstractFileRepository#getExtensionDecorator()
+     * 
+     * @see
+     * org.apache.james.repository.file.AbstractFileRepository#getExtensionDecorator
+     * ()
      */
-    protected String getExtensionDecorator()
-    {
+    protected String getExtensionDecorator() {
         return ".FileObjectStore";
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.repository.api.ObjectRepository#get(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.repository.api.ObjectRepository#get(java.lang.String)
      */
-    public synchronized Object get( final String key )
-    {
-        try
-        {
-            final InputStream inputStream = getInputStream( key );
+    public synchronized Object get(final String key) {
+        try {
+            final InputStream inputStream = getInputStream(key);
 
-            if( inputStream == null )
-                  throw new NullPointerException("Null input stream returned for key: " + key );
-            try
-            {
-                final ObjectInputStream stream = new ObjectInputStream( inputStream );
+            if (inputStream == null)
+                throw new NullPointerException("Null input stream returned for key: " + key);
+            try {
+                final ObjectInputStream stream = new ObjectInputStream(inputStream);
 
-                if( stream == null )
-                  throw new NullPointerException("Null stream returned for key: " + key );
+                if (stream == null)
+                    throw new NullPointerException("Null stream returned for key: " + key);
 
                 final Object object = stream.readObject();
-                if( DEBUG )
-                {
-                    getLogger().debug( "returning object " + object + " for key " + key );
+                if (DEBUG) {
+                    getLogger().debug("returning object " + object + " for key " + key);
                 }
                 return object;
-            }
-            finally
-            {
+            } finally {
                 inputStream.close();
             }
-        }
-        catch( final Throwable e )
-        {
-            throw new RuntimeException(
-              "Exception caught while retrieving an object, cause: " + e.toString() );
+        } catch (final Throwable e) {
+            throw new RuntimeException("Exception caught while retrieving an object, cause: " + e.toString());
         }
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.repository.api.ObjectRepository#get(java.lang.String, java.lang.ClassLoader)
+     * 
+     * @see
+     * org.apache.james.repository.api.ObjectRepository#get(java.lang.String,
+     * java.lang.ClassLoader)
      */
-    public synchronized Object get( final String key, final ClassLoader classLoader )
-    {
-        try
-        {
-            final InputStream inputStream = getInputStream( key );
+    public synchronized Object get(final String key, final ClassLoader classLoader) {
+        try {
+            final InputStream inputStream = getInputStream(key);
 
-            if( inputStream == null )
-                  throw new NullPointerException("Null input stream returned for key: " + key );
+            if (inputStream == null)
+                throw new NullPointerException("Null input stream returned for key: " + key);
 
-            try
-            {
-                final ObjectInputStream stream = new ClassLoaderObjectInputStream( classLoader, inputStream );
+            try {
+                final ObjectInputStream stream = new ClassLoaderObjectInputStream(classLoader, inputStream);
 
-                if( stream == null )
-                  throw new NullPointerException("Null stream returned for key: " + key );
+                if (stream == null)
+                    throw new NullPointerException("Null stream returned for key: " + key);
 
                 final Object object = stream.readObject();
 
-                if( DEBUG )
-                {
-                    getLogger().debug( "returning object " + object + " for key " + key );
+                if (DEBUG) {
+                    getLogger().debug("returning object " + object + " for key " + key);
                 }
                 return object;
-            }
-            finally
-            {
+            } finally {
                 inputStream.close();
             }
-        }
-        catch( final Throwable e )
-        {
-            throw new RuntimeException( "Exception caught while retrieving an object: " + e );
+        } catch (final Throwable e) {
+            throw new RuntimeException("Exception caught while retrieving an object: " + e);
         }
 
     }
 
-    
     /*
      * (non-Javadoc)
-     * @see org.apache.james.repository.api.ObjectRepository#put(java.lang.String, java.lang.Object)
+     * 
+     * @see
+     * org.apache.james.repository.api.ObjectRepository#put(java.lang.String,
+     * java.lang.Object)
      */
-    public synchronized void put( final String key, final Object value )
-    {
-        try
-        {
-            final OutputStream outputStream = getOutputStream( key );
+    public synchronized void put(final String key, final Object value) {
+        try {
+            final OutputStream outputStream = getOutputStream(key);
 
-            try
-            {
-                final ObjectOutputStream stream = new ObjectOutputStream( outputStream );
-                stream.writeObject( value );
-                if( DEBUG ) getLogger().debug( "storing object " + value + " for key " + key );
-            }
-            finally
-            {
+            try {
+                final ObjectOutputStream stream = new ObjectOutputStream(outputStream);
+                stream.writeObject(value);
+                if (DEBUG)
+                    getLogger().debug("storing object " + value + " for key " + key);
+            } finally {
                 outputStream.close();
             }
-        }
-        catch( final Exception e )
-        {
-            throw new RuntimeException( "Exception caught while storing an object: " + e );
+        } catch (final Exception e) {
+            throw new RuntimeException("Exception caught while storing an object: " + e);
         }
     }
 

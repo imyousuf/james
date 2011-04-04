@@ -29,7 +29,7 @@ import java.io.OutputStream;
 import org.apache.james.repository.api.StreamRepository;
 
 /**
- * Implementation of a StreamRepository to a File.
+ * Implementation of a StreamRepository to a File.<br>
  * TODO: -retieve(String key) should return a FilterInputStream to allow
  * mark and reset methods. (working not like BufferedInputStream!!!)
  *

@@ -44,71 +44,73 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 
 /**
- *
- * {@link ProtocolHandlerChain} implementation which will parse a configuration file and 
- * register all configured handlers in the Spring {@link ConfigurableListableBeanFactory} 
- * instance.
  * 
- * Here the @class attribute of the handler configuration will be used as bean name prefixed 
- * with the value of {@link #setBeanName(String)} + :
+ * {@link ProtocolHandlerChain} implementation which will parse a configuration
+ * file and register all configured handlers in the Spring
+ * {@link ConfigurableListableBeanFactory} instance.
  * 
- * This implementation take also care of wire the {@link ExtensibleHandler} 
- * for which it is responsible.
+ * Here the @class attribute of the handler configuration will be used as bean
+ * name prefixed with the value of {@link #setBeanName(String)} + :
+ * 
+ * This implementation take also care of wire the {@link ExtensibleHandler} for
+ * which it is responsible.
  */
 @SuppressWarnings("unchecked")
 public abstract class ProtocolHandlerChainFactoryPostProcessor implements ProtocolHandlerChain, BeanFactoryPostProcessor {
 
     private ConfigurableListableBeanFactory beanFactory;
-    
+
     private String coreHandlersPackage;
-    
+
     private List<String> handlers = new LinkedList<String>();
-    
+
     private String beanname;
 
     private String jmxHandlersPackage;
-    
+
     /**
-     * Lookup the {@link HierarchicalConfiguration} for the beanname which was 
-     * configured via {@link #setBeanName(String)} and parse it for handlers which should be 
-     * registered in the {@link ConfigurableListableBeanFactory}. 
+     * Lookup the {@link HierarchicalConfiguration} for the beanname which was
+     * configured via {@link #setBeanName(String)} and parse it for handlers
+     * which should be registered in the {@link ConfigurableListableBeanFactory}
+     * .
      */
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
         this.beanFactory = beanFactory;
-        
+
         ConfigurationProvider confProvider = beanFactory.getBean(ConfigurationProvider.class);
-        
+
         LogProvider logProvider = beanFactory.getBean(LogProvider.class);
-        
+
         try {
 
             Logger log = logProvider.getLog(beanname);
-            
+
             HierarchicalConfiguration config = confProvider.getConfiguration(beanname);
             String jmxName = config.getString("jmxName", beanname);
             HierarchicalConfiguration handlerchainConfig = config.configurationAt("handlerchain");
             List<org.apache.commons.configuration.HierarchicalConfiguration> children = handlerchainConfig.configurationsAt("handler");
 
-            // check if the coreHandlersPackage was specified inte hconfig if not add the default 
+            // check if the coreHandlersPackage was specified inte hconfig if
+            // not add the default
             if (handlerchainConfig.getString("[@coreHandlersPackage]") == null)
                 handlerchainConfig.addProperty("[@coreHandlersPackage]", coreHandlersPackage);
 
             String coreCmdName = handlerchainConfig.getString("[@coreHandlersPackage]");
-            
+
             BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
 
             String coreCmdBeanName = getBeanName(coreCmdName);
 
-            // now register the HandlerPackage 
+            // now register the HandlerPackage
             BeanDefinition def = BeanDefinitionBuilder.genericBeanDefinition(coreCmdName).setLazyInit(false).getBeanDefinition();
             registry.registerBeanDefinition(coreCmdBeanName, def);
             HandlersPackage handlersPackage = beanFactory.getBean(coreCmdBeanName, HandlersPackage.class);
 
             registerHandlersPackage(handlersPackage, null, children);
-          
+
             String jmxCmdName = jmxHandlersPackage;
-            
+
             if (handlerchainConfig.getBoolean("[@enableJmx]", true)) {
                 String jmxCmdBeanName = getBeanName(jmxCmdName);
 
@@ -121,7 +123,6 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
                 builder.addProperty("jmxName", jmxName);
                 registerHandlersPackage(jmxPackage, builder, children);
             }
-            
 
             ClassLoader loader = beanFactory.getBeanClassLoader();
             for (int i = 0; i < children.size(); i++) {
@@ -134,7 +135,7 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
 
                         String handlerBeanName = getBeanName(className);
 
-                        Class<?> clazz =  loader.loadClass(className);
+                        Class<?> clazz = loader.loadClass(className);
                         if (Configurable.class.isAssignableFrom(clazz)) {
                             confProvider.registerConfiguration(handlerBeanName, hConf);
 
@@ -142,28 +143,27 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
                         if (LogEnabled.class.isAssignableFrom(clazz)) {
                             logProvider.registerLog(handlerBeanName, log);
                         }
-                       
 
-                        // now register the BeanDefinition on the context and store the beanname for later usage
+                        // now register the BeanDefinition on the context and
+                        // store the beanname for later usage
                         BeanDefinition handlerDef = BeanDefinitionBuilder.genericBeanDefinition(className).getBeanDefinition();
                         registry.registerBeanDefinition(handlerBeanName, handlerDef);
-                        
+
                         handlers.add(handlerBeanName);
                     }
                 } else {
                     throw new FatalBeanException("Missing @class attribute in configuration: " + ConfigurationUtils.toString(hConf));
                 }
             }
-            
-            
+
         } catch (ConfigurationException e) {
             throw new FatalBeanException("Unable to load configuration for bean " + beanname, e);
         } catch (ClassNotFoundException ex) {
             throw new FatalBeanException("Unable to load configuration for bean " + beanname, ex);
         }
 
-        
     }
+
     private void registerHandlersPackage(HandlersPackage handlersPackage, HierarchicalConfiguration handlerConfig, List<HierarchicalConfiguration> children) {
         List<String> c = handlersPackage.getHandlers();
 
@@ -191,13 +191,15 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
     public void setJmxHandlersPackage(String jmxHandlersPackage) {
         this.jmxHandlersPackage = jmxHandlersPackage;
     }
-    
+
     /**
      * Return a DefaultConfiguration build on the given command name and
      * classname.
      * 
-     * @param cmdName The command name
-     * @param className The class name
+     * @param cmdName
+     *            The command name
+     * @param className
+     *            The class name
      * @return DefaultConfiguration
      * @throws ConfigurationException
      */
@@ -218,7 +220,10 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.api.ProtocolHandlerChain#getHandlers(java.lang.Class)
+     * 
+     * @see
+     * org.apache.james.protocols.api.ProtocolHandlerChain#getHandlers(java.
+     * lang.Class)
      */
     public <T> LinkedList<T> getHandlers(Class<T> type) {
         LinkedList<T> classHandlers = new LinkedList<T>();
@@ -231,10 +236,10 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
                 classHandlers.add(beanFactory.getBean(name, type));
             }
         }
-        
+
         return classHandlers;
     }
-    
+
     public void setBeanName(String beanname) {
         this.beanname = beanname;
     }

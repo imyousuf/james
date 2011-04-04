@@ -22,8 +22,6 @@ import org.slf4j.Logger;
 
 /**
  * Provide {@link Logger} instances for Beans
- * 
- *
  */
 public interface LogProvider {
 
@@ -34,9 +32,10 @@ public interface LogProvider {
      * @return log
      */
     Logger getLog(String beanName);
-    
+
     /**
-     * Register a {@link Logger} for a beanName. The registered Log will get returned by {@link #getLog(String)}
+     * Register a {@link Logger} for a beanName. The registered Log will get
+     * returned by {@link #getLog(String)}
      * 
      * @param beanName
      * @param log

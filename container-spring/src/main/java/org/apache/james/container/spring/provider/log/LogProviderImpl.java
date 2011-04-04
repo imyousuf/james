@@ -33,8 +33,6 @@ import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Provide a Log object for components
- * 
- *
  */
 public class LogProviderImpl implements LogProvider, InitializingBean, LogProviderManagementMBean {
 
@@ -52,19 +50,20 @@ public class LogProviderImpl implements LogProvider, InitializingBean, LogProvid
         return LoggerFactory.getLogger(loggerName);
     }
 
-
-    public void setLogMappings(Map<String,String> logs) {
+    public void setLogMappings(Map<String, String> logs) {
         this.logs = logs;
     }
 
     /*
      * (non-Javadoc)
-     * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
+     * 
+     * @see
+     * org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
      */
     public void afterPropertiesSet() throws Exception {
         if (logs != null) {
             Iterator<String> it = logs.keySet().iterator();
-            while(it.hasNext()) {
+            while (it.hasNext()) {
                 String key = it.next();
                 String value = logs.get(key);
                 registerLog(key, createLog(PREFIX + value));
@@ -74,7 +73,10 @@ public class LogProviderImpl implements LogProvider, InitializingBean, LogProvid
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.container.spring.lifecycle.LogProvider#getLog(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.container.spring.lifecycle.LogProvider#getLog(java.lang
+     * .String)
      */
     public Logger getLog(String name) {
         logMap.putIfAbsent(name, createLog(PREFIX + name));
@@ -83,49 +85,59 @@ public class LogProviderImpl implements LogProvider, InitializingBean, LogProvid
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.container.spring.lifecycle.LogProvider#registerLog(java.lang.String, org.slf4j.Logger)
+     * 
+     * @see
+     * org.apache.james.container.spring.lifecycle.LogProvider#registerLog(java
+     * .lang.String, org.slf4j.Logger)
      */
     public void registerLog(String beanName, Logger log) {
         logMap.put(beanName, log);
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.container.spring.provider.log.LogProviderManagementMBean#getSupportedLogLevels()
+     * 
+     * @see
+     * org.apache.james.container.spring.provider.log.LogProviderManagementMBean
+     * #getSupportedLogLevels()
      */
     public List<String> getSupportedLogLevels() {
         return Arrays.asList("DEBUG", "INFO", "WARN", "ERROR", "OFF");
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.container.spring.provider.log.LogProviderManagementMBean#getLogLevels()
+     * 
+     * @see
+     * org.apache.james.container.spring.provider.log.LogProviderManagementMBean
+     * #getLogLevels()
      */
     public Map<String, String> getLogLevels() {
         TreeMap<String, String> levels = new TreeMap<String, String>();
         Iterator<String> names = logMap.keySet().iterator();
-        while(names.hasNext()) {
+        while (names.hasNext()) {
             String name = names.next();
             String level = getLogLevel(name);
-            if (level != null) levels.put(name, level);
+            if (level != null)
+                levels.put(name, level);
         }
         return levels;
 
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.container.spring.provider.log.LogProviderManagementMBean#getLogLevel(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.container.spring.provider.log.LogProviderManagementMBean
+     * #getLogLevel(java.lang.String)
      */
     public String getLogLevel(String component) {
         Logger log = logMap.get(component);
         if (log == null) {
-            throw new IllegalArgumentException("No Log for component "+ component);
+            throw new IllegalArgumentException("No Log for component " + component);
         }
-        org.apache.log4j.Logger logger = ((org.apache.log4j.Logger)log).getRootLogger();
+        org.apache.log4j.Logger logger = ((org.apache.log4j.Logger) log).getRootLogger();
         if (logger == null || logger.getLevel() == null) {
             return null;
         }
@@ -133,17 +145,19 @@ public class LogProviderImpl implements LogProvider, InitializingBean, LogProvid
         return level.toString();
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.container.spring.provider.log.LogProviderManagementMBean#setLogLevel(java.lang.String, java.lang.String)
+     * 
+     * @see
+     * org.apache.james.container.spring.provider.log.LogProviderManagementMBean
+     * #setLogLevel(java.lang.String, java.lang.String)
      */
     public void setLogLevel(String component, String loglevel) {
         if (getSupportedLogLevels().contains(loglevel) == false) {
             throw new IllegalArgumentException("Not supported loglevel given");
         } else {
-            ((org.apache.log4j.Logger)logMap.get(component)).getRootLogger().setLevel(Level.toLevel(loglevel));
+            ((org.apache.log4j.Logger) logMap.get(component)).getRootLogger().setLevel(Level.toLevel(loglevel));
         }
     }
-    
+
 }

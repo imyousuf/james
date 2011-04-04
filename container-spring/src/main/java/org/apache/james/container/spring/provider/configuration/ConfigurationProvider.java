@@ -27,21 +27,26 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 public interface ConfigurationProvider {
 
     /**
-     * Register a {@link HierarchicalConfiguration} for a bean name.
+     * Register a {@link HierarchicalConfiguration} for a bean name.<br>
      * It is not mandatory to use the registerConfiguration to have the
-     * configuration available as the {@link getConfiguration} method may 
-     * load it based on conventions (naming,...).
+     * configuration available as the {@link getConfiguration} method may load
+     * it based on conventions (naming,...).
      * 
-     * @param beanName The bean name for which the configuration has to be registered.
-     * @param conf The hierarchical configuration to register for the bean name. 
+     * @param beanName
+     *            The bean name for which the configuration has to be
+     *            registered.
+     * @param conf
+     *            The hierarchical configuration to register for the bean name.
      */
     void registerConfiguration(String beanName, HierarchicalConfiguration conf);
 
     /**
-     * Load and return the configuration for the bean with the given name.
-     * The configuration may already be loaded from a previous method invocation 
-     * or from a previous configuration registration via the {@link registerConfiguation}.
-     * This method may implement convention based configuration loading based on naming,...
+     * Load and return the configuration for the bean with the given name. The
+     * configuration may already be loaded from a previous method invocation or
+     * from a previous configuration registration via the
+     * {@link registerConfiguation}.<br>
+     * This method may implement convention based configuration loading based on
+     * naming,...
      * 
      * @param beanName
      * @return config

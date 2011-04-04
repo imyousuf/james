@@ -48,5 +48,4 @@ public class LogEnabledBeanPostProcessor extends AbstractLifecycleBeanPostProces
         // Do nothing.
     }
 
- 
 }

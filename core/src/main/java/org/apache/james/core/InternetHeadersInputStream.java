@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.core;
 
 import java.io.IOException;
@@ -29,27 +27,27 @@ import java.util.Enumeration;
 import javax.mail.internet.InternetHeaders;
 
 /**
- * Provide an {@link InputStream} over an {@link InternetHeaders} instance. When the end of {@link InternetHeaders} are reached a {@link #LINE_SEPERATOR} is append
- * 
- *
+ * Provide an {@link InputStream} over an {@link InternetHeaders} instance. When
+ * the end of {@link InternetHeaders} are reached a {@link #LINE_SEPERATOR} is
+ * append
  */
-public class InternetHeadersInputStream extends InputStream{
+public class InternetHeadersInputStream extends InputStream {
 
     private final static String LINE_SEPERATOR = "\r\n";
-    
+
     private Enumeration<String> headerLines;
     private byte[] currLine;
     private int pos = 0;
-    
+
     @SuppressWarnings("unchecked")
     public InternetHeadersInputStream(InternetHeaders headers) {
         this(headers.getAllHeaderLines());
     }
-    
+
     public InternetHeadersInputStream(Enumeration<String> headerLines) {
         this.headerLines = headerLines;
     }
-    
+
     @Override
     public int read() throws IOException {
         if (currLine == null || pos == currLine.length) {
@@ -67,11 +65,11 @@ public class InternetHeadersInputStream extends InputStream{
      * 
      * @throws IOException
      */
-    private boolean readNextLine() throws IOException{
+    private boolean readNextLine() throws IOException {
         if (headerLines.hasMoreElements()) {
             try {
                 pos = 0;
-                String line =  (headerLines.nextElement() + LINE_SEPERATOR);
+                String line = (headerLines.nextElement() + LINE_SEPERATOR);
                 // Add seperator to show that headers are complete
                 if (headerLines.hasMoreElements() == false) {
                     line += LINE_SEPERATOR;
@@ -86,11 +84,10 @@ public class InternetHeadersInputStream extends InputStream{
             return false;
         }
     }
-    
+
     @Override
     public void close() throws IOException {
         currLine = null;
     }
-    
-    
+
 }

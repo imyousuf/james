@@ -30,13 +30,15 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 public class ProtocolHandlerChainPostProcessor extends ProtocolHandlerChainFactoryPostProcessor implements BeanPostProcessor {
 
     /**
-     * Check if the bean was registered within the instance and if so see if it is an {@link ExtensibleHandler} implementation
+     * Check if the bean was registered within the instance and if so see if it
+     * is an {@link ExtensibleHandler} implementation
      * 
-     * If thats the case it will do all the needed wiring 
+     * If thats the case it will do all the needed wiring
      */
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        
-        // check if ths instance is responsible for the bean and if so if the bean is an instance of ExtensibleHandler
+
+        // check if ths instance is responsible for the bean and if so if the
+        // bean is an instance of ExtensibleHandler
         if (getHandlers().contains(beanName) && bean instanceof ExtensibleHandler) {
             final ExtensibleHandler extensibleHandler = (ExtensibleHandler) bean;
             final List<Class<?>> markerInterfaces = extensibleHandler.getMarkerInterfaces();
@@ -51,7 +53,7 @@ public class ProtocolHandlerChainPostProcessor extends ProtocolHandlerChainFacto
                 }
             }
         }
-        
+
         return bean;
     }
 

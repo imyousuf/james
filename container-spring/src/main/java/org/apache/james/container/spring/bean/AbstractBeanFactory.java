@@ -24,18 +24,18 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 /**
- * Simple abstract base class which BeanFactory, FactoryBeanPostProcessors 
- * and BeanPostProcessors implementations should 
- * extend if they want to access the context's beanFactory.
+ * Simple abstract base class which BeanFactory, FactoryBeanPostProcessors and
+ * BeanPostProcessors implementations should extend if they want to access the
+ * context's beanFactory.
  */
 public abstract class AbstractBeanFactory implements BeanFactoryAware {
 
     private ConfigurableListableBeanFactory beanFactory;
-    
+
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         this.beanFactory = (ConfigurableListableBeanFactory) beanFactory;
     }
-    
+
     public ConfigurableListableBeanFactory getBeanFactory() {
         return beanFactory;
     }

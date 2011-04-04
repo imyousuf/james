@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.core;
 
 import org.apache.james.lifecycle.api.Disposable;
@@ -47,22 +45,31 @@ import java.util.Iterator;
 import java.util.UUID;
 
 /**
- * <P>Wraps a MimeMessage adding routing information (from SMTP) and some simple
- * API enhancements.</P>
- * <P>From James version > 2.2.0a8 "mail attributes" have been added.
- * Backward and forward compatibility is supported:
- * messages stored in file repositories <I>without</I> attributes by James version <= 2.2.0a8
- * will be processed by later versions as having an empty attributes hashmap;
- * messages stored in file repositories <I>with</I> attributes by James version > 2.2.0a8
- * will be processed by previous versions, ignoring the attributes.</P>
- *
- * @version CVS $Revision$ $Date$
+ * <p>
+ * Wraps a MimeMessage adding routing information (from SMTP) and some simple
+ * API enhancements.
+ * </p>
+ * <p>
+ * From James version > 2.2.0a8 "mail attributes" have been added. Backward and
+ * forward compatibility is supported:
+ * <ul>
+ * <li>messages stored in file repositories <i>without</i> attributes by James
+ * version <= 2.2.0a8 will be processed by later versions as having an empty
+ * attributes hashmap;</li>
+ * <li>messages stored in file repositories <i>with</i> attributes by James
+ * version > 2.2.0a8 will be processed by previous versions, ignoring the
+ * attributes.</li>
+ * </ul>
+ * </p>
+ * 
+ * @version CVS $Revision$ $Date: 2010-12-16 15:18:27 +0100 (Thu, 16
+ *          Dec 2010) $
  */
 public class MailImpl implements Disposable, Mail {
-    
+
     /**
-     * We hardcode the serialVersionUID so that from James 1.2 on,
-     * MailImpl will be deserializable (so your mail doesn't get lost)
+     * We hardcode the serialVersionUID so that from James 1.2 on, MailImpl will
+     * be deserializable (so your mail doesn't get lost)
      */
     public static final long serialVersionUID = -4289663364703986260L;
     /**
@@ -105,6 +112,7 @@ public class MailImpl implements Disposable, Mail {
      * Attributes added to this MailImpl instance
      */
     private HashMap attributes;
+
     /**
      * A constructor that creates a new, uninitialized MailImpl
      */
@@ -112,13 +120,17 @@ public class MailImpl implements Disposable, Mail {
         setState(Mail.DEFAULT);
         attributes = new HashMap();
     }
+
     /**
-     * A constructor that creates a MailImpl with the specified name,
-     * sender, and recipients.
-     *
-     * @param name the name of the MailImpl
-     * @param sender the sender for this MailImpl
-     * @param recipients the collection of recipients of this MailImpl
+     * A constructor that creates a MailImpl with the specified name, sender,
+     * and recipients.
+     * 
+     * @param name
+     *            the name of the MailImpl
+     * @param sender
+     *            the sender for this MailImpl
+     * @param recipients
+     *            the collection of recipients of this MailImpl
      */
     public MailImpl(String name, MailAddress sender, Collection recipients) {
         this();
@@ -135,12 +147,14 @@ public class MailImpl implements Disposable, Mail {
             }
         }
     }
-    
+
     /**
      * Create a copy of the input mail and assign it a new name
      * 
-     * @param mail original mail
-     * @throws MessagingException when the message is not clonable
+     * @param mail
+     *            original mail
+     * @throws MessagingException
+     *             when the message is not clonable
      */
     public MailImpl(Mail mail) throws MessagingException {
         this(mail, newName(mail));
@@ -161,9 +175,9 @@ public class MailImpl implements Disposable, Mail {
                 setAttributesRaw((HashMap) cloneSerializableObject(((MailImpl) mail).getAttributesRaw()));
             } else {
                 HashMap attribs = new HashMap();
-                for (Iterator i = mail.getAttributeNames(); i.hasNext(); ) {
+                for (Iterator i = mail.getAttributeNames(); i.hasNext();) {
                     String hashKey = (String) i.next();
-                    attribs.put(hashKey,cloneSerializableObject(mail.getAttribute(hashKey)));
+                    attribs.put(hashKey, cloneSerializableObject(mail.getAttribute(hashKey)));
                 }
                 setAttributesRaw(attribs);
             }
@@ -177,16 +191,19 @@ public class MailImpl implements Disposable, Mail {
     }
 
     /**
-     * A constructor that creates a MailImpl with the specified name,
-     * sender, recipients, and message data.
-     *
-     * @param name the name of the MailImpl
-     * @param sender the sender for this MailImpl
-     * @param recipients the collection of recipients of this MailImpl
-     * @param messageIn a stream containing the message source
+     * A constructor that creates a MailImpl with the specified name, sender,
+     * recipients, and message data.
+     * 
+     * @param name
+     *            the name of the MailImpl
+     * @param sender
+     *            the sender for this MailImpl
+     * @param recipients
+     *            the collection of recipients of this MailImpl
+     * @param messageIn
+     *            a stream containing the message source
      */
-    public MailImpl(String name, MailAddress sender, Collection recipients, InputStream messageIn)
-        throws MessagingException {
+    public MailImpl(String name, MailAddress sender, Collection recipients, InputStream messageIn) throws MessagingException {
         this(name, sender, recipients);
         MimeMessageSource source = new MimeMessageInputStreamSource(name, messageIn);
         // if MimeMessageCopyOnWriteProxy throws an error in the constructor we
@@ -200,161 +217,183 @@ public class MailImpl implements Disposable, Mail {
     }
 
     /**
-     * A constructor that creates a MailImpl with the specified name,
-     * sender, recipients, and MimeMessage.
-     *
-     * @param name the name of the MailImpl
-     * @param sender the sender for this MailImpl
-     * @param recipients the collection of recipients of this MailImpl
-     * @param message the MimeMessage associated with this MailImpl
+     * A constructor that creates a MailImpl with the specified name, sender,
+     * recipients, and MimeMessage.
+     * 
+     * @param name
+     *            the name of the MailImpl
+     * @param sender
+     *            the sender for this MailImpl
+     * @param recipients
+     *            the collection of recipients of this MailImpl
+     * @param message
+     *            the MimeMessage associated with this MailImpl
      */
     public MailImpl(String name, MailAddress sender, Collection recipients, MimeMessage message) throws MessagingException {
         this(name, sender, recipients);
         this.setMessage(new MimeMessageCopyOnWriteProxy(message));
     }
 
-
     /**
      * Duplicate the MailImpl.
-     *
+     * 
      * @return a MailImpl that is a duplicate of this one
      */
     public Mail duplicate() {
         return duplicate(name);
     }
+
     /**
-     * Duplicate the MailImpl, replacing the mail name with the one
-     * passed in as an argument.
-     *
-     * @param newName the name for the duplicated mail
-     *
+     * Duplicate the MailImpl, replacing the mail name with the one passed in as
+     * an argument.
+     * 
+     * @param newName
+     *            the name for the duplicated mail
+     * 
      * @return a MailImpl that is a duplicate of this one with a different name
      */
     public Mail duplicate(String newName) {
         try {
             return new MailImpl(this, newName);
         } catch (MessagingException me) {
-            // Ignored.  Return null in the case of an error.
+            // Ignored. Return null in the case of an error.
         }
         return null;
     }
+
     /**
      * Get the error message associated with this MailImpl.
-     *
+     * 
      * @return the error message associated with this MailImpl
      */
     public String getErrorMessage() {
         return errorMessage;
     }
+
     /**
      * Get the MimeMessage associated with this MailImpl.
-     *
+     * 
      * @return the MimeMessage associated with this MailImpl
      */
     public MimeMessage getMessage() throws MessagingException {
         return message;
     }
-    
+
     /**
      * Set the name of this MailImpl.
-     *
-     * @param name the name of this MailImpl
+     * 
+     * @param name
+     *            the name of this MailImpl
      */
     public void setName(String name) {
         this.name = name;
     }
+
     /**
      * Get the name of this MailImpl.
-     *
+     * 
      * @return the name of this MailImpl
      */
     public String getName() {
         return name;
     }
+
     /**
      * Get the recipients of this MailImpl.
-     *
+     * 
      * @return the recipients of this MailImpl
      */
     public Collection getRecipients() {
         return recipients;
     }
+
     /**
      * Get the sender of this MailImpl.
-     *
+     * 
      * @return the sender of this MailImpl
      */
     public MailAddress getSender() {
         return sender;
     }
+
     /**
      * Get the state of this MailImpl.
-     *
+     * 
      * @return the state of this MailImpl
      */
     public String getState() {
         return state;
     }
+
     /**
      * Get the remote host associated with this MailImpl.
-     *
+     * 
      * @return the remote host associated with this MailImpl
      */
     public String getRemoteHost() {
         return remoteHost;
     }
+
     /**
      * Get the remote address associated with this MailImpl.
-     *
+     * 
      * @return the remote address associated with this MailImpl
      */
     public String getRemoteAddr() {
         return remoteAddr;
     }
+
     /**
      * Get the last updated time for this MailImpl.
-     *
+     * 
      * @return the last updated time for this MailImpl
      */
     public Date getLastUpdated() {
         return lastUpdated;
     }
-    
+
     /**
-     * <p>Return the size of the message including its headers.
-     * MimeMessage.getSize() method only returns the size of the
-     * message body.</p>
-     *
-     * <p>Note: this size is not guaranteed to be accurate - see Sun's
-     * documentation of MimeMessage.getSize().</p>
-     *
+     * <p>
+     * Return the size of the message including its headers.
+     * MimeMessage.getSize() method only returns the size of the message body.
+     * </p>
+     * 
+     * <p>
+     * Note: this size is not guaranteed to be accurate - see Sun's
+     * documentation of MimeMessage.getSize().
+     * </p>
+     * 
      * @return approximate size of full message including headers.
-     *
-     * @throws MessagingException if a problem occurs while computing the message size
+     * 
+     * @throws MessagingException
+     *             if a problem occurs while computing the message size
      */
     public long getMessageSize() throws MessagingException {
         return MimeMessageUtil.getMessageSize(message);
     }
-    
+
     /**
      * Set the error message associated with this MailImpl.
-     *
-     * @param msg the new error message associated with this MailImpl
+     * 
+     * @param msg
+     *            the new error message associated with this MailImpl
      */
     public void setErrorMessage(String msg) {
         this.errorMessage = msg;
     }
+
     /**
      * Set the MimeMessage associated with this MailImpl.
-     *
-     * @param message the new MimeMessage associated with this MailImpl
+     * 
+     * @param message
+     *            the new MimeMessage associated with this MailImpl
      */
     public void setMessage(MimeMessage message) {
-    
-        //TODO: We should use the MimeMessageCopyOnWriteProxy
-        //      everytime we set the MimeMessage. We should
-        //      investigate if we should wrap it here
-    
+
+        // TODO: We should use the MimeMessageCopyOnWriteProxy
+        // everytime we set the MimeMessage. We should
+        // investigate if we should wrap it here
+
         if (this.message != message) {
             // If a setMessage is called on a Mail that already have a message
             // (discouraged) we have to make sure that the message we remove is
@@ -365,50 +404,62 @@ public class MailImpl implements Disposable, Mail {
             this.message = message;
         }
     }
+
     /**
      * Set the recipients for this MailImpl.
-     *
-     * @param recipients the recipients for this MailImpl
+     * 
+     * @param recipients
+     *            the recipients for this MailImpl
      */
     public void setRecipients(Collection recipients) {
         this.recipients = recipients;
     }
+
     /**
      * Set the sender of this MailImpl.
-     *
-     * @param sender the sender of this MailImpl
+     * 
+     * @param sender
+     *            the sender of this MailImpl
      */
     public void setSender(MailAddress sender) {
         this.sender = sender;
     }
+
     /**
      * Set the state of this MailImpl.
-     *
-     * @param state the state of this MailImpl
+     * 
+     * @param state
+     *            the state of this MailImpl
      */
     public void setState(String state) {
         this.state = state;
     }
+
     /**
      * Set the remote address associated with this MailImpl.
-     *
-     * @param remoteHost the new remote host associated with this MailImpl
+     * 
+     * @param remoteHost
+     *            the new remote host associated with this MailImpl
      */
     public void setRemoteHost(String remoteHost) {
         this.remoteHost = remoteHost;
     }
+
     /**
      * Set the remote address associated with this MailImpl.
-     *
-     * @param remoteAddr the new remote address associated with this MailImpl
+     * 
+     * @param remoteAddr
+     *            the new remote address associated with this MailImpl
      */
     public void setRemoteAddr(String remoteAddr) {
         this.remoteAddr = remoteAddr;
     }
+
     /**
      * Set the date this mail was last updated.
-     *
-     * @param lastUpdated the date the mail was last updated
+     * 
+     * @param lastUpdated
+     *            the date the mail was last updated
      */
     public void setLastUpdated(Date lastUpdated) {
         // Make a defensive copy to ensure that the date
@@ -418,13 +469,17 @@ public class MailImpl implements Disposable, Mail {
         }
         this.lastUpdated = lastUpdated;
     }
+
     /**
      * Writes the message out to an OutputStream.
-     *
-     * @param out the OutputStream to which to write the content
-     *
-     * @throws MessagingException if the MimeMessage is not set for this MailImpl
-     * @throws IOException if an error occurs while reading or writing from the stream
+     * 
+     * @param out
+     *            the OutputStream to which to write the content
+     * 
+     * @throws MessagingException
+     *             if the MimeMessage is not set for this MailImpl
+     * @throws IOException
+     *             if an error occurs while reading or writing from the stream
      */
     public void writeMessageTo(OutputStream out) throws IOException, MessagingException {
         if (message != null) {
@@ -433,21 +488,24 @@ public class MailImpl implements Disposable, Mail {
             throw new MessagingException("No message set for this MailImpl.");
         }
     }
-    
+
     // Serializable Methods
-    // TODO: These need some work.  Currently very tightly coupled to
-    //       the internal representation.
+    // TODO: These need some work. Currently very tightly coupled to
+    // the internal representation.
     /**
      * Read the MailImpl from an <code>ObjectInputStream</code>.
-     *
-     * @param in the ObjectInputStream from which the object is read
-     *
-     * @throws IOException if an error occurs while reading from the stream
-     * @throws ClassNotFoundException ?
-     * @throws ClassCastException if the serialized objects are not of the appropriate type
+     * 
+     * @param in
+     *            the ObjectInputStream from which the object is read
+     * 
+     * @throws IOException
+     *             if an error occurs while reading from the stream
+     * @throws ClassNotFoundException
+     *             ?
+     * @throws ClassCastException
+     *             if the serialized objects are not of the appropriate type
      */
-    private void readObject(java.io.ObjectInputStream in)
-        throws IOException, ClassNotFoundException {
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         try {
             Object obj = in.readObject();
             if (obj == null) {
@@ -479,12 +537,15 @@ public class MailImpl implements Disposable, Mail {
             }
         }
     }
+
     /**
      * Write the MailImpl to an <code>ObjectOutputStream</code>.
-     *
-     * @param out the ObjectOutputStream to which the object is written
-     *
-     * @throws IOException if an error occurs while writing to the stream
+     * 
+     * @param out
+     *            the ObjectOutputStream to which the object is written
+     * 
+     * @throws IOException
+     *             if an error occurs while writing to the stream
      */
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         out.writeObject(sender);
@@ -507,27 +568,37 @@ public class MailImpl implements Disposable, Mail {
     }
 
     /**
-     * This method is necessary, when Mail repositories needs to deal
-     * explicitly with storing Mail attributes as a Serializable
-     * Note: This method is not exposed in the Mail interface,
+     * <p>
+     * This method is necessary, when Mail repositories needs to deal explicitly
+     * with storing Mail attributes as a Serializable
+     * </p>
+     * <p>
+     * <strong>Note</strong>: This method is not exposed in the Mail interface,
      * it is for internal use by James only.
+     * </p>
+     * 
      * @return Serializable of the entire attributes collection
      * @since 2.2.0
      **/
-    public HashMap getAttributesRaw () {
+    public HashMap getAttributesRaw() {
         return attributes;
     }
-    
+
     /**
-     * This method is necessary, when Mail repositories needs to deal
-     * explicitly with retriving Mail attributes as a Serializable
-     * Note: This method is not exposed in the Mail interface,
+     * <p>
+     * This method is necessary, when Mail repositories needs to deal explicitly
+     * with retriving Mail attributes as a Serializable
+     * </p>
+     * <p>
+     * <strong>Note</strong>: This method is not exposed in the Mail interface,
      * it is for internal use by James only.
-     * @param attr Serializable of the entire attributes collection
+     * </p>
+     * 
+     * @param attr
+     *            Serializable of the entire attributes collection
      * @since 2.2.0
      **/
-    public void setAttributesRaw (HashMap attr)
-    {
+    public void setAttributesRaw(HashMap attr) {
         this.attributes = (attr == null) ? new HashMap() : attr;
     }
 
@@ -536,22 +607,25 @@ public class MailImpl implements Disposable, Mail {
      * @since 2.2.0
      */
     public Serializable getAttribute(String key) {
-        return (Serializable)attributes.get(key);
+        return (Serializable) attributes.get(key);
     }
+
     /**
      * @see org.apache.mailet.Mail#setAttribute(String,Serializable)
      * @since 2.2.0
      */
     public Serializable setAttribute(String key, Serializable object) {
-        return (Serializable)attributes.put(key, object);
+        return (Serializable) attributes.put(key, object);
     }
+
     /**
      * @see org.apache.mailet.Mail#removeAttribute(String)
      * @since 2.2.0
      */
     public Serializable removeAttribute(String key) {
-        return (Serializable)attributes.remove(key);
+        return (Serializable) attributes.remove(key);
     }
+
     /**
      * @see org.apache.mailet.Mail#removeAllAttributes()
      * @since 2.2.0
@@ -559,6 +633,7 @@ public class MailImpl implements Disposable, Mail {
     public void removeAllAttributes() {
         attributes.clear();
     }
+
     /**
      * @see org.apache.mailet.Mail#getAttributeNames()
      * @since 2.2.0
@@ -566,6 +641,7 @@ public class MailImpl implements Disposable, Mail {
     public Iterator getAttributeNames() {
         return attributes.keySet().iterator();
     }
+
     /**
      * @see org.apache.mailet.Mail#hasAttributes()
      * @since 2.2.0
@@ -574,12 +650,12 @@ public class MailImpl implements Disposable, Mail {
         return !attributes.isEmpty();
     }
 
-
     /**
-     * This methods provide cloning for serializable objects.
-     * Mail Attributes are Serializable but not Clonable so we need a deep copy
-     *
-     * @param o Object to be cloned
+     * This methods provide cloning for serializable objects. Mail Attributes
+     * are Serializable but not Clonable so we need a deep copy
+     * 
+     * @param o
+     *            Object to be cloned
      * @return the cloned Object
      * @throws IOException
      * @throws ClassNotFoundException
@@ -590,27 +666,33 @@ public class MailImpl implements Disposable, Mail {
         out.writeObject(o);
         out.flush();
         out.close();
-        ByteArrayInputStream bi=new ByteArrayInputStream(b.toByteArray());
+        ByteArrayInputStream bi = new ByteArrayInputStream(b.toByteArray());
         ObjectInputStream in = new ObjectInputStream(bi);
         Object no = in.readObject();
         return no;
     }
-    
 
-    private static final java.util.Random random = new java.util.Random();  // Used to generate new mail names
-    
+    private static final java.util.Random random = new java.util.Random(); // Used
+                                                                           // to
+                                                                           // generate
+                                                                           // new
+                                                                           // mail
+                                                                           // names
+
     /**
      * Create a unique new primary key name for the given MailObject.
-     *
-     * @param mail the mail to use as the basis for the new mail name
+     * 
+     * @param mail
+     *            the mail to use as the basis for the new mail name
      * @return a new name
      */
     public static String newName(Mail mail) throws MessagingException {
         String oldName = mail.getName();
-        
+
         // Checking if the original mail name is too long, perhaps because of a
         // loop caused by a configuration error.
-        // it could cause a "null pointer exception" in AvalonMailRepository much
+        // it could cause a "null pointer exception" in AvalonMailRepository
+        // much
         // harder to understand.
         if (oldName.length() > 76) {
             int count = 0;
@@ -620,35 +702,24 @@ public class MailImpl implements Disposable, Mail {
             }
             // It looks like a configuration loop. It's better to stop.
             if (count > 7) {
-                throw new MessagingException("Unable to create a new message name: too long."
-                                             + " Possible loop in config.xml.");
-            }
-            else {
+                throw new MessagingException("Unable to create a new message name: too long." + " Possible loop in config.xml.");
+            } else {
                 oldName = oldName.substring(0, 76);
             }
         }
-        
-        StringBuffer nameBuffer =
-                                 new StringBuffer(64)
-                                 .append(oldName)
-                                 .append("-!")
-                                 .append(random.nextInt(1048576));
+
+        StringBuffer nameBuffer = new StringBuffer(64).append(oldName).append("-!").append(random.nextInt(1048576));
         return nameBuffer.toString();
     }
-    
+
     /**
      * Generate a new identifier/name for a mail being processed by this server.
-     *
+     * 
      * @return the new identifier
      */
     public static String getId() {
-        StringBuilder idBuffer = new StringBuilder()
-                    .append("Mail")
-                    .append(System.currentTimeMillis())
-                    .append("-")
-                    .append(UUID.randomUUID());
+        StringBuilder idBuffer = new StringBuilder().append("Mail").append(System.currentTimeMillis()).append("-").append(UUID.randomUUID());
         return idBuffer.toString();
     }
-
 
 }

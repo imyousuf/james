@@ -21,30 +21,33 @@ package org.apache.james.user.api;
 
 import org.apache.james.vut.api.VirtualUserTable;
 
-
 /**
- * 
  * @deprecated Use {@link UsersRepository}
- * 
  */
 @Deprecated
 public interface JamesUsersRepository extends UsersRepository, VirtualUserTable {
 
     /**
      * enable/disable aliases in case of JamesUsers
-     * @param enableAliases enable
+     * 
+     * @param enableAliases
+     *            enable
      */
     void setEnableAliases(boolean enableAliases);
 
     /**
      * enable/disable aliases in case of JamesUsers
-     * @param enableForwarding enable
+     * 
+     * @param enableForwarding
+     *            enable
      */
     void setEnableForwarding(boolean enableForwarding);
 
     /**
      * set case sensitive/insensitive operations
-     * @param ignoreCase ignore
+     * 
+     * @param ignoreCase
+     *            ignore
      */
     void setIgnoreCase(boolean ignoreCase);
 

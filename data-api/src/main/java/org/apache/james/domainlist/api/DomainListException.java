@@ -18,12 +18,12 @@
  ****************************************************************/
 package org.apache.james.domainlist.api;
 
-public class DomainListException extends Exception{
+public class DomainListException extends Exception {
 
     public DomainListException(String msg) {
         super(msg);
     }
-    
+
     public DomainListException(String msg, Throwable t) {
         super(msg, t);
     }

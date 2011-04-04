@@ -33,14 +33,16 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 
 /**
- * {@link BeanFactoryPostProcessor} which lookup the configuration file for the configured beans and register
- * the right class with the given beanname for it. The class is lookup-ed via the class="" tag in the configuration file.
- * The lookup of the configuration file is done via the {@link ConfigurationProvider#getConfiguration(String)} method. Which 
- * take the beanname as argument
+ * {@link BeanFactoryPostProcessor} which lookup the configuration file for the
+ * configured beans and register the right class with the given beanname for it.
+ * The class is lookup-ed via the class="" tag in the configuration file. The
+ * lookup of the configuration file is done via the
+ * {@link ConfigurationProvider#getConfiguration(String)} method. Which take the
+ * beanname as argument
  * 
- * It also support to register aliases for the beans. The value of the map entry is used as a comma-seperated list of aliases.
- * If you don't need to register an alias just us an empty value.
- *
+ * It also support to register aliases for the beans. The value of the map entry
+ * is used as a comma-seperated list of aliases. If you don't need to register
+ * an alias just us an empty value.
  */
 public class ConfigurationBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
@@ -56,12 +58,12 @@ public class ConfigurationBeanFactoryPostProcessor implements BeanFactoryPostPro
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
         ConfigurationProvider confProvider = beanFactory.getBean(ConfigurationProvider.class);
-        
+
         Iterator<String> beanNames = beans.keySet().iterator();
-       
+
         // loop over the beans
         while (beanNames.hasNext()) {
-      
+
             String name = beanNames.next();
 
             try {
@@ -95,5 +97,5 @@ public class ConfigurationBeanFactoryPostProcessor implements BeanFactoryPostPro
         }
 
     }
-    
+
 }

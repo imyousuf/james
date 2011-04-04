@@ -17,16 +17,14 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.user.api;
 
-public class UsersRepositoryException extends Exception{
+public class UsersRepositoryException extends Exception {
 
     public UsersRepositoryException(String msg, Throwable t) {
         super(msg, t);
     }
-    
+
     public UsersRepositoryException(String msg) {
         super(msg);
     }

@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.core;
 
 import javax.activation.DataHandler;
@@ -46,13 +44,11 @@ import java.util.Enumeration;
  * This object wraps a "possibly shared" MimeMessage tracking copies and
  * automatically cloning it (if shared) when a write operation is invoked.
  */
-public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
-        Disposable {
+public class MimeMessageCopyOnWriteProxy extends MimeMessage implements Disposable {
 
     /**
-     * Used internally to track the reference count
-     * It is important that this is static otherwise it will keep a reference to
-     * the parent object.
+     * Used internally to track the reference count It is important that this is
+     * static otherwise it will keep a reference to the parent object.
      */
     protected static class MessageReferenceTracker {
 
@@ -60,37 +56,37 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
          * reference counter
          */
         private int referenceCount = 1;
-        
+
         /**
          * The mime message in memory
          */
         private MimeMessage wrapped = null;
-        
+
         public MessageReferenceTracker(MimeMessage ref) {
             wrapped = ref;
         }
 
         protected synchronized void incrementReferenceCount() {
-            /* Used to track references while debugging
-            try {
-                throw new Exception("incrementReferenceCount: "+(wrapped != null ? System.identityHashCode(wrapped)+"" : "null")+" ["+referenceCount+"]");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            */
+            /*
+             * Used to track references while debugging try { throw new
+             * Exception("incrementReferenceCount: "+(wrapped != null ?
+             * System.identityHashCode(wrapped)+"" :
+             * "null")+" ["+referenceCount+"]"); } catch (Exception e) {
+             * e.printStackTrace(); }
+             */
             referenceCount++;
         }
 
         protected synchronized void decrementReferenceCount() {
-            /* Used to track references while debugging
-            try {
-                throw new Exception("decrementReferenceCount: "+(wrapped != null ? System.identityHashCode(wrapped)+"" : "null")+" ["+referenceCount+"]");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            */
+            /*
+             * Used to track references while debugging try { throw new
+             * Exception("decrementReferenceCount: "+(wrapped != null ?
+             * System.identityHashCode(wrapped)+"" :
+             * "null")+" ["+referenceCount+"]"); } catch (Exception e) {
+             * e.printStackTrace(); }
+             */
             referenceCount--;
-            if (referenceCount<=0) {
+            if (referenceCount <= 0) {
                 LifecycleUtil.dispose(wrapped);
                 wrapped = null;
             }
@@ -113,8 +109,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      *            MimeMessageWrapper
      * @throws MessagingException
      */
-    public MimeMessageCopyOnWriteProxy(MimeMessage original)
-            throws MessagingException {
+    public MimeMessageCopyOnWriteProxy(MimeMessage original) throws MessagingException {
         this(original, false);
     }
 
@@ -123,8 +118,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      *            MimeMessageSource
      * @throws MessagingException
      */
-    public MimeMessageCopyOnWriteProxy(MimeMessageSource original)
-            throws MessagingException {
+    public MimeMessageCopyOnWriteProxy(MimeMessageSource original) throws MessagingException {
         this(new MimeMessageWrapper(original), true);
     }
 
@@ -135,9 +129,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      * @param writeable
      * @throws MessagingException
      */
-    private MimeMessageCopyOnWriteProxy(MimeMessage original,
-            boolean writeable)
-            throws MessagingException {
+    private MimeMessageCopyOnWriteProxy(MimeMessage original, boolean writeable) throws MessagingException {
         super(Session.getDefaultInstance(System.getProperties(), null));
 
         if (original instanceof MimeMessageCopyOnWriteProxy) {
@@ -145,7 +137,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
         } else {
             refCount = new MessageReferenceTracker(original);
         }
-        
+
         if (!writeable) {
             refCount.incrementReferenceCount();
         }
@@ -165,7 +157,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
         }
         return refCount.getWrapped();
     }
-    
+
     /**
      * Return wrapped mimeMessage
      * 
@@ -174,7 +166,6 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
     public synchronized MimeMessage getWrappedMessage() {
         return refCount.getWrapped();
     }
-
 
     /**
      * @see org.apache.james.lifecycle.api.avalon.framework.activity.Disposable#dispose()
@@ -196,15 +187,14 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
     /**
      * Rewritten for optimization purposes
      */
-    public void writeTo(OutputStream os, String[] ignoreList)
-            throws IOException, MessagingException {
+    public void writeTo(OutputStream os, String[] ignoreList) throws IOException, MessagingException {
         getWrappedMessage().writeTo(os, ignoreList);
     }
 
-    /**
+    /*
      * Various reader methods
      */
-    
+
     /**
      * @see javax.mail.Message#getFrom()
      */
@@ -215,8 +205,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
     /**
      * @see javax.mail.Message#getRecipients(javax.mail.Message.RecipientType)
      */
-    public Address[] getRecipients(Message.RecipientType type)
-            throws MessagingException {
+    public Address[] getRecipients(Message.RecipientType type) throws MessagingException {
         return getWrappedMessage().getRecipients(type);
     }
 
@@ -368,10 +357,10 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
     }
 
     /**
-     * @see javax.mail.internet.MimePart#getHeader(java.lang.String, java.lang.String)
+     * @see javax.mail.internet.MimePart#getHeader(java.lang.String,
+     *      java.lang.String)
      */
-    public String getHeader(String name, String delimiter)
-            throws MessagingException {
+    public String getHeader(String name, String delimiter) throws MessagingException {
         return getWrappedMessage().getHeader(name, delimiter);
     }
 
@@ -385,16 +374,14 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
     /**
      * @see javax.mail.Part#getMatchingHeaders(java.lang.String[])
      */
-    public Enumeration getMatchingHeaders(String[] names)
-            throws MessagingException {
+    public Enumeration getMatchingHeaders(String[] names) throws MessagingException {
         return getWrappedMessage().getMatchingHeaders(names);
     }
 
     /**
      * @see javax.mail.Part#getNonMatchingHeaders(java.lang.String[])
      */
-    public Enumeration getNonMatchingHeaders(String[] names)
-            throws MessagingException {
+    public Enumeration getNonMatchingHeaders(String[] names) throws MessagingException {
         return getWrappedMessage().getNonMatchingHeaders(names);
     }
 
@@ -408,16 +395,14 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
     /**
      * @see javax.mail.internet.MimePart#getMatchingHeaderLines(java.lang.String[])
      */
-    public Enumeration getMatchingHeaderLines(String[] names)
-            throws MessagingException {
+    public Enumeration getMatchingHeaderLines(String[] names) throws MessagingException {
         return getWrappedMessage().getMatchingHeaderLines(names);
     }
 
     /**
      * @see javax.mail.internet.MimePart#getNonMatchingHeaderLines(java.lang.String[])
      */
-    public Enumeration getNonMatchingHeaderLines(String[] names)
-            throws MessagingException {
+    public Enumeration getNonMatchingHeaderLines(String[] names) throws MessagingException {
         return getWrappedMessage().getNonMatchingHeaderLines(names);
     }
 
@@ -524,18 +509,18 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
     }
 
     /**
-     * @see javax.mail.Message#setRecipients(javax.mail.Message.RecipientType, javax.mail.Address[])
+     * @see javax.mail.Message#setRecipients(javax.mail.Message.RecipientType,
+     *      javax.mail.Address[])
      */
-    public void setRecipients(Message.RecipientType type, Address[] addresses)
-            throws MessagingException {
+    public void setRecipients(Message.RecipientType type, Address[] addresses) throws MessagingException {
         getWrappedMessageForWriting().setRecipients(type, addresses);
     }
 
     /**
-     * @see javax.mail.Message#addRecipients(javax.mail.Message.RecipientType, javax.mail.Address[])
+     * @see javax.mail.Message#addRecipients(javax.mail.Message.RecipientType,
+     *      javax.mail.Address[])
      */
-    public void addRecipients(Message.RecipientType type, Address[] addresses)
-            throws MessagingException {
+    public void addRecipients(Message.RecipientType type, Address[] addresses) throws MessagingException {
         getWrappedMessageForWriting().addRecipients(type, addresses);
     }
 
@@ -554,10 +539,10 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
     }
 
     /**
-     * @see javax.mail.internet.MimeMessage#setSubject(java.lang.String, java.lang.String)
+     * @see javax.mail.internet.MimeMessage#setSubject(java.lang.String,
+     *      java.lang.String)
      */
-    public void setSubject(String subject, String charset)
-            throws MessagingException {
+    public void setSubject(String subject, String charset) throws MessagingException {
         getWrappedMessageForWriting().setSubject(subject, charset);
     }
 
@@ -597,18 +582,17 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
     }
 
     /**
-     * @see javax.mail.internet.MimeMessage#setDescription(java.lang.String, java.lang.String)
+     * @see javax.mail.internet.MimeMessage#setDescription(java.lang.String,
+     *      java.lang.String)
      */
-    public void setDescription(String description, String charset)
-            throws MessagingException {
+    public void setDescription(String description, String charset) throws MessagingException {
         getWrappedMessageForWriting().setDescription(description, charset);
     }
 
     /**
      * @see javax.mail.internet.MimePart#setContentLanguage(java.lang.String[])
      */
-    public void setContentLanguage(String[] languages)
-            throws MessagingException {
+    public void setContentLanguage(String[] languages) throws MessagingException {
         getWrappedMessageForWriting().setContentLanguage(languages);
     }
 
@@ -641,7 +625,8 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
     }
 
     /**
-     * @see javax.mail.internet.MimePart#setText(java.lang.String, java.lang.String)
+     * @see javax.mail.internet.MimePart#setText(java.lang.String,
+     *      java.lang.String)
      */
     public void setText(String text, String charset) throws MessagingException {
         getWrappedMessageForWriting().setText(text, charset);
@@ -656,6 +641,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
 
     /**
      * This does not need a writable message
+     * 
      * @see javax.mail.Message#reply(boolean)
      */
     public Message reply(boolean replyToAll) throws MessagingException {
@@ -709,18 +695,18 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      */
 
     /**
-     * @see javax.mail.internet.MimeMessage#addRecipients(javax.mail.Message.RecipientType, java.lang.String)
+     * @see javax.mail.internet.MimeMessage#addRecipients(javax.mail.Message.RecipientType,
+     *      java.lang.String)
      */
-    public void addRecipients(Message.RecipientType type, String addresses)
-            throws MessagingException {
+    public void addRecipients(Message.RecipientType type, String addresses) throws MessagingException {
         getWrappedMessageForWriting().addRecipients(type, addresses);
     }
 
     /**
-     * @see javax.mail.internet.MimeMessage#setRecipients(javax.mail.Message.RecipientType, java.lang.String)
+     * @see javax.mail.internet.MimeMessage#setRecipients(javax.mail.Message.RecipientType,
+     *      java.lang.String)
      */
-    public void setRecipients(Message.RecipientType type, String addresses)
-            throws MessagingException {
+    public void setRecipients(Message.RecipientType type, String addresses) throws MessagingException {
         getWrappedMessageForWriting().setRecipients(type, addresses);
     }
 
@@ -732,10 +718,10 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
     }
 
     /**
-     * @see javax.mail.Message#addRecipient(javax.mail.Message.RecipientType, javax.mail.Address)
+     * @see javax.mail.Message#addRecipient(javax.mail.Message.RecipientType,
+     *      javax.mail.Address)
      */
-    public void addRecipient(RecipientType arg0, Address arg1)
-            throws MessagingException {
+    public void addRecipient(RecipientType arg0, Address arg1) throws MessagingException {
         getWrappedMessageForWriting().addRecipient(arg0, arg1);
     }
 
@@ -748,12 +734,11 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
 
     /**
      * @return the message size
-     * @throws MessagingException 
+     * @throws MessagingException
      */
     public long getMessageSize() throws MessagingException {
         return MimeMessageUtil.getMessageSize(getWrappedMessage());
     }
-    
 
     /**
      * Since javamail 1.4

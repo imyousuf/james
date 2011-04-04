@@ -17,19 +17,17 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.user.api.model;
 
 import org.apache.mailet.MailAddress;
 
 /**
  * Interface for objects representing users of an email/ messaging system.
- *
- *
- * @version $Revision$
- * @deprecated Just use the User interface for Users. Forwarding and Aliasing should get done via VirtualUserTable
  * 
+ * 
+ * @version $Revision$
+ * @deprecated Just use the User interface for Users. Forwarding and Aliasing
+ *             should get done via VirtualUserTable
  */
 @Deprecated
 public interface JamesUser extends User {
@@ -37,21 +35,27 @@ public interface JamesUser extends User {
     /**
      * Indicate if mail for this user should be forwarded to some other mail
      * server.
-     *
-     * @param forward whether email for this user should be forwarded
+     * 
+     * @param forward
+     *            whether email for this user should be forwarded
      */
     void setForwarding(boolean forward);
 
-    /** 
+    /**
      * Return true if mail for this user should be forwarded
      */
     boolean getForwarding();
 
     /**
-     * <p>Set destination for forwading mail</p>
-     * <p>TODO: Should we use a MailAddress?</p>
-     *
-     * @param address the forwarding address for this user
+     * <p>
+     * Set destination for forwading mail
+     * </p>
+     * <p>
+     * TODO: Should we use a MailAddress?
+     * </p>
+     * 
+     * @param address
+     *            the forwarding address for this user
      */
     boolean setForwardingDestination(MailAddress address);
 
@@ -61,8 +65,8 @@ public interface JamesUser extends User {
     MailAddress getForwardingDestination();
 
     /**
-     * Indicate if mail received for this user should be delivered locally to
-     * a different address.
+     * Indicate if mail received for this user should be delivered locally to a
+     * different address.
      */
     void setAliasing(boolean alias);
 
@@ -73,7 +77,7 @@ public interface JamesUser extends User {
 
     /**
      * Set local address to which email should be delivered.
-     *
+     * 
      * @return true if successful
      */
     boolean setAlias(String address);
@@ -82,6 +86,5 @@ public interface JamesUser extends User {
      * Get local address to which mail should be delivered.
      */
     String getAlias();
-
 
 }

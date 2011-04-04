@@ -28,17 +28,14 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
 /**
- * Abstract base class which load JAMES files based on the prefix. This can be used in different 
- * {@link ApplicationContext} implementations
- * 
- *
+ * Abstract base class which load JAMES files based on the prefix. This can be
+ * used in different {@link ApplicationContext} implementations
  */
-public abstract class AbstractJamesResourceLoader extends DefaultResourceLoader implements JamesResourceLoader{
+public abstract class AbstractJamesResourceLoader extends DefaultResourceLoader implements JamesResourceLoader {
 
-    
-    
     /**
-     * Return the {@link Resource} for the given url. If the resource can not be found null get returned
+     * Return the {@link Resource} for the given url. If the resource can not be
+     * found null get returned
      * 
      * @see org.springframework.core.io.ResourceLoader#getResource(java.lang.String)
      */
@@ -65,6 +62,5 @@ public abstract class AbstractJamesResourceLoader extends DefaultResourceLoader 
         }
         return r;
     }
-    
-}
 
+}

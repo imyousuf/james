@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.core;
 
 import java.io.ByteArrayInputStream;
@@ -45,42 +43,40 @@ import org.apache.james.lifecycle.api.LifecycleUtil;
 
 /**
  * This object wraps a MimeMessage, only loading the underlying MimeMessage
- * object when needed.  Also tracks if changes were made to reduce
- * unnecessary saves.
+ * object when needed. Also tracks if changes were made to reduce unnecessary
+ * saves.
  */
-public class MimeMessageWrapper
-    extends MimeMessage
-    implements Disposable {
+public class MimeMessageWrapper extends MimeMessage implements Disposable {
 
     /**
-     * System property which tells JAMES if it should copy a message in memory or via a temporary file.
-     * Default is the file
+     * System property which tells JAMES if it should copy a message in memory
+     * or via a temporary file. Default is the file
      */
     public final static String USE_MEMORY_COPY = "james.message.usememorycopy";
-    
+
     /**
      * Can provide an input stream to the data
      */
     protected MimeMessageSource source = null;
-    
+
     /**
-     * This is false until we parse the message 
+     * This is false until we parse the message
      */
     protected boolean messageParsed = false;
-    
+
     /**
-     * This is false until we parse the message 
+     * This is false until we parse the message
      */
     protected boolean headersModified = false;
-    
+
     /**
-     * This is false until we parse the message 
+     * This is false until we parse the message
      */
     protected boolean bodyModified = false;
 
     /**
-     * Keep a reference to the sourceIn so we can close it
-     * only when we dispose the message.
+     * Keep a reference to the sourceIn so we can close it only when we dispose
+     * the message.
      */
     private InputStream sourceIn;
 
@@ -93,13 +89,14 @@ public class MimeMessageWrapper
         this.headersModified = false;
         this.bodyModified = false;
     }
-    
+
     /**
-     * A constructor that instantiates a MimeMessageWrapper based on
-     * a MimeMessageSource
-     *
-     * @param source the MimeMessageSource
-     * @throws MessagingException 
+     * A constructor that instantiates a MimeMessageWrapper based on a
+     * MimeMessageSource
+     * 
+     * @param source
+     *            the MimeMessageSource
+     * @throws MessagingException
      */
     public MimeMessageWrapper(Session session, MimeMessageSource source) throws MessagingException {
         this(session);
@@ -107,15 +104,16 @@ public class MimeMessageWrapper
     }
 
     /**
-     * A constructor that instantiates a MimeMessageWrapper based on
-     * a MimeMessageSource
-     *
-     * @param source the MimeMessageSource
-     * @throws MessagingException 
-     * @throws MessagingException 
+     * A constructor that instantiates a MimeMessageWrapper based on a
+     * MimeMessageSource
+     * 
+     * @param source
+     *            the MimeMessageSource
+     * @throws MessagingException
+     * @throws MessagingException
      */
     public MimeMessageWrapper(MimeMessageSource source) throws MessagingException {
-        this(Session.getDefaultInstance(System.getProperties()),source);
+        this(Session.getDefaultInstance(System.getProperties()), source);
     }
 
     public MimeMessageWrapper(MimeMessage original) throws MessagingException {
@@ -124,8 +122,8 @@ public class MimeMessageWrapper
 
         if (source == null) {
             InputStream in;
-            
-            boolean useMemoryCopy =false;
+
+            boolean useMemoryCopy = false;
             String memoryCopy = System.getProperty(USE_MEMORY_COPY);
             if (memoryCopy != null) {
                 useMemoryCopy = Boolean.valueOf(memoryCopy);
@@ -138,7 +136,7 @@ public class MimeMessageWrapper
                     if (size > 0) {
                         bos = new ByteArrayOutputStream(size);
                     } else {
-                        bos = new ByteArrayOutputStream();       
+                        bos = new ByteArrayOutputStream();
                     }
                     original.writeTo(bos);
                     bos.close();
@@ -153,20 +151,18 @@ public class MimeMessageWrapper
                     out.close();
                     source = src;
                 }
-            
-                
+
             } catch (IOException ex) {
                 // should never happen, but just in case...
-                throw new MessagingException("IOException while copying message",
-                                ex);
+                throw new MessagingException("IOException while copying message", ex);
             }
         }
     }
-    
+
     /**
      * Overrides default javamail behaviour by not altering the Message-ID by
      * default
-     *  
+     * 
      * @see JAMES-875 / JAMES-1010
      * @see javax.mail.internet.MimeMessage#updateMessageID()
      */
@@ -178,6 +174,7 @@ public class MimeMessageWrapper
     /**
      * Returns the source ID of the MimeMessageSource that is supplying this
      * with data.
+     * 
      * @see MimeMessageSource
      */
     public synchronized String getSourceId() {
@@ -186,15 +183,15 @@ public class MimeMessageWrapper
 
     /**
      * Load the message headers from the internal source.
-     *
-     * @throws MessagingException if an error is encountered while
-     *                            loading the headers
+     * 
+     * @throws MessagingException
+     *             if an error is encountered while loading the headers
      */
     protected synchronized void loadHeaders() throws MessagingException {
         if (headers != null) {
-            //Another thread has already loaded these headers
+            // Another thread has already loaded these headers
             return;
-        } else if (source != null) { 
+        } else if (source != null) {
             try {
                 InputStream in = source.getInputStream();
                 try {
@@ -213,23 +210,23 @@ public class MimeMessageWrapper
 
     /**
      * Load the complete MimeMessage from the internal source.
-     *
-     * @throws MessagingException if an error is encountered while
-     *                            loading the message
+     * 
+     * @throws MessagingException
+     *             if an error is encountered while loading the message
      */
     public synchronized void loadMessage() throws MessagingException {
         if (messageParsed) {
-            //Another thread has already loaded this message
+            // Another thread has already loaded this message
             return;
         } else if (source != null) {
             sourceIn = null;
             try {
                 sourceIn = source.getInputStream();
-    
+
                 parse(sourceIn);
                 // TODO is it ok?
                 saved = true;
-                
+
             } catch (IOException ioe) {
                 IOUtils.closeQuietly(sourceIn);
                 sourceIn = null;
@@ -242,7 +239,7 @@ public class MimeMessageWrapper
 
     /**
      * Get whether the message has been modified.
-     *
+     * 
      * @return whether the message has been modified
      */
     public synchronized boolean isModified() {
@@ -257,7 +254,7 @@ public class MimeMessageWrapper
     public synchronized boolean isBodyModified() {
         return bodyModified;
     }
-    
+
     /**
      * Get whether the header of the message has been modified
      * 
@@ -266,13 +263,13 @@ public class MimeMessageWrapper
     public synchronized boolean isHeaderModified() {
         return headersModified;
     }
-    
+
     /**
      * Rewritten for optimization purposes
      */
     public void writeTo(OutputStream os) throws IOException, MessagingException {
-            writeTo(os, os);
-        
+        writeTo(os, os);
+
     }
 
     /**
@@ -289,21 +286,20 @@ public class MimeMessageWrapper
         writeTo(headerOs, bodyOs, new String[0]);
     }
 
-    public  void writeTo(OutputStream headerOs, OutputStream bodyOs, String[] ignoreList) throws IOException, MessagingException {
+    public void writeTo(OutputStream headerOs, OutputStream bodyOs, String[] ignoreList) throws IOException, MessagingException {
         writeTo(headerOs, bodyOs, ignoreList, false);
     }
-
 
     public synchronized void writeTo(OutputStream headerOs, OutputStream bodyOs, String[] ignoreList, boolean preLoad) throws IOException, MessagingException {
         if (!saved)
             saveChanges();
 
-        
         if (preLoad == false && source != null && !isBodyModified()) {
-            //We do not want to instantiate the message... just read from source
-            //  and write to this outputstream
+            // We do not want to instantiate the message... just read from
+            // source
+            // and write to this outputstream
 
-            //First handle the headers
+            // First handle the headers
             InputStream in = source.getInputStream();
             try {
                 InternetHeaders myHeaders;
@@ -321,21 +317,24 @@ public class MimeMessageWrapper
                 IOUtils.closeQuietly(in);
             }
         } else {
-            //MimeMessageUtil.writeToInternal(this, headerOs, bodyOs, ignoreList);
+            // MimeMessageUtil.writeToInternal(this, headerOs, bodyOs,
+            // ignoreList);
             if (headers == null) {
                 loadHeaders();
             }
             IOUtils.copy(new InternetHeadersInputStream(headers.getNonMatchingHeaderLines(ignoreList)), headerOs);
-            
+
             if (preLoad && messageParsed == false) {
                 loadMessage();
             }
             MimeMessageUtil.writeMessageBodyTo(this, bodyOs);
         }
     }
+
     /**
      * This is the MimeMessage implementation - this should return ONLY the
-     * body, not the entire message (should not count headers).  This size will never change on {@link #saveChanges()}
+     * body, not the entire message (should not count headers). This size will
+     * never change on {@link #saveChanges()}
      */
     public synchronized int getSize() throws MessagingException {
         if (source != null) {
@@ -344,39 +343,38 @@ public class MimeMessageWrapper
                 if (headers == null) {
                     loadHeaders();
                 }
-                // 2 == CRLF 
+                // 2 == CRLF
                 return (int) (fullSize - initialHeaderSize - 2);
-                
+
             } catch (IOException e) {
                 throw new MessagingException("Unable to calculate message size");
-            } 
+            }
         } else {
             if (!messageParsed) {
                 loadMessage();
-            } 
-           
+            }
+
             return super.getSize();
         }
-       
+
     }
 
     /**
-     * Corrects JavaMail 1.1 version which always returns -1.
-     * Only corrected for content less than 5000 bytes,
-     * to avoid memory hogging.
+     * Corrects JavaMail 1.1 version which always returns -1. Only corrected for
+     * content less than 5000 bytes, to avoid memory hogging.
      */
     public int getLineCount() throws MessagingException {
-            InputStream in=null;
-        try{
+        InputStream in = null;
+        try {
             in = getContentStream();
-        }catch(Exception e){
+        } catch (Exception e) {
             return -1;
         }
         if (in == null) {
             return -1;
         }
-        //Wrap input stream in LineNumberReader
-        //Not sure what encoding to use really...
+        // Wrap input stream in LineNumberReader
+        // Not sure what encoding to use really...
         InputStreamReader isr = null;
         LineNumberReader counter = null;
         try {
@@ -387,10 +385,10 @@ public class MimeMessageWrapper
                 isr = new InputStreamReader(in);
                 counter = new LineNumberReader(isr);
             }
-            //Read through all the data
+            // Read through all the data
             char[] block = new char[4096];
             while (counter.read(block) > -1) {
-                //Just keep reading
+                // Just keep reading
             }
             return counter.getLineNumber();
         } catch (IOException ioe) {
@@ -416,12 +414,12 @@ public class MimeMessageWrapper
             return MimeMessageUtil.calculateMessageSize(this);
         }
     }
-    
+
     /**
-     * We override all the "headers" access methods to be sure that we
-     * loaded the headers 
+     * We override all the "headers" access methods to be sure that we loaded
+     * the headers
      */
-    
+
     public String[] getHeader(String name) throws MessagingException {
         if (headers == null) {
             loadHeaders();
@@ -478,15 +476,12 @@ public class MimeMessageWrapper
         return headers.getNonMatchingHeaderLines(names);
     }
 
-
     private synchronized void checkModifyHeaders() throws MessagingException {
         // Disable only-header loading optimizations for JAMES-559
-       /*
-        if (!messageParsed) {
-            loadMessage();
-        }
-        */
-   
+        /*
+         * if (!messageParsed) { loadMessage(); }
+         */
+
         // End JAMES-559
         if (headers == null) {
             loadHeaders();
@@ -516,10 +511,9 @@ public class MimeMessageWrapper
         super.addHeaderLine(line);
     }
 
-
     /**
-     * The message is changed when working with headers and when altering the content.
-     * Every method that alter the content will fallback to this one.
+     * The message is changed when working with headers and when altering the
+     * content. Every method that alter the content will fallback to this one.
      * 
      * @see javax.mail.Part#setDataHandler(javax.activation.DataHandler)
      */
@@ -530,9 +524,9 @@ public class MimeMessageWrapper
         super.setDataHandler(arg0);
     }
 
-
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.lifecycle.Disposable#dispose()
      */
     public void dispose() {
@@ -561,31 +555,35 @@ public class MimeMessageWrapper
      * @see javax.mail.internet.MimeMessage#createInternetHeaders(java.io.InputStream)
      */
     protected synchronized InternetHeaders createInternetHeaders(InputStream is) throws MessagingException {
-        /* This code is no more needed: see JAMES-570 and new tests
-           
-         * InternetHeaders can be a bit awkward to work with due to
-         * its own internal handling of header order.  This hack may
-         * not always be necessary, but for now we are trying to
-         * ensure that there is a Return-Path header, even if just a
-         * placeholder, so that later, e.g., in LocalDelivery, when we
-         * call setHeader, it will remove any other Return-Path
-         * headers, and ensure that ours is on the top. addHeader
-         * handles header order, but not setHeader. This may change in
-         * future JavaMail.  But if there are other Return-Path header
-         * values, let's drop our placeholder.
+        /*
+         * This code is no more needed: see JAMES-570 and new tests
+         * 
+         * InternetHeaders can be a bit awkward to work with due to its own
+         * internal handling of header order. This hack may not always be
+         * necessary, but for now we are trying to ensure that there is a
+         * Return-Path header, even if just a placeholder, so that later, e.g.,
+         * in LocalDelivery, when we call setHeader, it will remove any other
+         * Return-Path headers, and ensure that ours is on the top. addHeader
+         * handles header order, but not setHeader. This may change in future
+         * JavaMail. But if there are other Return-Path header values, let's
+         * drop our placeholder.
+         * 
+         * MailHeaders newHeaders = new MailHeaders(new
+         * ByteArrayInputStream((f.RETURN_PATH + ": placeholder").getBytes()));
+         * newHeaders.setHeader(RFC2822Headers.RETURN_PATH, null);
+         * newHeaders.load(is); String[] returnPathHeaders =
+         * newHeaders.getHeader(RFC2822Headers.RETURN_PATH); if
+         * (returnPathHeaders.length > 1)
+         * newHeaders.setHeader(RFC2822Headers.RETURN_PATH,
+         * returnPathHeaders[1]);
+         */
 
-        MailHeaders newHeaders = new MailHeaders(new ByteArrayInputStream((f.RETURN_PATH + ": placeholder").getBytes()));
-        newHeaders.setHeader(RFC2822Headers.RETURN_PATH, null);
-        newHeaders.load(is);
-        String[] returnPathHeaders = newHeaders.getHeader(RFC2822Headers.RETURN_PATH);
-        if (returnPathHeaders.length > 1) newHeaders.setHeader(RFC2822Headers.RETURN_PATH, returnPathHeaders[1]);
-        */
-        
         // Keep this: skip the headers from the stream
-        // we could put that code in the else and simple write an "header" skipping
+        // we could put that code in the else and simple write an "header"
+        // skipping
         // reader for the others.
         MailHeaders newHeaders = new MailHeaders(is);
-        
+
         if (headers != null) {
             return headers;
         } else {
@@ -625,15 +623,17 @@ public class MimeMessageWrapper
     }
 
     /**
-     * Return an {@link InputStream} which holds the full content of the message. This method
-     * tries to optimize this call as far as possible. This stream contains the updated {@link MimeMessage} content if something was changed
+     * Return an {@link InputStream} which holds the full content of the
+     * message. This method tries to optimize this call as far as possible. This
+     * stream contains the updated {@link MimeMessage} content if something was
+     * changed
      * 
      * @return messageInputStream
      * @throws MessagingException
      */
-    
+
     @SuppressWarnings("unchecked")
-    public synchronized InputStream getMessageInputStream() throws MessagingException{
+    public synchronized InputStream getMessageInputStream() throws MessagingException {
         if (!messageParsed && !isModified() && source != null) {
             try {
                 return source.getInputStream();
@@ -644,15 +644,19 @@ public class MimeMessageWrapper
             try {
 
                 if (!bodyModified && headersModified && source != null) {
-                    // ok only the headers were modified so we don't need to copy the whole message content into memory 
+                    // ok only the headers were modified so we don't need to
+                    // copy the whole message content into memory
                     InputStream in = source.getInputStream();
-                    // skip over headers from original stream we want to use the in memory ones
+                    // skip over headers from original stream we want to use the
+                    // in memory ones
                     new MailHeaders(in);
-                
-                    // now construct the new stream using the in memory headers and the body from the original source
+
+                    // now construct the new stream using the in memory headers
+                    // and the body from the original source
                     return new SequenceInputStream(new InternetHeadersInputStream(getAllHeaderLines()), in);
                 } else {
-                    // the body was changed so we have no other solution to copy it into memory first :(
+                    // the body was changed so we have no other solution to copy
+                    // it into memory first :(
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
                     writeTo(out);
                     return new ByteArrayInputStream(out.toByteArray());
@@ -662,6 +666,5 @@ public class MimeMessageWrapper
             }
         }
     }
-    
-    
+
 }

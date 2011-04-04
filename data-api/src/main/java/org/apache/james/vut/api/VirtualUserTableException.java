@@ -18,12 +18,12 @@
  ****************************************************************/
 package org.apache.james.vut.api;
 
-public class VirtualUserTableException extends Exception{
+public class VirtualUserTableException extends Exception {
 
     public VirtualUserTableException(String msg) {
         super(msg);
     }
-    
+
     public VirtualUserTableException(String msg, Throwable t) {
         super(msg, t);
     }

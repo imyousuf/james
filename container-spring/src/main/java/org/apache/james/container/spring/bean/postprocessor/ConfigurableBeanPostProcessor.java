@@ -24,7 +24,8 @@ import org.apache.james.container.spring.provider.configuration.ConfigurationPro
 import org.apache.james.lifecycle.api.Configurable;
 
 /**
- * Inject Commons Configuration to beans which implement the Configurable interface
+ * Inject Commons Configuration to beans which implement the Configurable
+ * interface
  */
 public class ConfigurableBeanPostProcessor extends AbstractLifecycleBeanPostProcessor<Configurable> {
 

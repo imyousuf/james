@@ -26,21 +26,24 @@ import org.apache.mailet.MatcherConfig;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 /**
- * Loads Matchers for use inside James using the {@link ConfigurableListableBeanFactory} of spring.
+ * Loads Matchers for use inside James using the
+ * {@link ConfigurableListableBeanFactory} of spring.
  * 
  * The Matchers are not registered in the factory after loading them!
- *
  */
 public class MatcherLoaderBeanFactory extends AbstractLoaderBeanFactory<Matcher> implements MatcherLoader {
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.MatcherLoader#getMatcher(org.apache.mailet.MatcherConfig)
+     * 
+     * @see
+     * org.apache.james.mailetcontainer.api.MatcherLoader#getMatcher(org.apache
+     * .mailet.MatcherConfig)
      */
     public Matcher getMatcher(MatcherConfig config) throws MessagingException {
-        
+
         String matchName = config.getMatcherName();
-        
+
         try {
 
             final Matcher matcher = load(matchName);
@@ -55,13 +58,10 @@ public class MatcherLoaderBeanFactory extends AbstractLoaderBeanFactory<Matcher>
             throw loadFailed(matchName, "matcher", e);
         }
     }
-    
-
-
 
     @Override
     protected String getStandardPackage() {
         return "org.apache.james.transport.matchers";
     }
-    
+
 }

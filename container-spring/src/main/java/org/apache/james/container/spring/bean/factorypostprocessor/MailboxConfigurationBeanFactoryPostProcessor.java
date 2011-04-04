@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.container.spring.bean.factorypostprocessor;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -30,26 +29,28 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 
 /**
- * Read mailbox.xml file and register the right bean alias in the {@link BeanDefinitionRegistry} depending on the configured
- * provider. As default jpa is used!
+ * Read mailbox.xml file and register the right bean alias in the
+ * {@link BeanDefinitionRegistry} depending on the configured provider. As
+ * default jpa is used!
  * 
  * It will register it with the alias mailboxmanager
- * 
- *
  */
-public class MailboxConfigurationBeanFactoryPostProcessor implements BeanFactoryPostProcessor{
+public class MailboxConfigurationBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
-    
     /*
      * (non-Javadoc)
-     * @see org.springframework.beans.factory.config.BeanFactoryPostProcessor#postProcessBeanFactory(org.springframework.beans.factory.config.ConfigurableListableBeanFactory)
+     * 
+     * @see org.springframework.beans.factory.config.BeanFactoryPostProcessor#
+     * postProcessBeanFactory
+     * (org.springframework.beans.factory.config.ConfigurableListableBeanFactory
+     * )
      */
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         ConfigurationProvider confProvider = beanFactory.getBean(ConfigurationProvider.class);
         try {
             HierarchicalConfiguration config = confProvider.getConfiguration("mailbox");
             String provider = config.getString("provider", "jpa");
-            
+
             BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
             String mailbox = null;
             String subscription = null;
@@ -67,15 +68,16 @@ public class MailboxConfigurationBeanFactoryPostProcessor implements BeanFactory
                 subscription = "maildir-subscriptionManager";
 
             }
-            
-            if (mailbox == null) throw new ConfigurationException("Mailboxmanager provider "+ provider + " not supported!");
+
+            if (mailbox == null)
+                throw new ConfigurationException("Mailboxmanager provider " + provider + " not supported!");
             registry.registerAlias(mailbox, "mailboxmanager");
             registry.registerAlias(subscription, "subscriptionManager");
 
         } catch (ConfigurationException e) {
             throw new FatalBeanException("Unable to config the mailboxmanager", e);
         }
-        
+
     }
 
 }

@@ -48,34 +48,34 @@ import org.slf4j.Logger;
  * Tool to import James 2.3 users and mails into James 3.0.
  */
 public class James23Importer implements LogEnabled {
-    
+
     /**
      * The logger.
      */
     private Logger log;
-    
+
     /**
      * James 3.0 users repository.
      */
-    @Resource(name="usersrepository")
+    @Resource(name = "usersrepository")
     private UsersRepository james30UsersRepository;
 
     /**
      * James 3.0 users repository.
      */
-    @Resource(name="mailrepositorystore")
+    @Resource(name = "mailrepositorystore")
     private MailRepositoryStore mailRepositoryStore;
 
     /**
      * James 3.0 domain list.
      */
-    @Resource(name="domainlist")
+    @Resource(name = "domainlist")
     private DomainList domainList;
 
     /**
      * The mailbox manager needed to copy the mails to.
      */
-    @Resource(name="mailboxmanager")
+    @Resource(name = "mailboxmanager")
     private MailboxManager mailboxManager;
 
     /**
@@ -83,23 +83,23 @@ public class James23Importer implements LogEnabled {
      */
     @Resource(name = "usersrepository23")
     private UsersRepository james23UsersRepository;
-    
+
     /**
-     * Import 2.3 users to 3.0 users (taking virtualDomains into account)
+     * Import 2.3 users to 3.0 users (taking virtualDomains into account)<br>
      * Import 2.3 mails to 3.0 mails.
      * 
      * @throws MailRepositoryStoreException
      * @throws MessagingException
-     * @throws UsersRepositoryException 
-     * @throws DomainListException 
-     * @throws IOException 
-     * @throws MailboxException 
+     * @throws UsersRepositoryException
+     * @throws DomainListException
+     * @throws IOException
+     * @throws MailboxException
      */
     public void importUsersAndMailsFromJames23(String james23MailRepositoryPath, String defaultPassword) throws MailRepositoryStoreException, MessagingException, UsersRepositoryException, DomainListException, MailboxException, IOException {
         importUsersFromJames23(defaultPassword);
         importMailsFromJames23(james23MailRepositoryPath);
     }
-    
+
     /**
      * Import 2.3 users to 3.0 users (taking virtualDomains into account)
      * 
@@ -117,33 +117,35 @@ public class James23Importer implements LogEnabled {
             log.info("New user is copied from 2.3 to 3.0 with username=" + userName30);
         }
     }
-    
+
     /**
      * Import 2.3 mails to 3.0 mails.
      * 
-     * @param james23MailRepositoryPath the 2.3 mail repository path to import from e.g. file://var/mail/inboxes
+     * @param james23MailRepositoryPath
+     *            the 2.3 mail repository path to import from e.g.
+     *            file://var/mail/inboxes
      * @throws MessagingException
      * @throws MailRepositoryStoreException
      * @throws UsersRepositoryException
-     * @throws IOException 
-     * @throws MailboxException 
-     * @throws DomainListException 
+     * @throws IOException
+     * @throws MailboxException
+     * @throws DomainListException
      */
     public void importMailsFromJames23(String james23MailRepositoryPath) throws MessagingException, MailRepositoryStoreException, UsersRepositoryException, MailboxException, IOException, DomainListException {
-        
+
         Flags flags = new Flags();
         boolean isRecent = false;
-        
+
         Iterator<String> james23userRepositoryIterator = james23UsersRepository.list();
-        
+
         while (james23userRepositoryIterator.hasNext()) {
-            
+
             String userName23 = james23userRepositoryIterator.next();
             MailRepository mailRepository = mailRepositoryStore.select(james23MailRepositoryPath + "/" + userName23);
             Iterator<String> mailRepositoryIterator = mailRepository.list();
-            
+
             String userName30 = convert23UserTo30(userName23);
-            
+
             MailboxPath mailboxPath = MailboxPath.inbox(userName30);
 
             MailboxSession mailboxSession = mailboxManager.createSystemSession(userName30, log);
@@ -151,8 +153,7 @@ public class James23Importer implements LogEnabled {
             mailboxManager.startProcessingRequest(mailboxSession);
             try {
                 mailboxManager.createMailbox(mailboxPath, mailboxSession);
-            }
-            catch (MailboxExistsException e) {
+            } catch (MailboxExistsException e) {
                 // Do nothing, the mailbox already exists.
             }
             mailboxManager.endProcessingRequest(mailboxSession);
@@ -162,29 +163,27 @@ public class James23Importer implements LogEnabled {
             while (mailRepositoryIterator.hasNext()) {
                 Mail mail = mailRepository.retrieve(mailRepositoryIterator.next());
                 mailboxManager.startProcessingRequest(mailboxSession);
-                messageManager.appendMessage(new MimeMessageInputStream(mail.getMessage()), 
-                        new Date(), 
-                        mailboxSession, 
-                        isRecent, 
-                        flags);
+                messageManager.appendMessage(new MimeMessageInputStream(mail.getMessage()), new Date(), mailboxSession, isRecent, flags);
                 mailboxManager.endProcessingRequest(mailboxSession);
             }
-            
+
         }
-        
+
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger log) {
         this.log = log;
     }
-    
+
     /**
-     * Utility method to convert a James 2.3 username to a 
-     * James 3.0 username. To achieve this, we need to add 
-     * the default James 3.0 domain because 2.3 users have no domains.
+     * Utility method to convert a James 2.3 username to a James 3.0 username.
+     * To achieve this, we need to add the default James 3.0 domain because 2.3
+     * users have no domains.
      * 
      * @param userName23
      * @return

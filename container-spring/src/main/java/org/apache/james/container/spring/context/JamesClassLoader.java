@@ -24,12 +24,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-
 /**
- * The JamesClassLoader uses the provided system classloader
- * and adds all jars found in the external library directory.
+ * The JamesClassLoader uses the provided system classloader and adds all jars
+ * found in the external library directory.
  * 
- * Use "-Djava.system.class.loader=org.apache.james.container.spring.JamesClassLoader"
+ * Use
+ * "-Djava.system.class.loader=org.apache.james.container.spring.JamesClassLoader"
  * when launching james for this class loader to be invoked.
  */
 public class JamesClassLoader extends URLClassLoader {
@@ -37,9 +37,8 @@ public class JamesClassLoader extends URLClassLoader {
     /**
      * The ClassLoader that will be used by James application.
      * 
-     * The class is loaded using the default system class loader 
-     * defines this constructor with a single parameter is used as 
-     * the delegation parent.
+     * The class is loaded using the default system class loader defines this
+     * constructor with a single parameter is used as the delegation parent.
      * 
      * @param classLoader
      */
@@ -51,13 +50,14 @@ public class JamesClassLoader extends URLClassLoader {
             }
         });
         if (jars != null) {
-            for (int i=0; i < jars.length; i++) {
+            for (int i = 0; i < jars.length; i++) {
                 File file = new File(JamesServerApplicationContext.getResourceLoader().getExternalLibraryDirectory() + jars[i]);
                 try {
                     super.addURL(file.toURI().toURL());
                 } catch (MalformedURLException e) {
-                	// At that time, we can not yet use non jvm classes for logging. Simply log on console. Should never come here...
-                	System.out.println("Got an unexpected exception while building the urls for the james class loader for file " + file.getAbsolutePath());
+                    // At that time, we can not yet use non jvm classes for
+                    // logging. Simply log on console. Should never come here...
+                    System.out.println("Got an unexpected exception while building the urls for the james class loader for file " + file.getAbsolutePath());
                 }
             }
         }

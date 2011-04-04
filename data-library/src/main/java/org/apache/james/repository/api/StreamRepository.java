@@ -23,13 +23,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
 
-public interface StreamRepository extends Repository{
+public interface StreamRepository extends Repository {
 
     InputStream get(String key);
-    
+
     Iterator<String> list();
-    
+
     OutputStream put(String key);
-    
+
     void remove(String key);
 }

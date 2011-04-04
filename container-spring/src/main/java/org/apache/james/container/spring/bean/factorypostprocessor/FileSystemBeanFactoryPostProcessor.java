@@ -29,27 +29,32 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 /**
- *  {@link BeanFactoryPostProcessor} implementation which parse the spring configuration 
- *  and search for property values which are prefixed with {@link #FS_PREFIX}.
- *  
- *  If such a property is found it will try to resolve the given path via the {@link FileSystem} 
- *  service and replace it.
+ * {@link BeanFactoryPostProcessor} implementation which parse the spring
+ * configuration and search for property values which are prefixed with
+ * {@link #FS_PREFIX}.
+ * 
+ * If such a property is found it will try to resolve the given path via the
+ * {@link FileSystem} service and replace it.
  */
-public class FileSystemBeanFactoryPostProcessor implements BeanFactoryPostProcessor{
+public class FileSystemBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
-    private static final String FS_PREFIX ="filesystem=";
+    private static final String FS_PREFIX = "filesystem=";
 
     private final FileSystemVisitor visitor = new FileSystemVisitor();
-    
+
     private FileSystem fs;
 
     public void setFileSystem(FileSystem fs) {
         this.fs = fs;
     }
-    
+
     /*
      * (non-Javadoc)
-     * @see org.springframework.beans.factory.config.BeanFactoryPostProcessor#postProcessBeanFactory(org.springframework.beans.factory.config.ConfigurableListableBeanFactory)
+     * 
+     * @see org.springframework.beans.factory.config.BeanFactoryPostProcessor#
+     * postProcessBeanFactory
+     * (org.springframework.beans.factory.config.ConfigurableListableBeanFactory
+     * )
      */
     public void postProcessBeanFactory(ConfigurableListableBeanFactory factory) throws BeansException {
         String names[] = factory.getBeanDefinitionNames();
@@ -58,8 +63,7 @@ public class FileSystemBeanFactoryPostProcessor implements BeanFactoryPostProces
             visitor.visitBeanDefinition(def);
         }
     }
-    
-    
+
     private final class FileSystemVisitor extends BeanDefinitionVisitor {
         @Override
         protected String resolveStringValue(String strVal) throws BeansException {

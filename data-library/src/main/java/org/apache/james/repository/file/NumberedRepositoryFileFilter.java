@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.repository.file;
 
 import java.io.File;
@@ -27,7 +25,6 @@ import java.io.FilenameFilter;
 /**
  * This filters files based on the extension and is tailored to provide
  * backwards compatibility of the numbered repositories that Avalon does.
- *
  */
 public class NumberedRepositoryFileFilter implements FilenameFilter {
     private String postfix;
@@ -36,7 +33,8 @@ public class NumberedRepositoryFileFilter implements FilenameFilter {
     /**
      * Default Constructor
      * 
-     * @param extension the extension for which checked
+     * @param extension
+     *            the extension for which checked
      */
     public NumberedRepositoryFileFilter(final String extension) {
         postfix = extension;
@@ -47,26 +45,25 @@ public class NumberedRepositoryFileFilter implements FilenameFilter {
      * @see java.io.FilenameFilter#accept(File, String)
      */
     public boolean accept(final File file, final String name) {
-        //System.out.println("check: " + name);
-        //System.out.println("post: " + postfix);
+        // System.out.println("check: " + name);
+        // System.out.println("post: " + postfix);
         if (!name.endsWith(postfix)) {
             return false;
         }
-        //Look for a couple of digits next
+        // Look for a couple of digits next
         int pos = name.length() - postfix.length();
-        //We have to find at least one digit... if not then this isn't what we want
+        // We have to find at least one digit... if not then this isn't what we
+        // want
         if (!Character.isDigit(name.charAt(pos - 1))) {
             return false;
         }
         pos--;
         while (pos >= 1 && Character.isDigit(name.charAt(pos - 1))) {
-            //System.out.println("back one");
+            // System.out.println("back one");
             pos--;
         }
-        //System.out.println("sub: " + name.substring(0, pos));
-        //Now want to check that we match the rest
+        // System.out.println("sub: " + name.substring(0, pos));
+        // Now want to check that we match the rest
         return name.substring(0, pos).endsWith(prefix);
     }
 }
-
-

@@ -21,18 +21,17 @@ package org.apache.james.repository.api;
 
 import java.util.Iterator;
 
-public interface ObjectRepository extends Repository{
+public interface ObjectRepository extends Repository {
 
     boolean containsKey(String key);
-    
+
     Object get(String key);
-    
+
     Object get(String key, ClassLoader loader);
 
-    
     Iterator<String> list();
-    
+
     void put(String key, Object value);
-    
+
     void remove(String key);
 }

@@ -27,25 +27,27 @@ import java.io.InputStream;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-
 /**
  * Provide an {@link InputStream} over an {@link MimeMessage}
- * 
  */
 public class MimeMessageInputStream extends InputStream {
     private InputStream in;
 
     /**
-     * Provide an {@link InputStream} over a {@link MimeMessage}. 
+     * Provide an {@link InputStream} over a {@link MimeMessage}.
      * 
-     * @param message the message to wrap
-     * @param tryCast try to cast the {@link MimeMessage} to {@link MimeMessageCopyOnWriteProxy} / {@link MimeMessageWrapper} to do some optimized processing
-     *                if possible
+     * @param message
+     *            the message to wrap
+     * @param tryCast
+     *            try to cast the {@link MimeMessage} to
+     *            {@link MimeMessageCopyOnWriteProxy} /
+     *            {@link MimeMessageWrapper} to do some optimized processing if
+     *            possible
      * @throws MessagingException
      */
     public MimeMessageInputStream(MimeMessage message, boolean tryCast) throws MessagingException {
         MimeMessage m = message;
-               
+
         // check if we need to use the wrapped message
         if (tryCast && m instanceof MimeMessageCopyOnWriteProxy) {
             m = ((MimeMessageCopyOnWriteProxy) m).getWrappedMessage();
@@ -76,7 +78,7 @@ public class MimeMessageInputStream extends InputStream {
     public MimeMessageInputStream(MimeMessage message) throws MessagingException {
         this(message, true);
     }
-    
+
     @Override
     public int read() throws IOException {
         return in.read();
@@ -84,7 +86,7 @@ public class MimeMessageInputStream extends InputStream {
 
     @Override
     public void close() throws IOException {
-       in.close();
+        in.close();
     }
 
     @Override

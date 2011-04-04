@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.mailrepository.lib;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -36,7 +34,8 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * This class represent an AbstractMailRepository. All MailRepositories should extend this class. 
+ * This class represent an AbstractMailRepository. All MailRepositories should
+ * extend this class.
  */
 public abstract class AbstractMailRepository implements MailRepository, LogEnabled, Configurable {
 
@@ -44,31 +43,29 @@ public abstract class AbstractMailRepository implements MailRepository, LogEnabl
      * Whether 'deep debugging' is turned on.
      */
     protected static final boolean DEEP_DEBUG = false;
-    
+
     /**
      * A lock used to control access to repository elements, locking access
-     * based on the key 
+     * based on the key
      */
     private final Lock lock = new Lock();;
-    
+
     private Logger logger;
 
-    
     public void setLog(Logger logger) {
         this.logger = logger;
     }
-    
+
     protected Logger getLogger() {
         return logger;
     }
-      
-    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
+
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException {
         doConfigure(configuration);
     }
 
-    
     protected void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
-        
+
     }
 
     /**
@@ -77,14 +74,7 @@ public abstract class AbstractMailRepository implements MailRepository, LogEnabl
     public boolean unlock(String key) {
         if (lock.unlock(key)) {
             if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
-                StringBuffer debugBuffer =
-                    new StringBuffer(256)
-                            .append("Unlocked ")
-                            .append(key)
-                            .append(" for ")
-                            .append(Thread.currentThread().getName())
-                            .append(" @ ")
-                            .append(new java.util.Date(System.currentTimeMillis()));
+                StringBuffer debugBuffer = new StringBuffer(256).append("Unlocked ").append(key).append(" for ").append(Thread.currentThread().getName()).append(" @ ").append(new java.util.Date(System.currentTimeMillis()));
                 getLogger().debug(debugBuffer.toString());
             }
             return true;
@@ -99,14 +89,7 @@ public abstract class AbstractMailRepository implements MailRepository, LogEnabl
     public boolean lock(String key) {
         if (lock.lock(key)) {
             if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
-                StringBuffer debugBuffer =
-                    new StringBuffer(256)
-                            .append("Locked ")
-                            .append(key)
-                            .append(" for ")
-                            .append(Thread.currentThread().getName())
-                            .append(" @ ")
-                            .append(new java.util.Date(System.currentTimeMillis()));
+                StringBuffer debugBuffer = new StringBuffer(256).append("Locked ").append(key).append(" for ").append(Thread.currentThread().getName()).append(" @ ").append(new java.util.Date(System.currentTimeMillis()));
                 getLogger().debug(debugBuffer.toString());
             }
             return true;
@@ -115,7 +98,6 @@ public abstract class AbstractMailRepository implements MailRepository, LogEnabl
         }
     }
 
-
     /**
      * @see org.apache.james.mailrepository.api.MailRepository#store(Mail)
      */
@@ -123,28 +105,24 @@ public abstract class AbstractMailRepository implements MailRepository, LogEnabl
         boolean wasLocked = true;
         String key = mc.getName();
         try {
-            synchronized(this) {
-                  wasLocked = lock.isLocked(key);
-                  if (!wasLocked) {
-                      //If it wasn't locked, we want a lock during the store
-                      lock(key);
-                  }
+            synchronized (this) {
+                wasLocked = lock.isLocked(key);
+                if (!wasLocked) {
+                    // If it wasn't locked, we want a lock during the store
+                    lock(key);
+                }
             }
             internalStore(mc);
             if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
-                StringBuffer logBuffer =
-                    new StringBuffer(64)
-                            .append("Mail ")
-                            .append(key)
-                            .append(" stored.");
+                StringBuffer logBuffer = new StringBuffer(64).append("Mail ").append(key).append(" stored.");
                 getLogger().debug(logBuffer.toString());
             }
         } catch (MessagingException e) {
-            getLogger().error("Exception caught while storing mail "+key,e);
+            getLogger().error("Exception caught while storing mail " + key, e);
             throw e;
         } catch (Exception e) {
-            getLogger().error("Exception caught while storing mail "+key,e);
-            throw new MessagingException("Exception caught while storing mail "+key,e);
+            getLogger().error("Exception caught while storing mail " + key, e);
+            throw new MessagingException("Exception caught while storing mail " + key, e);
         } finally {
             if (!wasLocked) {
                 // If it wasn't locked, we need to unlock now
@@ -156,12 +134,10 @@ public abstract class AbstractMailRepository implements MailRepository, LogEnabl
         }
     }
 
-
     /**
      * @see #store(Mail)
      */
     protected abstract void internalStore(Mail mc) throws MessagingException, IOException;
-
 
     /**
      * @see org.apache.james.mailrepository.api.MailRepository#remove(Mail)
@@ -170,12 +146,11 @@ public abstract class AbstractMailRepository implements MailRepository, LogEnabl
         remove(mail.getName());
     }
 
-
     /**
      * @see org.apache.james.mailrepository.api.MailRepository#remove(Collection)
      */
     public void remove(Collection<Mail> mails) throws MessagingException {
-        Iterator<Mail>delList = mails.iterator();
+        Iterator<Mail> delList = mails.iterator();
         while (delList.hasNext()) {
             remove(delList.next());
         }
@@ -192,20 +167,14 @@ public abstract class AbstractMailRepository implements MailRepository, LogEnabl
                 unlock(key);
             }
         } else {
-            StringBuffer exceptionBuffer =
-                new StringBuffer(64)
-                        .append("Cannot lock ")
-                        .append(key)
-                        .append(" to remove it");
+            StringBuffer exceptionBuffer = new StringBuffer(64).append("Cannot lock ").append(key).append(" to remove it");
             throw new MessagingException(exceptionBuffer.toString());
         }
     }
-
 
     /**
      * @see #remove(String)
      */
     protected abstract void internalRemove(String key) throws MessagingException;
-
 
 }

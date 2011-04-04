@@ -22,8 +22,6 @@ import org.apache.james.mailbox.MailboxManager;
 
 /**
  * Allow to copy {@link MailboxManager} contents from one to the other via JMX
- * 
- *
  */
 public interface James23ImporterManagementMBean {
     

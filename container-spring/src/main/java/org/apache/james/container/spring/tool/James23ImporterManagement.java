@@ -36,11 +36,15 @@ public class James23ImporterManagement implements James23ImporterManagementMBean
     /**
      * 
      */
-    @Resource(name="james23importer")
+    @Resource(name = "james23importer")
     private James23Importer james23Importer;
-    
-    /* (non-Javadoc)
-     * @see org.apache.james.container.spring.tool.James23ImporterManagementMBean#importUsersAndMailsFromJames23(java.lang.String, java.lang.String)
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.james.container.spring.tool.James23ImporterManagementMBean
+     * #importUsersAndMailsFromJames23(java.lang.String, java.lang.String)
      */
     public void importUsersAndMailsFromJames23(String james23MailRepositoryPath, String defaultPassword) throws Exception {
         try {
@@ -58,8 +62,12 @@ public class James23ImporterManagement implements James23ImporterManagementMBean
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.james.container.spring.tool.James23ImporterManagementMBean#importUsersFromJames23(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.james.container.spring.tool.James23ImporterManagementMBean
+     * #importUsersFromJames23(java.lang.String)
      */
     public void importUsersFromJames23(String defaultPassword) throws Exception {
         try {
@@ -73,8 +81,12 @@ public class James23ImporterManagement implements James23ImporterManagementMBean
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.james.container.spring.tool.James23ImporterManagementMBean#importMailsFromJames23(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.james.container.spring.tool.James23ImporterManagementMBean
+     * #importMailsFromJames23(java.lang.String)
      */
     public void importMailsFromJames23(String james23MailRepositoryPath) throws Exception {
         try {
@@ -82,21 +94,21 @@ public class James23ImporterManagement implements James23ImporterManagementMBean
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception(e.getMessage());
-//        } catch (MailboxException e) {
-//            e.printStackTrace();
-//            throw new Exception(e.getMessage());
-//        } catch (MailRepositoryStoreException e) {
-//            e.printStackTrace();
-//            throw new Exception(e.getMessage());
-//        } catch (MessagingException e) {
-//            e.printStackTrace();
-//            throw new Exception(e.getMessage());
-//        } catch (UsersRepositoryException e) {
-//            e.printStackTrace();
-//            throw new Exception(e.getMessage());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            throw new Exception(e.getMessage());
+            // } catch (MailboxException e) {
+            // e.printStackTrace();
+            // throw new Exception(e.getMessage());
+            // } catch (MailRepositoryStoreException e) {
+            // e.printStackTrace();
+            // throw new Exception(e.getMessage());
+            // } catch (MessagingException e) {
+            // e.printStackTrace();
+            // throw new Exception(e.getMessage());
+            // } catch (UsersRepositoryException e) {
+            // e.printStackTrace();
+            // throw new Exception(e.getMessage());
+            // } catch (IOException e) {
+            // e.printStackTrace();
+            // throw new Exception(e.getMessage());
         }
     }
 

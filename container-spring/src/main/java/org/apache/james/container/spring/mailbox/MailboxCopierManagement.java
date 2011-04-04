@@ -34,44 +34,50 @@ import org.springframework.context.ApplicationContextAware;
 
 /**
  * {@link MailboxCopier} support via JMX
- *
  */
-public class MailboxCopierManagement implements MailboxCopierManagementMBean, ApplicationContextAware{
+public class MailboxCopierManagement implements MailboxCopierManagementMBean, ApplicationContextAware {
 
     private MailboxCopier copier;
     private ApplicationContext context;
 
-    @Resource(name="mailboxcopier")
+    @Resource(name = "mailboxcopier")
     public void setMailboxCopier(MailboxCopier copier) {
         this.copier = copier;
     }
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.container.spring.mailbox.MailboxCopierManagementMBean#getMailboxManagerBeans()
+     * 
+     * @see
+     * org.apache.james.container.spring.mailbox.MailboxCopierManagementMBean
+     * #getMailboxManagerBeans()
      */
-    public Map<String,String> getMailboxManagerBeans() {
-        
-        Map<String, String> bMap = new HashMap<String, String>();
-       
-        Map<String,MailboxManager> beans = context.getBeansOfType(MailboxManager.class);
+    public Map<String, String> getMailboxManagerBeans() {
 
-        Iterator<String> keys= beans.keySet().iterator();
-        while(keys.hasNext()) {
+        Map<String, String> bMap = new HashMap<String, String>();
+
+        Map<String, MailboxManager> beans = context.getBeansOfType(MailboxManager.class);
+
+        Iterator<String> keys = beans.keySet().iterator();
+        while (keys.hasNext()) {
             String key = keys.next();
             String name = beans.get(key).getClass().getName();
             bMap.put(key, name);
         }
-        
+
         return bMap;
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.container.spring.mailbox.MailboxCopierManagementMBean#copy(java.lang.String, java.lang.String)
+     * 
+     * @see
+     * org.apache.james.container.spring.mailbox.MailboxCopierManagementMBean
+     * #copy(java.lang.String, java.lang.String)
      */
     public void copy(String srcBean, String dstBean) throws Exception {
-        if (srcBean.equals(dstBean)) throw new IllegalArgumentException("srcBean and dstBean can not have the same name!");
+        if (srcBean.equals(dstBean))
+            throw new IllegalArgumentException("srcBean and dstBean can not have the same name!");
         try {
             copier.copyMailboxes(context.getBean(srcBean, MailboxManager.class), context.getBean(dstBean, MailboxManager.class));
         } catch (BeansException e) {
@@ -85,7 +91,10 @@ public class MailboxCopierManagement implements MailboxCopierManagementMBean, Ap
 
     /*
      * (non-Javadoc)
-     * @see org.springframework.context.ApplicationContextAware#setApplicationContext(org.springframework.context.ApplicationContext)
+     * 
+     * @see
+     * org.springframework.context.ApplicationContextAware#setApplicationContext
+     * (org.springframework.context.ApplicationContext)
      */
     public void setApplicationContext(ApplicationContext context) throws BeansException {
         this.context = context;

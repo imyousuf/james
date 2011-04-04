@@ -21,12 +21,12 @@ package org.apache.james.container.spring.bean.factory.mailetcontainer;
 import org.apache.james.container.spring.bean.AbstractBeanFactory;
 import org.apache.mailet.MailetException;
 
-
-public abstract class AbstractLoaderBeanFactory<T> extends AbstractBeanFactory{
+public abstract class AbstractLoaderBeanFactory<T> extends AbstractBeanFactory {
 
     /**
-     * Load the class for the given name. If the name is not a full classname (including package) it will
-     * get suffixed with {@link #getStandardPackage()}
+     * Load the class for the given name. If the name is not a full classname
+     * (including package) it will get suffixed with
+     * {@link #getStandardPackage()}
      * 
      * @param name
      * @return instance
@@ -45,28 +45,28 @@ public abstract class AbstractLoaderBeanFactory<T> extends AbstractBeanFactory{
         return (T) getBeanFactory().createBean(c);
 
     }
-    
+
     /**
      * Constructs an appropriate exception with an appropriate message.
-     * @param name not null
-     * @param e not null
+     * 
+     * @param name
+     *            not null
+     * @param e
+     *            not null
      * @return not null
      */
     protected MailetException loadFailed(String name, String type, Exception e) {
-        final StringBuilder builder =
-            new StringBuilder(128).append("Could not load ").append(type)
-                .append(" (").append(name).append(")");
+        final StringBuilder builder = new StringBuilder(128).append("Could not load ").append(type).append(" (").append(name).append(")");
         final MailetException mailetException = new MailetException(builder.toString(), e);
         return mailetException;
     }
 
-    
     /**
-     * Return the package name which will be used as suffix if the name provided for {@link #load(String)} does
-     * not contain a package name
+     * Return the package name which will be used as suffix if the name provided
+     * for {@link #load(String)} does not contain a package name
      * 
      * @return stdPackage
      */
     protected abstract String getStandardPackage();
-    
+
 }

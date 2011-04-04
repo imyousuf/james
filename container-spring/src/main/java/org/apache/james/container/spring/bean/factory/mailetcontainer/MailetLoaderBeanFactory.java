@@ -26,16 +26,19 @@ import org.apache.mailet.MailetConfig;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 /**
- * Loads Mailets for use inside James by using the {@link ConfigurableListableBeanFactory} of spring.
+ * Loads Mailets for use inside James by using the
+ * {@link ConfigurableListableBeanFactory} of spring.
  * 
  * The Mailets are not registered in the factory after loading them!
- *
  */
 public class MailetLoaderBeanFactory extends AbstractLoaderBeanFactory<Mailet> implements MailetLoader {
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.MailetLoader#getMailet(org.apache.mailet.MailetConfig)
+     * 
+     * @see
+     * org.apache.james.mailetcontainer.api.MailetLoader#getMailet(org.apache
+     * .mailet.MailetConfig)
      */
     public Mailet getMailet(final MailetConfig config) throws MessagingException {
         String mailetName = config.getMailetName();
@@ -46,9 +49,9 @@ public class MailetLoaderBeanFactory extends AbstractLoaderBeanFactory<Mailet> i
 
             // init the mailet
             mailet.init(config);
-            
+
             return mailet;
-            
+
         } catch (MessagingException me) {
             throw me;
         } catch (Exception e) {
@@ -56,11 +59,9 @@ public class MailetLoaderBeanFactory extends AbstractLoaderBeanFactory<Mailet> i
         }
     }
 
-
     @Override
     protected String getStandardPackage() {
         return "org.apache.james.transport.mailets";
     }
 
-    
 }

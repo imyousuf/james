@@ -17,14 +17,12 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.user.api.model;
 
 /**
  * Interface for objects representing users.
- *
- *
+ * 
+ * 
  * @version $Revision$
  */
 
@@ -32,15 +30,16 @@ public interface User {
 
     /**
      * Return the user name of this user
-     *
+     * 
      * @return the user name for this user
      */
     String getUserName();
 
     /**
      * Return true if pass matches password of this user.
-     *
-     * @param pass the password to test
+     * 
+     * @param pass
+     *            the password to test
      * @return whether the password being tested is valid
      */
     boolean verifyPassword(String pass);
@@ -48,8 +47,9 @@ public interface User {
     /**
      * Sets new password from String. No checks made on guessability of
      * password.
-     *
-     * @param newPass the String that is the new password.
+     * 
+     * @param newPass
+     *            the String that is the new password.
      * @return true if newPass successfully added
      */
     boolean setPassword(String newPass);

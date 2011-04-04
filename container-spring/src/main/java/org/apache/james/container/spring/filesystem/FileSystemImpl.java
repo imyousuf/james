@@ -30,25 +30,25 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * {@link FileSystem} implementation which use the {@link JamesResourceLoader} to load all needed
- * resources
- *
+ * {@link FileSystem} implementation which use the {@link JamesResourceLoader}
+ * to load all needed resources
  */
 public class FileSystemImpl implements FileSystem, ApplicationContextAware {
-   
+
     private JamesResourceLoader resourceLoader = null;
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.services.FileSystem#getBasedir()
      */
     public File getBasedir() throws FileNotFoundException {
         return new File(resourceLoader.getRootDirectory());
     }
-    
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.services.FileSystem#getResource(java.lang.String)
      */
     public InputStream getResource(String url) throws IOException {
@@ -57,6 +57,7 @@ public class FileSystemImpl implements FileSystem, ApplicationContextAware {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.services.FileSystem#getFile(java.lang.String)
      */
     public File getFile(String fileURL) throws FileNotFoundException {
@@ -67,14 +68,15 @@ public class FileSystemImpl implements FileSystem, ApplicationContextAware {
         }
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.springframework.context.ApplicationContextAware#setApplicationContext(org.springframework.context.ApplicationContext)
+     * 
+     * @see
+     * org.springframework.context.ApplicationContextAware#setApplicationContext
+     * (org.springframework.context.ApplicationContext)
      */
     public void setApplicationContext(ApplicationContext context) throws BeansException {
-            this.resourceLoader = (JamesResourceLoader)context;
+        this.resourceLoader = (JamesResourceLoader) context;
     }
-    
 
 }

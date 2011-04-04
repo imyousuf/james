@@ -26,22 +26,25 @@ import org.springframework.core.io.Resource;
 
 /**
  * {@link ApplicationContext} which loads all needed Spring beans for JAMES
- *
  */
-public class JamesServerApplicationContext extends ClassPathXmlApplicationContext implements JamesResourceLoader{
-	
+public class JamesServerApplicationContext extends ClassPathXmlApplicationContext implements JamesResourceLoader {
+
     /**
-     * The resourceloader to use. This must be defined as static, otherwise it will fail to startup..
+     * The resourceloader to use. This must be defined as static, otherwise it
+     * will fail to startup..
      */
     private final static JamesServerResourceLoader resourceLoader = new JamesServerResourceLoader();
-    
+
     public JamesServerApplicationContext(String[] configs) {
-    	super(configs);
+        super(configs);
     }
 
     /*
      * (non-Javadoc)
-     * @see org.springframework.core.io.DefaultResourceLoader#getResource(java.lang.String)
+     * 
+     * @see
+     * org.springframework.core.io.DefaultResourceLoader#getResource(java.lang
+     * .String)
      */
     public Resource getResource(String fileURL) {
         // delegate the loading to the resourceloader
@@ -54,7 +57,10 @@ public class JamesServerApplicationContext extends ClassPathXmlApplicationContex
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.container.spring.JamesResourceLoader#getAbsoluteDirectory()
+     * 
+     * @see
+     * org.apache.james.container.spring.JamesResourceLoader#getAbsoluteDirectory
+     * ()
      */
     public String getAbsoluteDirectory() {
         return resourceLoader.getAbsoluteDirectory();
@@ -62,7 +68,9 @@ public class JamesServerApplicationContext extends ClassPathXmlApplicationContex
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.container.spring.JamesResourceLoader#getConfDirectory()
+     * 
+     * @see
+     * org.apache.james.container.spring.JamesResourceLoader#getConfDirectory()
      */
     public String getConfDirectory() {
         return resourceLoader.getConfDirectory();
@@ -70,7 +78,9 @@ public class JamesServerApplicationContext extends ClassPathXmlApplicationContex
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.container.spring.JamesResourceLoader#getVarDirectory()
+     * 
+     * @see
+     * org.apache.james.container.spring.JamesResourceLoader#getVarDirectory()
      */
     public String getVarDirectory() {
         return resourceLoader.getVarDirectory();
@@ -78,24 +88,28 @@ public class JamesServerApplicationContext extends ClassPathXmlApplicationContex
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.container.spring.JamesResourceLoader#getRootDirectory()
+     * 
+     * @see
+     * org.apache.james.container.spring.JamesResourceLoader#getRootDirectory()
      */
     public String getRootDirectory() {
         return resourceLoader.getRootDirectory();
     }
-    
+
     /**
      * Protected accessor for the resource loader.
      */
     protected static JamesServerResourceLoader getResourceLoader() {
-    	return resourceLoader;
+        return resourceLoader;
     }
-    
+
     protected static final class JamesServerResourceLoader extends AbstractJamesResourceLoader {
 
         /*
          * (non-Javadoc)
-         * @see org.apache.james.container.spring.JamesResourceLoader#getAbsoluteDirectory()
+         * 
+         * @see org.apache.james.container.spring.JamesResourceLoader#
+         * getAbsoluteDirectory()
          */
         public String getAbsoluteDirectory() {
             return "/";
@@ -103,7 +117,10 @@ public class JamesServerApplicationContext extends ClassPathXmlApplicationContex
 
         /*
          * (non-Javadoc)
-         * @see org.apache.james.container.spring.JamesResourceLoader#getConfDirectory()
+         * 
+         * @see
+         * org.apache.james.container.spring.JamesResourceLoader#getConfDirectory
+         * ()
          */
         public String getConfDirectory() {
             return getRootDirectory() + "/conf/";
@@ -111,16 +128,18 @@ public class JamesServerApplicationContext extends ClassPathXmlApplicationContex
 
         /*
          * (non-Javadoc)
-         * @see org.apache.james.container.spring.JamesResourceLoader#getVarDirectory()
+         * 
+         * @see
+         * org.apache.james.container.spring.JamesResourceLoader#getVarDirectory
+         * ()
          */
         public String getVarDirectory() {
             return getRootDirectory() + "/var/";
         }
 
-
         /**
-         * Return the directory where the external jar libraries must be placed by the
-         * administrator. The jars may contain mailets, jdbc drivers,...
+         * Return the directory where the external jar libraries must be placed
+         * by the administrator. The jars may contain mailets, jdbc drivers,...
          * 
          * @return externalLibraryDirectory
          */
@@ -130,13 +149,15 @@ public class JamesServerApplicationContext extends ClassPathXmlApplicationContex
 
         /*
          * (non-Javadoc)
-         * @see org.apache.james.container.spring.JamesResourceLoader#getRootDirectory()
+         * 
+         * @see
+         * org.apache.james.container.spring.JamesResourceLoader#getRootDirectory
+         * ()
          */
         public String getRootDirectory() {
             return "../";
         }
-        
+
     };
-    
 
 }

@@ -25,28 +25,29 @@ import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
 
 /**
- * Abstract base class which BeanPostProcessors should 
- * extend if they provide an LifeCycle handling.
+ * Abstract base class which BeanPostProcessors should extend if they provide an
+ * LifeCycle handling.
  * 
  * @param <T>
  */
 public abstract class AbstractLifecycleBeanPostProcessor<T> extends AbstractBeanFactory implements BeanPostProcessor, PriorityOrdered {
-    
+
     private int order = Ordered.HIGHEST_PRECEDENCE;
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.springframework.beans.factory.config.BeanPostProcessor#postProcessBeforeInitialization(java.lang.Object, java.lang.String)
+     * @see org.springframework.beans.factory.config.BeanPostProcessor#
+     * postProcessBeforeInitialization(java.lang.Object, java.lang.String)
      */
     @SuppressWarnings("unchecked")
     public final Object postProcessBeforeInitialization(Object bean, String name) throws BeansException {
         try {
             Class<T> lClass = getLifeCycleInterface();
             if (lClass.isInstance(bean)) {
-                // Check if the bean is registered in the context. 
-                //   If not it was created by the container and so there 
-                //   is no need to execute the callback.
+                // Check if the bean is registered in the context.
+                // If not it was created by the container and so there
+                // is no need to execute the callback.
                 if (getBeanFactory().containsBeanDefinition(name)) {
                     executeLifecycleMethodBeforeInit((T) bean, name);
                 }
@@ -60,16 +61,17 @@ public abstract class AbstractLifecycleBeanPostProcessor<T> extends AbstractBean
     /*
      * (non-Javadoc)
      * 
-     * @see org.springframework.beans.factory.config.BeanPostProcessor#postProcessAfterInitialization(java.lang.Object, java.lang.String)
+     * @see org.springframework.beans.factory.config.BeanPostProcessor#
+     * postProcessAfterInitialization(java.lang.Object, java.lang.String)
      */
     @SuppressWarnings("unchecked")
     public final Object postProcessAfterInitialization(Object bean, String name) throws BeansException {
         try {
             Class<T> lClass = getLifeCycleInterface();
             if (lClass.isInstance(bean)) {
-                // Check if the bean is registered in the context. 
-                //   If not it was created by the container and so there is no 
-                //   need to execute the callback.
+                // Check if the bean is registered in the context.
+                // If not it was created by the container and so there is no
+                // need to execute the callback.
                 if (getBeanFactory().containsBeanDefinition(name)) {
                     executeLifecycleMethodAfterInit((T) bean, name);
                 }
@@ -91,8 +93,10 @@ public abstract class AbstractLifecycleBeanPostProcessor<T> extends AbstractBean
      * Method which gets executed if the bean implement the LifeCycleInterface.
      * Override this if you wish perform any action. Default is todo nothing
      * 
-     * @param bean the actual bean
-     * @param beanname then name of the bean
+     * @param bean
+     *            the actual bean
+     * @param beanname
+     *            then name of the bean
      * @throws Exception
      */
     protected abstract void executeLifecycleMethodBeforeInit(T bean, String beanname) throws Exception;
@@ -101,9 +105,12 @@ public abstract class AbstractLifecycleBeanPostProcessor<T> extends AbstractBean
      * Method which gets executed if the bean implement the LifeCycleInterface.
      * Override this if you wish perform any action. Default is todo nothing
      * 
-     * @param bean the actual bean
-     * @param beanname then name of the bean
-     * @param componentName the component name
+     * @param bean
+     *            the actual bean
+     * @param beanname
+     *            then name of the bean
+     * @param componentName
+     *            the component name
      * @throws Exception
      */
     protected abstract void executeLifecycleMethodAfterInit(T bean, String beanname) throws Exception;
@@ -123,5 +130,5 @@ public abstract class AbstractLifecycleBeanPostProcessor<T> extends AbstractBean
     public int getOrder() {
         return order;
     }
-    
+
 }

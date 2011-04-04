@@ -33,7 +33,6 @@ import org.springframework.core.io.ResourceLoader;
 
 /**
  * Register Configuration and act as Configuration Provider.
- *
  */
 public class ConfigurationProviderImpl implements ConfigurationProvider, ResourceLoaderAware, InitializingBean {
 
@@ -41,39 +40,44 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Resourc
      * A map of loaded configuration per bean.
      */
     private Map<String, HierarchicalConfiguration> configurations = new HashMap<String, HierarchicalConfiguration>();
-    
+
     /**
-     * Mappings for bean names associated with their related "resourceName.configPart" pattern.
-     * The resourceName is the XML configuration file name, the configPart is the tag within 
-     * the XML to look for.
+     * Mappings for bean names associated with their related
+     * "resourceName.configPart" pattern.<br>
+     * The resourceName is the XML configuration file name, the configPart is
+     * the tag within the XML to look for.
      */
     private Map<String, String> configurationMappings;
 
     /**
-     * The Spring Resource Loader. Injected via setResourceLoader 
-     * because this class implements ResourceLoaderAware.
+     * The Spring Resource Loader. Injected via setResourceLoader because this
+     * class implements ResourceLoaderAware.
      */
     private ResourceLoader loader;
-    
+
     /**
      * Inject the needed configuration mappings.
      * 
      * @param configurationMappings
      */
-    public void setConfigurationMappings(Map<String,String> configurationMappings) {
+    public void setConfigurationMappings(Map<String, String> configurationMappings) {
         this.configurationMappings = configurationMappings;
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.james.container.spring.provider.configuration.ConfigurationProvider#registerConfiguration(java.lang.String, org.apache.commons.configuration.HierarchicalConfiguration)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.container.spring.provider.configuration.
+     * ConfigurationProvider#registerConfiguration(java.lang.String,
+     * org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public void registerConfiguration(String beanName, HierarchicalConfiguration conf) {
         configurations.put(beanName, conf);
     }
 
     /**
-     * Responsible to register additional configurations 
-     * for the injected configurationMappings.
+     * Responsible to register additional configurations for the injected
+     * configurationMappings.
      * 
      * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
      */
@@ -88,35 +92,39 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Resourc
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.james.container.spring.provider.configuration.ConfigurationProvider#getConfiguration(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.container.spring.provider.configuration.
+     * ConfigurationProvider#getConfiguration(java.lang.String)
      */
     public HierarchicalConfiguration getConfiguration(String name) throws ConfigurationException {
 
         HierarchicalConfiguration conf = configurations.get(name);
-        
+
         // Simply return the configuration if it is already loaded.
         if (conf != null) {
             return conf;
-        } 
-        
+        }
+
         // Load the configuration.
         else {
-            
-            // Compute resourceName and configPart (if any, configPart can remain null).
+
+            // Compute resourceName and configPart (if any, configPart can
+            // remain null).
             int i = name.indexOf(".");
             String resourceName;
             String configPart = null;
-            
+
             if (i > -1) {
                 resourceName = name.substring(0, i);
-                configPart = name.substring(i+1);
+                configPart = name.substring(i + 1);
             } else {
                 resourceName = name;
             }
 
-            Resource resource = loader.getResource(getConfigPrefix()+ resourceName + ".xml");
-            
+            Resource resource = loader.getResource(getConfigPrefix() + resourceName + ".xml");
+
             if (resource.exists()) {
                 try {
                     HierarchicalConfiguration config = getConfig(resource);
@@ -125,26 +133,29 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Resourc
                     } else {
                         return config;
                     }
-                    
+
                 } catch (Exception e) {
-                    throw new ConfigurationException("Unable to load configuration for component " + name, e);                    
+                    throw new ConfigurationException("Unable to load configuration for component " + name, e);
                 }
             }
         }
 
         // Configuration was not loaded, throw exception.
         throw new ConfigurationException("Unable to load configuration for component " + name);
-    
+
     }
 
     /*
      * (non-Javadoc)
-     * @see org.springframework.context.ResourceLoaderAware#setResourceLoader(org.springframework.core.io.ResourceLoader)
+     * 
+     * @see
+     * org.springframework.context.ResourceLoaderAware#setResourceLoader(org
+     * .springframework.core.io.ResourceLoader)
      */
     public void setResourceLoader(ResourceLoader loader) {
         this.loader = loader;
     }
-    
+
     /**
      * Load the xmlConfiguration from the given resource.
      * 
@@ -156,14 +167,15 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Resourc
     private XMLConfiguration getConfig(Resource r) throws ConfigurationException, IOException {
         XMLConfiguration config = new XMLConfiguration();
         config.setDelimiterParsingDisabled(true);
-        // Use InputStream so we are not bound to File implementations of the config
+        // Use InputStream so we are not bound to File implementations of the
+        // config
         config.load(r.getInputStream());
         return config;
     }
 
     /**
-     * Return the configuration prefix to load the configuration.
-     * In this case its file://conf/
+     * Return the configuration prefix to load the configuration. In this case
+     * its file://conf/
      * 
      * @return prefix
      */
