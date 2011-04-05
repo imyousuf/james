@@ -16,7 +16,7 @@ _\ \  __/ |   \ V /  __/ |     ___) |_| |_| |_____/ /\/\ \___) |
 
 Thank you for testing Apache James Server 3.0-M3!
 
-  * What's new in 3.0-M3
+  * What's new in 3.0-M3 for end users
     - Numerous IMAP bug fixes (client support outlook,..., memory leaks, NIO and IO)
     - Telnet Management has been removed in favor of JMX with client shell
     - More metrics counters available via JMX
@@ -27,8 +27,15 @@ Thank you for testing Apache James Server 3.0-M3!
     - Upgrade tool for James 2.3 are available
     - Better logging
     - More documentation on web site for configuration,...
-    - For developers: Less modules - Upgrade to latest frameworks versions - Various code reports generation.
-    - ... and much more (see details on https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=10411&version=12315512)
+    - ... and much more, see details on https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=10411&version=12315512
+  * What's new in 3.0-M3 for developers
+    - Less maven modules
+    - Maven 3.0.2 required to build
+    - Upgrade to latest frameworks versions (netty, activemq, jackrabbit...)
+    - Code reports generation via 'mvn site -P site-reports' maven profile
+    - Corrections further to findbugs,... reports
+    - Code formatting
+    - ... and much more, see details on https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=10411&version=12315512
 
   * Quick Start  http://james.apache.org/server/3/quick-start.html
 
