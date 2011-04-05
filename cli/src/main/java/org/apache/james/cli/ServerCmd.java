@@ -28,7 +28,13 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.james.cli.probe.ServerProbe;
+import org.apache.james.cli.probe.impl.JmxServerProbe;
+import org.apache.james.cli.type.CmdType;
 
+/**
+ * Command line utility for managing various aspect of the James server.
+ */
 public class ServerCmd {
     private static final String HOST_OPT_LONG = "host";
     private static final String HOST_OPT_SHORT = "h";
@@ -46,30 +52,14 @@ public class ServerCmd {
     }
 
     /**
-     * Prints usage information to stdout.
+     * Main method to initialize the class.
+     * 
+     * @param args
+     *            Command-line arguments.
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws ParseException
      */
-    private static void printUsage() {
-        HelpFormatter hf = new HelpFormatter();
-        String header = String.format("%nAvailable commands:%n" + "adduser <username> <password>%n" + "removeuser <username>%n" + "listusers%n" + "adddomain <domainname>%n" + "removedomain <domainname>%n" + "listdomains%n" + "addMapping <address|regex> <user> <domain> <fromaddress|regexstring>%n"
-                + "removeMapping <address|regex> <user> <domain> <fromaddress|regexstring>%n" + "listMappings [<user> <domain>]%n");
-        String usage = String.format("java %s --host <arg> <command>%n", ServerCmd.class.getName());
-        hf.printHelp(usage, "", options, header);
-    }
-
-    private void onException(Exception e, PrintStream out) {
-
-        out.println("Error while execute command:");
-        out.println(e.getMessage());
-    }
-
-    public void print(String[] data, PrintStream out) {
-        for (int i = 0; i < data.length; i++) {
-            String u = data[i];
-            out.println(u);
-        }
-        out.println();
-    }
-
     public static void main(String[] args) throws IOException, InterruptedException, ParseException {
         CommandLineParser parser = new PosixParser();
         CommandLine cmd = null;
@@ -82,6 +72,13 @@ public class ServerCmd {
             System.exit(1);
         }
 
+        // Verify arguments
+        if (cmd.getArgs().length < 1) {
+            System.err.println("Missing argument for command.");
+            printUsage();
+            System.exit(1);
+        }
+        
         String host = cmd.getOptionValue(HOST_OPT_LONG);
         int port = defaultPort;
 
@@ -96,17 +93,11 @@ public class ServerCmd {
 
         ServerProbe probe = null;
         try {
-            probe = new ServerProbe(host, port);
+            probe = new JmxServerProbe(host, port);
         } catch (IOException ioe) {
             System.err.println("Error connecting to remote JMX agent!");
             ioe.printStackTrace();
             System.exit(3);
-        }
-
-        if (cmd.getArgs().length < 1) {
-            System.err.println("Missing argument for command.");
-            printUsage();
-            System.exit(1);
         }
 
         ServerCmd sCmd = new ServerCmd();
@@ -115,43 +106,45 @@ public class ServerCmd {
         String[] arguments = cmd.getArgs();
         String cmdName = arguments[0];
         try {
-            if (cmdName.equals("adduser")) {
-                if (arguments.length == 3) {
+            CmdType cmdType = CmdType.lookup(cmdName);
+
+            if (CmdType.ADDUSER.equals(cmdType)) {
+                if (cmdType.hasCorrectArguments(arguments.length)) {
                     probe.addUser(arguments[1], arguments[2]);
                 } else {
                     printUsage();
                     System.exit(1);
                 }
-            } else if (cmdName.equals("removeuser")) {
-                if (arguments.length == 2) {
+            } else if (CmdType.REMOVEUSER.equals(cmdType)) {
+                if (cmdType.hasCorrectArguments(arguments.length)) {
                     probe.removeUser(arguments[1]);
                 } else {
                     printUsage();
                     System.exit(1);
                 }
-            } else if (cmdName.equals("listusers")) {
-                if (arguments.length == 1) {
+            } else if (CmdType.LISTUSERS.equals(cmdType)) {
+                if (cmdType.hasCorrectArguments(arguments.length)) {
                     sCmd.print(probe.listUsers(), System.out);
                 } else {
                     printUsage();
                     System.exit(1);
                 }
-            } else if (cmdName.equals("adddomain")) {
-                if (arguments.length == 2) {
+            } else if (CmdType.ADDDOMAIN.equals(cmdType)) {
+                if (cmdType.hasCorrectArguments(arguments.length)) {
                     probe.addDomain(arguments[1]);
                 } else {
                     printUsage();
                     System.exit(1);
                 }
-            } else if (cmdName.equals("removedomain")) {
-                if (arguments.length == 2) {
+            } else if (CmdType.REMOVEDOMAIN.equals(cmdType)) {
+                if (cmdType.hasCorrectArguments(arguments.length)) {
                     probe.removeDomain(arguments[1]);
                 } else {
                     printUsage();
                     System.exit(1);
                 }
-            } else if (cmdName.equals("listdomains")) {
-                if (arguments.length == 1) {
+            } else if (CmdType.LISTDOMAINS.equals(cmdType)) {
+                if (cmdType.hasCorrectArguments(arguments.length)) {
                     sCmd.print(probe.listDomains(), System.out);
                 } else {
                     printUsage();
@@ -170,4 +163,51 @@ public class ServerCmd {
         System.exit(0);
     }
 
+    /**
+     * Print data to an output stream.
+     * 
+     * @param data
+     *            The data to print, each element representing a line.
+     * @param out
+     *            The output stream to which printing should occur.
+     */
+    public void print(String[] data, PrintStream out) {
+        if (data == null)
+            return;
+        
+        for (int i = 0; i < data.length; i++) {
+            String u = data[i];
+            out.println(u);
+        }
+        
+        out.println();
+    }
+
+    /*
+     * Prints usage information to stdout.
+     */
+    private static void printUsage() {
+        HelpFormatter hf = new HelpFormatter();
+        String header = String.format("%nAvailable commands:%n" 
+                + "adduser <username> <password>%n"
+                + "removeuser <username>%n" 
+                + "listusers%n" 
+                + "adddomain <domainname>%n"
+                + "removedomain <domainname>%n" 
+                + "listdomains%n"
+                // + "addMapping <address|regex> <user> <domain> <fromaddress|regexstring>%n"
+                // + "removeMapping <address|regex> <user> <domain> <fromaddress|regexstring>%n"
+                // + "listMappings [<user> <domain>]%n"
+                );
+        String usage = String.format("java %s --host <arg> <command>%n", ServerCmd.class.getName());
+        hf.printHelp(usage, "", options, header);
+    }
+
+    /*
+     * Handle an exception.
+     */
+    private void onException(Exception e, PrintStream out) {
+        out.println("Error while execute command:");
+        out.println(e.getMessage());
+    }
 }
