@@ -21,18 +21,15 @@
     <!-- Disabling blocks will stop them from listening, -->
     <!-- but does not free as many resources as removing them would -->
    <smtpserver enabled="true">
+
+      <!-- Configure this to bind to a specific inetaddress -->
+      <!-- Please NOTE: you should add this IP also to your RemoteAddrNotInNetwork -->
+      <!-- in order to avoid relay check for locallly generated bounces -->
       <!-- 
             Port 25 is the well-known/IANA registered port for SMTP. 
             Port 465 is the well-known/IANA registered port for SMTP over TLS.
             -->
-      <port>25</port>
-
-      <!-- Uncomment this if you want to bind to a specific inetaddress -->
-      <!-- Please NOTE: you should add this IP also to your RemoteAddrNotInNetwork -->
-      <!-- in order to avoid relay check for locallly generated bounces -->
-      <!--
-      <bind> </bind>
-      -->
+      <bind>0.0.0.0:25</bind>
 
       <connectionBacklog>200</connectionBacklog>
 

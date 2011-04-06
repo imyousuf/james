@@ -21,16 +21,13 @@
 <!-- Disabling blocks will stop them from listening, -->
 <!-- but does not free as many resources as removing them would -->
 <imapserver enabled="true">
-    <!-- port 993 is the well-known/IANA registered port for IMAPS  ie over SSL/TLS -->
-    <!-- port 143 is the well-known/IANA registered port for IMAP -->
-    <port>143</port>
 
-    <!-- Uncomment this if you want to bind to a specific inetaddress -->
+    <!-- Configure this if you want to bind to a specific inetaddress -->
+    <!-- port 143 is the well-known/IANA registered port for IMAP -->
+    <!-- port 993 is the well-known/IANA registered port for IMAPS  ie over SSL/TLS -->
     <!-- Please NOTE: you should add this IP also to your RemoteAddrNotInNetwork -->
-    <!-- in order to avoid relay check for locallly generated bounces -->     
-    <!--
-    <bind> </bind>
-    -->
+    <!-- in order to avoid relay check for locally generated bounces -->     
+    <bind>0.0.0.0:143</bind>
     
     <connectionBacklog>200</connectionBacklog>
     

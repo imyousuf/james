@@ -21,10 +21,9 @@
 <!-- Disabling blocks will stop them from listening, -->
 <!-- but does not free as many resources as removing them would -->
 <lmtpserver enabled="false">
-    <port>24</port>
 
     <!-- LMTP should not be reachable from outside your network so bind it to loopback-->
-    <bind>127.0.0.1</bind>
+    <bind>127.0.0.1:24</bind>
     
     <connectionBacklog>200</connectionBacklog>
       
