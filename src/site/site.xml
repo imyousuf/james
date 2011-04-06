@@ -17,7 +17,7 @@
   specific language governing permissions and limitations
   under the License.    
 -->
-<project name="Server">
+<project name="Apache James Server">
 
   <skin>
     <groupId>org.apache.james</groupId>
@@ -78,7 +78,7 @@
       <item name="4. Manage James" href="/manage.html" collapse="true" >
         <item name="Domains" href="/manage-domains.html" />
         <item name="Users" href="/manage-users.html" />
-        <item name="Virtual Users" href="/manage-virtualusers.html" />
+        <item name="Recipient Rewrite" href="/manage-recipientrewrite.html" />
       </item>
       <item name="5. Monitor James" href="/monitor.html" collapse="true" >
         <item name="Logging" href="/monitor-logging.html" />
@@ -102,7 +102,11 @@
         <item name="Matchers" href="/dev-provided-matchers.html" />
         <item name="SMTP Hooks" href="/dev-provided-smtp-hooks.html" />
       </item>
+    </menu>
+
+    <menu name="References">
       <item name="Javadoc" href="/apidocs/index.html" />
+      <item name="Issue Tracker" href="https://issues.apache.org/jira/browse/JAMES" />
     </menu>
     
     <menu ref="reports"/>
