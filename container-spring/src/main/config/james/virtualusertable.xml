@@ -19,7 +19,7 @@
  -->
 
 <!-- See http://james.apache.org/server/3/config.html for usage -->
-<virtualusertable class="org.apache.james.vut.jpa.JPAVirtualUserTable">
+<virtualusertable class="org.apache.james.rrt.jpa.JPARecipientRewriteTable">
   <recursiveMapping> true </recursiveMapping>
   <mappingLimit> 10 </mappingLimit>
 </virtualusertable>

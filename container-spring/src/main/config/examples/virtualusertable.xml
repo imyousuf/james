@@ -24,7 +24,7 @@
 <!-- By setting the mappingLimit you can specify how much mapping will get processed -->
 <!-- before a bounce will send. This avoid infinity loops. Default 10.  -->
 <!--
-<virtualusertable  class="org.apache.james.vut.xml.XMLVirtualUserTable">
+<virtualusertable  class="org.apache.james.rrt.xml.XMLRecipientRewriteTable">
     <recursiveMapping> true </recursiveMapping>
     <mappingLimit> 10 </mappingLimit>
     
@@ -32,19 +32,19 @@
 </virtualusertable>
 -->
 
-<!-- Database backed VirtualUsertable -->
+<!-- Database backed RecipientRewritetable -->
 <!-- -->
-<!-- Use these configurations to store the VirtualUserTable in a database. -->
+<!-- Use these configurations to store the RecipientRewriteTable in a database. -->
 <!-- 
-<virtualusertable class="org.apache.james.vut.jdbc.JDBCVirtualUserTable" destinationURL="db://maildb/VirtualUserTable">
+<virtualusertable class="org.apache.james.rrt.jdbc.JDBCRecipientRewriteTable" destinationURL="db://maildb/RecipientRewriteTable">
     <recursiveMapping> true </recursiveMapping>
     <mappingLimit> 10 </mappingLimit>
     <sqlFile>file://conf/sqlResources.xml</sqlFile>
 </virtualusertable>
 -->
     
-<!-- The default table for storing James' VirtualUserTable mappings. -->
-<virtualusertable class="org.apache.james.vut.jpa.JPAVirtualUserTable">
+<!-- The default table for storing James' RecipientRewriteTable mappings. -->
+<virtualusertable class="org.apache.james.rrt.jpa.JPARecipientRewriteTable">
     <recursiveMapping> true </recursiveMapping>
     <mappingLimit> 10 </mappingLimit>
 </virtualusertable>

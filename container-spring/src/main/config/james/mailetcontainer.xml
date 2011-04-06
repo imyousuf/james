@@ -51,8 +51,8 @@
         <name>X-UserIsAuth</name>
         <value>true</value>
       </mailet>
-      <mailet match="All" class="VirtualUserTable">
-        <virtualusertable>DefaultVirtualUserTable</virtualusertable>
+      <mailet match="All" class="RecipientRewriteTable">
+        <virtualusertable>DefaultRecipientRewriteTable</virtualusertable>
       </mailet>
       <mailet match="RecipientIsLocal" class="LocalDelivery"/>
       <mailet match="HostIsLocal" class="ToProcessor">

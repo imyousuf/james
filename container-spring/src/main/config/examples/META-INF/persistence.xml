@@ -53,8 +53,8 @@
         <!-- User-->
         <class>org.apache.james.user.jpa.model.JPAUser</class>
 
-        <!-- VirtualUser -->
-        <class>org.apache.james.vut.jpa.model.JPAVirtualUser</class>
+        <!-- RecipientRewrite -->
+        <class>org.apache.james.rrt.jpa.model.JPARecipientRewrite</class>
 
         <properties>
             <!--  Create tables on startup -->

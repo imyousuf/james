@@ -285,7 +285,7 @@ of the data-source in mailetcontainer.xml that is to be used.</li>
 </p>
 </subsection>
 
-<subsection name="JDBCVirtualUserTable">
+<subsection name="JDBCRecipientRewriteTable">
 <p>Description: This mailet does complex alias translation for email addresses stored in a database table.</p>
 
 <p>Parameters:
@@ -294,7 +294,7 @@ of the data-source in mailetcontainer.xml that is to be used.</li>
 db://&lt;data-source&gt;/&lt;table&gt; where &lt;data-source&gt; and &lt;table&gt; are the names of 
 the data-source as defined in mailetcontainer.xml and the table in the database.</li>
 <li><strong>sqlquery</strong> (optional) - the text of the SQL query used by the mailet to do user
-lookup.  The default is "select VirtualUserTable.target-address from VirtualUserTable, VirtualUserTable as VUTDomains where (VirtualUserTable.user like ? or VirtualUserTable.user like '\\%') and (VirtualUserTable.domain like ? or (VirtualUserTable.domain like '\\%' and VUTDomains.domain like ?)) order by concat(VirtualUserTable.user,'@',VirtualUserTable.domain) desc limit 1"</li>
+lookup.  The default is "select RecipientRewriteTable.target-address from RecipientRewriteTable, RecipientRewriteTable as VUTDomains where (RecipientRewriteTable.user like ? or RecipientRewriteTable.user like '\\%') and (RecipientRewriteTable.domain like ? or (RecipientRewriteTable.domain like '\\%' and VUTDomains.domain like ?)) order by concat(RecipientRewriteTable.user,'@',RecipientRewriteTable.domain) desc limit 1"</li>
 </ul>
 </p>
 </subsection>

@@ -36,7 +36,7 @@
         <artifactId>openjpa-maven-plugin</artifactId>
         <version>1.1</version>
         <configuration>
-          <includes>org/apache/james/user/jpa/model/JPAUser.class,org/apache/james/vut/jpa/model/JPAVirtualUser.class,org/apache/james/domainlist/jpa/model/JPADomain.class</includes>
+          <includes>org/apache/james/user/jpa/model/JPAUser.class,org/apache/james/vut/jpa/model/JPARecipientRewrite.class,org/apache/james/domainlist/jpa/model/JPADomain.class</includes>
           <addDefaultConstructor>true</addDefaultConstructor>
           <enforcePropertyRestrictions>true</enforcePropertyRestrictions>
           <toolProperties>
@@ -46,7 +46,7 @@
             </property>   
             <property>
               <name>metaDataFactory</name>
-              <value>jpa(Types=org.apache.james.user.jpa.model.JPAUser;org.apache.james.vut.jpa.model.JPAVirtualUser;org.apache.james.domainlist.jpa.model.JPADomain)</value>
+              <value>jpa(Types=org.apache.james.user.jpa.model.JPAUser;org.apache.james.rrt.jpa.model.JPARecipientRewrite;org.apache.james.domainlist.jpa.model.JPADomain)</value>
             </property>           
           </toolProperties>
         </configuration>  
