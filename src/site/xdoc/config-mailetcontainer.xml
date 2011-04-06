@@ -1,16 +1,3 @@
-  - no more mailetpackage specification in mailetcontainer.xml
-  - exactly one standard package, hard-coded in source code
-  - standard package applied to mailet classnames without package prefix
-  - all custom mailets must be specified with full package prefix
-  - package prefixed custom mailet names will be searched across the entire applicable class path
-
-This feature is only supported in current trunk. It would be look like:
-<matcher name="anyname" match="org.apache.james.mailetcontainer.lib.matcher.And">
-<matcher match="SenderIs...."/>
-<matcher match="SubjectStartsWith...."/>
-</matcher>
-<mailet match="anyname" class="MailetX"/>
-
 <?xml version="1.0"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
@@ -33,7 +20,7 @@ This feature is only supported in current trunk. It would be look like:
 <document>
 
  <properties>
-  <title>James 3.0 - Configuring the Mailet Container</title>
+  <title>Configuring the Mailet Container</title>
  </properties>
 
 <body>

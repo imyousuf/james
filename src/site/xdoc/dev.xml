@@ -1,8 +1,3 @@
-<!--api: they does not include implementation details, they do not have dependencies (or at most they have very common dependencies like mailet-api, javamail, commons-logging).-->
-<!--library: they only depends on apis or external jars. They don't depend on other internal libraries. These libraries should be shared by functions (no need to have a library when it is used only by a function)-->
-<!--functions: everything else. It is harder to see a case of "direct" reuse of a function jar. Most times we'll only have code reuse. I would prefer to limit function to function dependencies (i prefer to merge them instead). -->
-<!--LogEnabled interface as the preferred way, except for non-server code and classes that have no bean definition.-->
-<!--LogEnabled should be used whereever logging is needed and no "session-scoped" Log is provided. -->
 <?xml version="1.0"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
