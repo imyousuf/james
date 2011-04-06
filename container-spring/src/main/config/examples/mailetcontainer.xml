@@ -38,7 +38,7 @@
          <!-- This mailet redirects mail for the user 'postmaster' at any local domain to -->
          <!-- the postmaster address specified for the server. The postmaster address -->
          <!-- is required by rfc822. Do not remove this mailet unless you are meeting -->
-         <!-- this requirement through other means (e.g. a XML/JDBCRecipientRewriteTable defined in virtualusertable-store.xml) -->
+         <!-- this requirement through other means (e.g. a XML/JDBCRecipientRewriteTable defined in recipientrewritetable-store.xml) -->
          <mailet match="All" class="PostmasterAlias"/>
 
          <!-- Checks that the email Sender is associated with a valid domain. -->
@@ -186,7 +186,7 @@ Regards, Postmaster XXX.YYY
 
          <!--
          
-         XMLRecipientRewriteTable is deprecated - Use the definitions in virtualusertable-store.xml
+         XMLRecipientRewriteTable is deprecated - Use the definitions in recipientrewritetable-store.xml
          
          <mailet match="All" class="XMLRecipientRewriteTable">
             <!- 1:1 mapping ->
@@ -402,9 +402,9 @@ Regards, Postmaster XXX.YYY
          </mailet>
          -->
 
-         <!--  The RecipientRewriteTable will use the definitions found in virtualusertable-store.xml -->
+         <!--  The RecipientRewriteTable will use the definitions found in recipientrewritetable-store.xml -->
          <mailet match="All" class="RecipientRewriteTable">
-             <virtualusertable>DefaultRecipientRewriteTable</virtualusertable>
+             <recipientrewritetable>DefaultRecipientRewriteTable</recipientrewritetable>
          </mailet>
 
          <!-- Is the recipient is for a local account, deliver it locally -->

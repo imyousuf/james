@@ -197,7 +197,7 @@
 
   <section name="Virtual Users Configuration">
   
-    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/virtualusertable.xml">virtualusertable.xml</a> in SVN to get some examples and hints.</p>
+    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/recipientrewritetable.xml">recipientrewritetable.xml</a> in SVN to get some examples and hints.</p>
     
   </section>
 
