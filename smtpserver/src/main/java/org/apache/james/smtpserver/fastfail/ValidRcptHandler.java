@@ -77,7 +77,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Config
      *            the tableStore to set
      */
     @Resource(name = "recipientrewritetable")
-    public final void setVirtualUserTable(RecipientRewriteTable vut) {
+    public final void setRecipientRewriteTable(RecipientRewriteTable vut) {
         this.vut = vut;
     }
 
@@ -90,10 +90,10 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Config
      * @see org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-        setVirtualUserTableSupport(config.getBoolean("enableVirtualUserTable", true));
+        setRecipientRewriteTableSupport(config.getBoolean("enableRecipientRewriteTable", true));
     }
 
-    public void setVirtualUserTableSupport(boolean useVut) {
+    public void setRecipientRewriteTableSupport(boolean useVut) {
         this.useVut = useVut;
     }
 
@@ -125,7 +125,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Config
                     } catch (ErrorMappingException e) {
                         return false;
                     } catch (RecipientRewriteTableException e) {
-                        session.getLogger().info("Unable to access VirtualUserTable", e);
+                        session.getLogger().info("Unable to access RecipientRewriteTable", e);
                         return false;
                     }
                 }

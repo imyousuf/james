@@ -50,8 +50,8 @@ import org.apache.mailet.base.GenericMailet;
  * @deprecated use the definitions in virtualusertable-store.xml instead
  */
 @Deprecated
-public abstract class AbstractVirtualUserTable extends GenericMailet {
-    static private final String MARKER = "org.apache.james.transport.mailets.AbstractVirtualUserTable.mapped";
+public abstract class AbstractRecipientRewriteTable extends GenericMailet {
+    static private final String MARKER = "org.apache.james.transport.mailets.AbstractRecipientRewriteTable.mapped";
     private DNSService dns;
     private DomainList domainList;
 

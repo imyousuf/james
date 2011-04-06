@@ -45,7 +45,7 @@ public abstract class AbstractRecipientRewriteTableTest extends TestCase {
     protected final static int ALIASDOMAIN_TYPE = 3;
 
     protected void setUp() throws Exception {
-        virtualUserTable = getVirtualUserTable();
+        virtualUserTable = getRecipientRewriteTable();
     }
 
     protected void tearDown() throws Exception {
@@ -142,7 +142,7 @@ public abstract class AbstractRecipientRewriteTableTest extends TestCase {
             /*
              * TEMPORARILY REMOVE JDBC specific test String invalidAddress=
              * ".*@localhost2:"; boolean catched = false; if (virtualUserTable
-             * instanceof JDBCVirtualUserTable) { try {
+             * instanceof JDBCRecipientRewriteTable) { try {
              * assertTrue("Added virtual mapping", addMapping(user, domain,
              * invalidAddress, ADDRESS_TYPE)); } catch (InvalidMappingException
              * e) { catched = true; }
@@ -283,7 +283,7 @@ public abstract class AbstractRecipientRewriteTableTest extends TestCase {
 
     }
 
-    protected abstract AbstractRecipientRewriteTable getVirtualUserTable() throws Exception;
+    protected abstract AbstractRecipientRewriteTable getRecipientRewriteTable() throws Exception;
 
     protected abstract boolean addMapping(String user, String domain, String mapping, int type) throws RecipientRewriteTableException;
 

@@ -366,7 +366,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      */
     private final JDBCUtil theJDBCUtil = new JDBCUtil() {
         protected void delegatedLog(String logString) {
-            serviceLog.debug("JDBCVirtualUserTable: " + logString);
+            serviceLog.debug("JDBCRecipientRewriteTable: " + logString);
         }
     };
 

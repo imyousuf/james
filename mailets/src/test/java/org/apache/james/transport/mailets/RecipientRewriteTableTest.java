@@ -40,12 +40,12 @@ import org.apache.mailet.base.test.FakeMimeMessage;
 
 public class RecipientRewriteTableTest extends TestCase {
 
-    private org.apache.james.transport.mailets.VirtualUserTable table;
+    private org.apache.james.transport.mailets.RecipientRewriteTable table;
 
     @Override
     protected void setUp() throws Exception {
 
-        table = new org.apache.james.transport.mailets.VirtualUserTable();
+        table = new org.apache.james.transport.mailets.RecipientRewriteTable();
         final FakeMailContext mockMailetContext = new FakeMailContext() {
 
             @Override
@@ -61,7 +61,7 @@ public class RecipientRewriteTableTest extends TestCase {
         FakeMailetConfig mockMailetConfig = new FakeMailetConfig("vut", mockMailetContext, new Properties());
         // mockMailetConfig.put("recipientrewritetable", "vut");
 
-        table.setVirtualUserTable(new org.apache.james.rrt.api.RecipientRewriteTable() {
+        table.setRecipientRewriteTable(new org.apache.james.rrt.api.RecipientRewriteTable() {
             public Collection<String> getMappings(String user, String domain) throws ErrorMappingException, RecipientRewriteTableException {
                 if (user.equals("test") && domain.equals("localhost"))
                     return Arrays.asList(new String[] { "whatever@localhost", "blah@localhost" });

@@ -55,7 +55,7 @@ public class ValidRcptHandlerTest extends TestCase {
         users.addUser(VALID_USER, "xxx");
         handler = new ValidRcptHandler();
         handler.setUsers(users);
-        handler.setVirtualUserTable(setUpVirtualUserTable());
+        handler.setRecipientRewriteTable(setUpRecipientRewriteTable());
 
         handler.setDomainList(new SimpleDomainList() {
 
@@ -81,7 +81,7 @@ public class ValidRcptHandlerTest extends TestCase {
         return session;
     }
 
-    private RecipientRewriteTable setUpVirtualUserTable() {
+    private RecipientRewriteTable setUpRecipientRewriteTable() {
         final RecipientRewriteTable table = new RecipientRewriteTable() {
 
             public Collection<String> getMappings(String user, String domain) throws ErrorMappingException, RecipientRewriteTableException {

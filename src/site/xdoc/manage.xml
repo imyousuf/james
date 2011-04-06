@@ -1,3 +1,5 @@
+<!--./james-cli.sh  --host mail.debian-made.de -p 9999 listusers -->
+
 <?xml version="1.0"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one

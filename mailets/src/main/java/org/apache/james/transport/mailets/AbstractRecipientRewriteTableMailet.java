@@ -38,9 +38,9 @@ import org.apache.mailet.base.RFC2822Headers;
 
 /**
  * Abstract base class which should get extended by classes which handle mapping
- * operations based on VirtualUserTable implementations
+ * operations based on RecipientRewriteTable implementations
  */
-public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
+public abstract class AbstractRecipientRewriteTableMailet extends GenericMailet {
 
     private DomainList domainList;
 

@@ -25,7 +25,7 @@ import org.apache.mailet.MailAddress;
  * Interface for objects representing users of an email/ messaging system.
  * 
  * @deprecated Just use the User interface for Users. Forwarding and Aliasing
- *             should get done via VirtualUserTable
+ *             should get done via RecipientRewriteTable
  */
 @Deprecated
 public interface JamesUser extends User {

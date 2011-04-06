@@ -45,10 +45,10 @@ import org.apache.mailet.MailAddress;
  * the forwarding. Default to false.
  * 
  * 
- * @deprecated use org.apache.james.transport.mailets.VirtualUserTable
+ * @deprecated use org.apache.james.transport.mailets.RecipientRewriteTable
  */
 @Deprecated
-public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableMailet {
+public class UsersRepositoryAliasingForwarding extends AbstractRecipientRewriteTableMailet {
 
     /**
      * The user repository for this mail server. Contains all the users with

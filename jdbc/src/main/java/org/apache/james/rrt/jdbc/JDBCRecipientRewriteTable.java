@@ -55,7 +55,7 @@ public class JDBCRecipientRewriteTable extends AbstractRecipientRewriteTable {
     private DataSource dataSource = null;
     private String dataSourceName = null;
 
-    private String tableName = "VirtualUserTable";
+    private String tableName = "RecipientRewriteTable";
 
     /**
      * Contains all of the sql strings for this component.
@@ -75,7 +75,7 @@ public class JDBCRecipientRewriteTable extends AbstractRecipientRewriteTable {
      */
     private final JDBCUtil theJDBCUtil = new JDBCUtil() {
         protected void delegatedLog(String logString) {
-            getLogger().debug("JDBCVirtualUserTable: " + logString);
+            getLogger().debug("JDBCRecipientRewriteTable: " + logString);
         }
     };
 

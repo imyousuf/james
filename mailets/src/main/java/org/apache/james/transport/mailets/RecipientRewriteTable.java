@@ -31,10 +31,10 @@ import org.apache.james.rrt.api.RecipientRewriteTable.ErrorMappingException;
 import org.apache.mailet.MailAddress;
 
 /**
- * Mailet which should get used when using VirtualUserTable-Store to
+ * Mailet which should get used when using RecipientRewriteTable-Store to
  * implementations for mappings of forwards and aliases.
  */
-public class VirtualUserTable extends AbstractVirtualUserTableMailet {
+public class RecipientRewriteTable extends AbstractRecipientRewriteTableMailet {
     private org.apache.james.rrt.api.RecipientRewriteTable vut;
 
     /**
@@ -44,12 +44,12 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
      *            the vutStore to set, possibly null
      */
     @Resource(name = "recipientrewritetable")
-    public final void setVirtualUserTable(org.apache.james.rrt.api.RecipientRewriteTable vut) {
+    public final void setRecipientRewriteTable(org.apache.james.rrt.api.RecipientRewriteTable vut) {
         this.vut = vut;
     }
 
     /**
-     * @see org.apache.james.transport.mailets.AbstractVirtualUserTable#processMail(org.apache.mailet.MailAddress,
+     * @see org.apache.james.transport.mailets.AbstractRecipientRewriteTable#processMail(org.apache.mailet.MailAddress,
      *      org.apache.mailet.MailAddress, javax.mail.internet.MimeMessage)
      */
     public Collection<MailAddress> processMail(MailAddress sender, MailAddress recipient, MimeMessage message) throws MessagingException {
@@ -63,7 +63,7 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
             StringBuilder errorBuffer = new StringBuilder(128).append("A problem as occoured trying to alias and forward user ").append(recipient).append(": ").append(e.getMessage());
             throw new MessagingException(errorBuffer.toString());
         } catch (RecipientRewriteTableException e) {
-            throw new MessagingException("Unable to access VirtualUserTable", e);
+            throw new MessagingException("Unable to access RecipientRewriteTable", e);
         }
 
         Collection<MailAddress> rcpts = new ArrayList<MailAddress>();
@@ -75,7 +75,7 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
      * @see org.apache.mailet.base.GenericMailet#getMailetInfo()
      */
     public String getMailetInfo() {
-        return "VirtualUserTable Mailet";
+        return "RecipientRewriteTable Mailet";
     }
 
 }

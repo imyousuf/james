@@ -33,7 +33,7 @@ import org.apache.mailet.MailAddress;
  * <p>
  * Implements a Virtual User Table to translate virtual users to real users.
  * This implementation has the same functionality as
- * <code>JDBCVirtualUserTable</code>, but is configured in the JAMES
+ * <code>JDBCRecipientRewriteTable</code>, but is configured in the JAMES
  * configuration and is thus probably most suitable for smaller and less dynamic
  * mapping requirements.
  * </p>
@@ -41,7 +41,7 @@ import org.apache.mailet.MailAddress;
  * The configuration is specified in the form:
  * 
  * <pre>
- * &lt;mailet match="All" class="XMLVirtualUserTable"&gt;
+ * &lt;mailet match="All" class="XMLRecipientRewriteTable"&gt;
  *   &lt;mapping&gt;virtualuser@xxx=realuser[@yyy][;anotherrealuser[@zzz]]&lt;/mapping&gt;
  *   &lt;mapping&gt;virtualuser2@*=realuser2[@yyy][;anotherrealuser2[@zzz]]&lt;/mapping&gt;
  *   ...
@@ -73,7 +73,7 @@ import org.apache.mailet.MailAddress;
  * 
  */
 @Deprecated
-public class XMLVirtualUserTable extends AbstractVirtualUserTable {
+public class XMLRecipientRewriteTable extends AbstractRecipientRewriteTable {
     /**
      * Holds the configured mappings
      */

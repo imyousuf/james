@@ -46,14 +46,14 @@ import java.util.Map;
  * forwarding.
  * </p>
  * <p>
- * JDBCVirtualUserTable does not provide any administation tools. You'll have to
- * create the VirtualUserTable yourself. The standard configuration is as
+ * JDBCRecipientRewriteTable does not provide any administation tools. You'll have to
+ * create the RecipientRewriteTable yourself. The standard configuration is as
  * follows:
  * </p>
  * <p>
  * 
  * <pre>
- * CREATE TABLE VirtualUserTable
+ * CREATE TABLE RecipientRewriteTable
  * (
  *  user varchar(64) NOT NULL default '',
  *  domain varchar(255) NOT NULL default '',
@@ -71,14 +71,14 @@ import java.util.Map;
  * specified in a list separated by commas, semi-colons or colons.
  * </p>
  * <p>
- * The standard query used with VirtualUserTable is:
+ * The standard query used with RecipientRewriteTable is:
  * 
  * <pre>
- * select VirtualUserTable.target_address from VirtualUserTable, VirtualUserTable as VUTDomains
- * where (VirtualUserTable.user like ? or VirtualUserTable.user like "\%")
- * and (VirtualUserTable.domain like ?
- * or (VirtualUserTable.domain like "\%" and VUTDomains.domain like ?))
- * order by concat(VirtualUserTable.user,'@',VirtualUserTable.domain) desc limit 1
+ * select RecipientRewriteTable.target_address from RecipientRewriteTable, RecipientRewriteTable as VUTDomains
+ * where (RecipientRewriteTable.user like ? or RecipientRewriteTable.user like "\%")
+ * and (RecipientRewriteTable.domain like ?
+ * or (RecipientRewriteTable.domain like "\%" and VUTDomains.domain like ?))
+ * order by concat(RecipientRewriteTable.user,'@',RecipientRewriteTable.domain) desc limit 1
  * </pre>
  * 
  * </p>
@@ -98,8 +98,8 @@ import java.util.Map;
  * where in the query to replace parameters. [TODO]
  * 
  * <pre>
- * &lt;mailet match="All" class="JDBCVirtualUserTable"&gt;
- *   &lt;table&gt;db://maildb/VirtualUserTable&lt;/table&gt;
+ * &lt;mailet match="All" class="JDBCRecipientRewriteTable"&gt;
+ *   &lt;table&gt;db://maildb/RecipientRewriteTable&lt;/table&gt;
  *   &lt;sqlquery&gt;sqlquery&lt;/sqlquery&gt;
  * &lt;/mailet&gt;
  * </pre>
@@ -109,7 +109,7 @@ import java.util.Map;
  * @deprecated use the definitions in virtualusertable-store.xml instead
  */
 @Deprecated
-public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
+public class JDBCRecipientRewriteTable extends AbstractRecipientRewriteTable {
     protected DataSource datasource;
 
     /**
@@ -122,7 +122,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
      */
     private final JDBCUtil theJDBCUtil = new JDBCUtil() {
         protected void delegatedLog(String logString) {
-            log("JDBCVirtualUserTable: " + logString);
+            log("JDBCRecipientRewriteTable: " + logString);
         }
     };
 
@@ -136,7 +136,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
      */
     public void init() throws MessagingException {
         if (getInitParameter("table") == null) {
-            throw new MailetException("Table location not specified for JDBCVirtualUserTable");
+            throw new MailetException("Table location not specified for JDBCRecipientRewriteTable");
         }
 
         String tableURL = getInitParameter("table");
@@ -165,7 +165,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
         } catch (MailetException me) {
             throw me;
         } catch (Exception e) {
-            throw new MessagingException("Error initializing JDBCVirtualUserTable", e);
+            throw new MessagingException("Error initializing JDBCRecipientRewriteTable", e);
         } finally {
             theJDBCUtil.closeJDBCConnection(conn);
         }

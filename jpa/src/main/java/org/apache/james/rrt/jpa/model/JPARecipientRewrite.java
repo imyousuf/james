@@ -29,19 +29,19 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 /**
- * VirtualUserTable class for the James Virtual User Table to be used for JPA
+ * RecipientRewriteTable class for the James Virtual User Table to be used for JPA
  * persistence.
  */
-@Entity(name = "JamesVirtualUserTable")
+@Entity(name = "JamesRecipientRewriteTable")
 @Table(name = "JAMES_VIRTUAL_USER_TABLE")
-@NamedQueries({ @NamedQuery(name = "selectMappings", query = "SELECT vut FROM JamesVirtualUserTable vut WHERE (vut.user LIKE :user OR vut.user='*') and (vut.domain like :domain or vut.domain='*') ORDER BY vut.domain DESC"),
-        @NamedQuery(name = "selectUserDomainMapping", query = "SELECT vut FROM JamesVirtualUserTable vut WHERE vut.user=:user AND vut.domain=:domain"), @NamedQuery(name = "selectAllMappings", query = "SELECT vut FROM JamesVirtualUserTable vut"),
-        @NamedQuery(name = "deleteMapping", query = "DELETE FROM JamesVirtualUserTable vut WHERE vut.user=:user AND vut.domain=:domain AND vut.targetAddress=:targetAddress"),
-        @NamedQuery(name = "updateMapping", query = "UPDATE JamesVirtualUserTable vut SET vut.targetAddress=:targetAddress WHERE vut.user=:user AND vut.domain=:domain") })
-@IdClass(JPARecipientRewrite.VirtualUserTableId.class)
+@NamedQueries({ @NamedQuery(name = "selectMappings", query = "SELECT vut FROM JamesRecipientRewriteTable vut WHERE (vut.user LIKE :user OR vut.user='*') and (vut.domain like :domain or vut.domain='*') ORDER BY vut.domain DESC"),
+        @NamedQuery(name = "selectUserDomainMapping", query = "SELECT vut FROM JamesRecipientRewriteTable vut WHERE vut.user=:user AND vut.domain=:domain"), @NamedQuery(name = "selectAllMappings", query = "SELECT vut FROM JamesRecipientRewriteTable vut"),
+        @NamedQuery(name = "deleteMapping", query = "DELETE FROM JamesRecipientRewriteTable vut WHERE vut.user=:user AND vut.domain=:domain AND vut.targetAddress=:targetAddress"),
+        @NamedQuery(name = "updateMapping", query = "UPDATE JamesRecipientRewriteTable vut SET vut.targetAddress=:targetAddress WHERE vut.user=:user AND vut.domain=:domain") })
+@IdClass(JPARecipientRewrite.RecipientRewriteTableId.class)
 public class JPARecipientRewrite {
 
-    public static class VirtualUserTableId implements Serializable {
+    public static class RecipientRewriteTableId implements Serializable {
 
         private static final long serialVersionUID = 1L;
 
@@ -49,7 +49,7 @@ public class JPARecipientRewrite {
 
         private String domain;
 
-        public VirtualUserTableId() {
+        public RecipientRewriteTableId() {
         }
 
         @Override
@@ -69,7 +69,7 @@ public class JPARecipientRewrite {
                 return false;
             if (getClass() != obj.getClass())
                 return false;
-            final VirtualUserTableId other = (VirtualUserTableId) obj;
+            final RecipientRewriteTableId other = (RecipientRewriteTableId) obj;
             if (!user.equals(other.user))
                 return false;
             if (!domain.equals(other.domain))
@@ -87,7 +87,7 @@ public class JPARecipientRewrite {
 
     /**
      * The name of the domain. Column name is chosen to be compatible with the
-     * JDBCVirtualUserTableList.
+     * JDBCRecipientRewriteTableList.
      */
     @Id
     @Column(name = "DOMAIN_NAME", nullable = false, length = 100)
@@ -95,13 +95,13 @@ public class JPARecipientRewrite {
 
     /**
      * The target address. column name is chosen to be compatible with the
-     * JDBCVirtualUserTableList.
+     * JDBCRecipientRewriteTableList.
      */
     @Column(name = "TARGET_ADDRESS", nullable = false, length = 100)
     private String targetAddress = "";
 
     /**
-     * Use this simple constructor to create a new VirtualUserTable.
+     * Use this simple constructor to create a new RecipientRewriteTable.
      * 
      * @param user
      *            , domain and their associated targetAddress

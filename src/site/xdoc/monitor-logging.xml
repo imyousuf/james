@@ -1,3 +1,112 @@
+<!--log4j.logger.james.smtpserver=DEBUG, SMTPSERVER-->
+
+<!--EBUG 16:16:06,705 | james.smtpserver | 250 Lookup command handler for command: EHLO-->
+<!--DEBUG 16:16:06,706 | james.smtpserver | 250 org.apache.james.protocols.smtp.core.esmtp.EhloCmdHandler: 250 [noname. Hello test.de (localhost [127.0.0.1]), PIPELINING, ENHANCEDSTATUSCODES, 8BITMIME]-->
+<!--DEBUG 16:16:11,098 | james.smtpserver | 250 Lookup command handler for command: MAIL-->
+<!--ERROR 16:16:11,108 | james.smtpserver | 250 Error parsing sender address: <gdgwewe: did not start and end with < >-->
+<!--INFO  16:16:11,110 | james.smtpserver | 250 org.apache.james.smtpserver.JamesMailCmdHandler: 501 [5.1.7 Syntax error in MAIL command]-->
+<!--DEBUG 16:16:14,442 | james.smtpserver | 250 Lookup command handler for command: MAIL-->
+<!--DEBUG 16:16:14,442 | james.smtpserver | 250 org.apache.james.smtpserver.JamesMailCmdHandler: 250 [2.1.0 Sender <test@localhost> OK]-->
+<!--DEBUG 16:16:22,385 | james.smtpserver | 250 Lookup command handler for command: RCPT-->
+<!--DEBUG 16:16:22,386 | james.smtpserver | 250 executing hook org.apache.james.smtpserver.AuthRequiredToRelayRcptHook-->
+<!--DEBUG 16:16:22,386 | james.smtpserver | 250 executing hook org.apache.james.smtpserver.SenderAuthIdentifyVerificationRcptHook-->
+<!--DEBUG 16:16:22,485 | james.smtpserver | 250 executing hook org.apache.james.protocols.smtp.core.PostmasterAbuseRcptHook-->
+<!--DEBUG 16:16:22,485 | james.smtpserver | 250 executing hook org.apache.james.smtpserver.fastfail.ValidRcptHandler-->
+<!--DEBUG 16:16:22,485 | james.smtpserver | 250 Sender allowed-->
+<!--DEBUG 16:16:22,485 | james.smtpserver | 250 org.apache.james.smtpserver.JamesRcptCmdHandler: 250 [2.1.5 Recipient <go@localhost> OK]-->
+<!--DEBUG 16:16:30,008 | james.smtpserver | 250 Lookup command handler for command: RCPT-->
+<!--ERROR 16:16:30,009 | james.smtpserver | 250 Error parsing recipient address: Address did not start and end with < > [to:<d] [from:test@localhost]-->
+<!--INFO  16:16:30,009 | james.smtpserver | 250 org.apache.james.smtpserver.JamesRcptCmdHandler: 501 [5.5.2 Syntax error in parameters or arguments]-->
+<!--DEBUG 16:16:33,424 | james.smtpserver | 250 Lookup command handler for command: RCPT-->
+<!--DEBUG 16:16:33,424 | james.smtpserver | 250 executing hook org.apache.james.smtpserver.AuthRequiredToRelayRcptHook-->
+<!--DEBUG 16:16:33,424 | james.smtpserver | 250 executing hook org.apache.james.smtpserver.SenderAuthIdentifyVerificationRcptHook-->
+<!--DEBUG 16:16:33,425 | james.smtpserver | 250 executing hook org.apache.james.protocols.smtp.core.PostmasterAbuseRcptHook-->
+<!--DEBUG 16:16:33,425 | james.smtpserver | 250 executing hook org.apache.james.smtpserver.fastfail.ValidRcptHandler-->
+<!--DEBUG 16:16:33,425 | james.smtpserver | 250 Sender allowed-->
+<!--DEBUG 16:16:33,425 | james.smtpserver | 250 org.apache.james.smtpserver.JamesRcptCmdHandler: 250 [2.1.5 Recipient <g@localhost> OK]-->
+<!--DEBUG 16:16:35,072 | james.smtpserver | 250 Lookup command handler for command: DATA-->
+<!--DEBUG 16:16:35,076 | james.smtpserver | 250 org.apache.james.smtpserver.JamesDataCmdHandler: 354 [Ok Send data ending with <CRLF>.<CRLF>]-->
+<!--DEBUG 16:16:39,205 | james.smtpserver | 250 executing james message handler org.apache.james.protocols.smtp.core.esmtp.MailSizeEsmtpExtension@4b25ee49-->
+<!--DEBUG 16:16:39,206 | james.smtpserver | 250 executing james message handler org.apache.james.smtpserver.AddDefaultAttributesMessageHook@6c408893-->
+<!--DEBUG 16:16:39,206 | james.smtpserver | 250 executing james message handler org.apache.james.smtpserver.SendMailHandler@5636bc0a-->
+<!--DEBUG 16:16:39,206 | james.smtpserver | 250 sending mail-->
+<!--INFO  16:16:39,223 | james.smtpserver | 250 Successfully spooled mail Mail1291907799185-4af99ab3-9dd2-4d04-b8c9-37c12dd94686 from test@localhost on 127.0.0.1 for [go@localhost, g@localhost]-->
+<!--INFO  16:16:40,230 | james.mailetcontext | Storing mail Mail1291907799185-4af99ab3-9dd2-4d04-b8c9-37c12dd94686 in file://var/mail/address-error/-->
+<!--[16:17:15] Norman Maurer: the 250 in front of it is the session id.. so you can now see the whole transaction flow-->
+<!--[16:17:23] Norman Maurer: even if you have many stuff currently going on-->
+<!--[16:17:59] Eric Charles: excellent. and the 400/500 smtp return codes ?-->
+<!--[16:18:02] Norman Maurer: as you see 5xx and 4xx stuff is logged with INFO .. the rest with DEBUG-->
+<!--[16:18:08] Norman Maurer: INFO  16:16:30,009 | james.smtpserver | 250 org.apache.james.smtpserver.JamesRcptCmdHandler: 501 [5.5.2 Syntax error in parameters or arguments]-->
+
+<!--DEBUG 16:41:42,174 | james.smtpserver | 167 org.apache.james.smtpserver.JamesWelcomeMessageHandler disconnect=false-->
+<!--DEBUG 16:41:44,207 | james.smtpserver | 167 Lookup command handler for command: EHLO-->
+<!--DEBUG 16:41:44,209 | james.smtpserver | 167 org.apache.james.protocols.smtp.core.esmtp.EhloCmdHandler: 250 [noname. Hello test (localhost [127.0.0.1]), PIPELINING, ENHANCEDSTATUSCODES, 8BITMIME]-->
+<!--DEBUG 16:41:44,214 | james.smtpserver | 167 org.apache.james.protocols.smtp.core.SMTPCommandDispatcherLineHandler disconnect=false-->
+<!--DEBUG 16:42:12,720 | james.smtpserver | 167 Lookup command handler for command: EHLO-->
+<!--DEBUG 16:42:12,720 | james.smtpserver | 167 org.apache.james.protocols.smtp.core.esmtp.EhloCmdHandler: 250 [noname. Hello t (localhost [127.0.0.1]), PIPELINING, ENHANCEDSTATUSCODES, 8BITMIME]-->
+<!--DEBUG 16:42:12,721 | james.smtpserver | 167 org.apache.james.protocols.smtp.core.SMTPCommandDispatcherLineHandler disconnect=false-->
+<!--DEBUG 16:42:15,008 | james.smtpserver | 167 Lookup command handler for command: MAIL-->
+<!--INFO  16:42:15,010 | james.smtpserver | 167 org.apache.james.smtpserver.JamesMailCmdHandler: 501 [5.5.4 Usage: MAIL FROM:<sender>]-->
+<!--DEBUG 16:42:15,010 | james.smtpserver | 167 org.apache.james.protocols.smtp.core.SMTPCommandDispatcherLineHandler disconnect=false-->
+<!--DEBUG 16:42:17,048 | james.smtpserver | 167 Lookup command handler for command: MAIL-->
+<!--DEBUG 16:42:17,048 | james.smtpserver | 167 org.apache.james.smtpserver.JamesMailCmdHandler: 250 [2.1.0 Sender <> OK]-->
+<!--DEBUG 16:42:17,048 | james.smtpserver | 167 org.apache.james.protocols.smtp.core.SMTPCommandDispatcherLineHandler disconnect=false-->
+<!--DEBUG 16:42:19,088 | james.smtpserver | 167 Lookup command handler for command: RCPT-->
+<!--DEBUG 16:42:19,088 | james.smtpserver | 167 executing hook org.apache.james.smtpserver.AuthRequiredToRelayRcptHook-->
+<!--DEBUG 16:42:19,089 | james.smtpserver | 167 executing hook org.apache.james.smtpserver.SenderAuthIdentifyVerificationRcptHook-->
+<!--DEBUG 16:42:19,089 | james.smtpserver | 167 executing hook org.apache.james.protocols.smtp.core.PostmasterAbuseRcptHook-->
+<!--DEBUG 16:42:19,089 | james.smtpserver | 167 executing hook org.apache.james.smtpserver.fastfail.ValidRcptHandler-->
+<!--DEBUG 16:42:19,089 | james.smtpserver | 167 Sender allowed-->
+<!--DEBUG 16:42:19,089 | james.smtpserver | 167 org.apache.james.smtpserver.JamesRcptCmdHandler: 250 [2.1.5 Recipient <nm@localhost> OK]-->
+<!--DEBUG 16:42:19,090 | james.smtpserver | 167 org.apache.james.protocols.smtp.core.SMTPCommandDispatcherLineHandler disconnect=false-->
+<!--DEBUG 16:42:19,767 | james.smtpserver | 167 Lookup command handler for command: DATA-->
+<!--DEBUG 16:42:19,774 | james.smtpserver | 167 org.apache.james.smtpserver.JamesDataCmdHandler: 354 [Ok Send data ending with <CRLF>.<CRLF>]-->
+<!--DEBUG 16:42:19,775 | james.smtpserver | 167 org.apache.james.protocols.smtp.core.SMTPCommandDispatcherLineHandler disconnect=false-->
+<!--DEBUG 16:42:22,950 | james.smtpserver | 167 executing james message handler org.apache.james.protocols.smtp.core.esmtp.MailSizeEsmtpExtension@5585c0de-->
+<!--DEBUG 16:42:22,952 | james.smtpserver | 167 executing james message handler org.apache.james.smtpserver.AddDefaultAttributesMessageHook@2827f394-->
+<!--DEBUG 16:42:22,952 | james.smtpserver | 167 executing james message handler org.apache.james.smtpserver.SendMailHandler@3f81d405-->
+<!--DEBUG 16:42:22,952 | james.smtpserver | 167 sending mail-->
+<!--INFO  16:42:22,977 | james.smtpserver | 167 Successfully spooled mail Mail1291909342936-99263c11-c287-42e9-93a5-4f3468842d9f from null on 127.0.0.1 for [nm@localhost]-->
+<!---->
+<!--DEBUG 17:23:42,297 | james.smtpserver | 262 org.apache.james.smtpserver.JamesWelcomeMessageHandler disconnect=false-->
+<!--DEBUG 17:23:46,091 | james.smtpserver | 262 Lookup command handler for command: EHLO-->
+<!--DEBUG 17:23:46,093 | james.smtpserver | 262 org.apache.james.protocols.smtp.core.esmtp.EhloCmdHandler: 250 [noname. Hello test (fileserver [192.168.0.254]), AUTH LOGIN PLAIN, AUTH=LOGIN PLAIN, PIPELINING, ENHANCEDSTATUSCODES, 8BITMIME]-->
+<!--DEBUG 17:23:46,098 | james.smtpserver | 262 org.apache.james.protocols.smtp.core.SMTPCommandDispatcherLineHandler disconnect=false-->
+<!--DEBUG 17:23:54,029 | james.smtpserver | 262 Lookup command handler for command: MAIL-->
+<!--DEBUG 17:23:54,031 | james.smtpserver | 262 org.apache.james.smtpserver.JamesMailCmdHandler: 250 [2.1.0 Sender <> OK]-->
+<!--DEBUG 17:23:54,032 | james.smtpserver | 262 org.apache.james.protocols.smtp.core.SMTPCommandDispatcherLineHandler disconnect=false-->
+<!--DEBUG 17:24:00,775 | james.smtpserver | 262 Lookup command handler for command: RCPT-->
+<!--DEBUG 17:24:00,776 | james.smtpserver | 262 executing hook org.apache.james.smtpserver.AuthRequiredToRelayRcptHook-->
+<!--DEBUG 17:24:00,777 | james.smtpserver | 262 executing hook org.apache.james.smtpserver.log.HookResultLogger@2a36bb87-->
+<!--INFO  17:24:00,777 | james.smtpserver | 262 org.apache.james.smtpserver.AuthRequiredToRelayRcptHook: result=2 (DENY)-->
+<!--INFO  17:24:00,777 | james.smtpserver | 262 org.apache.james.smtpserver.JamesRcptCmdHandler: 530 [5.7.1 Authentication Required]-->
+<!--DEBUG 17:24:00,778 | james.smtpserver | 262 org.apache.james.protocols.smtp.core.SMTPCommandDispatcherLineHandler disconnect=false-->
+<!--DEBUG 17:24:17,828 | james.smtpserver | 262 Lookup command handler for command: RCPT-->
+<!--DEBUG 17:24:17,828 | james.smtpserver | 262 executing hook org.apache.james.smtpserver.AuthRequiredToRelayRcptHook-->
+<!--DEBUG 17:24:17,828 | james.smtpserver | 262 executing hook org.apache.james.smtpserver.log.HookResultLogger@2a36bb87-->
+<!--DEBUG 17:24:17,829 | james.smtpserver | 262 org.apache.james.smtpserver.AuthRequiredToRelayRcptHook: result=8 (DECLINED)-->
+<!--DEBUG 17:24:17,829 | james.smtpserver | 262 executing hook org.apache.james.smtpserver.SenderAuthIdentifyVerificationRcptHook-->
+<!--DEBUG 17:24:17,829 | james.smtpserver | 262 executing hook org.apache.james.smtpserver.log.HookResultLogger@2a36bb87-->
+<!--DEBUG 17:24:17,829 | james.smtpserver | 262 org.apache.james.smtpserver.SenderAuthIdentifyVerificationRcptHook: result=8 (DECLINED)-->
+<!--DEBUG 17:24:17,830 | james.smtpserver | 262 executing hook org.apache.james.protocols.smtp.core.PostmasterAbuseRcptHook-->
+<!--DEBUG 17:24:17,830 | james.smtpserver | 262 executing hook org.apache.james.smtpserver.log.HookResultLogger@2a36bb87-->
+<!--DEBUG 17:24:17,830 | james.smtpserver | 262 org.apache.james.protocols.smtp.core.PostmasterAbuseRcptHook: result=8 (DECLINED)-->
+<!--DEBUG 17:24:17,830 | james.smtpserver | 262 executing hook org.apache.james.smtpserver.fastfail.ValidRcptHandler-->
+<!--DEBUG 17:24:18,670 | james.smtpserver | 262 Unknown user nm check if its an alias-->
+<!--INFO  17:24:18,724 | james.smtpserver | 262 Rejected message. Unknown user: nm@localhost-->
+<!--DEBUG 17:24:18,725 | james.smtpserver | 262 executing hook org.apache.james.smtpserver.log.HookResultLogger@2a36bb87-->
+<!--INFO  17:24:18,726 | james.smtpserver | 262 org.apache.james.smtpserver.fastfail.ValidRcptHandler: result=2 (DENY)-->
+<!--INFO  17:24:18,726 | james.smtpserver | 262 org.apache.james.smtpserver.JamesRcptCmdHandler: 550 [5.1.1 Unknown user: nm@localhost]-->
+<!--DEBUG 17:24:18,727 | james.smtpserver | 262 org.apache.james.protocols.smtp.core.SMTPCommandDispatcherLineHandler disconnect=false-->
+<!--DEBUG 17:24:23,843 | james.smtpserver | 262 Lookup command handler for command: QUIT-->
+<!--DEBUG 17:24:23,843 | james.smtpserver | 262 org.apache.james.protocols.smtp.core.QuitCmdHandler: 221 [2.0.0 noname. Service closing transmission channel]-->
+<!--DEBUG 17:24:23,844 | james.smtpserver | Dispose objects while closing channel 1431702401-->
+<!--DEBUG 17:24:23,845 | james.smtpserver | 262 org.apache.james.protocols.smtp.core.SMTPCommandDispatcherLineHandler disconnect=false-->
+<!--[17:24:59] Norman Maurer: INFO  17:24:00,777 | james.smtpserver | 262 org.apache.james.smtpserver.AuthRequiredToRelayRcptHook: result=2 (DENY)-->
+<!--[17:25:04] Norman Maurer: INFO  17:24:18,726 | james.smtpserver | 262 org.apache.james.smtpserver.fastfail.ValidRcptHandler: result=2 (DENY)-->
+<!--[17:25:09] Norman Maurer: DEBUG 17:24:17,829 | james.smtpserver | 262 org.apache.james.smtpserver.SenderAuthIdentifyVerificationRcptHook: result=8 (DECLINED)-->
+
+    
 <?xml version="1.0"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one

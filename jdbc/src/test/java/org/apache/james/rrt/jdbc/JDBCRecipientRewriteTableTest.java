@@ -34,15 +34,15 @@ import org.slf4j.LoggerFactory;
 public class JDBCRecipientRewriteTableTest extends AbstractRecipientRewriteTableTest {
 
     /**
-     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest#getVirtualUserTable()
+     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest#getRecipientRewriteTable()
      */
-    protected AbstractRecipientRewriteTable getVirtualUserTable() throws Exception {
+    protected AbstractRecipientRewriteTable getRecipientRewriteTable() throws Exception {
         JDBCRecipientRewriteTable virtualUserTable = new JDBCRecipientRewriteTable();
         virtualUserTable.setLog(LoggerFactory.getLogger("MockLog"));
         virtualUserTable.setDataSource(getDataSource());
         virtualUserTable.setFileSystem(new MockFileSystem());
         DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
-        defaultConfiguration.addProperty("[@destinationURL]", "db://maildb/VirtualUserTable");
+        defaultConfiguration.addProperty("[@destinationURL]", "db://maildb/RecipientRewriteTable");
         defaultConfiguration.addProperty("sqlFile", "file://conf/sqlResources.xml");
         virtualUserTable.configure(defaultConfiguration);
         virtualUserTable.init();

@@ -184,7 +184,7 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
     /*
      * (non-Javadoc)
      * 
-     * @see org.apache.james.vut.api.VirtualUserTable#getAllMappings()
+     * @see org.apache.james.rrt.api.RecipientRewriteTable#getAllMappings()
      */
     public Map<String, Collection<String>> getAllMappings() throws RecipientRewriteTableException {
         Map<String, Collection<String>> mappings = new HashMap<String, Collection<String>>();
@@ -221,7 +221,7 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
      * (non-Javadoc)
      * 
      * @see
-     * org.apache.james.vut.api.VirtualUserTable#getUserDomainMappings(java.
+     * org.apache.james.rrt.api.RecipientRewriteTable#getUserDomainMappings(java.
      * lang.String, java.lang.String)
      */
     public Collection<String> getUserDomainMappings(String user, String domain) throws RecipientRewriteTableException {
@@ -229,51 +229,51 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
     }
 
     public void addRegexMapping(String user, String domain, String regex) throws RecipientRewriteTableException {
-        throw new RecipientRewriteTableException("Read-Only VirtualUserTable");
+        throw new RecipientRewriteTableException("Read-Only RecipientRewriteTable");
     }
 
     public void removeRegexMapping(String user, String domain, String regex) throws RecipientRewriteTableException {
-        throw new RecipientRewriteTableException("Read-Only VirtualUserTable");
+        throw new RecipientRewriteTableException("Read-Only RecipientRewriteTable");
 
     }
 
     public void addAddressMapping(String user, String domain, String address) throws RecipientRewriteTableException {
-        throw new RecipientRewriteTableException("Read-Only VirtualUserTable");
+        throw new RecipientRewriteTableException("Read-Only RecipientRewriteTable");
 
     }
 
     public void removeAddressMapping(String user, String domain, String address) throws RecipientRewriteTableException {
-        throw new RecipientRewriteTableException("Read-Only VirtualUserTable");
+        throw new RecipientRewriteTableException("Read-Only RecipientRewriteTable");
 
     }
 
     public void addErrorMapping(String user, String domain, String error) throws RecipientRewriteTableException {
-        throw new RecipientRewriteTableException("Read-Only VirtualUserTable");
+        throw new RecipientRewriteTableException("Read-Only RecipientRewriteTable");
 
     }
 
     public void removeErrorMapping(String user, String domain, String error) throws RecipientRewriteTableException {
-        throw new RecipientRewriteTableException("Read-Only VirtualUserTable");
+        throw new RecipientRewriteTableException("Read-Only RecipientRewriteTable");
 
     }
 
     public void addMapping(String user, String domain, String mapping) throws RecipientRewriteTableException {
-        throw new RecipientRewriteTableException("Read-Only VirtualUserTable");
+        throw new RecipientRewriteTableException("Read-Only RecipientRewriteTable");
 
     }
 
     public void removeMapping(String user, String domain, String mapping) throws RecipientRewriteTableException {
-        throw new RecipientRewriteTableException("Read-Only VirtualUserTable");
+        throw new RecipientRewriteTableException("Read-Only RecipientRewriteTable");
 
     }
 
     public void addAliasDomainMapping(String aliasDomain, String realDomain) throws RecipientRewriteTableException {
-        throw new RecipientRewriteTableException("Read-Only VirtualUserTable");
+        throw new RecipientRewriteTableException("Read-Only RecipientRewriteTable");
 
     }
 
     public void removeAliasDomainMapping(String aliasDomain, String realDomain) throws RecipientRewriteTableException {
-        throw new RecipientRewriteTableException("Read-Only VirtualUserTable");
+        throw new RecipientRewriteTableException("Read-Only RecipientRewriteTable");
 
     }
 

@@ -1,3 +1,24 @@
+<!--what you mean with how I see permanent erros ?-->
+<!--[12:30:05] Norman Maurer: unknow users are in ValidRcptHandler-->
+<!--[12:30:29] Norman Maurer: but if someone whould just ignore the 5xx return code on rcpt and suply the data it would return a permanent error-->
+<!--[12:30:36] Norman Maurer: so yes it could be in there too-->
+<!--[12:33:57] Norman Maurer: maybe we should only count the first 5xx in a transaction-->
+<!--[12:33:59] Norman Maurer: wdyt ?-->
+<!--[12:35:24] Eric Charles: I use the defafult smtp logging level. I don't see much in the logs (not smpt codes,..)-->
+<!--[12:36:11] Eric Charles: what must I do to see the 4xx codez?-->
+<!--[12:36:32] Norman Maurer: debug will show themnot sure if-->
+<!--[12:36:36] Norman Maurer: we need to improve logging-->
+<!--[12:39:10] Eric Charles: I will update log level-->
+<!--[12:39:18] Eric Charles: for the rejected message, I would except to be counted as ok in the stats-->
+<!--[12:39:27] Norman Maurer: why-->
+<!--[12:40:02] Eric Charles: it's not an smtp protocol error-->
+<!--[12:40:29] Norman Maurer: 5xx is an error-->
+<!--[12:40:36] Norman Maurer: thats the whole point of the stats-->
+<!--[12:40:54] Norman Maurer: to see how many messages are rejected via permanent error and how many via temporary error-->
+<!--[12:41:00] Eric Charles: what's the difference between permanet and temporrary ?-->
+<!--[12:41:19] Norman Maurer: temporary will get try to redelivered later-->
+<!--[12:41:26] Norman Maurer: like greylisting is temporary-->
+    
 <?xml version="1.0"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
@@ -55,14 +76,25 @@
        Configure for example smtpserver.xml with</p>
        
     <source>
-&lt;handler class="org.apache.james.smtpserver.jmx.HookResultJMXMonitor"/&gt;
 &lt;handler class="org.apache.james.smtpserver.jmx.ConnectHandlerResultJMXMonitor"/&gt;
 &lt;handler class="org.apache.james.smtpserver.jmx.LineHandlerResultJMXMonitor"/&gt;
 &lt;handler class="org.apache.james.smtpserver.jmx.CommandHandlerResultJMXMonitor"/&gt;
+&lt;handler class="org.apache.james.smtpserver.jmx.HookResultJMXMonitor"/&gt; (only for smtp)
     </source>
+
+    <p><img src="images/jmx-monitoring/jmx-org.apache.james.smtpserver.JamesDataCmdHandler.png"/></p>
 
   </section>
 
+  <section name="Statistics via JMX">
+  
+    <p>You can enable satistics collection for SMTP/LMPT/POP3 Servers via JMX. 
+       Configure for example smtpserver.xml with</p>
+       
+    <p><img src="images/jmx-monitoring/jmx-org.apache.james.smtpserver.JamesDataCmdHandler.png"/></p>
+
+    </section>
+       
   <section name="JMX Remote Access">
   
     <p>If you want a remote access, you can install a web application management tool such as jmanage. 

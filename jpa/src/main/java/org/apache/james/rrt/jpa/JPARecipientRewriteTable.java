@@ -259,8 +259,8 @@ public class JPARecipientRewriteTable extends AbstractRecipientRewriteTable {
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
-            JPARecipientRewrite jpaVirtualUser = new JPARecipientRewrite(user, domain, mapping);
-            entityManager.persist(jpaVirtualUser);
+            JPARecipientRewrite jpaRecipientRewrite = new JPARecipientRewrite(user, domain, mapping);
+            entityManager.persist(jpaRecipientRewrite);
             transaction.commit();
         } catch (PersistenceException e) {
             getLogger().debug("Failed to save virtual user", e);

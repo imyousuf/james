@@ -31,7 +31,7 @@ import org.apache.james.rrt.api.RecipientRewriteTableException;
 import org.apache.james.rrt.api.RecipientRewriteTableManagementMBean;
 
 /**
- * Management for VirtualUserTables
+ * Management for RecipientRewriteTables
  */
 public class RecipientRewriteTableManagement extends StandardMBean implements RecipientRewriteTableManagementMBean {
 
@@ -42,7 +42,7 @@ public class RecipientRewriteTableManagement extends StandardMBean implements Re
     private RecipientRewriteTable vut;
 
     @Resource(name = "recipientrewritetable")
-    public void setManageableVirtualUserTable(RecipientRewriteTable vut) {
+    public void setManageableRecipientRewriteTable(RecipientRewriteTable vut) {
         this.vut = vut;
     }
 
@@ -50,7 +50,7 @@ public class RecipientRewriteTableManagement extends StandardMBean implements Re
      * (non-Javadoc)
      * 
      * @see
-     * org.apache.james.vut.api.VirtualUserTableManagementMBean#addRegexMapping
+     * org.apache.james.rrt.api.RecipientRewriteTableManagementMBean#addRegexMapping
      * (java.lang.String, java.lang.String, java.lang.String)
      */
     public void addRegexMapping(String user, String domain, String regex) throws Exception {
@@ -65,7 +65,7 @@ public class RecipientRewriteTableManagement extends StandardMBean implements Re
      * (non-Javadoc)
      * 
      * @see
-     * org.apache.james.vut.api.VirtualUserTableManagementMBean#removeRegexMapping
+     * org.apache.james.rrt.api.RecipientRewriteTableManagementMBean#removeRegexMapping
      * (java.lang.String, java.lang.String, java.lang.String)
      */
     public void removeRegexMapping(String user, String domain, String regex) throws Exception {
@@ -81,7 +81,7 @@ public class RecipientRewriteTableManagement extends StandardMBean implements Re
      * (non-Javadoc)
      * 
      * @see
-     * org.apache.james.vut.api.VirtualUserTableManagementMBean#addAddressMapping
+     * org.apache.james.rrt.api.RecipientRewriteTableManagementMBean#addAddressMapping
      * (java.lang.String, java.lang.String, java.lang.String)
      */
     public void addAddressMapping(String user, String domain, String address) throws Exception {
@@ -97,7 +97,7 @@ public class RecipientRewriteTableManagement extends StandardMBean implements Re
      * (non-Javadoc)
      * 
      * @see
-     * org.apache.james.vut.api.VirtualUserTableManagementMBean#removeAddressMapping
+     * org.apache.james.rrt.api.RecipientRewriteTableManagementMBean#removeAddressMapping
      * (java.lang.String, java.lang.String, java.lang.String)
      */
     public void removeAddressMapping(String user, String domain, String address) throws Exception {
@@ -113,7 +113,7 @@ public class RecipientRewriteTableManagement extends StandardMBean implements Re
      * (non-Javadoc)
      * 
      * @see
-     * org.apache.james.vut.api.VirtualUserTableManagementMBean#addErrorMapping
+     * org.apache.james.rrt.api.RecipientRewriteTableManagementMBean#addErrorMapping
      * (java.lang.String, java.lang.String, java.lang.String)
      */
     public void addErrorMapping(String user, String domain, String error) throws Exception {
@@ -129,7 +129,7 @@ public class RecipientRewriteTableManagement extends StandardMBean implements Re
      * (non-Javadoc)
      * 
      * @see
-     * org.apache.james.vut.api.VirtualUserTableManagementMBean#removeErrorMapping
+     * org.apache.james.rrt.api.RecipientRewriteTableManagementMBean#removeErrorMapping
      * (java.lang.String, java.lang.String, java.lang.String)
      */
     public void removeErrorMapping(String user, String domain, String error) throws Exception {
@@ -144,7 +144,7 @@ public class RecipientRewriteTableManagement extends StandardMBean implements Re
     /*
      * (non-Javadoc)
      * 
-     * @see org.apache.james.vut.api.VirtualUserTableManagementMBean#
+     * @see org.apache.james.rrt.api.RecipientRewriteTableManagementMBean#
      * getUserDomainMappings(java.lang.String, java.lang.String)
      */
     public Collection<String> getUserDomainMappings(String user, String domain) throws Exception {
@@ -160,7 +160,7 @@ public class RecipientRewriteTableManagement extends StandardMBean implements Re
      * (non-Javadoc)
      * 
      * @see
-     * org.apache.james.vut.api.VirtualUserTableManagementMBean#addMapping(java
+     * org.apache.james.rrt.api.RecipientRewriteTableManagementMBean#addMapping(java
      * .lang.String, java.lang.String, java.lang.String)
      */
     public void addMapping(String user, String domain, String mapping) throws Exception {
@@ -176,7 +176,7 @@ public class RecipientRewriteTableManagement extends StandardMBean implements Re
      * (non-Javadoc)
      * 
      * @see
-     * org.apache.james.vut.api.VirtualUserTableManagementMBean#removeMapping
+     * org.apache.james.rrt.api.RecipientRewriteTableManagementMBean#removeMapping
      * (java.lang.String, java.lang.String, java.lang.String)
      */
     public void removeMapping(String user, String domain, String mapping) throws Exception {
@@ -192,7 +192,7 @@ public class RecipientRewriteTableManagement extends StandardMBean implements Re
      * (non-Javadoc)
      * 
      * @see
-     * org.apache.james.vut.api.VirtualUserTableManagementMBean#getAllMappings()
+     * org.apache.james.rrt.api.RecipientRewriteTableManagementMBean#getAllMappings()
      */
     public Map<String, Collection<String>> getAllMappings() throws Exception {
         try {

@@ -200,7 +200,7 @@ public abstract class AbstractRecipientRewriteTable implements RecipientRewriteT
     }
 
     /**
-     * @see org.apache.james.vut.api.ManageableVirtualUserTable#addRegexMapping(java.lang.String,
+     * @see org.apache.james.rrt.api.ManageableRecipientRewriteTable#addRegexMapping(java.lang.String,
      *      java.lang.String, java.lang.String)
      */
     public void addRegexMapping(String user, String domain, String regex) throws RecipientRewriteTableException {
@@ -217,7 +217,7 @@ public abstract class AbstractRecipientRewriteTable implements RecipientRewriteT
     }
 
     /**
-     * @see org.apache.james.vut.api.ManageableVirtualUserTable#removeRegexMapping(java.lang.String,
+     * @see org.apache.james.rrt.api.ManageableRecipientRewriteTable#removeRegexMapping(java.lang.String,
      *      java.lang.String, java.lang.String)
      */
     public void removeRegexMapping(String user, String domain, String regex) throws RecipientRewriteTableException {
@@ -226,7 +226,7 @@ public abstract class AbstractRecipientRewriteTable implements RecipientRewriteT
     }
 
     /**
-     * @see org.apache.james.vut.api.ManageableVirtualUserTable#addAddressMapping(java.lang.String,
+     * @see org.apache.james.rrt.api.ManageableRecipientRewriteTable#addAddressMapping(java.lang.String,
      *      java.lang.String, java.lang.String)
      */
     public void addAddressMapping(String user, String domain, String address) throws RecipientRewriteTableException {
@@ -249,7 +249,7 @@ public abstract class AbstractRecipientRewriteTable implements RecipientRewriteT
     }
 
     /**
-     * @see org.apache.james.vut.api.ManageableVirtualUserTable#removeAddressMapping(java.lang.String,
+     * @see org.apache.james.rrt.api.ManageableRecipientRewriteTable#removeAddressMapping(java.lang.String,
      *      java.lang.String, java.lang.String)
      */
     public void removeAddressMapping(String user, String domain, String address) throws RecipientRewriteTableException {
@@ -265,7 +265,7 @@ public abstract class AbstractRecipientRewriteTable implements RecipientRewriteT
     }
 
     /**
-     * @see org.apache.james.vut.api.ManageableVirtualUserTable#addErrorMapping(java.lang.String,
+     * @see org.apache.james.rrt.api.ManageableRecipientRewriteTable#addErrorMapping(java.lang.String,
      *      java.lang.String, java.lang.String)
      */
     public void addErrorMapping(String user, String domain, String error) throws RecipientRewriteTableException {
@@ -276,7 +276,7 @@ public abstract class AbstractRecipientRewriteTable implements RecipientRewriteT
     }
 
     /**
-     * @see org.apache.james.vut.api.ManageableVirtualUserTable#removeErrorMapping(java.lang.String,
+     * @see org.apache.james.rrt.api.ManageableRecipientRewriteTable#removeErrorMapping(java.lang.String,
      *      java.lang.String, java.lang.String)
      */
     public void removeErrorMapping(String user, String domain, String error) throws RecipientRewriteTableException {
@@ -285,7 +285,7 @@ public abstract class AbstractRecipientRewriteTable implements RecipientRewriteT
     }
 
     /**
-     * @see org.apache.james.vut.api.ManageableVirtualUserTable#addMapping(java.lang.String,
+     * @see org.apache.james.rrt.api.ManageableRecipientRewriteTable#addMapping(java.lang.String,
      *      java.lang.String, java.lang.String)
      */
     public void addMapping(String user, String domain, String mapping) throws RecipientRewriteTableException {
@@ -307,7 +307,7 @@ public abstract class AbstractRecipientRewriteTable implements RecipientRewriteT
     }
 
     /**
-     * @see org.apache.james.vut.api.ManageableVirtualUserTable#removeMapping(java.lang.String,
+     * @see org.apache.james.rrt.api.ManageableRecipientRewriteTable#removeMapping(java.lang.String,
      *      java.lang.String, java.lang.String)
      */
     public void removeMapping(String user, String domain, String mapping) throws RecipientRewriteTableException {
@@ -329,7 +329,7 @@ public abstract class AbstractRecipientRewriteTable implements RecipientRewriteT
     }
 
     /**
-     * @see org.apache.james.vut.api.ManageableVirtualUserTable#getAllMappings()
+     * @see org.apache.james.rrt.api.ManageableRecipientRewriteTable#getAllMappings()
      */
     public Map<String, Collection<String>> getAllMappings() throws RecipientRewriteTableException {
         int count = 0;
@@ -343,7 +343,7 @@ public abstract class AbstractRecipientRewriteTable implements RecipientRewriteT
     }
 
     /**
-     * @see org.apache.james.vut.api.ManageableVirtualUserTable#getUserDomainMappings(java.lang.String,
+     * @see org.apache.james.rrt.api.ManageableRecipientRewriteTable#getUserDomainMappings(java.lang.String,
      *      java.lang.String)
      */
     public Collection<String> getUserDomainMappings(String user, String domain) throws RecipientRewriteTableException {
@@ -351,7 +351,7 @@ public abstract class AbstractRecipientRewriteTable implements RecipientRewriteT
     }
 
     /**
-     * @see org.apache.james.vut.api.ManageableVirtualUserTable#addAliasDomainMapping(java.lang.String,
+     * @see org.apache.james.rrt.api.ManageableRecipientRewriteTable#addAliasDomainMapping(java.lang.String,
      *      java.lang.String)
      */
     public void addAliasDomainMapping(String aliasDomain, String realDomain) throws RecipientRewriteTableException {
@@ -361,7 +361,7 @@ public abstract class AbstractRecipientRewriteTable implements RecipientRewriteT
 
     /**
      * @return
-     * @see org.apache.james.vut.api.ManageableVirtualUserTable#removeAliasDomainMapping(java.lang.String,
+     * @see org.apache.james.rrt.api.ManageableRecipientRewriteTable#removeAliasDomainMapping(java.lang.String,
      *      java.lang.String)
      */
     public void removeAliasDomainMapping(String aliasDomain, String realDomain) throws RecipientRewriteTableException {

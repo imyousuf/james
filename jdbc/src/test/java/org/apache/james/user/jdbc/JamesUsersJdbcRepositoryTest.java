@@ -100,7 +100,7 @@ public class JamesUsersJdbcRepositoryTest extends AbstractUsersRepositoryTest {
         LifecycleUtil.dispose(this.usersRepository);
     }
 
-    public void testVirtualUserTableImpl() throws Exception {
+    public void testRecipientRewriteTableImpl() throws Exception {
         String username = "test";
         String password = "pass";
         String alias = "alias";

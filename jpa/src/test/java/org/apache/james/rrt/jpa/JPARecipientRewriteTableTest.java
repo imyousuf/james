@@ -64,9 +64,9 @@ public class JPARecipientRewriteTableTest extends AbstractRecipientRewriteTableT
     }
 
     /**
-     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest#getVirtualUserTable()
+     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest#getRecipientRewriteTable()
      */
-    protected AbstractRecipientRewriteTable getVirtualUserTable() throws Exception {
+    protected AbstractRecipientRewriteTable getRecipientRewriteTable() throws Exception {
         JPARecipientRewriteTable virtualUserTable = new JPARecipientRewriteTable();
         virtualUserTable.setLog(LoggerFactory.getLogger("MockLog"));
         virtualUserTable.setEntityManagerFactory(factory);

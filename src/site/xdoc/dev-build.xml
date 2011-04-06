@@ -1,3 +1,7 @@
+maven 3.0
+<!--Run mvn package to change jpa or use run  option -javaagent:your_home_folder\.m2\repository\org\apache\openjpa\openjpa\2.0.1\openjpa-2.0.1.ja -->
+download all source from 'current' module
+
 <?xml version="1.0"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one

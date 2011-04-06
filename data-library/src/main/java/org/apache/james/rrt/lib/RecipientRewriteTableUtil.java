@@ -32,7 +32,7 @@ import org.apache.james.rrt.api.RecipientRewriteTable;
 import org.apache.mailet.MailAddress;
 
 /**
- * This helper class contains methods for the VirtualUserTable implementations
+ * This helper class contains methods for the RecipientRewriteTable implementations
  */
 public class RecipientRewriteTableUtil {
 
@@ -41,7 +41,7 @@ public class RecipientRewriteTableUtil {
 
     // @deprecated QUERY is deprecated - SQL queries are now located in
     // sqlResources.xml
-    public static String QUERY = "select VirtualUserTable.target_address from VirtualUserTable, VirtualUserTable as VUTDomains where (VirtualUserTable.user like ? or VirtualUserTable.user like '\\%') and (VirtualUserTable.domain like ? or (VirtualUserTable.domain like '%*%' and VUTDomains.domain like ?)) order by concat(VirtualUserTable.user,'@',VirtualUserTable.domain) desc limit 1";
+    public static String QUERY = "select RecipientRewriteTable.target_address from RecipientRewriteTable, RecipientRewriteTable as VUTDomains where (RecipientRewriteTable.user like ? or RecipientRewriteTable.user like '\\%') and (RecipientRewriteTable.domain like ? or (RecipientRewriteTable.domain like '%*%' and VUTDomains.domain like ?)) order by concat(RecipientRewriteTable.user,'@',RecipientRewriteTable.domain) desc limit 1";
 
     /**
      * Processes regex virtual user mapping

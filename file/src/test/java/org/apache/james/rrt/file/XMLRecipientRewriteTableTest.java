@@ -44,7 +44,7 @@ public class XMLRecipientRewriteTableTest extends AbstractRecipientRewriteTableT
         super.setUp();
     }
 
-    protected AbstractRecipientRewriteTable getVirtualUserTable() throws Exception {
+    protected AbstractRecipientRewriteTable getRecipientRewriteTable() throws Exception {
         XMLRecipientRewriteTable virtualUserTable = new XMLRecipientRewriteTable();
         virtualUserTable.setLog(LoggerFactory.getLogger("MockLog"));
         return virtualUserTable;
