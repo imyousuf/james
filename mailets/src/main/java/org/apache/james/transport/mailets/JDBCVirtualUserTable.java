@@ -19,8 +19,8 @@
 
 package org.apache.james.transport.mailets;
 
+import org.apache.james.rrt.lib.RecipientRewriteTableUtil;
 import org.apache.james.util.sql.JDBCUtil;
-import org.apache.james.vut.lib.VirtualUserTableUtil;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
 
@@ -161,7 +161,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
             }
 
             // Build the query
-            query = getInitParameter("sqlquery", VirtualUserTableUtil.QUERY);
+            query = getInitParameter("sqlquery", RecipientRewriteTableUtil.QUERY);
         } catch (MailetException me) {
             throw me;
         } catch (Exception e) {

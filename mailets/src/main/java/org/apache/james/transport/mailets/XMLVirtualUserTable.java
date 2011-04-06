@@ -26,7 +26,7 @@ import java.util.Map;
 
 import javax.mail.MessagingException;
 
-import org.apache.james.vut.lib.VirtualUserTableUtil;
+import org.apache.james.rrt.lib.RecipientRewriteTableUtil;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -86,7 +86,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
         String mapping = getInitParameter("mapping");
 
         if (mapping != null) {
-            mappings = VirtualUserTableUtil.getXMLMappings(mapping);
+            mappings = RecipientRewriteTableUtil.getXMLMappings(mapping);
         }
     }
 
@@ -105,7 +105,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
             String user = source.getLocalPart().toLowerCase();
             String domain = source.getDomain().toLowerCase();
 
-            String targetString = VirtualUserTableUtil.getTargetString(user, domain, mappings);
+            String targetString = RecipientRewriteTableUtil.getTargetString(user, domain, mappings);
 
             if (targetString != null) {
                 recipientsMap.put(source, targetString);

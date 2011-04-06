@@ -47,14 +47,14 @@ import org.apache.james.protocols.lib.mock.MockJSR250Loader;
 import org.apache.james.protocols.lib.mock.MockProtocolHandlerChain;
 import org.apache.james.queue.api.mock.MockMailQueue;
 import org.apache.james.queue.api.mock.MockMailQueueFactory;
+import org.apache.james.rrt.api.RecipientRewriteTable;
+import org.apache.james.rrt.api.RecipientRewriteTableException;
 import org.apache.james.smtpserver.netty.SMTPServer;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.domainlist.api.mock.SimpleDomainList;
 import org.apache.james.filesystem.api.mock.MockFileSystem;
 import org.apache.james.mailrepository.mock.MockMailRepositoryStore;
 import org.apache.james.user.lib.mock.MockUsersRepository;
-import org.apache.james.vut.api.VirtualUserTable;
-import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -300,66 +300,66 @@ public abstract class SMTPServerTest extends TestCase {
 
         m_serviceManager.put("filesystem", fileSystem);
         m_serviceManager.put("org.apache.james.smtpserver.protocol.DNSService", dnsAdapter);
-        m_serviceManager.put("virtualusertable", new VirtualUserTable() {
+        m_serviceManager.put("virtualusertable", new RecipientRewriteTable() {
 
-            public void addRegexMapping(String user, String domain, String regex) throws VirtualUserTableException {
+            public void addRegexMapping(String user, String domain, String regex) throws RecipientRewriteTableException {
                 throw new UnsupportedOperationException("Not implemented");
             }
 
-            public void removeRegexMapping(String user, String domain, String regex) throws VirtualUserTableException {
-                throw new UnsupportedOperationException("Not implemented");
-
-            }
-
-            public void addAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
+            public void removeRegexMapping(String user, String domain, String regex) throws RecipientRewriteTableException {
                 throw new UnsupportedOperationException("Not implemented");
 
             }
 
-            public void removeAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
+            public void addAddressMapping(String user, String domain, String address) throws RecipientRewriteTableException {
                 throw new UnsupportedOperationException("Not implemented");
 
             }
 
-            public void addErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
+            public void removeAddressMapping(String user, String domain, String address) throws RecipientRewriteTableException {
                 throw new UnsupportedOperationException("Not implemented");
 
             }
 
-            public void removeErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
+            public void addErrorMapping(String user, String domain, String error) throws RecipientRewriteTableException {
                 throw new UnsupportedOperationException("Not implemented");
 
             }
 
-            public Collection<String> getUserDomainMappings(String user, String domain) throws VirtualUserTableException {
-                throw new UnsupportedOperationException("Not implemented");
-            }
-
-            public void addMapping(String user, String domain, String mapping) throws VirtualUserTableException {
+            public void removeErrorMapping(String user, String domain, String error) throws RecipientRewriteTableException {
                 throw new UnsupportedOperationException("Not implemented");
 
             }
 
-            public void removeMapping(String user, String domain, String mapping) throws VirtualUserTableException {
+            public Collection<String> getUserDomainMappings(String user, String domain) throws RecipientRewriteTableException {
+                throw new UnsupportedOperationException("Not implemented");
+            }
+
+            public void addMapping(String user, String domain, String mapping) throws RecipientRewriteTableException {
                 throw new UnsupportedOperationException("Not implemented");
 
             }
 
-            public Map<String, Collection<String>> getAllMappings() throws VirtualUserTableException {
-                throw new UnsupportedOperationException("Not implemented");
-            }
-
-            public void addAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException {
+            public void removeMapping(String user, String domain, String mapping) throws RecipientRewriteTableException {
                 throw new UnsupportedOperationException("Not implemented");
 
             }
 
-            public void removeAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException {
+            public Map<String, Collection<String>> getAllMappings() throws RecipientRewriteTableException {
+                throw new UnsupportedOperationException("Not implemented");
+            }
+
+            public void addAliasDomainMapping(String aliasDomain, String realDomain) throws RecipientRewriteTableException {
                 throw new UnsupportedOperationException("Not implemented");
 
             }
 
-            public Collection<String> getMappings(String user, String domain) throws ErrorMappingException, VirtualUserTableException {
+            public void removeAliasDomainMapping(String aliasDomain, String realDomain) throws RecipientRewriteTableException {
+                throw new UnsupportedOperationException("Not implemented");
+
+            }
+
+            public Collection<String> getMappings(String user, String domain) throws ErrorMappingException, RecipientRewriteTableException {
                 throw new UnsupportedOperationException("Not implemented");
             }
         });

@@ -16,39 +16,15 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.rrt.api;
 
-package org.apache.james.user.api;
+public class RecipientRewriteTableException extends Exception {
 
-import org.apache.james.rrt.api.RecipientRewriteTable;
+    public RecipientRewriteTableException(String msg) {
+        super(msg);
+    }
 
-/**
- * @deprecated Use {@link UsersRepository}
- */
-@Deprecated
-public interface JamesUsersRepository extends UsersRepository, RecipientRewriteTable {
-
-    /**
-     * enable/disable aliases in case of JamesUsers
-     * 
-     * @param enableAliases
-     *            enable
-     */
-    void setEnableAliases(boolean enableAliases);
-
-    /**
-     * enable/disable aliases in case of JamesUsers
-     * 
-     * @param enableForwarding
-     *            enable
-     */
-    void setEnableForwarding(boolean enableForwarding);
-
-    /**
-     * set case sensitive/insensitive operations
-     * 
-     * @param ignoreCase
-     *            ignore
-     */
-    void setIgnoreCase(boolean ignoreCase);
-
+    public RecipientRewriteTableException(String msg, Throwable t) {
+        super(msg, t);
+    }
 }

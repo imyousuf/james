@@ -32,8 +32,8 @@ import javax.management.remote.JMXServiceURL;
 
 import org.apache.james.cli.probe.ServerProbe;
 import org.apache.james.domainlist.api.DomainListManagementMBean;
+import org.apache.james.rrt.api.RecipientRewriteTableManagementMBean;
 import org.apache.james.user.api.UsersRepositoryManagementMBean;
-import org.apache.james.vut.api.VirtualUserTableManagementMBean;
 
 public class JmxServerProbe implements ServerProbe {
 
@@ -44,7 +44,7 @@ public class JmxServerProbe implements ServerProbe {
 
     private MBeanServerConnection mbeanServerConn;
     private DomainListManagementMBean domainListProcxy;
-    private VirtualUserTableManagementMBean virtualUserTableProxy;
+    private RecipientRewriteTableManagementMBean virtualUserTableProxy;
     private UsersRepositoryManagementMBean usersRepositoryProxy;
 
     private static final String fmtUrl = "service:jmx:rmi:///jndi/rmi://%s:%d/jmxrmi";
@@ -97,7 +97,7 @@ public class JmxServerProbe implements ServerProbe {
             ObjectName name = new ObjectName(DOMAINLIST_OBJECT_NAME);
             domainListProcxy = (DomainListManagementMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServerConn, name, DomainListManagementMBean.class, true);
             name = new ObjectName(VIRTUALUSERTABLE_OBJECT_NAME);
-            virtualUserTableProxy = (VirtualUserTableManagementMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServerConn, name, VirtualUserTableManagementMBean.class, true);
+            virtualUserTableProxy = (RecipientRewriteTableManagementMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServerConn, name, RecipientRewriteTableManagementMBean.class, true);
             name = new ObjectName(USERSREPOSITORY_OBJECT_NAME);
             usersRepositoryProxy = (UsersRepositoryManagementMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServerConn, name, UsersRepositoryManagementMBean.class, true);
         } catch (MalformedObjectNameException e) {

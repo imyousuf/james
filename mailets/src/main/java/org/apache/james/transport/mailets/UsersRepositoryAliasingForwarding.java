@@ -26,10 +26,10 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.james.rrt.api.RecipientRewriteTable;
+import org.apache.james.rrt.api.RecipientRewriteTableException;
+import org.apache.james.rrt.api.RecipientRewriteTable.ErrorMappingException;
 import org.apache.james.user.api.UsersRepository;
-import org.apache.james.vut.api.VirtualUserTable;
-import org.apache.james.vut.api.VirtualUserTable.ErrorMappingException;
-import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -87,14 +87,14 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
             throw new IllegalArgumentException("Mail message to be spooled cannot be null.");
         }
 
-        if (usersRepository instanceof VirtualUserTable) {
+        if (usersRepository instanceof RecipientRewriteTable) {
             Collection<String> mappings;
             try {
-                mappings = ((VirtualUserTable) usersRepository).getMappings(recipient.getLocalPart(), recipient.getDomain());
+                mappings = ((RecipientRewriteTable) usersRepository).getMappings(recipient.getLocalPart(), recipient.getDomain());
             } catch (ErrorMappingException e) {
                 StringBuilder errorBuffer = new StringBuilder(128).append("A problem as occoured trying to alias and forward user ").append(recipient).append(": ").append(e.getMessage());
                 throw new MessagingException(errorBuffer.toString());
-            } catch (VirtualUserTableException e) {
+            } catch (RecipientRewriteTableException e) {
                 StringBuilder errorBuffer = new StringBuilder(128).append("A problem as occoured trying to alias and forward user ").append(recipient).append(": ").append(e.getMessage());
                 throw new MessagingException(errorBuffer.toString());
             }

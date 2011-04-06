@@ -30,11 +30,11 @@ import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.fastfail.AbstractValidRcptHandler;
+import org.apache.james.rrt.api.RecipientRewriteTable;
+import org.apache.james.rrt.api.RecipientRewriteTableException;
+import org.apache.james.rrt.api.RecipientRewriteTable.ErrorMappingException;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersRepositoryException;
-import org.apache.james.vut.api.VirtualUserTable;
-import org.apache.james.vut.api.VirtualUserTableException;
-import org.apache.james.vut.api.VirtualUserTable.ErrorMappingException;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -44,7 +44,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Config
 
     private UsersRepository users;
 
-    private VirtualUserTable vut;
+    private RecipientRewriteTable vut;
 
     private boolean useVut = true;
 
@@ -77,7 +77,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Config
      *            the tableStore to set
      */
     @Resource(name = "virtualusertable")
-    public final void setVirtualUserTable(VirtualUserTable vut) {
+    public final void setVirtualUserTable(RecipientRewriteTable vut) {
         this.vut = vut;
     }
 
@@ -124,7 +124,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Config
                         }
                     } catch (ErrorMappingException e) {
                         return false;
-                    } catch (VirtualUserTableException e) {
+                    } catch (RecipientRewriteTableException e) {
                         session.getLogger().info("Unable to access VirtualUserTable", e);
                         return false;
                     }

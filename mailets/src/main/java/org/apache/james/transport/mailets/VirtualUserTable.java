@@ -26,8 +26,8 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.james.vut.api.VirtualUserTable.ErrorMappingException;
-import org.apache.james.vut.api.VirtualUserTableException;
+import org.apache.james.rrt.api.RecipientRewriteTableException;
+import org.apache.james.rrt.api.RecipientRewriteTable.ErrorMappingException;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -35,7 +35,7 @@ import org.apache.mailet.MailAddress;
  * implementations for mappings of forwards and aliases.
  */
 public class VirtualUserTable extends AbstractVirtualUserTableMailet {
-    private org.apache.james.vut.api.VirtualUserTable vut;
+    private org.apache.james.rrt.api.RecipientRewriteTable vut;
 
     /**
      * Sets the virtual table store.
@@ -44,7 +44,7 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
      *            the vutStore to set, possibly null
      */
     @Resource(name = "virtualusertable")
-    public final void setVirtualUserTable(org.apache.james.vut.api.VirtualUserTable vut) {
+    public final void setVirtualUserTable(org.apache.james.rrt.api.RecipientRewriteTable vut) {
         this.vut = vut;
     }
 
@@ -62,7 +62,7 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
         } catch (ErrorMappingException e) {
             StringBuilder errorBuffer = new StringBuilder(128).append("A problem as occoured trying to alias and forward user ").append(recipient).append(": ").append(e.getMessage());
             throw new MessagingException(errorBuffer.toString());
-        } catch (VirtualUserTableException e) {
+        } catch (RecipientRewriteTableException e) {
             throw new MessagingException("Unable to access VirtualUserTable", e);
         }
 

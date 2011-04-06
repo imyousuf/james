@@ -37,7 +37,7 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.DomainListException;
-import org.apache.james.vut.lib.VirtualUserTableUtil;
+import org.apache.james.rrt.lib.RecipientRewriteTableUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.GenericMailet;
@@ -117,7 +117,7 @@ public abstract class AbstractVirtualUserTable extends GenericMailet {
 
                         if (targetAddress.startsWith("regex:")) {
                             try {
-                                targetAddress = VirtualUserTableUtil.regexMap(source, targetAddress);
+                                targetAddress = RecipientRewriteTableUtil.regexMap(source, targetAddress);
                             } catch (PatternSyntaxException e) {
                                 log("Exception during regexMap processing: ", e);
                             }
