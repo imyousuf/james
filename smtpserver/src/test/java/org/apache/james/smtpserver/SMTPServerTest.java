@@ -300,7 +300,7 @@ public abstract class SMTPServerTest extends TestCase {
 
         m_serviceManager.put("filesystem", fileSystem);
         m_serviceManager.put("org.apache.james.smtpserver.protocol.DNSService", dnsAdapter);
-        m_serviceManager.put("virtualusertable", new RecipientRewriteTable() {
+        m_serviceManager.put("recipientrewritetable", new RecipientRewriteTable() {
 
             public void addRegexMapping(String user, String domain, String regex) throws RecipientRewriteTableException {
                 throw new UnsupportedOperationException("Not implemented");

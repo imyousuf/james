@@ -43,7 +43,7 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
      * @param vutStore
      *            the vutStore to set, possibly null
      */
-    @Resource(name = "virtualusertable")
+    @Resource(name = "recipientrewritetable")
     public final void setVirtualUserTable(org.apache.james.rrt.api.RecipientRewriteTable vut) {
         this.vut = vut;
     }

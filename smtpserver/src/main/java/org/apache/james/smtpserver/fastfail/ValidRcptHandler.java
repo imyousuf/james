@@ -76,7 +76,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Config
      * @param tableStore
      *            the tableStore to set
      */
-    @Resource(name = "virtualusertable")
+    @Resource(name = "recipientrewritetable")
     public final void setVirtualUserTable(RecipientRewriteTable vut) {
         this.vut = vut;
     }

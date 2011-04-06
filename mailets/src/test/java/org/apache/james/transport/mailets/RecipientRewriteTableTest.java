@@ -59,7 +59,7 @@ public class RecipientRewriteTableTest extends TestCase {
 
         };
         FakeMailetConfig mockMailetConfig = new FakeMailetConfig("vut", mockMailetContext, new Properties());
-        // mockMailetConfig.put("virtualusertable", "vut");
+        // mockMailetConfig.put("recipientrewritetable", "vut");
 
         table.setVirtualUserTable(new org.apache.james.rrt.api.RecipientRewriteTable() {
             public Collection<String> getMappings(String user, String domain) throws ErrorMappingException, RecipientRewriteTableException {

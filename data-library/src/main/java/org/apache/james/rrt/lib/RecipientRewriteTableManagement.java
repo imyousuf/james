@@ -41,7 +41,7 @@ public class RecipientRewriteTableManagement extends StandardMBean implements Re
 
     private RecipientRewriteTable vut;
 
-    @Resource(name = "virtualusertable")
+    @Resource(name = "recipientrewritetable")
     public void setManageableVirtualUserTable(RecipientRewriteTable vut) {
         this.vut = vut;
     }
