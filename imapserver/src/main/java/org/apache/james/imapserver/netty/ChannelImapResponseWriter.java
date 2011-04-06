@@ -21,12 +21,12 @@ package org.apache.james.imapserver.netty;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
 
 import org.apache.james.imap.main.AbstractImapResponseWriter;
 import org.apache.james.imap.message.response.Literal;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.handler.stream.ChunkedStream;
 
 /**
  * {@link AbstractImapResponseWriter} implementation which writes the data to a
@@ -35,11 +35,9 @@ import org.jboss.netty.channel.Channel;
 public class ChannelImapResponseWriter extends AbstractImapResponseWriter {
 
     private Channel channel;
-    private WritableByteChannel wChannel;
 
     public ChannelImapResponseWriter(Channel channel) {
         this.channel = channel;
-        this.wChannel = new ChannelWritableByteChannel(channel);
     }
 
     /*
@@ -61,7 +59,7 @@ public class ChannelImapResponseWriter extends AbstractImapResponseWriter {
      * .james.imap.message.response.Literal)
      */
     protected void write(Literal literal) throws IOException {
-        literal.writeTo(wChannel);
+        channel.write(new ChunkedStream(literal.getInputStream()));
     }
 
 }
