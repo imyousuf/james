@@ -22,7 +22,7 @@
   <skin>
     <groupId>org.apache.james</groupId>
     <artifactId>maven-skin</artifactId>
-    <version>1.6</version>
+    <version>1.7-SNAPSHOT</version>
   </skin>
 
   <bannerLeft>
@@ -52,7 +52,7 @@
       <item name="Mailet Container" href="/feature-mailetcontainer.html" />
       <item name="SMTP Hooks" href="/feature-smtp-hooks.html" />
       <item name="Queue Priority" href="/feature-queue-priority.html" />
-      <item name="Performance" href="/feature-perfomance.html" />
+      <item name="Performance" href="/feature-performance.html" />
       <item name="Security" href="/feature-security.html" />
     </menu>
     
