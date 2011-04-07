@@ -28,6 +28,23 @@
   <section name="Mailet Container Configuration">
 
     <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/mailetcontainer.xml">mailetcontainer.xml</a> in SVN to get some examples and hints.</p>
+    
+    <p>Changes between 3.0-M2 and 3.0-M3:</p>
+    <ul>
+      <li>No more mailetpackage specification in mailetcontainer.xml</li>
+      <li>Exactly one standard package, hard-coded in source code</li>
+      <li>Standard package applied to mailet classnames without package prefix</li>
+      <li>All custom mailets must be specified with full package prefix</li>
+      <li>Package prefixed custom mailet names will be searched across the entire applicable class path</li>
+      <li>Composite matchers</li>
+<!-- 
+<matcher name="anyname" match="org.apache.james.mailetcontainer.lib.matcher.And">
+<matcher match="SenderIs...."/>
+<matcher match="SubjectStartsWith...."/>
+</matcher>
+<mailet match="anyname" class="MailetX"/>
+-->
+    </ul>
   
     <p>The SpoolManager is controlled by a single configuration block in the mailetcontainer.xml.
     The spoolmanager tag defines the boundaries of the configuration block.  The behavior of 
