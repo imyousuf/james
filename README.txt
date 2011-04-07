@@ -27,6 +27,7 @@ Thank you for testing Apache James Server 3.0-M3!
     - Upgrade tool from James 2.3 is available
     - Better logging on protocols with adjustable level
     - Full mailet package must be specified
+    - Composite Matchers
     - Mailing list functionality has been removed
     - More documentation on web site for configuration,...
     - ... and much more, see details on https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=10411&version=12315512
