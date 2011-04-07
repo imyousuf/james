@@ -91,12 +91,17 @@
       </tr>
       <tr>
         <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/recipientrewritetable.xml">recipientrewritetable.xml</a></td>
-        <td><a href="config-users.html">Users Configuration</a></td>
+        <td><a href="config-recipientrewritetable.html">Recipient Rewrite Table Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/mailstore.xml">mailstore.xml</a></td>
-        <td><a href="config-mailstores.html">Mail Stores Configuration</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/mailbox.xml">mailbox.xml</a></td>
+        <td><a href="config-mailbox.html">Mail Repository Stores Configuration</a></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/mailrepositorystore.xml">mailrepositorystore.xml</a></td>
+        <td><a href="config-mailrepositorystore.html">Mail Repository Stores Configuration</a></td>
         <td></td>
       </tr>
       <tr>

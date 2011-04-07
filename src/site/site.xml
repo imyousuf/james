@@ -63,7 +63,9 @@
         <item name="Server-wide" href="/config-serverwide.html" />
         <item name="Domain List" href="/config-domainlist.html" />
         <item name="Users" href="/config-users.html" />
-        <item name="Mail Stores" href="/config-mailstores.html" />
+        <item name="Recipient Rewrite" href="/config-recipientrewritetable.html" />
+        <item name="Mailbox" href="/config-mailbox.html" />
+        <item name="Mail Repository Stores" href="/config-mailrepositorystore.html" />
         <item name="DNS Service" href="/config-dnsservice.html" />
         <item name="IMAP4" href="/config-imap4.html" />
         <item name="POP3" href="/config-pop3.html" />
