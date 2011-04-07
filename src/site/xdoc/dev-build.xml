@@ -26,7 +26,7 @@
 <body>
 
   <section name="Why Build from Source?">
-  
+
     <p>This step is not necessary to use the standard out of the box version of James.  A 
        pre-built binary version of James is available from the James download directory.</p>
        
@@ -49,7 +49,8 @@
       <li>Get the source code using SVN - this method gives you access to the cutting edge code 
           base.  Instructions on how to use SVN to get the James source code 
           can be found <a href="http://www.apache.org/dev/version-control.html">here</a>.
-          James server repository is <a href="http://svn.apache.org/repos/asf/james/server/">here</a>.</li>
+          James server repository is <a href="http://svn.apache.org/repos/asf/james/server/trunk">here</a>.</li>
+      <li>You can download all James sources (server,...) if you check out <a href="http://svn.apache.org/repos/asf/james/current">http://svn.apache.org/repos/asf/james/current/</a></li>
     </ol>
 
     <p>We consider in this document that you have checked-out James source code in JAMES_SRC_HOME directory.</p>
@@ -66,7 +67,7 @@
       <li>Java Development Kit - You must have a JDK of Java version 1.5 or higher installed to build the 
           James distribution.  The exact JDKs available depend on the platform.  A JDK must be downloaded and
           installed before the build can run.</li>
-      <li>Maven 2.2.1 - This is a Java-tailored, XML-configured, extensible build or make system. You need ant (2.2.1+) in order
+      <li>Maven 3.0.2 - This is a Java-tailored, XML-configured, extensible build or make system. You need ant (2.2.1+) in order
           to build James. You can get maven 2.2.1 from <a href="http://maven.apache.org/download.html">here</a>.
           Installation instructions for maven are also available on the same page <a href="http://maven.apache.org/download.html">http://maven.apache.org/download.html</a>.</li>
     </ol>
@@ -166,6 +167,11 @@
   
       <p>That's it. Run or Debug James in Eclipse (right-click on the Main class) and Have Fun!.</p>
       <img src="./images/eclipse/eclipse-run-james.gif" width="300"/>
+      
+      <p>If you change a JPA Entity class, your will need to run 'mvn package'
+          or add the following option to your run configuration 
+          '-javaagent:your_home_folder\.m2\repository\org\apache\openjpa\openjpa\2.0.1\openjpa-2.0.1.jar'
+      </p>
 
     </subsection>
 
