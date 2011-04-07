@@ -22,17 +22,17 @@ package org.apache.james.imapserver.netty;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.james.imap.main.AbstractImapResponseWriter;
+import org.apache.james.imap.encode.ImapResponseWriter;
 import org.apache.james.imap.message.response.Literal;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.handler.stream.ChunkedStream;
 
 /**
- * {@link AbstractImapResponseWriter} implementation which writes the data to a
+ * {@link ImapResponseWriter} implementation which writes the data to a
  * {@link Channel}
  */
-public class ChannelImapResponseWriter extends AbstractImapResponseWriter {
+public class ChannelImapResponseWriter implements ImapResponseWriter {
 
     private Channel channel;
 
@@ -40,25 +40,20 @@ public class ChannelImapResponseWriter extends AbstractImapResponseWriter {
         this.channel = channel;
     }
 
+
     /*
      * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.imap.main.AbstractImapResponseWriter#write(java.nio.
-     * ByteBuffer)
+     * @see org.apache.james.imap.encode.ImapResponseWriter#write(java.nio.ByteBuffer)
      */
-    protected void write(ByteBuffer buffer) throws IOException {
+    public void write(ByteBuffer buffer) throws IOException {
         channel.write(ChannelBuffers.wrappedBuffer(buffer));
     }
 
     /*
      * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.imap.main.AbstractImapResponseWriter#write(org.apache
-     * .james.imap.message.response.Literal)
+     * @see org.apache.james.imap.encode.ImapResponseWriter#write(org.apache.james.imap.message.response.Literal)
      */
-    protected void write(Literal literal) throws IOException {
+    public void write(Literal literal) throws IOException {
         channel.write(new ChunkedStream(literal.getInputStream()));
     }
 

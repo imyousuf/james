@@ -112,10 +112,6 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
 
         // write hello to client
         response.hello(hello);
-        // ctx.getChannel().write(ChannelBuffers.copiedBuffer((ImapConstants.UNTAGGED
-        // + " OK " + hello +" " + new
-        // String(ImapConstants.BYTES_LINE_END)).getBytes()));
-
         super.channelConnected(ctx, e);
 
     }
