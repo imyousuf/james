@@ -32,12 +32,12 @@ import javax.persistence.Table;
  * RecipientRewriteTable class for the James Virtual User Table to be used for JPA
  * persistence.
  */
-@Entity(name = "JamesRecipientRewriteTable")
-@Table(name = "JAMES_VIRTUAL_USER_TABLE")
-@NamedQueries({ @NamedQuery(name = "selectMappings", query = "SELECT vut FROM JamesRecipientRewriteTable vut WHERE (vut.user LIKE :user OR vut.user='*') and (vut.domain like :domain or vut.domain='*') ORDER BY vut.domain DESC"),
-        @NamedQuery(name = "selectUserDomainMapping", query = "SELECT vut FROM JamesRecipientRewriteTable vut WHERE vut.user=:user AND vut.domain=:domain"), @NamedQuery(name = "selectAllMappings", query = "SELECT vut FROM JamesRecipientRewriteTable vut"),
-        @NamedQuery(name = "deleteMapping", query = "DELETE FROM JamesRecipientRewriteTable vut WHERE vut.user=:user AND vut.domain=:domain AND vut.targetAddress=:targetAddress"),
-        @NamedQuery(name = "updateMapping", query = "UPDATE JamesRecipientRewriteTable vut SET vut.targetAddress=:targetAddress WHERE vut.user=:user AND vut.domain=:domain") })
+@Entity(name = "JamesRecipientRewrite")
+@Table(name = "JAMES_RECIPIENT_REWRITE")
+@NamedQueries({ @NamedQuery(name = "selectMappings", query = "SELECT rrt FROM JamesRecipientRewrite rrt WHERE (rrt.user LIKE :user OR rrt.user='*') and (rrt.domain like :domain or rrt.domain='*') ORDER BY rrt.domain DESC"),
+        @NamedQuery(name = "selectUserDomainMapping", query = "SELECT rrt FROM JamesRecipientRewrite rrt WHERE rrt.user=:user AND rrt.domain=:domain"), @NamedQuery(name = "selectAllMappings", query = "SELECT rrt FROM JamesRecipientRewrite rrt"),
+        @NamedQuery(name = "deleteMapping", query = "DELETE FROM JamesRecipientRewrite rrt WHERE rrt.user=:user AND rrt.domain=:domain AND rrt.targetAddress=:targetAddress"),
+        @NamedQuery(name = "updateMapping", query = "UPDATE JamesRecipientRewrite rrt SET rrt.targetAddress=:targetAddress WHERE rrt.user=:user AND rrt.domain=:domain") })
 @IdClass(JPARecipientRewrite.RecipientRewriteTableId.class)
 public class JPARecipientRewrite {
 
