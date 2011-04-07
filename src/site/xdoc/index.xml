@@ -44,8 +44,13 @@
      
         <div class="ui-widget">
 			<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-				<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-				<strong>Hey!</strong> James Server 3.0-M3 is out - <a href="quick-start.html">Click here to Quick Start James!.</a></p>
+				<p>
+                  <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+				  <strong>Hey!</strong> James Server 3.0-M3 is out - <a href="quick-start.html">Click here to Quick Start James!.</a>
+                  Some issues are identified in some use cases with clients such as Outlook Express,...
+                  You are kindly invited to report any issue on <a href="https://issues.apache.org/jira/browse/JAMES">https://issues.apache.org/jira/browse/JAMES</a>
+                  or on our mailing list (<a href="http://james.apache.org/mail.html">http://james.apache.org/mail.html</a>)
+                </p>
 			</div>
 		</div>
       

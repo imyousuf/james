@@ -60,4 +60,9 @@ Thank you for testing Apache James Server 3.0-M3!
 
   * Upgrade from James 2.3 http://james.apache.org/server/3/upgrade-2.3.html
 
+  * Limitations
+      Some issues are identified in some use cases with clients such as Outlook Express,...
+      You are kindly invited to report any issue on https://issues.apache.org/jira/browse/JAMES
+      or on our mailing list (http://james.apache.org/mail.html)
+
 (asciiart on http://patorjk.com/software/taag/ with Ogre font)
