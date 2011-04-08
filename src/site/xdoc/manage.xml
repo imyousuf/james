@@ -42,22 +42,20 @@
     <p>You can manage James via:</p>
     
     <ol>
-      <li><a href="Manage_via_Cli">CLI (Client Line Interface)</a></li>
-      <li><a href="Manage_via_JMX">JMX (Java Management Extension)</a></li>
+      <li><a href="#Manage_via_Cli">CLI (Client Line Interface)</a></li>
+      <li><a href="#Manage_via_JMX">JMX (Java Management Extension)</a></li>
     </ol>
     
-    <subsection name="Manage via Cli">
+    <subsection name="Manage via CLI">
   
-      <p>Once James is up and listening, managin via cli is simple.</p>
+      <p>Once James is up and listening, managing via the command line interface is simple.</p>
       
-      <p>Note the address and port defined in conf/jmx.properties (default is jmx.address=127.0.0.1 and jmx.port=9999)</p>
-
       <p>cd bin</p>
       
       <p>./james-cli.sh (or james-cli.bat on windows) ./james-cli.sh -h localhost -p 9999</p>
 
       <p>You will be shown with a list of commands.</p>
-      
+
       <source>
   usage: java org.apache.james.cli.ServerCmd --host &lt;arg&gt; &lt;command&gt;
     -h,--host &lt;/arg&gt;   node hostname or ip address
@@ -71,6 +69,8 @@
     listdomains
       </source>
   
+      <p>Note the address and port defined in conf/jmx.properties (default is jmx.address=127.0.0.1 and jmx.port=9999)</p>
+
     </subsection>
     
     <subsection name="Manage via JMX">
