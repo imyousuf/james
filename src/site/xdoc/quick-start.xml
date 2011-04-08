@@ -42,12 +42,12 @@ Step 0: Requirements
 Step 1: Download
 #################
 
-  * Download james-server-container-spring-3.0-M2-bin.zip from http://james.apache.org/download.cgi#Apache_James_Server
+  * Download james-server-container-spring-3.0-M3-bin.zip from http://james.apache.org/download.cgi#Apache_James_Server
 
 Step 2: Deploy
 ##############
 
-  * Unzip james-server-container-spring-3.0-M2-bin.zip.
+  * Unzip james-server-container-spring-3.0-M3-bin.zip.
   * You should have a folder with sub-folders bin, conf, lib, log, var and four text files.
 
 $ unzip james-server-container-spring-3.0-M2-bin.tar.gz
@@ -96,36 +96,24 @@ jmx.properties
 lmtpserver.xml
 log4j.properties
 mailetcontainer.xml
+mailbox.xml
 mailserver.xml
-mailstore.xml
-miResources.xml
+mailrepositorystore.xml
 pop3server.xml
-remotemanager.xml
+recipientrewritetable.xml
 smtpserver.xml
-spring-beans.xml
 sqlResources.xml
 usersrepository.xml
-recipientrewritetable.xml
 wrapper.conf
-lib folder
+lib folder (for your additional jar, e.g. JDBC drviers,...)
 
-James is packaged with virtual hosting disabled, XML domain list, JPA (Derby database) storage for the mails and SMTP Auth.
-You can for example edit the following files to change the behaviour:
+James is packaged with virtual hosting enabled, JPA (Derby database) storage for the mails, users, and domains.
+On SMTP (see smtpserver.xml config)
+  * authRequired is true by default, so you can safely deploy James on the Internet (it won't be an open relay).
+  * verifyIdentity is true by default (you can only send mails with a FROM being the authenticated user).
 
-  * Enable virtual hosting in mailserver.xml: vi mailserver.xml
-      &lt;enableVirtualHosting&gt; true &lt;/enableVirtualHosting&gt;
-      
-  * Add the domains in the XMLDomain List or replace the XMLDomainList with the JPADomainList: vi usersrepository.xml
-      &lt;domainlist class="org.apache.james.domainlist.jpa.JPADomainList"&gt;
-        &lt;autodetect&gt;true&lt;/autodetect&gt;
-        &lt;autodetectIP&gt;true&lt;/autodetectIP&gt;
-      &lt;/domainlist&gt;
-      
-  * Enable virtual hosting in mailserver.xml: vi mailserver.xml
-      &lt;enableVirtualHosting&gt; true &lt;/enableVirtualHosting&gt;
-      
+To use another database:
   * Edit the database.properties and change the values according to your database.
-
   * Add the needed JDBC driver jar in the ./conf/lib folder according to your database.
   
 Step 5: Start
@@ -133,39 +121,21 @@ Step 5: Start
 
 $ cd bin
 $ ./james start 
-
   * !! you need libc6 installed on Linux !! - sudo apt-get install libc6-i386 libc6-dev-i386 on ubuntu
-  
   * You can see log result in the log/james-server.log file.
 
 Step 6: Create Domains and Users
 ################################
 
 Time to add domains and users.
-We wil show how to via the remote manager (telnet).
-You also can achieve it via JMX.
+We will show how to via the james-cli (client interface).
+You also can achieve this via JMX (launch jconsole). JMX has more operations tha james-cli.
 
-$ telnet localhost 4555
-Trying 127.0.0.1...
-Connected to localhost.
-Escape character is '^]'.
-JAMES Remote Administration Tool
-Please enter your login and password
-Login id:
-root
-Password:
-root
-Welcome root. HELP for a list of commands
-adddomain YOUR_DOMAIN
-Adding domain YOUR_DOMAIN successful
-adduser YOUR_NAME@YOUR_DOMAIN YOUR_PASSWORD
-User YOUR_NAME@YOUR_DOMAIN added
-quit
-Bye
-Connection closed by foreign host.
+  *  cd bin
+  * james-cli -h localhost -p 9999 adddomain mydomain.tld
+  * james-cli -h localhost -p 9999 adduser myuser@mydomain.tld mypassword
 
-  * For example, YOUR_DOMAIN=localhost.net, YOUR_NAME=test, so you will have a test@localhost.net user.
-  * The username to use in you mail client will be test@localhost.net.
+  * The username to use in you mail client will be myuser@mydomain.tld
 
 Step 7: Test
 ############
@@ -197,46 +167,23 @@ Connection closed by foreign host.
 Step 8: Manage
 ##############
 
-8.1. Manage via telnet
+8.1. Manage via james-cli
 
-$ telnet localhost 4555
-Trying 127.0.0.1...
-Connected to localhost.
-Escape character is '^]'.
-JAMES Remote Administration Tool
-Please enter your login and password
-Login id:
-root
-Password:
-root
-Welcome root. HELP for a list of commands
-help
-adddomain [domainname]  add domain to local domains
-addmapping [toUser@toDomain] [fromMapping]      add mapping for the given emailaddress
-adduser [username] [password]   add a new user
-countusers      display the number of existing accounts
-deluser [username]      delete existing user
-help    displays this help
-listallmappings list all mappings
-listdomains     list local domains
-listmapping [user@domain]       list all mappings for the given emailaddress
-listusers       display existing accounts
-memstat ([-gc]) shows memory usage. When called with -gc the garbage collector get called
-quit    close connection
-removedomain [domainname]       remove domain from local domains
-removemapping [toUser@toDomain] [fromMapping]   remove mapping for the given emailaddress
-setpassword [username] [password]       sets a user's password
-showalias [username]    shows a user's current email alias
-showforwarding [username]       shows a user's current email forwarding
-shutdown        kills the current JVM (convenient when James is run as a daemon)
-unsetalias [user]       unsets an alias for 'user'
-unsetforwarding [username]      removes a forward
-user [repositoryname]   change to another user repository
-verify [username]       verify if specified user exist
+  usage: java org.apache.james.cli.ServerCmd --host <arg> <command>
+    -h,--host &lt;/arg&gt;   node hostname or ip address
+    -p,--port &lt;/arg&gt;   remote jmx agent port number
+  Available commands:
+    adduser &lt;/username&gt; &lt;/password&gt;
+    removeuser &lt;/username&gt;
+    listusers
+    adddomain &lt;/domainname&gt;
+    removedomain &lt;/domainname&gt;
+    listdomains
 
 8.2. Manage via JMX
 
   * Launch jconsole (or any other JMX client) and connect on URL=service:jmx:rmi:///jndi/rmi://localhost:9999/jmxrmi
+  * Select the MBeans tab and open the org.apache.james node to view attributes and executed operations.
 
 Step 9: Monitor
 ###############
@@ -270,12 +217,9 @@ Step 9: Monitor
 
 <p>Time to fine-tune your James Server!</p>
 
-<p>You can also read other community quick start on <a href="http://wiki.apache.org/james/V3ConfigTutorial">http://wiki.apache.org/james/V3ConfigTutorial</a>.</p>
-
 <p>Read more on the <a href="install.html">install</a>, <a href="config.html">configure</a>, 
    <a href="manage.html">manage</a>, <a href="monitor.html">monitor</a> 
    and <a href="dev.html">develop</a> pages.</p>
-
 
 </section>
 
