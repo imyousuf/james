@@ -75,8 +75,8 @@
         <item name="Remote Manager" href="/config-remotemanager.html" />
         <item name="List Manager" href="/config-listmanager.html" />
         <item name="SSL/TLS" href="/config-ssl-tls.html" />
-        <item name="Sieve" href="/config-sieve.html" />
-        <item name="Anti Spam" href="/config-antispam.html" />
+<!--        <item name="Sieve" href="/config-sieve.html" />-->
+<!--        <item name="Anti Spam" href="/config-antispam.html" />-->
       </item>
       <item name="4. Manage James" href="/manage.html" collapse="true" >
         <item name="Domains" href="/manage-domains.html" />

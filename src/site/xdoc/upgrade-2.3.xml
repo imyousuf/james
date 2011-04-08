@@ -20,73 +20,40 @@
 <document>
 
  <properties>
-  <title>Upgrading from 2.3</title>
+  <title>Upgrading from James Server 2.3</title>
  </properties>
  
 <body>
 
   <section name="Migrate from Server 2.3 to Server 3.0">
   
-    <subsection name="Migrate Users from Server 2.3 to Server 3.0">
+    <subsection name="Migrate Configuration">
 
-      <p>We are also working on a tool that will migrate 2.3 user repositories to 3 user repository. 
-         See <a href="https://issues.apache.org/jira/browse/JAMES-1090">https://issues.apache.org/jira/browse/JAMES-1090</a>
-         to follow progress on this.</p>
+      <p>You need to carefully review each <a href="configuration.html">configuration file</a>
+         and set the needed parameters according to your need. You will find back more or less
+         the same technical information, but you will need to set them in different files.</p>
          
-    </subsection>
-
-    <subsection name="Migrate Mails from Server 2.3 to Server 3.0">
-
-      <p>We are working on a tool that will migrate 2.3 mail repositories to 3.0 mailbox store. 
-         See <a href="https://issues.apache.org/jira/browse/JAMES-1052">https://issues.apache.org/jira/browse/JAMES-1052</a>
-         to follow progress on this.</p>
+      <p>The fundamental difference is about the <a href="feature-persistence.html">mails persistence</a>.
+         James 3.0 uses a different storage for user mails that for spam,... mails.</p>
        
     </subsection>
 
-  </section>
-<!-- 
-  <section name="Upgrading Comments">
-    <p>James upgrading involves a number of steps, each of which is described in some detail in the 
-    following sections.  But as this sequence of steps has confused some users in the past, additional 
-    comments seem warranted.</p>
-    <p>It is important to realize that the James configuration files are not unpacked from the James 
-    distribution until the first time James is started.  This is a consequence of the design of the 
-    Avalon Phoenix container used to run James.  Once James has been started, the distribution will 
-    be unpacked.  The server should be stopped, the configuration files edited, and the server restarted.</p>
-    <p>So the Upgrading sequence is: <b>1) Start, 2) Stop, 3) Move 4) Edit, 5) Restart</b>.</p>
-  </section>
-  
-  <section name="Copy mailboxes and users">
-    <subsection name="Copy mailboxes and users">
+    <subsection name="Migrate Users and Mails">
+
+     <ul>
+       <li>Set in james23.xml configuration file the type of user repository you were
+           using in James 2.3 (example: org.apache.james.user.file.UsersFileRepository).
+           You also need to set the URL you was using in 2.3 (db, file,..., example: URL="file://var/users/).
+           If you were using file, you need to manually copy the user files to the folder you have specified (example: var/users).</li>
+       <li>You can now go to JMX console and invoke the james23importer MBean.
+           It needs two parameters : james23MailRepositoryPath (the mail repository you were using in James 2.3),
+           and the defaultPassword(the default password that will be used to create the users).</li>
+     </ul>
+         
     </subsection>
+
   </section>
   
-  <section name="Copy and modify config.xml">
-    <subsection name="Remove the fetchpop block">
-    </subsection>
-    <subsection name="Move mailet and matcher packages config">
-    </subsection>
-    <subsection name="Add necessary mailets">
-    </subsection>
-    <subsection name="Move the spoolrepository config">
-    </subsection>
-    <subsection name="Move the objectstore">
-    </subsection>
-    <subsection name="Add SSL to server-sockets">
-    </subsection>
-  </section>
-  
-  <section name="Modify costum mailets if necessary">
-    <p>Please note the following things that were changed. So maybe it's necessary for you to change some stuff in your mailets. </p>
-    <subsection name="Avalon updates">
-    </subsection>
-    <subsection name="Cornerstone updates">
-    </subsection>
-    </section>
-    <section name="Start James">
-    <p> Now you should be able to start james without problems.</p>
-  </section>
- -->
 </body>
 
 </document>
