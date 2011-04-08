@@ -139,11 +139,8 @@
         <td><a href="config-fetchmail.html">FetchMail Configuration</a></td>
         <td></td>
       </tr>
-      <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/remotemanager.xml">remotemanager.xml</a></td>
-        <td><a href="config-remotemanager.html">Remote Manager Configuration</a></td>
-        <td></td>
-      </tr>
+<!-- 
+Removed from trunk for now.
       <tr>
         <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/james-listmanager.xml">james-listmanager.xml</a></td>
         <td><a href="config-listmanager.html">List Manager Configuration</a></td>
@@ -151,19 +148,10 @@
       </tr>
       <tr>
         <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/miResources.xml">miResources.xml</a></td>
-        <td><a href="config-mailstores.html">List Manager Configuration</a></td>
+        <td>SQL Resources for Mailing lists</td>
         <td></td>
       </tr>
-      <tr>
-        <td>TLS</td>
-        <td><a href="config-tls.html">TLS Configuration</a></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>Sieve</td>
-        <td><a href="config-sieve.html">Sieve Configuration</a></td>
-        <td></td>
-      </tr>
+-->
       <tr>
         <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/log4j.properties">log4j.properties</a></td>
         <td>See <a href="monitor-logging.html">monitoring with log4j</a> section.</td>
@@ -171,7 +159,13 @@
       </tr>
 
     </table>
-
+    
+    <p>See also <a href="config-tls.html">TLS Configuration</a>.</p>
+<!-- 
+Link later to:
+<a href="config-sieve.html">Sieve Configuration</a>
+<a href="config-antispam.html">Antispam Configuration</a>
+-->
   </section>
 
 </body>
