@@ -27,9 +27,9 @@
 
   <section name="Mailbox and Mailstore">
   
-    <p><b>Mailbox</b> is for users' Inbox, Sent Items, Trash... folders.</p>
+    <p><u><b>Mailbox</b> is for users' Inbox, Sent Items, Trash... folders</u>.</p>
       
-    <p><b>Mailstore</b> is for spam, error,... mails, so nothing to do with users visible mails.</p>
+    <p><u><b>Mailstore</b> is for spam, error,... mails, so nothing to do with users visible mails</u>.</p>
 
     <p>Both mailbox and mailstore use database connection defined via database.properties 
        in case of database access.</p>

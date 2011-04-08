@@ -52,9 +52,9 @@
     
     <p>The modules can be classified into 3 categories:</p>
     <ul>
-      <li>api: they does not include implementation details, they do not have dependencies (or at most they have very common dependencies like mailet-api, javamail, commons-logging).</li>
-      <li>library: they only depends on apis or external jars. They don't depend on other internal libraries. These libraries should be shared by functions (no need to have a library when it is used only by a function).</li>
-      <li>functions: everything else. It is harder to see a case of "direct" reuse of a function jar. Most times we'll only have code reuse. I would prefer to limit function to function dependencies.</li>
+      <li>API: They do not include implementation details, they do not have dependencies (or at most they have very common dependencies like mailet-api, javamail, commons-logging).</li>
+      <li>Library: They only depend on API modules or external jars. They don't depend on other internal libraries. These libraries should be shared by functions (no need to have a Library when it is used only by a function).</li>
+      <li>Functions: Everything else. It is harder to see a case of "direct" reuse of a function jar. Most times we'll only have code reuse. It is preferable to limit Function to Functions dependencies.</li>
     </ul>
     
   <section name="Server Coding Guidelines">

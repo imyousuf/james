@@ -27,13 +27,14 @@
 
   <section name="Protocol Security">
 
-    <p>TLS is supported.</p>
+    <p>Apache James Server support TLS (<a href="config-ssl-tls.html">read more</a>).</p>
 
   </section>
   
   <section name="User Credential Security">
 
-    <p>LDAP is supported.</p>
+    <p>Apache James Server supports partially LDAP  (<a href="config-users.html">read more</a>) - 
+       This is still a work in progress.</p>
 
   </section>
   

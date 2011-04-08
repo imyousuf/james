@@ -42,7 +42,7 @@
     <p>You can manage James via:</p>
     
     <ol>
-      <li><a href="#Manage_via_Cli">CLI (Client Line Interface)</a></li>
+      <li><a href="#Manage_via_CLI">CLI (Client Line Interface)</a></li>
       <li><a href="#Manage_via_JMX">JMX (Java Management Extension)</a></li>
     </ol>
     
