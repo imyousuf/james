@@ -25,7 +25,25 @@
 <body>
 
   <section name="Monitor via JMX">
+<!-- 
+Additional Notes to be documented:
+---------------------------------
+  what you mean with how I see permanent errors ?
+  unknow users are in ValidRcptHandler
+  but if someone would just ignore the 5xx return code on rcpt and suply the data it would return a permanent error
+  so yes it could be in there too
+  maybe we should only count the first 5xx in a transaction
   
+  for the rejected message, I would except to be counted as ok in the stats
+  why
+  it's not an smtp protocol error
+  5xx is an error
+  thats the whole point of the stats
+  see how many messages are rejected via permanent error and how many via temporary error
+  what's the difference between permanet and temporary ?
+  temporary will get try to redelivered later
+  like greylisting is temporary
+-->
     <p>You can monitor James Server via JMX.</p>
 
     <p>The managed objects are exposed from localhost only (for security reasons) on the following URL:</p>

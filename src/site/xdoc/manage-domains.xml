@@ -41,7 +41,7 @@
   <section name="Manage Domains via Cli">
   
     <p>Invoke "james-cli.sh adddomain &lt;mydomain.tls&gt; &lt;mydomain.tls&gt; is the domain name 
-      of the domain you wish to create.</li>
+      of the domain you wish to create.</p>
       
     <p>That's it.  Your domains are now created and can be used by all James services.</p>
     

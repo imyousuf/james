@@ -99,7 +99,7 @@
      * @param domain the domain
      * @return the collection which holds the mappings.
      */
-    Collection<String> getUserDomainMappings(String user, String domain) throws Exception;
+    Collection&lt;String&gt; getUserDomainMappings(String user, String domain) throws Exception;
 
     /**
      * Try to identify the right method based on the prefix of the mapping and
@@ -127,7 +127,7 @@
      * 
      * @return Map which holds all mappings
      */
-    Map<String, Collection<String>> getAllMappings() throws Exception;
+    Map&lt;String, Collection&lt;String&gt;&gt; getAllMappings() throws Exception;
     </source>
 
   </section>
