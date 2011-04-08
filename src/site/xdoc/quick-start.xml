@@ -68,7 +68,7 @@ Step 3: Understand James Features
 
 Persistence
 - Mailbox is for users' Inbox, Sent Items, Trash... folders - Mailbox persistence is configured in spring-beans.xml (by default jpa, you set the database connection properties in database.properties - can also be maildir=file, jcr). We think to move this config out-of spring-beans.xml.
-- Mailstore is for spam, error,... mails, so nothing to do with users visible mails. Available mailstore persistence are defined in mailstore.xml. Each has an URL prefix (file, db, dbfile,...) that can be used in mailetcontainer.xml to define where to store spam,... mails (exemple: file://var/mail/error/).
+- Mailrepositorystore is for spam, error,... mails, so nothing to do with users visible mails. Available mailstore persistence are defined in mailstore.xml. Each has an URL prefix (file, db, dbfile,...) that can be used in mailetcontainer.xml to define where to store spam,... mails (exemple: file://var/mail/error/).
 - Domain persistence is configured in domainlist.xml
 - Users persistence is configured in usersrepository.xml
 - All database connection use the database.properties in case of database access.
@@ -131,11 +131,11 @@ Time to add domains and users.
 We will show how to via the james-cli (client interface).
 You also can achieve this via JMX (launch jconsole). JMX has more operations tha james-cli.
 
-  *  cd bin
+  * cd bin
   * james-cli -h localhost -p 9999 adddomain mydomain.tld
   * james-cli -h localhost -p 9999 adduser myuser@mydomain.tld mypassword
 
-  * The username to use in you mail client will be myuser@mydomain.tld
+  * The username to use in your mail client will be myuser@mydomain.tld
 
 Step 7: Test
 ############
@@ -183,7 +183,7 @@ Step 8: Manage
 8.2. Manage via JMX
 
   * Launch jconsole (or any other JMX client) and connect on URL=service:jmx:rmi:///jndi/rmi://localhost:9999/jmxrmi
-  * Select the MBeans tab and open the org.apache.james node to view attributes and executed operations.
+  * Select the MBeans tab and open the org.apache.james node to view attributes and execute operations.
 
 Step 9: Monitor
 ###############
