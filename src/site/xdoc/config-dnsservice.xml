@@ -40,7 +40,7 @@
 
     <subsection name="dnsservice.xml">
 
-      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/dnsservice.xml">dnsservice.xml</a> in SVN to get some examples and hints.</p>
+      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/dnsservice.xml">dnsservice.xml</a> in SVN to get some examples and hints.</p>
 
       <p>DNS Transport services are controlled by a configuration block in
          the dnsservice.xml. This block affects SMTP remote delivery.</p>

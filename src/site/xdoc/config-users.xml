@@ -39,7 +39,7 @@
 
   <section name="Users Configuration">
   
-    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/usersrepository.xml">usersrepository.xml</a> in SVN to get some examples and hints.</p>
+    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/usersrepository.xml">usersrepository.xml</a> in SVN to get some examples and hints.</p>
 
     <subsection name="JPA Users">
   
@@ -197,7 +197,7 @@
 
   <section name="Virtual Users Configuration">
   
-    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/recipientrewritetable.xml">recipientrewritetable.xml</a> in SVN to get some examples and hints.</p>
+    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/recipientrewritetable.xml">recipientrewritetable.xml</a> in SVN to get some examples and hints.</p>
     
   </section>
 

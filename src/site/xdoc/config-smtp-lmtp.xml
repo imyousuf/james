@@ -39,7 +39,7 @@
 
   <section name="SMTP Configuration">
   
-     <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/smtpserver.xml">smtpserver.xml</a> in SVN to get some examples and hints.</p>
+     <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/smtpserver.xml">smtpserver.xml</a> in SVN to get some examples and hints.</p>
 
     <p>The SMTP service is controlled by a configuration block in the smptserver.xml.
     The smtpserver tag defines the boundaries of the configuration block.  It encloses 
@@ -154,7 +154,7 @@
   
   <section name="LMTP Configuration">
     
-    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/lmtpserver.xml">lmtpserver.xml</a> in SVN to get some examples and hints.</p>
+    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/lmtpserver.xml">lmtpserver.xml</a> in SVN to get some examples and hints.</p>
 
   </section>
     
