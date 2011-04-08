@@ -29,6 +29,7 @@
   <connectionLimitPerIP> 0 </connectionLimitPerIP>
   <authorizedAddresses>127.0.0.0/8</authorizedAddresses>
   <authRequired>true</authRequired>
+  <verifyIdentity>true</verifyIdentity>
   <maxmessagesize>0</maxmessagesize>
   <addressBracketsEnforcement>true</addressBracketsEnforcement>
   <handlerchain enableJmx="true">
