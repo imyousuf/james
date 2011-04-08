@@ -169,7 +169,7 @@ Step 8: Manage
 
 8.1. Manage via james-cli
 
-  usage: java org.apache.james.cli.ServerCmd --host <arg> <command>
+  usage: java org.apache.james.cli.ServerCmd --host &lt;arg&gt; &lt;command&gt;
     -h,--host &lt;/arg&gt;   node hostname or ip address
     -p,--port &lt;/arg&gt;   remote jmx agent port number
   Available commands:
