@@ -25,16 +25,23 @@
 
 <body>
 
-  <section name="Protocol Security">
+  <section name="SMTP Security">
 
-    <p>Apache James Server support TLS (<a href="config-ssl-tls.html">read more</a>).</p>
+    <p>Apache James Server is configured by default to avoid being an SMTP open-relay.</p>
+    
+    <p>SMTP Auth and "Verify Identity" options are enabled when you install James (<a href="config-smtp-lmtp.html">read more</a>).</p>
+
+  </section>
+  
+  <section name="Encryption Security">
+
+    <p>Apache James Server supports SSL/TLS (<a href="config-ssl-tls.html">read more</a>).</p>
 
   </section>
   
   <section name="User Credential Security">
 
-    <p>Apache James Server supports partially LDAP  (<a href="config-users.html">read more</a>) - 
-       This is still a work in progress.</p>
+    <p>Apache James Server supports different user storage (<a href="config-users.html">read more</a>) - LDAP support is partail (work in progress).</p>
 
   </section>
   
