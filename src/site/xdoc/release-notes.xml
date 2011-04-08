@@ -37,10 +37,54 @@
       
 <section name="Version 3.0-M2 (Milestone 2)">
 
+  <p>Released 2011</p>
+
+  <p>The Apache James project is happy to announce the release 
+     of version 3.0-M3 (Milestone 3) of its modular mail server.</p>
+
+  <p>We thank all Users for their feedback and tests and we encourage anyone to 
+     <a href="http://james.apache.org/download.cgi#Apache_James_Server">download</a>
+     and discover this Milestone 3 release.</p>
+
+  <p>If you're interested in contributing to the James project, please subscribe to the James 
+     <a href="http://james.apache.org/mail.html">mailing lists</a>.</p>
+
+  <pre>
+  * What's new in 3.0-M3 for end users
+    - Numerous IMAP bug fixes (client support outlook,..., memory leaks, NIO and IO)
+    - Telnet Management has been removed in favor of JMX with client shell
+    - More metrics counters available via JMX
+    - JPA validated against more databases (among others Oracle)
+    - Multiple address and port configurations per protocol
+    - POP3 is now operational (was buggy in 3.0-M2)
+    - Mailbox Tooling to copier from a persistence to another persistence
+    - Upgrade tool from James 2.3 is available
+    - Better logging on protocols with adjustable level
+    - Full mailet package must be specified
+    - Composite Matchers
+    - Mailing list functionality has been removed
+    - More documentation on web site for configuration,...
+    - ... and much more, see details on https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=10411&version=12315512
+  * What's new in 3.0-M3 for developers
+    - Less maven modules
+    - Maven 3.0.2 required to build
+    - Upgrade to latest frameworks versions (netty, activemq, jackrabbit...)
+    - Code reports generation via 'mvn site -P site-reports' maven profile
+    - Corrections further to findbugs,... reports
+    - Code formatting
+    - ... and much more, see details on https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=10411&version=12315512
+
+  * Quick Start  http://james.apache.org/server/3/quick-start.html
+  </pre>
+
+</section>
+
+<section name="Version 3.0-M2 (Milestone 2)">
+
 <p>Released 09 November 2010</p>
 
 <p>The Java Apache Mail Enterprise Server (a.k.a. Apache James) Project is happy to announce 
-   the release of version 3.0-M2 (Milestone 1) of the Apache James server.</p>
+   the release of version 3.0-M2 (Milestone 2) of the Apache James server.</p>
 
 <p>M2 is not only a fast corrective release on M1 (issues related to JMX 
    security configuration on Windows platforms,...), but also contains an important number
