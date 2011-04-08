@@ -72,7 +72,7 @@ drwxrwxrwx. 7 root root   4096 2010-11-06 09:01 ../
     <p>As you see 5xx and 4xx stuff is logged with INFO .. the rest with DEBUG</p>
     <p>You can do the same on IMAP, POP3.</p>
 
-<pre>
+<source>
 DEBUG 16:16:06,705 | james.smtpserver | 250 Lookup command handler for command: EHLO
 DEBUG 16:16:06,706 | james.smtpserver | 250 org.apache.james.protocols.smtp.core.esmtp.EhloCmdHandler: 250 [noname. Hello test.de (localhost [127.0.0.1]), PIPELINING, ENHANCEDSTATUSCODES, 8BITMIME]
 DEBUG 16:16:11,098 | james.smtpserver | 250 Lookup command handler for command: MAIL
@@ -174,7 +174,7 @@ DEBUG 17:24:23,845 | james.smtpserver | 262 org.apache.james.protocols.smtp.core
 INFO  17:24:00,777 | james.smtpserver | 262 org.apache.james.smtpserver.AuthRequiredToRelayRcptHook: result=2 (DENY)
 INFO  17:24:18,726 | james.smtpserver | 262 org.apache.james.smtpserver.fastfail.ValidRcptHandler: result=2 (DENY)
 DEBUG 17:24:17,829 | james.smtpserver | 262 org.apache.james.smtpserver.SenderAuthIdentifyVerificationRcptHook: result=8 (DECLINED)
-</pre>
+</source>
 
     <p>The default log4j.properties is taken hereafter for information.</p>
 
