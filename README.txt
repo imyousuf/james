@@ -17,7 +17,8 @@ _\ \  __/ |   \ V /  __/ |     ___) |_| |_| |_____/ /\/\ \___) |
 Thank you for testing Apache James Server 3.0-M3!
 
   * What's new in 3.0-M3 for end users
-    - Numerous IMAP bug fixes (client support outlook,..., memory leaks, NIO and IO)
+    - Numerous IMAP bug fixes (better client support, memory improvement, NIO and IO support...)
+    - Support for IMAP IDLE (RFC 2177, server transmit updates to the client in real time)
     - Telnet Management has been removed in favor of JMX with client shell
     - More metrics counters available via JMX
     - JPA validated against more databases (among others Oracle)
