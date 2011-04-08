@@ -25,7 +25,7 @@
  
 <body>
 
-  <section name="Migrate from Server 2.3 to Server 3.0">
+  <section name="Migrate Apache James Server 2.3 to 3.0">
   
     <subsection name="Migrate Configuration">
 
@@ -40,15 +40,14 @@
 
     <subsection name="Migrate Users and Mails">
 
-     <ul>
-       <li>Set in james23.xml configuration file the type of user repository you were
-           using in James 2.3 (example: org.apache.james.user.file.UsersFileRepository).
-           You also need to set the URL you was using in 2.3 (db, file,..., example: URL="file://var/users/).
-           If you were using file, you need to manually copy the user files to the folder you have specified (example: var/users).</li>
-       <li>You can now go to JMX console and invoke the james23importer MBean.
-           It needs two parameters : james23MailRepositoryPath (the mail repository you were using in James 2.3),
-           and the defaultPassword(the default password that will be used to create the users).</li>
-     </ul>
+     <p>Set in james23.xml configuration file the type of user repository you were
+        using in James 2.3 (example: org.apache.james.user.file.UsersFileRepository).
+        You also need to set the URL you was using in 2.3 (db, file,..., example: URL="file://var/users/).
+        If you were using file, you need to manually copy the user files to the folder you have specified (example: var/users).</p>
+
+     <p>You can now go to JMX console and invoke the james23importer MBean.
+        It needs two parameters : james23MailRepositoryPath (the mail repository you were using in James 2.3),
+        and the defaultPassword(the default password that will be used to create the users).</p>
          
     </subsection>
 
