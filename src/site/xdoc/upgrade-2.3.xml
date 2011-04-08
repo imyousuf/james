@@ -29,7 +29,7 @@
   
     <subsection name="Migrate Configuration">
 
-      <p>You need to carefully review each <a href="configuration.html">configuration file</a>
+      <p>You need to carefully review each <a href="config.html">configuration file</a>
          and set the needed parameters according to your need. You will find back more or less
          the same technical information, but you will need to set them in different files.</p>
          
