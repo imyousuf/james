@@ -21,6 +21,7 @@ Thank you for testing Apache James Server 3.0-M3!
     - Telnet Management has been removed in favor of JMX with client shell
     - More metrics counters available via JMX
     - JPA validated against more databases (among others Oracle)
+    - Better debug logging on protocols
     - Multiple address and port configurations per protocol
     - POP3 is now operational (was buggy in 3.0-M2)
     - Mailbox Tooling to copier from a persistence to another persistence
