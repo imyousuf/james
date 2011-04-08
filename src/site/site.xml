@@ -113,8 +113,6 @@ Removed from trunk for now.
       <item name="Javadoc" href="/apidocs/index.html" />
       <item name="Issue Tracker" href="https://issues.apache.org/jira/browse/JAMES" />
     </menu>
-    
-    <menu ref="reports"/>
 
   </body>  
 
