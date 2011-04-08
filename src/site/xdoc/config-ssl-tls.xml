@@ -24,7 +24,7 @@
  </properties>
 
 <body>
-
+    
 <p>
     <div class="ui-widget">
       <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
@@ -36,18 +36,16 @@
     </div>
 </p>
 
-
   <section name="TLS Configuration">
   
     <p>This document explains how to enable James 3.0 services to use Transport Layer Security (TLS) for encrypted client-server communication.</p>
     
-    <subsection name="Making TLS/SSL Server Sockets Available Inside James">
+    <subsection name="Making TLS/SSL Server Sockets Available Inside Apache James Server">
     
       <p>James uses the Sun Java Secure Sockets Extension (JSSE) infrastructure to provide TLS/SSL 
       sockets.  JSSE comes packaged with several vendor Java distributions (i.e. Sun Java 1.4.x, 
       IBM Java 1.3.x).  For these distributions, please follow the vendor provided instructions for
       configuring the JVM to use JSSE services.</p>
-      
       <p>If you are using a Java distribution that does not include JSSE as part of the 
       distribution you will need to download the JSSE package separately.  It can be obtained from 
       <a href="http://java.sun.com/products/jsse">here</a>.  Please follow Sun's instructions for installation 
@@ -85,7 +83,7 @@
 
     <subsection name="Configuring a Service to Use TLS">
 
-      <p>Each of the services - <a href="config-smtp-lmpt.html">SMTP</a>, 
+      <p>Each of the services - <a href="config-smtp-lmtp.html">SMTP</a>, 
       <a href="config-pop3.html">POP3</a>, 
       and <a href="config-remotemanager.html">RemoteManager</a> - supports use of TLS.  Each of
       these services has an optional boolean configuration element <b>useTLS</b> which is used to toggle 
@@ -110,6 +108,15 @@
     </subsection>
     
   </section>
+
+  <section name="Simultaneous Support of TLS and non-TLS per Protocol">
+
+<!-- 
+see smtp_ssl.xml in example
+-->
+
+  </section>
+  
 
 </body>
 
