@@ -26,8 +26,8 @@
 
   <section name="Monitor via JMX">
 <!-- 
-Additional Notes to be documented:
----------------------------------
+Additional Notes to be documented
+- - - - - - - - - - - - - - - - - 
   what you mean with how I see permanent errors ?
   unknow users are in ValidRcptHandler
   but if someone would just ignore the 5xx return code on rcpt and suply the data it would return a permanent error

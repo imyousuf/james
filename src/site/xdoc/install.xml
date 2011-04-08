@@ -114,14 +114,7 @@
     <p>The out of the box configuration makes certain assumptions and has some default 
        values that are unlikely to be appropriate for real-world servers. 
        There are a few issues that should be addressed immediately upon installation:</p>
-      <ul>
-        <li>RemoteManager Administrator Account - Before the RemoteManager service can be used to add users to this server 
-            installation an administrator account must be created - <a href="config-remotemanager.html">read more</a>.</li>
-        <li>Virtual Hosting - Out of the box, James is not configure to manage more than one domain
-            If you need James to server multiple domains, you need to enable virtual hosting
-             - <a href="config-remotemanager.html">read more</a>. If you want to configure you domains
-             in a database rather that in a static XML file, you need to use the JPADomainList
-              - <a href="config-domainlist.html">read more</a></li>
+       <ul>
         <li>Postmaster Address - Change according to your need - <a href="config-serverwide.html">read more</a>.</li>
         <li>Most UNIX systems require superuser privileges to open sockets below 1024,
             which includes the IANA-standard SMTP (on port 25), POP3 (on port 110) and IMAP4 (on port 143).
@@ -129,7 +122,7 @@
             (read for <a href="config-pop3.html">pop3</a>, <a href="config-smtp.html">smtp</a> 
             and <a href="config-imap4.html">imap4</a>. Obviously, you
             would then need to reconfigure your clients. This may not be an option if
-            you want to receive mail from external mailservers.</li>
+            you want to receive mail from external mail servers.</li>
       </ul>
     
     <p>In addition to adjusting these parameters, you may wish to consult the documentation for a discussion of
@@ -151,19 +144,26 @@
     
   <subsection name="Step 5: Create Domains and Users">
   
-    <p>Finally, after launch, it will be necessary to create user accounts 
-       before the James server will be fully operational. Instructions on creating user accounts can be found 
-       <a href="manage-users.html">here</a>.</p>
+    <p>Finally, after launch, it will be necessary to create domain and user accounts 
+       before the James server will be fully operational. Read instructions on creating 
+       <a href="manage-domains.html">domains</a> and <a href="manage-users.html">user accounts</a>.</p>
     
-    <p>Since at the beginning James is empty, it will not have any local users
+    <p>Since at the beginning James is empty, it will not have any domain (except the default one)nor local users
        registered.</p>
        
-    <p>To register a local user open a telnet session with localhost on port 4555,
-       log in as root ("root[enter]  &lt;password-you-set-in-remotemanager.xml&gt;[enter]") and
-       type "help" for a list of available commands in the "JAMES remote
-       administrator tool". It is really a basic set but should allow you to test
-       installation.</p>
-        
+    <p>To register a local domain and user, cd bin and type james-cli.sh.
+       Follow the given instructions</p>
+       
+    <p>Invoke "james-cli.sh adddomain &lt;mydomain.tls&gt; &lt;mydomain.tls&gt; is the domain name 
+      of the domain you wish to create.</p>
+      
+    <p>Invoke "james-cli.sh adduser &lt;user&gt; &lt;password&gt;" where &lt;user&gt; is the user name 
+      and &lt;password&gt; is the password of the account you wish to create.</p>
+      
+    <p>Please note that the user name MUST be a complete email address of the form &lt;user&gt;@&lt;domain&gt; 
+      (where &lt;domain&gt; is any of the values specified in the &lt;servernames&gt; block of XMLDomainList or
+      a domain defined via the <a href="manage-domains.html">domain management</a>).</p>
+      
   </subsection>
   
   <subsection name="Step 6: Test James">
