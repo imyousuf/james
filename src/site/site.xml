@@ -77,14 +77,8 @@ Removed from trunk for now.
         <item name="List Manager" href="/config-listmanager.html" />
 -->
         <item name="SSL/TLS" href="/config-ssl-tls.html" />
-<!--        
-To be written
-          <item name="Sieve" href="/config-sieve.html" />
--->
-<!--    
-To be written
-          <item name="Anti Spam" href="/config-antispam.html" />
--->
+        <item name="Sieve" href="/config-sieve.html" />
+        <item name="Anti Spam" href="/config-antispam.html" />
       </item>
       <item name="4. Manage James" href="/manage.html" collapse="true" >
         <item name="Domains" href="/manage-domains.html" />

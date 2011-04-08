@@ -160,12 +160,10 @@ Removed from trunk for now.
 
     </table>
     
-    <p>See also <a href="config-tls.html">TLS Configuration</a>.</p>
-<!-- 
-Link later to:
-<a href="config-sieve.html">Sieve Configuration</a>
-<a href="config-antispam.html">Antispam Configuration</a>
--->
+    <p>See configurations related to <a href="config-tls.html">TLS</a>, 
+       <a href="config-sieve.html">Sieve</a> and 
+       <a href="config-antispam.html">Antispam</a>.</p>
+
   </section>
 
 </body>
