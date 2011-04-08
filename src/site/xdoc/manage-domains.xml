@@ -25,35 +25,24 @@
 
 <body>
 
-  <section name="Manage Domains via Telnet">
+  <section name="Manage Domains">
   
     <p>Domain accounts are shared across services.  A common Domain repository is shared across James 
        services.  That is, once you've created a POP3 mail and set a password, that same 
-      is available for authenticated SMTP and NNTP.</p>
+       is available for authenticated SMTP and NNTP.</p>
     
     <p>If you have XMLDomainList (default setup), you can only list the available domains. To add a domain,
        you must add it in the domainlist.xml file.</p>
 
     <p>If you have JPADomainList for example, you can add, delete and list the domains.</p>
+    
+  </section>
 
-    <p>Once James is up and listening, with JPADomainList, adding a Domain is simple:</p>
-
-    <p><ol>
-
-      <li>Telnet to the host and port on which the RemoteManager is listening.  For command-line telnet clients 
-      this is generally done by typing "telnet &lt;host&gt; &lt;port&gt;" where &lt;host&gt; is the James 
-      hostname and &lt;port&gt; is the RemoteManager port specified in the James domainlist.xml.</li>
+  <section name="Manage Domains via Cli">
   
-      <li>You will be prompted for your administrator userid and password.  Enter the values you specified 
-      in the James remotemanager.xml.</li>
-      
-      <li>After logging in, type "adddomain &lt;domain&gt;" where &lt;domain&gt; is the domain name 
+    <p>Invoke "james-cli.sh adddomain &lt;mydomain.tls&gt; &lt;mydomain.tls&gt; is the domain name 
       of the domain you wish to create.</li>
       
-      <li>Repeat step 3 for all domains you wish to create.</li>
-    
-    </ol></p>
-    
     <p>That's it.  Your domains are now created and can be used by all James services.</p>
     
   </section>

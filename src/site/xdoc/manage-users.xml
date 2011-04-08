@@ -20,38 +20,28 @@
 <document>
 
  <properties>
-  <title>Adding Users</title>
+  <title>Manage Users</title>
  </properties>
 
 <body>
 
-  <section name="Manage Users via Telnet">
+  <section name="Manage Users">
   
     <p>User accounts are shared across services.  A common user repository is shared across James 
-    services.  That is, once you've created a POP3 mail account and set a password, that same 
-    account is available for authenticated SMTP and NNTP.</p>
+      services.  That is, once you've created a POP3 mail account and set a password, that same 
+      account is available for authenticated SMTP and NNTP.</p>
+      
+  </section>
     
-    <p>Once James is up and listening, adding a user is simple:</p>
-    
-    <p><ol>
-
-      <li>Telnet to the host and port on which the RemoteManager is listening.  For command-line telnet clients 
-      this is generally done by typing "telnet &lt;host&gt; &lt;port&gt;" where &lt;host&gt; is the James 
-      hostname and &lt;port&gt; is the RemoteManager port specified in the James userrepository.xml.</li>
+  <section name="Manage Users via Cli">
   
-      <li>You will be prompted for your administrator userid and password.  Enter the values you specified 
-      in the James remotemanager.xml.</li>
+    <p>Invoke "james-cli.sh adduser &lt;user&gt; &lt;password&gt;" where &lt;user&gt; is the user name 
+      and &lt;password&gt; is the password of the account you wish to create.</p>
       
-      <li>After logging in, type "adduser &lt;user&gt; &lt;password&gt;" where &lt;user&gt; is the user name 
-      and &lt;password&gt; is the password of the account you wish to create.  Please note that the user name 
-      MUST be a complete email address of the form &lt;user&gt;@&lt;domain&gt; 
+    <p>Please note that the user name MUST be a complete email address of the form &lt;user&gt;@&lt;domain&gt; 
       (where &lt;domain&gt; is any of the values specified in the &lt;servernames&gt; block of XMLDomainList or
-      a domain defined via the <a href="manage-domains.html">domain management</a>).</li>
+      a domain defined via the <a href="manage-domains.html">domain management</a>).</p>
       
-      <li>Repeat step 3 for all user accounts you wish to create.</li>
-    
-    </ol></p>
-    
     <p>That's it.  Your users are now created and can be used by all James services.</p>
     
   </section>
