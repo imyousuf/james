@@ -25,22 +25,11 @@
 
 <body>
     
-<p>
-    <div class="ui-widget">
-      <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
-        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
-        <strong>This page still contains text related to James 2.3 and needs to 
-        be updated for James 3.0</strong>
-		</p>
-      </div>
-    </div>
-</p>
-
-  <section name="TLS Configuration">
+  <section name="SSL / TLS Configuration">
   
     <p>This document explains how to enable James 3.0 services to use Transport Layer Security (TLS) for encrypted client-server communication.</p>
-    
-    <subsection name="Making TLS/SSL Server Sockets Available Inside Apache James Server">
+<!--    
+    <subsection name="Making SSL/TLS Server Sockets Available Inside Apache James Server">
     
       <p>James uses the Sun Java Secure Sockets Extension (JSSE) infrastructure to provide TLS/SSL 
       sockets.  JSSE comes packaged with several vendor Java distributions (i.e. Sun Java 1.4.x, 
@@ -81,7 +70,7 @@
 
     </subsection>
 
-    <subsection name="Configuring a Service to Use TLS">
+    <subsection name="Configuring a Service to Use SSL/TLS">
 
       <p>Each of the services - <a href="config-smtp-lmtp.html">SMTP</a>, 
       <a href="config-pop3.html">POP3</a>, 
@@ -92,7 +81,7 @@
 
     </subsection>
 
-    <subsection name="Verifying a TLS-enabled James Service">
+    <subsection name="Verifying a SSL/TLS-enabled James Service">
 
       <p>After you've configured a particular service to use TLS/SSL connections, the service port 
       should no longer accept unencrypted TCP/IP connections.  This can be tested by using a telnet 
@@ -106,14 +95,12 @@
       service greeting should appear.</p>
     
     </subsection>
-    
+--> 
   </section>
 
-  <section name="Simultaneous Support of TLS and non-TLS per Protocol">
+  <section name="Simultaneous Support of SSL/TLS and non-SSL/TLS per Protocol">
 
-<!-- 
-see smtp_ssl.xml in example
--->
+   <p>See smtp_ssl.xml in example folder.</p>
 
   </section>
   

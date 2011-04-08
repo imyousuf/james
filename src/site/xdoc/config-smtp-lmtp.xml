@@ -25,29 +25,17 @@
 
 <body>
 
-<p>
-    <div class="ui-widget">
-      <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
-        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
-        <strong>This page still contains text related to James 2.3 and needs to 
-        be updated for James 3.0</strong>
-		</p>
-      </div>
-    </div>
-</p>
-
-
   <section name="SMTP Configuration">
   
-     <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/smtpserver.xml">smtpserver.xml</a> in SVN to get some examples and hints.</p>
-
+    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/smtpserver.xml">smtpserver.xml</a> in SVN to get some examples and hints.</p>
+<!-- 
     <p>The SMTP service is controlled by a configuration block in the smptserver.xml.
-    The smtpserver tag defines the boundaries of the configuration block.  It encloses 
-    all the relevant configuration for the SMTP server.  The behavior of the SMTP service is
-    controlled by the attributes and children of this tag.</p>
+       The smtpserver tag defines the boundaries of the configuration block.  It encloses 
+       all the relevant configuration for the SMTP server.  The behavior of the SMTP service is
+       controlled by the attributes and children of this tag.</p>
     
     <p>This tag has an optional boolean attribute - <strong>enabled</strong> - that defines whether the service is active or not.  The value defaults to "true" if
-    not present.</p>
+       not present.</p>
 
     <p>The standard children of the smtpserver tag are:</p>
     
@@ -142,7 +130,7 @@
       Eudora, Evolution).</p>
       
     </subsection>
-    
+-->
     <subsection name="Configure multiple SMTP servers">
     
       <p>Read <a href="https://issues.apache.org/jira/browse/JAMES-1105">https://issues.apache.org/jira/browse/JAMES-1105</a>

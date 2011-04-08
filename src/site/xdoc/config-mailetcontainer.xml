@@ -20,7 +20,7 @@
 <document>
 
  <properties>
-  <title>Configuring the Mailet Container</title>
+  <title>Mailet Container Configuration</title>
  </properties>
 
 <body>
@@ -45,7 +45,7 @@
 <mailet match="anyname" class="MailetX"/>
 -->
     </ul>
-  
+<!--   
     <p>The SpoolManager is controlled by a single configuration block in the mailetcontainer.xml.
     The spoolmanager tag defines the boundaries of the configuration block.  The behavior of 
     the SpoolManager, most importantly the routing of mail messages through the processor tree,
@@ -53,26 +53,26 @@
     
     <p>The spoolmanager tag has only one children.  It is:</p>
     <ul>
-    <li><strong>threads</strong> - This is a required positive integer element.  It specifies 
-    the number of threads the SpoolManager will use to process messages in the spool.  This 
-    parameter tends to substantially impact performance, so it is advisable to tune it in production 
-    configurations.</li>
+      <li><strong>threads</strong> - This is a required positive integer element.  It specifies 
+          the number of threads the SpoolManager will use to process messages in the spool.  This 
+          parameter tends to substantially impact performance, so it is advisable to tune it in production 
+          configurations.</li>
     </ul>
-    
+
     <p>Spoolmanager depends on mailet and matcher packages, configured by these tags:</p>
     <ul>
-    <li><strong>mailetpackages</strong> - This is a required container tag.  It contains some number 
-    of <strong>mailetpackage</strong> children.  The body of each of these <strong>mailetpackage</strong> 
-    elements is a Java package name.  It is these packages that contain the classes to be instantiated
-    as mailets.</li>
-    <li><strong>matcherpackages</strong> - This is a required container tag.  It contains some number 
-    of <strong>matcherpackage</strong> children.  The body of each of these <strong>matcherpackage</strong> 
-    elements is a Java package name.  It is these packages that contain the classes to be instantiated
-    as matchers.</li>
+      <li><strong>mailetpackages</strong> - This is a required container tag.  It contains some number 
+          of <strong>mailetpackage</strong> children.  The body of each of these <strong>mailetpackage</strong> 
+          elements is a Java package name.  It is these packages that contain the classes to be instantiated
+          as mailets.</li>
+      <li><strong>matcherpackages</strong> - This is a required container tag.  It contains some number 
+          of <strong>matcherpackage</strong> children.  The body of each of these <strong>matcherpackage</strong> 
+          elements is a Java package name.  It is these packages that contain the classes to be instantiated
+          as matchers.</li>
     </ul>
-    
+
     <p>The remaining SpoolManager configuration elements are complex enough to require a more in-depth
-    discussion.</p>
+       discussion.</p>
     
     <subsection name="Processor Configuration">
     
@@ -100,30 +100,38 @@
       <p>The transport and spam processors are two useful, but optional, processors that are included in the out of
       the box configuration.  These processors include logic for actual mail delivery and spam handling respectively.  More
       information on these processors can be found in the default mailetcontainer.xml.</p>
+      
       <p>Each processor element has zero or more <strong>mailet</strong> child elements.  Each of these elements describes a 
       matcher/mailet pair.  The ordering of the <strong>mailet</strong> children is crucial to the configuration, as 
       it is the order in which pairs will be traversed in the processor.</p>
+      
       <p>It is this <strong>mailet</strong> element that is at the core of the SpoolManager configuration.</p>
       
     </subsection>
-      
+-->    
     <subsection name="The Mailet Tag">
     
       <p>Consider the following simple <strong>mailet</strong> tag:</p>
       &lt;mailet match="RemoteAddrNotInNetwork=127.0.0.1" class="ToProcessor"&gt;<br/>
       &lt;processor&gt;spam&lt;/processor&gt;<br/>
       &lt;/mailet&gt;<br/>
+      
       <p>The mailet tag has two required attributes, <strong>match</strong> and <strong>class</strong>.</p>
+      
       <p>The <strong>match</strong> attribute is set to the value of the specific Matcher class to be instantiated with a an 
       optional argument.  If present, the argument is separated from the Matcher class name by an '='.  Semantic 
       interpretation of the argument is left to the particular mailet.</p>
+      
       <p>The <strong>class</strong> attribute is set to the value of the Mailet class that is to be instantiated.</p>
+      
       <p>Finally, the children of the <strong>mailet</strong> tag define the configuration that is passed to the Mailet.  The 
       tags used in this section should have no attributes or children.  The names and bodies of the elements will be passed to 
       the mailet as (name, value) pairs.</p>
+      
       <p>So in the example above, a Matcher instance of RemoteAddrNotInNetwork would be instantiated, and the value "127.0.0.1" 
       would be passed to the matcher.  The Mailet of the pair will be an instance of ToProcessor, and it will be passed the (name, value) 
       pair of ("processor", "spam").</p>
+      
       <p>James includes a number of pre-packaged Mailets and Matchers.  A list of provided Mailets may be found 
       <a href="provided-mailets.html">here</a>.  A list of provided Matchers may be found <a href="provided-matchers.html">here</a>.</p>
     

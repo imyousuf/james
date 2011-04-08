@@ -25,17 +25,6 @@
 
 <body>
 
-<p>
-    <div class="ui-widget">
-      <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
-        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
-        <strong>This page still contains text related to James 2.3 and needs to 
-        be updated for James 3.0</strong>
-		</p>
-      </div>
-    </div>
-</p>
-
   <section name="Server Wide Configuration">
   
     <p>There are a number of global configuration blocks that do not fall into any one 
@@ -50,7 +39,7 @@
       <p>This configuration block is defined by the <strong>mailserver</strong> tag.  All administrators 
       need to adjust this configuration block upon installation.  It no attributes, but several 
       children, all of which are required.</p>
-      
+<!--       
       <p>The tag has these attributes:</p>
       <dl>
         <dt><strong>postmaster</strong></dt>
@@ -67,8 +56,8 @@
             aliasing will be enabled.  Finally, the value of the third attribute determines whether forwarding 
             to potentially remote users will be enabled.</dd>
       </dl>
-      
-    </subsection>
+-->
+     </subsection>
 
     <subsection name="spring-beans.xml">
     
@@ -81,17 +70,19 @@
       <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/database.properties">database.properties</a> in SVN to get some examples and hints.</p>
 
       <p>The database connection in database.properties</p>
-    
+<!--     
       <p>James has the capacity to use a JDBC-compatible database for storage of both message and user 
       data.  This section explains how to configure James to utilize a database for storage.</p>
     
       <p>Using James with a database backend has certain requirements.  Database configuration is 
-      extremely vendor-specific, so we can only state the requirements in general terms.</p>
+        extremely vendor-specific, so we can only state the requirements in general terms.</p>
+      
       <p>There must be a database instance accessible from the James server.  An account with appropriate
       privileges (select, insert, delete into tables, and on initial startup creation of tables) and
       with sufficient quota for the data to be inserted into the database must be available.  Also,
       since James will use JDBC to access the database, an appropriate JDBC driver must be 
       available for installation.</p>
+      
       <p>It is important to verify the functionality of the database before attempting to configure 
       James to use it as a repository.  This will help ensure that configuration issues are properly
       identified.</p>
@@ -170,8 +161,8 @@
       by some users.  These issues (and methods to resolve them) are recorded on the 
       <a href="../FAQ.html">James FAQ</a> as they are reported.  Please consult the FAQ if you encounter any 
       difficulties.</p>
-      
-    </subsection>
+-->
+     </subsection>
     
     <subsection name="META-INF/persistence.xml">
     
@@ -194,19 +185,19 @@
       <p>Deprecated.</p>
     
       <p>The precise SQL statements used by James to modify and view data stored in the database are specified in
-      an external configuration file.  The sqlResources.xml file 
-      (which can be found in the apps/james/conf directory) is a sample configuration file that contains the SQL
-      statements used by James.  The purpose of each of these statements, as well as the repository with which 
-      they are associated, is documented in situ.</p>
+         an external configuration file.  The sqlResources.xml file 
+         (which can be found in the apps/james/conf directory) is a sample configuration file that contains the SQL
+         statements used by James.  The purpose of each of these statements, as well as the repository with which 
+         they are associated, is documented in situ.</p>
       
       <p>If you are using a SQL database with unusual SQL commands or data types, you may
-      need to add special entries to this file.  The James team
-      does try to keep sqlResources.xml updated, so if you do run into a
-      special case, please let us know.</p>
+         need to add special entries to this file.  The James team
+         does try to keep sqlResources.xml updated, so if you do run into a
+         special case, please let us know.</p>
       
       <p>Also, if the database tables are not created a priori, but rather are to be created by James
-      upon startup, special attention should be paid to the "create table" statements in this file.  Such
-      statements tend to be both very database and very database instance specific.</p>
+         upon startup, special attention should be paid to the "create table" statements in this file.  Such
+         statements tend to be both very database and very database instance specific.</p>
 
     </subsection>
 

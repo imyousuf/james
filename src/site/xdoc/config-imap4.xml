@@ -20,28 +20,16 @@
 <document>
 
  <properties>
-  <title>Configuring the IMAP4 Service</title>
+  <title>IMAP4 Configuration</title>
  </properties>
 
 <body>
 
-<p>
-    <div class="ui-widget">
-      <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
-        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
-        <strong>This page still contains text related to James 2.3 and needs to 
-        be updated for James 3.0</strong>
-		</p>
-      </div>
-    </div>
-</p>
-
-
 <section name="IMAP4 Configuration">
 
       <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/imapserver.xml">imapserver.xml</a> in SVN to get some examples and hints.</p>
-
-      <p>This block controls general connection management.  There are two elements.
+<!--
+      <p>This block controls general connection management.  There are two elements:</p>
       <ul>
         <li><strong>idle-timeout</strong> - the number of milliseconds that it will take for idle 
             client connections managed by this connection manager to be marked at timed out.  If no 
@@ -54,9 +42,8 @@
             by the connection manager, although resource limitations imposed by other components 
             (i.e. max # of threads) may serve to limit the number of open connections.</li>
       </ul>
-      </p>
-
-</section>
+-->
+ </section>
 
 </body>
 

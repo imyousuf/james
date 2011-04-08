@@ -25,18 +25,6 @@
 
 <body>
 
-<p>
-    <div class="ui-widget">
-      <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
-        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
-        <strong>This page still contains text related to James 2.3 and needs to 
-        be updated for James 3.0</strong>
-		</p>
-      </div>
-    </div>
-</p>
-
-
   <section name="Users Configuration">
   
     <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/usersrepository.xml">usersrepository.xml</a> in SVN to get some examples and hints.</p>
@@ -46,55 +34,48 @@
     </subsection>
 
     <subsection name="LDAP Users">
-  
-      <p>
-        This document explains how to enable JAMES to use an LDAP directory as a
-        Users Repository.
-      </p>
+<!--   
+      <p>This document explains how to enable JAMES to use an LDAP directory as a
+        Users Repository.</p>
     
-      <p>
-        We have tried to make the LDAP implementation of UsersRepository as
+      <p>We have tried to make the LDAP implementation of UsersRepository as
         flexible a possible, recognising that each installation will have a unique
-        directory schema.
-        <br>We assume that all users that a James Mailserver will handle fall
+        directory schema.</p>
+        
+      <p>We assume that all users that a James Mailserver will handle fall
           within one single-rooted tree. The root of this tree, ie the lowest node
           in the directory which is an ancestor for all users served by this
-          mailserver and the mailserver, is called the LDAPRoot. (See diagram)
-        </br>
-        <br>It is entirely possible that an organization may have more than one
+          mailserver and the mailserver, is called the LDAPRoot. (See diagram)</p>
+
+      <p>It is entirely possible that an organization may have more than one
           mail server. Consequently, the fact that a user is in the Directory does
-          not imply that this mailserver should handle mail for them.
-        </br>
-        <br>This implementation of UsersRepository creates one node (object) for
+          not imply that this mailserver should handle mail for them.</p>
+
+      <p>This implementation of UsersRepository creates one node (object) for
           each set of mail users. The set called 'LocalUsers' is the set of users
           whose mail is handled by this server. Other sets include any mail-lists
           handled by the server. Each member of a set is recorded as an attribute
-          of these objects. These nodes are child nodes of the mailserver.
-        </br>
-        <br>The mailserver will accept mail for local delivery if the user part of
+          of these objects. These nodes are child nodes of the mailserver.</p>
+
+       <p>The mailserver will accept mail for local delivery if the user part of
           the email address matches a member of LocalUsers and if the domain/host
           part of the email address matches the first servername .
           (Set servernames autodetect to false and enter the domain served as the
-          first servername, e.g. apache.org).
-        </br>
-        <br>For POP3 authentication, the mailserver first finds the user entry in
+          first servername, e.g. apache.org).</p>
+
+       <p>For POP3 authentication, the mailserver first finds the user entry in
           the directory, underLDAPRoot, whose attribute, specified as
           MailAttribute in conf, matches user@domain. The mailserver authenticates
           the POP3 user if it can bind to the directory as that user entry with
-          the offered password.
-        </br>
-        <br>
-          This implementation does not set passwords in the directory. Use a dummy
-          password when invoking adduser in RemoteManger.
-        </br>
-        <br>
-          If ManageGroupAttribute is set to TRUE (as it is by default), then the
+          the offered password.</p>
+
+       <p>This implementation does not set passwords in the directory. Use a dummy
+          password when invoking adduser in RemoteManger.</p>
+
+       <p>If ManageGroupAttribute is set to TRUE (as it is by default), then the
           RemoteManger will add/remove the full DN of the email group to/from the
           user entry. This facilty allows users to ask the directory what is my
-          mailserver and what email lists am I subscribed to?
-        </br>
-    
-      </p>
+          mailserver and what email lists am I subscribed to?</p>
     
       <table cellspacing="0">
         <tr>
@@ -179,6 +160,7 @@
           <td> </td>
         </tr>
       </table>
+-->
 <!-- 
       <p>
         Six entries in JAMES.conf.xml must be set for this to work: 
