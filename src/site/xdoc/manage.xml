@@ -36,7 +36,7 @@
        the configuration are incorporated into the running system.</p>
        
      <p>You are now ready to manage <a href="manage-domains.html">Domains</a>, 
-       <a href="manage-users.html">Users</a> and <a href="manage-virtualusers.html">Virtual Users</a>.</p>
+       <a href="manage-users.html">Users</a> and <a href="manage-recipientrewrite.html">Virtual Users</a>.</p>
 
     <p>You can manage James via:</p>
     
