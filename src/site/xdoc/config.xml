@@ -39,11 +39,6 @@
       </tr>
     
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/mailserver.xml">mailserver.xml</a></td>
-        <td><a href="config-serverwide.html">Server-wide Configuration</a></td>
-        <td></td>
-      </tr>
-      <tr>
         <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/spring-beans.xml">spring-beans.xml</a></td>
         <td><a href="config-serverwide.html">Server-wide Configuration</a></td>
         <td></td>
