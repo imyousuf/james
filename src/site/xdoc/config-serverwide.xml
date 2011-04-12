@@ -27,42 +27,27 @@
 
   <section name="Server Wide Configuration">
   
-    <p>There are a number of global configuration blocks that do not fall into any one 
-      component.  They have effects that are global in scope across the server.  Some of 
-      these blocks are crucial, while others can be ignored by any but the most sophisticated 
-      server administrators.</p>
+    <subsection name="Introduction">
     
-    <subsection name="mailserver.xml">
-
-     <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/mailserver.xml">mailserver.xml</a> in SVN to get some examples and hints.</p>
-
-      <p>This configuration block is defined by the <strong>mailserver</strong> tag.  All administrators 
-      need to adjust this configuration block upon installation.  It no attributes, but several 
-      children, all of which are required.</p>
-<!--       
-      <p>The tag has these attributes:</p>
-      <dl>
-        <dt><strong>postmaster</strong></dt>
-        <dd>the body of this element is the address that the server 
-            will consider its postmaster address.  This address will be listed as the sender address 
-            of all error messages that originate from James.  Also, all messages addressed to 
-            postmaster@&lt;servername&gt;, where &lt;servername&gt; is one of the domain names whose 
-            mail is being handled by James, will be redirected to this email address</dd>
-        <dt><strong>usernames</strong></dt>
-        <dd>this element has no body, but instead has three required 
-            boolean attributes.  These are <strong>ignoreCase</strong>, <strong>enabledAliases</strong>, 
-            and <strong>enableForwarding</strong>.  The first of these determines whether email user names
-            will be treated as case-insensitive or not.  The second attribute configures whether local user
-            aliasing will be enabled.  Finally, the value of the third attribute determines whether forwarding 
-            to potentially remote users will be enabled.</dd>
-      </dl>
--->
-     </subsection>
-
+      <p>There are a number of global configuration files that do not fall into any one 
+        component. They have effects that are global in scope across the server.</p>
+      
+      <p>Some of these files are crucial, while others can be ignored by any but the most sophisticated 
+        server administrators.</p>
+        
+    </subsection>
+    
     <subsection name="spring-beans.xml">
     
-      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/spring-beans.xml">spring-beans.xml</a> in SVN to get some examples and hints.</p>
+      <p>In James distribution, the spring files are located under conf/context folder and splitted into a main 
+         file (james-server-context.xml) which imports 4 other files (1 per mailbox type): james-mailbox-jcr-context.xml, james-mailbox-jpa-context.xml, 
+         james-mailbox-maildir-context.xml, james-mailbox-memory-context.xml.</p>
     
+      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/spring-beans.xml">spring-beans.xml</a> in SVN to 
+         get some examples and hints.</p>
+      
+      <p>spring beans files are the place where the Apache James Server wiring is done. It should be modified only by expert-users.</p>
+      
     </subsection>
 
     <subsection name="database.properties">
@@ -70,111 +55,63 @@
       <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/database.properties">database.properties</a> in SVN to get some examples and hints.</p>
 
       <p>The database connection in database.properties</p>
-<!--     
+
       <p>James has the capacity to use a JDBC-compatible database for storage of both message and user 
-      data.  This section explains how to configure James to utilize a database for storage.</p>
+         data. This section explains how to configure James to utilize a database for storage.</p>
     
-      <p>Using James with a database backend has certain requirements.  Database configuration is 
-        extremely vendor-specific, so we can only state the requirements in general terms.</p>
+      <p>To avoid vendor-specific issues, the JPA (Java Persistence Architecture) is used (using the Apache OpenJPA implementation).</p>
       
       <p>There must be a database instance accessible from the James server.  An account with appropriate
-      privileges (select, insert, delete into tables, and on initial startup creation of tables) and
-      with sufficient quota for the data to be inserted into the database must be available.  Also,
-      since James will use JDBC to access the database, an appropriate JDBC driver must be 
-      available for installation.</p>
+         privileges (select, insert, delete into tables, and on initial startup creation of tables) and
+         with sufficient quota for the data to be inserted into the database must be available.</p>
       
-      <p>It is important to verify the functionality of the database before attempting to configure 
-      James to use it as a repository.  This will help ensure that configuration issues are properly
-      identified.</p>
+      <p>Also, since James will use JDBC to access the database, an appropriate JDBC driver must be 
+         available for installation. You can place the JDBC driver jar in the conf/lib folder, it will
+         be automatically loaded.</p>
       
-      <p>Configuring the Phoenix container to work with JDBC is the first step in enabling James database support.</p>
-      <p>First, Phoenix must be able to load the JDBC classes.  To make these classes available to Phoenix, place the 
-      jar/zip files for the JDBC driver in the lib subdirectory of the James installation directory.  Any additional 
-      libraries upon which the JDBC library depends that are not part of the standard Java distribution should also be
-      added to this directory.</p>
-      <p>Second, the mailstore.xml must be modified so that Phoenix initializes the database connections.  The relevant 
-      configuration is in the database-connections block.  The database-connections tag has only a single child tag, 
-      data-sources.  This latter tag is a simple container tag for a number of child elements.  It is these child 
-      elements, <strong>data-source</strong> elements, that define the database connections.</p>
-      <p>Each <strong>data-source</strong> tag has a required attribute, <strong>name</strong>.  This value 
-      must be unique to each <strong>data-source</strong> element.  It is this <strong>name</strong> that will 
-      be used to specify the database connection in other parts of the mailstore.xml file.</p>
-      <p>The <strong>data-source</strong> element has five children, all of whom are required.
-      <ul>
-      <li><strong>driver</strong> - The class name of the database driver to be used.</li>
-      <li><strong>dburl</strong> - The JDBC connection URL for your database/driver.</li>
-      <li><strong>user</strong> - The user id of the database account to be used by this connection.</li>
-      <li><strong>password</strong> - The password of the database account to be used by this connection.</li>
-      <li><strong>max</strong> - The maximum number of JDBC connections to be used concurrently by this data-source.</li>
-      </ul>
-      </p>
-      <p>Generally, you simply configure these entries in the mailstore.xml
-      file, which are commented, in order to use a database with James.  You
-      would then use the db: or dbfile: prefix instead of the file: prefix
-      for a particular repository.  You are currently free to mix and match
-      your use of these different storage types for different repositories.
-      See <a href="repositories.html">Repository Configuration</a> for
-      more details.  A sample configuration is described below.</p>
-    
-      <p>The mailstore.xml file has commented out examples for MySQL and
-      MSSQL data sources, and for each of the standard repositories.  For
-      example, to use MySQL, you would uncomment and adjust the following
-      data-source element.</p>
-      
-      <p>You must create the database, in this case named
-      <strong>mail</strong>, the user, and assign the user privileges.
-      You may create the tables before running James or, if you so choose, James 
-      will automatically create the tables it needs.  In the latter case the user 
-      must have table creation privileges.</p>
-      
-      <source>
-&lt;data-source name="maildb" class="org.apache.james.util.mordred.JdbcDataSource"&gt;
-  &lt;driver&gt;com.mysql.jdbc.Driver&lt;/driver&gt;
-  &lt;dburl&gt;jdbc:mysql://127.0.0.1/mail&lt;/dburl&gt;
-  &lt;user&gt;username&lt;/user&gt;
-  &lt;password&gt;password&lt;/password&gt;
-  &lt;max&gt;20&lt;/max&gt;
-&lt;/data-source&gt;
-      </source>
-      
-      <p>Once the data-source element has been created, it can be referenced elsewhere in the mailstore.xml 
-      file.  For example, the following element tells James to use the maildb data-source and dbfile 
-      storage mechanism for the message spool:</p>
-      
-      <source>
-&lt;spoolRepository&gt;
-   &lt;repository destinationURL="dbfile://maildb/spool/spool" type="SPOOL"/&gt;
-&lt;/spoolRepository&gt;
-      </source>
-      
-      <p>The following element tells James to store mailboxes in a the maildb data-source:</p>
-      
-      <source>
-&lt;inboxRepository&gt;
-   &lt;repository destinationURL="db://maildb/inbox/" type="MAIL"/&gt;
-&lt;/inboxRepository&gt;
-      </source>
-      
-      <p>The configuration file contains further examples.</p>
-      
-      <p>There are some vendor-specific subtleties in using databases with James that have been observed 
-      by some users.  These issues (and methods to resolve them) are recorded on the 
-      <a href="../FAQ.html">James FAQ</a> as they are reported.  Please consult the FAQ if you encounter any 
-      difficulties.</p>
--->
-     </subsection>
+      <dl>
+        <dt><strong>database.driverClassName</strong></dt>
+        <dd>he class name of the database driver to be used.</dd>
+        <dt><strong>database.url</strong></dt>
+        <dd>The JDBC connection URL for your database/driver.</dd>
+        <dt><strong>database.username</strong></dt>
+        <dd>The user id of the database account to be used by this connection.</dd>
+        <dt><strong>database.password</strong></dt>
+        <dd>The password of the database account to be used by this connection.</dd>
+        <dt><strong>vendorAdapter.database</strong></dt>
+        <dd>Supported adapters are: DB2, DERBY, H2, HSQL, INFORMIX, MYSQL, ORACLE, POSTGRESQL, SQL_SERVER, SYBASE .</dd>
+        <dt><strong>openjpa.streaming</strong></dt>
+        <dd>true or false - Use streaming for Blobs. This is only supported on a limited set of databases atm. You
+        should check if its supported by your DB before enable it. See <a href="http://openjpa.apache.org/builds/latest/docs/manual/ref_guide_mapping_jpa.html">http://openjpa.apache.org/builds/latest/docs/manual/ref_guide_mapping_jpa.html</a> (#7.11. LOB Streaming).</dd>
+      </dl>
+
+    </subsection>
     
     <subsection name="META-INF/persistence.xml">
     
       <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/META-INF/persistence.xml">META-INF/persistence.xml</a> in SVN to get some examples and hints.</p>
       
-      <p>The JPA information in META-INF/persistence.xml.</p>
+      <p>The JPA mapping and properties are defined in the in META-INF/persistence.xml.</p>
+      
+      <p>You can override the definition in external file and importing the external file in the persistence.xml (see jpa-mappings.xml provided example in SVN)</p>
+
+            <source>
+&lt;mapping-file&gt;META-INF/jpa-mappings.xml&lt;/mapping-file&gt;</source>
     
-    </subsection>
+      </subsection>
 
     <subsection name="jmx.properties">
     
       <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/jmx.properties">jmx.properties</a> in SVN to get some examples and hints.</p>
+      
+      <p>This is used to configure the JMX MBean server via which all management is achieved (also used by via the james-cli).</p>
+      
+      <dl>
+        <dt><strong>jmx.address</strong></dt>
+        <dd>The IP address (host name) the MBean Server will bind/listen to.</dd>
+        <dt><strong>jmx.port</strong></dt>
+        <dd>The port number the MBean Server will bind/listen to.</dd>
+      </dl>
 
     </subsection>
 
@@ -182,13 +119,11 @@
     
       <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/sqlResources.xml">sqlResources.xml</a> in SVN to get some examples and hints.</p>
       
-      <p>Deprecated.</p>
+      <p>This file is deprecated but some mailets... still need it. The standard way to access database
+         is JPA, but some functionalities are not yet migrated and still need the sqlResources.xml resources.</p>
     
-      <p>The precise SQL statements used by James to modify and view data stored in the database are specified in
-         an external configuration file.  The sqlResources.xml file 
-         (which can be found in the apps/james/conf directory) is a sample configuration file that contains the SQL
-         statements used by James.  The purpose of each of these statements, as well as the repository with which 
-         they are associated, is documented in situ.</p>
+      <p>The precise SQL statements used by Apache James Server to modify and view data stored in the database 
+         are specified in sqlResources.xml file.</p>
       
       <p>If you are using a SQL database with unusual SQL commands or data types, you may
          need to add special entries to this file.  The James team
@@ -204,6 +139,8 @@
     <subsection name="JCR Repository Configuration">
 
       <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/jcr-repository.xml">jcr-repository.xml</a> in SVN to get some examples and hints.</p>
+      
+      <p>Used to configure the JCR mailbox (if configure in mailbox.xml).</p>
 
     </subsection>
 
@@ -212,3 +149,4 @@
 </body>
 
 </document>
+
