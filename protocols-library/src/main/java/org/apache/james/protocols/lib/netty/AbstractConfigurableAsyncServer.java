@@ -43,6 +43,7 @@ import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.protocols.impl.AbstractAsyncServer;
 import org.apache.james.protocols.lib.jmx.ServerMBean;
 import org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutor;
+import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.slf4j.Logger;
 
 /**
@@ -526,6 +527,14 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         }
 
         return addrs;
+    }
+
+    @Override
+    protected void configureBootstrap(ServerBootstrap bootstrap) {
+        super.configureBootstrap(bootstrap);
+        
+        // enable tcp keep-alives
+        bootstrap.setOption("child.keepAlive", true);
     }
 
 }
