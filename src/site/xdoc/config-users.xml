@@ -25,17 +25,70 @@
 
 <body>
 
-  <section name="Users Configuration">
+  <section name="Users Repositories">
+  
+    <p>User repositories are required to store James user information and authentication data</p>
   
     <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/usersrepository.xml">usersrepository.xml</a> in SVN to get some examples and hints.</p>
 
-    <subsection name="JPA Users">
+    <subsection name="JPA Users Repository">
   
+     <p>JPA (database via OpenJPA) based user repository. This is the default implementation.</p>
+     
+     <p>The usersrepository tag as 2 attributes: name="LocalUsers" and class="org.apache.james.user.file.UsersFileRepository"></p>
+
+      <dl>
+        <dt><strong>algorithm</strong></dt>
+        <dd>Algorithm to has passwords. Supported password algorithm are: MD5, SHA-256, SHA-512, NONE</dd>
+        <dt><strong>enableVirtualHosting</strong></dt>
+        <dd>true (default) or false. Defines if the usernames must (true) or may not contain (false) a domain part (user@domain.tld).</dd>
+      </dl>
+
     </subsection>
 
-    <subsection name="LDAP Users">
+    <subsection name="File Users Repository">
+  
+      <p>The File UsersRepository implementations below are DEPRECATED and will get removed in the next release</p>
+      <p>It just listed here for backward-compatibility</p>
+
+      <p>File-based user repositories  Use these configurations to store user info in the filesystem.</p>
+      
+     <p>The usersrepository tag as 2 attributes:name="LocalUsers" class="org.apache.james.user.file.UsersFileRepository"></p>
+
+      <dl>
+        <dt><strong>destination</strong></dt>
+        <dd>Example: file://var/users/.</dd>
+        <dt><strong>ignoreCase</strong></dt>
+        <dd>true or false.</dd>
+        <dt><strong>enableAliases</strong></dt>
+        <dd>true or false.</dd>
+        <dt><strong>enableForwarding</strong></dt>
+        <dd>true or false.</dd>
+        <dt><strong>enableVirtualHosting</strong></dt>
+        <dd>true (default) or false. Defines if the usernames must (true) or may not contain (false) a domain part (user@domain.tld).</dd>
+      </dl>
+
+    </subsection>
+
+    <subsection name="JDBC Users Repository">
+    
+      <p>The JDBC UsersRepository implementations below are DEPRECATED and will get removed in the next release.</p>
+      <p>It just listed here for backward-compatibility.</p>
+
+    </subsection>
+
+    <subsection name="LDAP Users Repository">
+    
+       <p>Read-Only LDAP based UsersRepository</p>
+     
+       <p>Example:</p>
+
+       <source>
+&lt;repository name="LocalUsers" class="org.apache.james.user.ldap.ReadOnlyUsersLDAPRepository" ldapHost="ldap://myldapserver:389" 
+    principal="uid=ldapUser,ou=system" credentials="password" userBase="ou=People,o=myorg.com,ou=system" userIdAttribute="uid"/&gt;</source>
+
 <!--   
-      <p>This document explains how to enable JAMES to use an LDAP directory as a
+      <p>This section explains how to enable Apache James Server to use an LDAP directory as a
         Users Repository.</p>
     
       <p>We have tried to make the LDAP implementation of UsersRepository as
@@ -162,8 +215,7 @@
       </table>
 -->
 <!-- 
-      <p>
-        Six entries in JAMES.conf.xml must be set for this to work: 
+      <p>Six entries in JAMES.conf.xml must be set for this to work:
         <ul>
           <li>change usersManager - type to ldap.</li>
           <li>Set the ldapServer element to point to the correct host and port</li>
@@ -175,12 +227,6 @@
 -->    
      </subsection>
 
-  </section>
-
-  <section name="Virtual Users Configuration">
-  
-    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/recipientrewritetable.xml">recipientrewritetable.xml</a> in SVN to get some examples and hints.</p>
-    
   </section>
 
 </body>

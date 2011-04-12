@@ -28,9 +28,19 @@
   <section name="Mailbox Configuration">
 
     <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/mailbox.xml">mailbox.xml</a> in SVN to get some examples and hints.</p>
+    
+    <p>Use this configuration to define the type of mailbox storage used to persist the user's mails.</p>
+    
+    <p>Under maibox tag, define the provider.</p>
+
+      <dl>
+        <dt><strong>provider</strong></dt>
+        <dd>Supported providers are: jpa (default), jcr, maildir, memory. Be aware that maildir will only work on unix like operation systems!</dd>
+      </dl>
 
   </section>
 
 </body>
 
 </document>
+

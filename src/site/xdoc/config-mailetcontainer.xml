@@ -37,6 +37,7 @@
       <li>All custom mailets must be specified with full package prefix</li>
       <li>Package prefixed custom mailet names will be searched across the entire applicable class path</li>
       <li>Composite matchers</li>
+    </ul>
 <!-- 
 <matcher name="anyname" match="org.apache.james.mailetcontainer.lib.matcher.And">
 <matcher match="SenderIs...."/>
@@ -44,7 +45,29 @@
 </matcher>
 <mailet match="anyname" class="MailetX"/>
 -->
-    </ul>
+      <p>This configuration block is defined by the <strong>mailserver</strong> tag.  All administrators 
+      need to adjust the <strong>mailserver</strong> block upon installation.</p>
+
+      <dl>
+        <dt><strong>postmaster</strong></dt>
+        <dd>The body of this element is the address that the server 
+            will consider its postmaster address.  This address will be listed as the sender address 
+            of all error messages that originate from James.  Also, all messages addressed to 
+            postmaster@&lt;servername&gt;, where &lt;servername&gt; is one of the domain names whose 
+            mail is being handled by James, will be redirected to this email address.
+            Set this to the appropriate email address for error reports 
+            If this is set to a non-local email address, the mail server
+            will still function, but will generate a warning on startup.</dd>
+        <dt><strong>enableVirtualHosting</strong></dt>
+        <dd>Set to true to support virtualHosting. If virtualHosting support 
+            is enabled the server will accept thread every user independ on domain level.</dd>
+        <dt><strong>key</strong></dt>
+        <dd>value.</dd>
+        <dt><strong>defaultDomain</strong></dt>
+        <dd>Set the default domain which will be used if an email is send to a recipient without a domain part.
+            If not defaultdomain is set the first domain of the DomainList get used.</dd>
+      </dl>
+    
 <!--   
     <p>The SpoolManager is controlled by a single configuration block in the mailetcontainer.xml.
     The spoolmanager tag defines the boundaries of the configuration block.  The behavior of 
@@ -132,7 +155,7 @@
       would be passed to the matcher.  The Mailet of the pair will be an instance of ToProcessor, and it will be passed the (name, value) 
       pair of ("processor", "spam").</p>
       
-      <p>James includes a number of pre-packaged Mailets and Matchers.  A list of provided Mailets may be found 
+      <p>Apache James Server includes a number of pre-packaged Mailets and Matchers.  A list of provided Mailets may be found 
       <a href="provided-mailets.html">here</a>.  A list of provided Matchers may be found <a href="provided-matchers.html">here</a>.</p>
     
     </subsection>
