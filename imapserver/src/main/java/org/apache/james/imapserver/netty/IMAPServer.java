@@ -45,6 +45,7 @@ import org.jboss.netty.handler.connection.ConnectionPerIpLimitUpstreamHandler;
 import org.jboss.netty.handler.execution.ExecutionHandler;
 import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.handler.stream.ChunkedWriteHandler;
+import org.jboss.netty.handler.timeout.IdleStateHandler;
 import org.jboss.netty.util.HashedWheelTimer;
 
 /**
@@ -129,7 +130,8 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
             public ChannelPipeline getPipeline() throws Exception {
                 ChannelPipeline pipeline = pipeline();
                 pipeline.addLast(GROUP_HANDLER, groupHandler);
-                pipeline.addLast(TIMEOUT_HANDLER, new ImapIdleStateHandler(timer, TIMEOUT, TIMEOUT_UNIT));
+                pipeline.addLast("idleHandler", new IdleStateHandler(timer, 0, 30, TIMEOUT, TIMEOUT_UNIT));
+                pipeline.addLast(TIMEOUT_HANDLER, new ImapIdleStateHandler());
                 pipeline.addLast(CONNECTION_LIMIT_HANDLER, new ConnectionLimitUpstreamHandler(IMAPServer.this.connectionLimit));
 
                 pipeline.addLast(CONNECTION_LIMIT_PER_IP_HANDLER, new ConnectionPerIpLimitUpstreamHandler(IMAPServer.this.connPerIP));

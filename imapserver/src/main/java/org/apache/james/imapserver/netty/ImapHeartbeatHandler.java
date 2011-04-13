@@ -18,40 +18,20 @@
  ****************************************************************/
 package org.apache.james.imapserver.netty;
 
-import java.net.InetSocketAddress;
-
-import org.apache.james.imap.api.process.ImapSession;
-import org.apache.james.protocols.impl.ChannelAttributeSupport;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.timeout.IdleState;
 import org.jboss.netty.handler.timeout.IdleStateAwareChannelHandler;
 import org.jboss.netty.handler.timeout.IdleStateEvent;
 
-/**
- * {@link IdleStateAwareChannelHandler} which will call {@link ImapSession#logout()} if the
- * connected client did not receive or send any traffic in a given timeframe
- */
-public class ImapIdleStateHandler extends IdleStateAwareChannelHandler implements ChannelAttributeSupport {
+public class ImapHeartbeatHandler extends IdleStateAwareChannelHandler{
 
     @Override
     public void channelIdle(ChannelHandlerContext ctx, IdleStateEvent e) throws Exception {
-
-        // check if the client did nothing for too long
-        if (e.getState().equals(IdleState.ALL_IDLE)) {
-            ImapSession session = (ImapSession) attributes.get(ctx.getChannel());
-            InetSocketAddress address = (InetSocketAddress) ctx.getChannel().getRemoteAddress();
-
-            session.getLog().info("Logout client " + address.getHostName() + " (" + address.getAddress().getHostAddress() + ") because it idled for too long...");
-
-            // logout the client
-            session.logout();
-
-            // close the channel
-            ctx.getChannel().close();
-
+        if (e.getState().equals(IdleState.WRITER_IDLE)) {
+            e.getChannel().write(ChannelBuffers.wrappedBuffer("* OK Hang in there..\r\n.".getBytes("US-ASCII")));
         }
         super.channelIdle(ctx, e);
     }
-
 
 }

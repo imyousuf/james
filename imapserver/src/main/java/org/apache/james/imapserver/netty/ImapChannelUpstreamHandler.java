@@ -62,6 +62,8 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
 
     private ImapEncoder encoder;
 
+    private final ImapHeartbeatHandler heartbeatHandler = new ImapHeartbeatHandler();
+    
     public ImapChannelUpstreamHandler(final String hello, final ImapProcessor processor, ImapEncoder encoder, final Logger logger, boolean compress) {
         this(hello, processor, encoder, logger, compress, null, null);
     }
@@ -157,21 +159,26 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
         ImapResponseComposer response = (ImapResponseComposer) ctx.getAttachment();
         ImapMessage message = (ImapMessage) e.getMessage();
 
-        final ResponseEncoder responseEncoder = new ResponseEncoder(encoder, response, session);
-        processor.process(message, responseEncoder, session);
+        try {
+            ctx.getPipeline().addLast("heartbeatHandler", heartbeatHandler);
+            final ResponseEncoder responseEncoder = new ResponseEncoder(encoder, response, session);
+            processor.process(message, responseEncoder, session);
 
-        if (session.getState() == ImapSessionState.LOGOUT) {
-            ctx.getChannel().close();
-        }
-        final IOException failure = responseEncoder.getFailure();
-
-        if (failure != null) {
-            final Logger logger = session.getLog();
-            logger.info(failure.getMessage());
-            if (logger.isDebugEnabled()) {
-                logger.debug("Failed to write " + message, failure);
+            if (session.getState() == ImapSessionState.LOGOUT) {
+                ctx.getChannel().close();
             }
-            throw failure;
+            final IOException failure = responseEncoder.getFailure();
+
+            if (failure != null) {
+                final Logger logger = session.getLog();
+                logger.info(failure.getMessage());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Failed to write " + message, failure);
+                }
+                throw failure;
+            }
+        } finally {
+            ctx.getPipeline().remove("heartbeatHandler");
         }
 
         super.messageReceived(ctx, e);
