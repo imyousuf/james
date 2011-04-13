@@ -27,7 +27,6 @@ import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.protocols.impl.AbstractChannelUpstreamHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
-import org.jboss.netty.channel.ExceptionEvent;
 import org.slf4j.Logger;
 
 /**
@@ -65,10 +64,5 @@ public class POP3ChannelUpstreamHandler extends AbstractChannelUpstreamHandler {
         }
     }
 
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-        e.getCause().printStackTrace();
-        //super.exceptionCaught(ctx, e);
-    }
 
 }
