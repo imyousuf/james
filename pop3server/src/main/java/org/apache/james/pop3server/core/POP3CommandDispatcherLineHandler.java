@@ -64,7 +64,7 @@ public class POP3CommandDispatcherLineHandler extends AbstractCommandDispatcher<
         return UnknownCmdHandler.COMMAND_NAME;
     }
 
-    @Override
+    
     public boolean onLine(POP3Session session, byte[] line) {
         MailboxSession mSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
 

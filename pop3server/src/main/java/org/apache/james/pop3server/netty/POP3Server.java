@@ -19,16 +19,11 @@
 package org.apache.james.pop3server.netty;
 
 import javax.annotation.Resource;
-import javax.net.ssl.SSLContext;
 
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
-import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
 import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
-import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 /**
@@ -90,51 +85,18 @@ public class POP3Server extends AbstractConfigurableAsyncServer implements POP3S
     }
 
     @Override
-    protected ChannelPipelineFactory createPipelineFactory(ChannelGroup group) {
-        return new POP3ChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group);
-    }
-
-    private final class POP3ChannelPipelineFactory extends AbstractSSLAwareChannelPipelineFactory {
-
-        public POP3ChannelPipelineFactory(int timeout, int maxConnections, int maxConnectsPerIp, ChannelGroup group) {
-            super(timeout, maxConnections, maxConnectsPerIp, group);
-        }
-
-        @Override
-        public ChannelPipeline getPipeline() throws Exception {
-            ChannelPipeline pipeLine = super.getPipeline();
-            pipeLine.addBefore("coreHandler", "countHandler", getConnectionCountHandler());
-            return pipeLine;
-        }
-
-        @Override
-        protected SSLContext getSSLContext() {
-            return POP3Server.this.getSSLContext();
-
-        }
-
-        @Override
-        protected boolean isSSLSocket() {
-            return POP3Server.this.isSSLSocket();
-        }
-
-        @Override
-        protected OneToOneEncoder createEncoder() {
-            return new POP3ResponseEncoder();
-
-        }
-
-        @Override
-        protected ChannelUpstreamHandler createHandler() {
-            return new POP3ChannelUpstreamHandler(handlerChain, theConfigData, getLogger(), getSSLContext(), getEnabledCipherSuites());
-
-        }
-
+    protected String getDefaultJMXName() {
+        return "pop3server";
     }
 
     @Override
-    protected String getDefaultJMXName() {
-        return "pop3server";
+    protected ChannelUpstreamHandler createCoreHandler() {
+        return new POP3ChannelUpstreamHandler(handlerChain, theConfigData, getLogger(), getSSLContext(), getEnabledCipherSuites());
+    }
+
+    @Override
+    protected OneToOneEncoder createEncoder() {
+        return new POP3ResponseEncoder();
     }
 
 }

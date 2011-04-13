@@ -24,15 +24,11 @@ import javax.net.ssl.SSLContext;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
-import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
 import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.smtpserver.netty.SMTPChannelUpstreamHandler;
 import org.apache.james.smtpserver.netty.SMTPResponseEncoder;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
-import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPServerMBean {
@@ -87,11 +83,6 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
             lmtpGreeting = configuration.getString("lmtpGreeting", null);
 
         }
-    }
-
-    @Override
-    protected ChannelPipelineFactory createPipelineFactory(ChannelGroup group) {
-        return new LMTPChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group);
     }
 
     /**
@@ -163,41 +154,6 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
         }
     }
 
-    private final class LMTPChannelPipelineFactory extends AbstractSSLAwareChannelPipelineFactory {
-
-        public LMTPChannelPipelineFactory(int timeout, int maxConnections, int maxConnectsPerIp, ChannelGroup group) {
-            super(timeout, maxConnections, maxConnectsPerIp, group);
-        }
-
-        @Override
-        public ChannelPipeline getPipeline() throws Exception {
-            ChannelPipeline pipeLine = super.getPipeline();
-            pipeLine.addBefore("coreHandler", "countHandler", getConnectionCountHandler());
-            return pipeLine;
-        }
-
-        @Override
-        protected SSLContext getSSLContext() {
-            return null;
-        }
-
-        @Override
-        protected boolean isSSLSocket() {
-            return false;
-        }
-
-        @Override
-        protected OneToOneEncoder createEncoder() {
-            return new SMTPResponseEncoder();
-        }
-
-        @Override
-        protected ChannelUpstreamHandler createHandler() {
-            return new SMTPChannelUpstreamHandler(handlerChain, lmtpConfig, getLogger());
-        }
-
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -246,6 +202,26 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
      */
     public String getHeloName() {
         return lmtpConfig.getHelloName();
+    }
+
+    @Override
+    protected ChannelUpstreamHandler createCoreHandler() {
+        return new SMTPChannelUpstreamHandler(handlerChain, lmtpConfig, getLogger());
+    }
+
+    @Override
+    protected OneToOneEncoder createEncoder() {
+        return new SMTPResponseEncoder();
+    }
+
+    @Override
+    protected SSLContext getSSLContext() {
+        return null;
+    }
+
+    @Override
+    protected boolean isSSLSocket() {
+        return false;
     }
 
 }

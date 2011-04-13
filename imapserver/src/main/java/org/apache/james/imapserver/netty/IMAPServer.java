@@ -35,11 +35,14 @@ import org.apache.james.protocols.impl.ChannelGroupHandler;
 import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.codec.frame.DelimiterBasedFrameDecoder;
 import org.jboss.netty.handler.codec.frame.Delimiters;
+import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 import org.jboss.netty.handler.connection.ConnectionLimitUpstreamHandler;
 import org.jboss.netty.handler.connection.ConnectionPerIpLimitUpstreamHandler;
+import org.jboss.netty.handler.execution.ExecutionHandler;
 import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 import org.jboss.netty.util.HashedWheelTimer;
@@ -62,6 +65,8 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
     private int maxLineLength;
 
     private int inMemorySizeLimit;
+    
+    
 
     // Use a big default
     public final static int DEFAULT_MAX_LINE_LENGTH = 65536;
@@ -116,7 +121,7 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
         return new ChannelPipelineFactory() {
             private final ChannelGroupHandler groupHandler = new ChannelGroupHandler(group);
             private final HashedWheelTimer timer = new HashedWheelTimer();
-
+            
             // Timeout of 30 minutes See rfc2060 5.4 for details
             private final static int TIMEOUT = 60 * 30;
             private final TimeUnit TIMEOUT_UNIT = TimeUnit.SECONDS;
@@ -146,12 +151,12 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
 
                 pipeline.addLast(CHUNK_WRITE_HANDLER, new ChunkedWriteHandler());
 
-                if (isStartTLSSupported()) {
-                    pipeline.addLast(CORE_HANDLER, new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress, getSSLContext(), getEnabledCipherSuites()));
-                } else {
-                    pipeline.addLast(CORE_HANDLER, new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress));
+                ExecutionHandler ehandler = getExecutionHandler();
+                if (ehandler  != null) {
+                    pipeline.addLast(EXECUTION_HANDLER, ehandler);
                 }
-
+               
+                pipeline.addLast(CORE_HANDLER, createCoreHandler());
                 return pipeline;
             }
 
@@ -161,6 +166,24 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
     @Override
     protected String getDefaultJMXName() {
         return "imapserver";
+    }
+
+    @Override
+    protected ChannelUpstreamHandler createCoreHandler() {
+        ImapChannelUpstreamHandler coreHandler;
+        if (isStartTLSSupported()) {
+           coreHandler = new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress, getSSLContext(), getEnabledCipherSuites());
+        } else {
+           coreHandler = new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress);
+        }
+        return coreHandler;
+    }
+
+    /**
+     * Return null as we don't need this
+     */
+    protected OneToOneEncoder createEncoder() {
+        return null;
     }
 
 }

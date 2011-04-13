@@ -162,12 +162,15 @@ public class POP3ServerTest extends TestCase {
     }
 
     protected void tearDown() throws Exception {
-
+        try {
         if (m_pop3Protocol != null) {
             if (m_pop3Protocol.isConnected()) {
                 m_pop3Protocol.sendCommand("quit");
                 m_pop3Protocol.disconnect();
             }
+        }
+        } catch (Exception e){
+            
         }
 
         manager.deleteEverything();
@@ -405,8 +408,8 @@ public class POP3ServerTest extends TestCase {
         deleted = m_pop3Protocol.deleteMessage(10);
         assertFalse(deleted);
 
-        m_pop3Protocol.sendCommand("quit");
-        m_pop3Protocol.disconnect();
+        m_pop3Protocol.logout();
+        //m_pop3Protocol.disconnect();
 
         m_pop3Protocol.connect("127.0.0.1", m_pop3ListenerPort);
 

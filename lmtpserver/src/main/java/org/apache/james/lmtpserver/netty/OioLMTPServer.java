@@ -20,6 +20,7 @@ package org.apache.james.lmtpserver.netty;
 
 import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.oio.OioServerSocketChannelFactory;
+import org.jboss.netty.handler.execution.ExecutionHandler;
 
 /**
  * LMTPServer which use old IO and not NIO. If you want to use NIO you should
@@ -40,6 +41,16 @@ public class OioLMTPServer extends LMTPServer {
     @Override
     public int getIoWorkerCount() {
         return -1;
+    }
+
+
+    /**
+     * As OIO use one thread per connection we disable the use of the {@link ExecutionHandler}
+     * 
+     */
+    @Override
+    protected ExecutionHandler createExecutionHander() {
+        return null;
     }
 
 }

@@ -19,19 +19,14 @@
 package org.apache.james.smtpserver.netty;
 
 import javax.annotation.Resource;
-import javax.net.ssl.SSLContext;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
-import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
 import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
-import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 /**
@@ -273,47 +268,6 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
 
     }
 
-    @Override
-    protected ChannelPipelineFactory createPipelineFactory(ChannelGroup group) {
-        return new SMTPChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group, getEnabledCipherSuites());
-    }
-
-    private final class SMTPChannelPipelineFactory extends AbstractSSLAwareChannelPipelineFactory {
-
-        public SMTPChannelPipelineFactory(int timeout, int maxConnections, int maxConnectsPerIp, ChannelGroup group, String[] enabledCipherSuites) {
-            super(timeout, maxConnections, maxConnectsPerIp, group, enabledCipherSuites);
-        }
-
-        @Override
-        public ChannelPipeline getPipeline() throws Exception {
-            ChannelPipeline pipeline = super.getPipeline();
-            pipeline.addBefore("coreHandler", "connectionCount", getConnectionCountHandler());
-
-            return pipeline;
-        }
-
-        @Override
-        protected SSLContext getSSLContext() {
-            return SMTPServer.this.getSSLContext();
-        }
-
-        @Override
-        protected boolean isSSLSocket() {
-            return SMTPServer.this.isSSLSocket();
-        }
-
-        @Override
-        protected OneToOneEncoder createEncoder() {
-            return new SMTPResponseEncoder();
-        }
-
-        @Override
-        protected ChannelUpstreamHandler createHandler() {
-            return new SMTPChannelUpstreamHandler(handlerChain, theConfigData, getLogger(), getSSLContext(), getEnabledCipherSuites());
-        }
-
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -403,6 +357,16 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
      */
     public String getHeloName() {
         return theConfigData.getHelloName();
+    }
+
+    @Override
+    protected ChannelUpstreamHandler createCoreHandler() {
+        return new SMTPChannelUpstreamHandler(handlerChain, theConfigData, getLogger(), getSSLContext(), getEnabledCipherSuites());
+    }
+
+    @Override
+    protected OneToOneEncoder createEncoder() {
+        return new SMTPResponseEncoder();
     }
 
 }

@@ -40,10 +40,17 @@ import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.filesystem.api.FileSystem;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
+
 import org.apache.james.protocols.impl.AbstractAsyncServer;
 import org.apache.james.protocols.lib.jmx.ServerMBean;
 import org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutor;
 import org.jboss.netty.bootstrap.ServerBootstrap;
+import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.ChannelUpstreamHandler;
+import org.jboss.netty.channel.group.ChannelGroup;
+import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
+import org.jboss.netty.handler.execution.ExecutionHandler;
+import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 import org.slf4j.Logger;
 
 /**
@@ -102,6 +109,11 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     private ConnectionCountHandler countHandler = new ConnectionCountHandler();
 
+    private ExecutionHandler executionHandler = null;
+
+    private int maxExecutorThreads;
+
+    
     @Resource(name = "dnsservice")
     public final void setDNSService(DNSService dns) {
         this.dns = dns;
@@ -166,6 +178,9 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         int ioWorker = config.getInt("ioWorkerCount", DEFAULT_IO_WORKER_COUNT);
         setIoWorkerCount(ioWorker);
 
+        maxExecutorThreads = config.getInt("maxExecutorCount", 50);
+
+        
         configureHelloName(config);
 
         setTimeout(config.getInt(TIMEOUT_NAME, DEFAULT_TIMEOUT));
@@ -235,7 +250,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         if (isEnabled()) {
             preInit();
             buildSSLContext();
-
+            executionHandler = createExecutionHander();
             bind();
         }
     }
@@ -245,6 +260,9 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         getLogger().info("Dispose " + getServiceType());
         if (isEnabled()) {
             unbind();
+            if (executionHandler != null) {
+                executionHandler.releaseExternalResources();
+            }
         }
     }
 
@@ -536,5 +554,67 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         // enable tcp keep-alives
         bootstrap.setOption("child.keepAlive", true);
     }
+    
+    /**
+     * Create a new {@link ExecutionHandler} which is used to execute IO-Bound handlers
+     * 
+     * @return ehandler
+     */
+    protected ExecutionHandler createExecutionHander() {
+        return new ExecutionHandler(new OrderedMemoryAwareThreadPoolExecutor(maxExecutorThreads, 0, 0));
+    }
 
+    /**
+     * Return the {@link ExecutionHandler} or null if non should be used. Be sure you call {@link #createExecutionHander()} before
+     * 
+     * @return ehandler
+     */
+    protected ExecutionHandler getExecutionHandler() {
+        return executionHandler;
+    }
+    
+    protected abstract OneToOneEncoder createEncoder();
+
+    protected abstract ChannelUpstreamHandler createCoreHandler();
+    
+    @Override
+    protected ChannelPipelineFactory createPipelineFactory(ChannelGroup group) {
+        return new AbstractExecutorAwareChannelPipelineFactory(connPerIP, connPerIP, connPerIP, group, enabledCipherSuites) {
+            @Override
+            protected SSLContext getSSLContext() {
+                return AbstractConfigurableAsyncServer.this.getSSLContext();
+
+            }
+
+            @Override
+            protected boolean isSSLSocket() {
+                return AbstractConfigurableAsyncServer.this.isSSLSocket();
+            }
+
+            @Override
+            protected OneToOneEncoder createEncoder() {
+                return AbstractConfigurableAsyncServer.this.createEncoder();
+
+            }
+
+            @Override
+            protected ChannelUpstreamHandler createHandler() {
+                return AbstractConfigurableAsyncServer.this.createCoreHandler();
+
+            }
+
+            @Override
+            protected ConnectionCountHandler getConnectionCountHandler() {
+                return AbstractConfigurableAsyncServer.this.getConnectionCountHandler();
+            }
+
+            @Override
+            protected ExecutionHandler getExecutionHandler() {
+                return AbstractConfigurableAsyncServer.this.getExecutionHandler();
+            }
+
+        };
+    }
+    
+    
 }
