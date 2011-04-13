@@ -27,10 +27,14 @@
 
   <section name="Users Repositories">
   
-    <p>User repositories are required to store James user information and authentication data</p>
+    <subsection name="Introduction">
   
-    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/usersrepository.xml">usersrepository.xml</a> in SVN to get some examples and hints.</p>
-
+      <p>User repositories are required to store James user information and authentication data</p>
+  
+      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/usersrepository.xml">usersrepository.xml</a> in SVN to get some examples and hints.</p>
+      
+    </subsection>
+    
     <subsection name="JPA Users Repository">
   
      <p>JPA (database via OpenJPA) based user repository. This is the default implementation.</p>
