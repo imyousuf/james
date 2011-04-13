@@ -25,12 +25,14 @@
 
 <body>
  
- <section name="DNS Configuration">
+ <section name="DNS Service Configuration">
 
     <subsection name="dnsservice.xml">
 
       <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/dnsservice.xml">dnsservice.xml</a> in SVN to get some examples and hints.</p>
-<!-- 
+
+      <p>Specifies DNS Server information for use by various components inside Apache James Server.</p>
+
       <p>DNS Transport services are controlled by a configuration block in
          the dnsservice.xml. This block affects SMTP remote delivery.</p>
     
@@ -39,51 +41,54 @@
          The behavior of the DNS service is controlled by the attributes and
          children of this tag.</p> 
     
-      <p>The standard children of the dnsservice tag are:</p>
-    
-       <ul>
-        <li><strong>servernames</strong> - this element determines exactly which mail domains and IP 
-            addresses the server will treat as local.  It has two boolean attributes - 
-            <strong>autodetect</strong> and <strong>autodetectIP</strong>.  The first attribute, if true,
-            causes the server to attempt to determine its own host name and add that to the list of local
-            mail domains.  The second attribute causes the server to attempt to determine its own IP 
-            address and add it to the list of local mail domains.  In addition to these attributes, this 
-            tag has zero or more <strong>servername</strong> children.</li>
-        <ul>
-          <li><strong>servername</strong> - a single host name or IP address that should be added to the list of 
-          mail domains that the server considers local.</li>
-        </ul>
-        <li><strong>servers</strong> - This is a list of DNS Servers to be used by James and are 
-            specified by one, or more <strong><i>server</i></strong> elements, which are child elements. 
-            Each server element is the IP address of a single DNS server.
-            <source>
-&lt;servers&gt;
-  &lt;server&gt;127.0.0.1&lt;/server&gt;
-  &lt;server&gt;166.181.194.205&lt;/server&gt;
-&lt;/servers&gt;
-            </source>
-       </li>
-       <li><strong>authoritative</strong> - (<strong>true/false</strong>)This tag specifies whether or not 
+      <dl>
+        <dt><strong>servers</strong></dt>
+        <dd>Information includes a list of DNS Servers to be used by James.  These are 
+           specified by the server elements, each of which is a child element of the 
+           servers element.  Each server element is the IP address of a single DNS server. 
+           The servers element can have multiple server children. Enter ip address of your DNS server, one IP address per server 
+         element. If no DNS servers are found and you have not specified any below, 127.0.0.1 will be used </dd>
+        <dt><strong>autodiscover</strong></dt>
+        <dd>true or false -  If you use autodiscover and add DNS servers manually a combination of all the DNS servers will be used
+            If autodiscover is true, James will attempt to autodiscover the DNS servers configured on your underlying system.
+            Currently, this works if the OS has a unix-like /etc/resolv.conf,
+            or the system is Windows based with ipconfig or winipcfg. Change autodiscover to false if you would like to turn off autodiscovery 
+            and set the DNS servers manually in the servers section </dd>
+        <dt><strong>authoritative</strong></dt>
+        <dd><strong>true/false</strong> - This tag specifies whether or not 
            to require authoritative (non-cached) DNS records; to only accept DNS responses that are 
             authoritative for the domain. It is primarily useful in an intranet/extranet environment.
-           <p>This should always be <strong>false</strong> unless you understand the implications.</p>
-       </li>
-      </ul>
--->
-    </subsection>
-
+           <p>This should always be <strong>false</strong> unless you understand the implications.</dd>
+        <dt><strong>maxcachesize</strong></dt>
+        <dd> Maximum number of entries to maintain in the DNS cache  (typically 50000)</dd>
+        <dt><strong>singleIPperMX</strong></dt>
+        <dd>true or false (default) - Sepcifies if Apache James Server must try a single server for each multihomed mx host</dd>
+      </dl>
+    
   </section>
+<!--
+Commented because no more applicable? (we are running now on JDK 1.5)
+
+  <section name="Sun JVM DNS Lookup Configuration.">
  
-<!-- 
- <section name="Sun JVM DNS Lookup Configuration.">
-  <p>Sun's JVM Internet address lookup uses a cache which is unbounded and doesn't time out.<br/>
-  This is obviously not great for a long running process like a mail server so we have introduced a system property <strong>networkaddress.cache.ttl</strong> that is used by the distributed phoenix start-up scripts, at startup, to override the java 1.4 <strong>Security.setProperty("networkaddress.cache.ttl")</strong>.<br/> By default this is set to <strong>300</strong> seconds.</p>
-  <p>This workaround will only be present if you use James as distributed. If you use James in any other container, including different versions of Phoenix, you will need to ensure that you make a similar configuration change to allow the internet address cache to perform acceptably.</p>
-  <p>James 3.0 has this workaround and it requires it to operate acceptably. Future versions of James will continue to have the workaround in place but will *not* require it. This will provide continued support for any mailets which you may deploy from other sources which might continue to use Sun's InetAddress class for DNS resolution.</p>
-  <p>We are not currently aware of the behaviour of this cache in other JVM implementations, nor of the effect, if any, which this change might have on them</p>
-  <p>For more on this read defect report <a href="http://issues.apache.org/jira/browse/JAMES-592">JAMES-592</a> and related defects.</p>
- </section>
- -->
+    <p>Sun's JVM Internet address lookup uses a cache which is unbounded and doesn't time out.<br/>
+       This is obviously not great for a long running process like a mail server so we have introduced a system property <strong>networkaddress.cache.ttl</strong> 
+       that is used by the distributed phoenix start-up scripts, at startup, to override the java 1.4 <strong>Security.setProperty("networkaddress.cache.ttl")</strong>.<br/> 
+       By default this is set to <strong>300</strong> seconds.</p>
+  
+    <p>This workaround will only be present if you use James as distributed. If you use James in any other container, including different versions of Spring, 
+        you will need to ensure that you make a similar configuration change to allow the internet address cache to perform acceptably.</p>
+  
+    <p>Apache James Server 3.0 has this workaround and it requires it to operate acceptably. Future versions of James will continue to have the workaround in place 
+      but will *not* require it. This will provide continued support for any mailets which you may deploy from other sources which might continue to use Sun's InetAddress class for DNS resolution.</p>
+  
+    <p>We are not currently aware of the behaviour of this cache in other JVM implementations, nor of the effect, if any, which this change might have on them</p>
+  
+    <p>For more on this read defect report <a href="http://issues.apache.org/jira/browse/JAMES-592">JAMES-592</a> and related defects.</p>
+ 
+  </section>
+-->
 </body>
 
 </document>
+

@@ -26,9 +26,9 @@
 <body>
     
   <section name="SSL / TLS Configuration">
-  
-    <p>This document explains how to enable James 3.0 services to use Transport Layer Security (TLS) for encrypted client-server communication.</p>
 <!--    
+    <p>This document explains how to enable James 3.0 services to use Transport Layer Security (TLS) for encrypted client-server communication.</p>
+
     <subsection name="Making SSL/TLS Server Sockets Available Inside Apache James Server">
     
       <p>James uses the Sun Java Secure Sockets Extension (JSSE) infrastructure to provide TLS/SSL 
@@ -99,9 +99,9 @@
   </section>
 
   <section name="Simultaneous Support of SSL/TLS and non-SSL/TLS per Protocol">
-
+<!--
    <p>See smtp_ssl.xml in example folder.</p>
-
+-->
   </section>
   
 
