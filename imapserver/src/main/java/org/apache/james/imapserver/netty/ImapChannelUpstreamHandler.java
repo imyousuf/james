@@ -36,6 +36,7 @@ import org.apache.james.protocols.impl.ChannelAttributeSupport;
 import org.apache.james.protocols.impl.SessionLog;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
@@ -158,9 +159,15 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
         ImapSession session = (ImapSession) attributes.get(ctx.getChannel());
         ImapResponseComposer response = (ImapResponseComposer) ctx.getAttachment();
         ImapMessage message = (ImapMessage) e.getMessage();
+        ChannelPipeline cp = ctx.getPipeline();
 
         try {
-            ctx.getPipeline().addLast("heartbeatHandler", heartbeatHandler);
+            if (cp.get(NettyConstants.EXECUTION_HANDLER) != null) {
+                cp.addBefore(NettyConstants.EXECUTION_HANDLER, NettyConstants.HEARTBEAT_HANDLER, heartbeatHandler);
+            } else {
+                cp.addBefore(NettyConstants.CORE_HANDLER, NettyConstants.HEARTBEAT_HANDLER, heartbeatHandler);
+
+            }
             final ResponseEncoder responseEncoder = new ResponseEncoder(encoder, response, session);
             processor.process(message, responseEncoder, session);
 
@@ -178,7 +185,7 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
                 throw failure;
             }
         } finally {
-            ctx.getPipeline().remove("heartbeatHandler");
+            ctx.getPipeline().remove(NettyConstants.HEARTBEAT_HANDLER);
         }
 
         super.messageReceived(ctx, e);

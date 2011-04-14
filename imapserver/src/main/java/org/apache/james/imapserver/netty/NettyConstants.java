@@ -35,5 +35,6 @@ public interface NettyConstants {
     final static String CONNECTION_COUNT_HANDLER = "connectionCountHandler";
     final static String CHUNK_WRITE_HANDLER = "chunkWriteHandler";
     final static String EXECUTION_HANDLER = "executionHandler";
+    final static String HEARTBEAT_HANDLER = "heartbeatHandler";
 
 }

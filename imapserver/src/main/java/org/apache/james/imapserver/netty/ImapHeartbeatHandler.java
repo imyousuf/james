@@ -29,7 +29,7 @@ public class ImapHeartbeatHandler extends IdleStateAwareChannelHandler{
     @Override
     public void channelIdle(ChannelHandlerContext ctx, IdleStateEvent e) throws Exception {
         if (e.getState().equals(IdleState.WRITER_IDLE)) {
-            e.getChannel().write(ChannelBuffers.wrappedBuffer("* OK Hang in there..\r\n.".getBytes("US-ASCII")));
+            e.getChannel().write(ChannelBuffers.wrappedBuffer("* OK Hang in there..\r\n".getBytes("US-ASCII")));
         }
         super.channelIdle(ctx, e);
     }
