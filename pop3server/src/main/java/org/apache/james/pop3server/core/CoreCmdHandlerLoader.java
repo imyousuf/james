@@ -42,6 +42,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
     private final static String QUITCMDHANDLER = QuitCmdHandler.class.getName();
     private final static String WELCOMEMESSAGEHANDLER = WelcomeMessageHandler.class.getName();
     private final static String UNKOWNCMDHANDLER = UnknownCmdHandler.class.getName();
+    private final static String STLSCMDHANDLER = StlsCmdHandler.class.getName();
 
     private final static String COMMANDDISPATCHER = POP3CommandDispatcherLineHandler.class.getName();
 
@@ -69,6 +70,8 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         commands.add(STATCMDHANDLER);
         commands.add(QUITCMDHANDLER);
         commands.add(UNKOWNCMDHANDLER);
+        // add STARTTLS support to the core. See JAMES-1224
+        commands.add(STLSCMDHANDLER);
 
         // Add logging stuff
         commands.add(COMMANDHANDLERRESULTLOGGER);
