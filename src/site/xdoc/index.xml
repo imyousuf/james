@@ -67,7 +67,7 @@
         <p>Download Apache James Mail Server 3.0-M3 and <a href="quick-start.html">quick-start</a> it!</p>
         <p>
           <span class="minibutton btn-download">
-            <a href="javascript:window.location='http://james.apache.org/download.cgi#Apache_James_Server';">
+            <a href="http://james.apache.org/download.cgi#Apache_James_Server">
               <span><span class="icon"></span>Early Apache James Server 3.0-M3</span>
             </a>
           </span>
@@ -75,7 +75,7 @@
         <p>We also have snapshot builds for the braves (no guarantee!).</p>
         <p>
           <span class="minibutton btn-download">
-            <a href="javascript:window.location='http://people.apache.org/builds/james/nightly/';">
+            <a href="http://people.apache.org/builds/james/nightly/">
               <span><span class="icon"></span>Snapshot Apache James Server 3.0</span>
             </a>
           </span>
