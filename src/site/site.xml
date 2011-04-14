@@ -17,7 +17,7 @@
   specific language governing permissions and limitations
   under the License.    
 -->
-<project name="Apache James Server">
+<project name="Apache James Server 3.0">
 
   <skin>
     <groupId>org.apache.james</groupId>
@@ -26,7 +26,7 @@
   </skin>
 
   <bannerLeft>
-    <name>James Server</name>
+    <name>Apache James Server 3.0</name>
     <src>images/logos/james-server-logo.gif</src>
     <href>http://james.apache.org/server/index.html</href>
     <alt>james-server-logo.gif</alt>
@@ -67,9 +67,9 @@
         <item name="Mailbox" href="/config-mailbox.html" />
         <item name="Mail Repository Stores" href="/config-mailrepositorystore.html" />
         <item name="DNS Service" href="/config-dnsservice.html" />
-        <item name="IMAP4" href="/config-imap4.html" />
-        <item name="POP3" href="/config-pop3.html" />
         <item name="SMTP LMTP" href="/config-smtp-lmtp.html" />
+        <item name="POP3" href="/config-pop3.html" />
+        <item name="IMAP4" href="/config-imap4.html" />
         <item name="Mailet Container" href="/config-mailetcontainer.html" />
         <item name="FetchMail" href="/config-fetchmail.html" />
 <!--        

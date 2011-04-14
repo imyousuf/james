@@ -28,22 +28,55 @@
 <section name="IMAP4 Configuration">
 
       <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/imapserver.xml">imapserver.xml</a> in SVN to get some examples and hints.</p>
-<!--
-      <p>This block controls general connection management.  There are two elements:</p>
-      <ul>
-        <li><strong>idle-timeout</strong> - the number of milliseconds that it will take for idle 
-            client connections managed by this connection manager to be marked at timed out.  If no 
-            value is specified, the value defaults to 5 minutes, 300000 milliseconds.  A value of 0 
-            means that client sockets will not timeout.</li>
-        <li><strong>max-connections</strong> - The max-connections parameter specifies the default 
-            maximum number of client connections that this connection manager will allow per managed 
-            server socket.  This value can be overridden by each individual service.  If no value is 
-            specified, the value defaults to 30.  A value of 0 means that there is no limit imposed 
-            by the connection manager, although resource limitations imposed by other components 
-            (i.e. max # of threads) may serve to limit the number of open connections.</li>
-      </ul>
--->
- </section>
+
+    <p>The IMAP4 service is controlled by a configuration block in the imap4server.xml.
+       The imap4server tag defines the boundaries of the configuration block.  It encloses 
+       all the relevant configuration for the IMAP4 server.  The behavior of the IMAP4 service is
+       controlled by the attributes and children of this tag.</p>
+    
+    <p>This tag has an optional boolean attribute - <strong>enabled</strong> - that defines whether the service is active or not.  The value defaults to "true" if
+       not present.</p>
+    
+    <p>The standard children of the imapserver tag are:</p>
+
+      <dl>
+        <dt><strong>bind</strong></dt>
+        <dd>Configure this to bind to a specific inetaddress. This is an optional integer value.  This value is the port on which this IMAP4 server is configured 
+      to listen. If the tag or value is absent then the service 
+      will bind to all network interfaces for the machine If the tag or value is omitted, the value will default to the standard IMAP4 port
+      port 143 is the well-known/IANA registered port for IMAP 
+     port 993 is the well-known/IANA registered port for IMAPS  ie over SSL/TLS</dd>
+        <dt><strong>connectionBacklog</strong></dt>
+        <dd></dd>
+        <dt><strong>compress</strong></dt>
+        <dd>true or false - Use or don't use COMPRESS extension.</dd>
+        <dt><strong>maxLineLength</strong></dt>
+        <dd>Maximal allowed line-length before a BAD response will get returned to the client
+            This should be set with caution as a to high value can make the server a target for DOS (Denial of Service)!</dd>
+        <dt><strong>inMemorySizeLimit</strong></dt>
+        <dd>10MB size limit before we will start to stream to a temporary file</dd>
+        <dt><strong>tls</strong></dt>
+        <dd>Set to true to support STARTTLS or SSL for the Socket.
+         To use this you need to copy sunjce_provider.jar to /path/james/lib directory. To create a new keystore execute:
+             keytool -genkey -alias james -keyalg RSA -keystore /path/to/james/conf/keystore</dd>
+        <dt><strong>handler.helloName</strong></dt>
+        <dd>This is the name used by the server to identify itself in the IMAP4 
+        protocol.  If autodetect is TRUE, the server will discover its 
+        own host name and use that in the protocol.  If discovery fails, 
+        the value of 'localhost' is used.  If autodetect is FALSE, James 
+        will use the specified value.</dd>
+        <dt><strong>handler.connectiontimeout</strong></dt>
+        <dd>Connection timeout in secconds</dd>
+        <dt><strong>handler.connectionLimit</strong></dt>
+        <dd>Set the maximum simultaneous incoming connections for this service</dd>
+        <dt><strong>handler.connectionLimitPerIP</strong></dt>
+        <dd>Set the maximum simultaneous incoming connections per IP for this service</dd>
+        <dt><strong>handler.handlerchain</strong></dt>
+        <dd>This loads the core CommandHandlers. Only remove this if you really 
+             know what you are doing</dd>
+      </dl>
+
+</section>
 
 </body>
 

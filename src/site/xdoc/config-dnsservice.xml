@@ -57,13 +57,15 @@
         <dt><strong>authoritative</strong></dt>
         <dd><strong>true/false</strong> - This tag specifies whether or not 
            to require authoritative (non-cached) DNS records; to only accept DNS responses that are 
-            authoritative for the domain. It is primarily useful in an intranet/extranet environment.
-           <p>This should always be <strong>false</strong> unless you understand the implications.</dd>
+           authoritative for the domain. It is primarily useful in an intranet/extranet environment.
+           This should always be <strong>false</strong> unless you understand the implications.</dd>
         <dt><strong>maxcachesize</strong></dt>
-        <dd> Maximum number of entries to maintain in the DNS cache  (typically 50000)</dd>
+        <dd>Maximum number of entries to maintain in the DNS cache (typically 50000)</dd>
         <dt><strong>singleIPperMX</strong></dt>
         <dd>true or false (default) - Sepcifies if Apache James Server must try a single server for each multihomed mx host</dd>
       </dl>
+      
+    </subsection>
     
   </section>
 <!--

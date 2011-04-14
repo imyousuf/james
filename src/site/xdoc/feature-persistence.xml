@@ -25,14 +25,13 @@
 
 <body>
 
-  <section name="Mail Persistence: Mailbox and Mail Repository Store">
+  <section name="Mailbox and Mail Repository Store for Mail Persistence">
   
     <subsection name="Introduction">
   
-      <p>The <u><b>Mailbox</b> persists users' Inbox, Sent Items, Trash... folders</u> with their mails.</p>
+      <p>The <b>Mailbox</b> persists users' Inbox, Sent Items, Trash... folders with their mails.</p>
       
-      <p>The <u><b>Mail Repository Store</b> persists  spam, error,... mails, so nothing to do with users visible mails</u>.
-         The Mail Respos</p>
+      <p>The <b>Mail Repository Store</b> persists  spam, error,... mails, so nothing to do with users visible mails.</p>
   
       <p>In case of database access, both Mailbox and Mail Repository Store use database connection defined via database.properties.</p>
       
@@ -58,7 +57,7 @@
          to define where to store spam,... mails (example: file://var/mail/error/).</p>
 
       <p>More information about the mailstores configuration can be 
-        found <a href="config-mailrepositorystores.html">here</a>.</p>
+        found <a href="config-mailrepositorystore.html">here</a>.</p>
         
       <p>Mail Repository Stores are distinguished by how they store data. There are five types of 
         storage: File, Database, DBFile, MBox and JCR.</p>

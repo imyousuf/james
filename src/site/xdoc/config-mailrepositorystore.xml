@@ -29,7 +29,7 @@
   
     <subsection name="Introduction">
 
-      <p>Read <a href="feature-persistence.html" for a description of the Mail Repository Store functionality.</p>
+      <p>Read <a href="feature-persistence.html">documentation about persistence</a> for a description of the Mail Repository Store functionality.</p>
     
       <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/mailrepositorystore.xml">mailrepositorystore.xml</a> in SVN to get some examples and hints.</p>
 
@@ -89,7 +89,7 @@
     
     <subsection name="MBox Repositories">
     
-     <p>The MBox file format repository.<.p>
+     <p>The MBox file format repository.</p>
 
     </subsection>
 
