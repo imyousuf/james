@@ -73,29 +73,25 @@ public class And extends GenericCompositeMatcher {
                 // collection, then it contains the same recipients
                 // so we can short-circuit building the AND of the two
                 if (finalResult != result) {
-                    if (result != null) {
-                        // the two results are different collections, so we AND
-                        // them
-                        // Ensure that the finalResult only contains recipients
-                        // in the result collection
-                        Collection newResult = new ArrayList();
-                        MailAddress recipient = null;
-                        for (Iterator i = finalResult.iterator(); i.hasNext();) {
-                            recipient = (MailAddress) i.next();
-                            // log("recipient="+recipient.toString());
-                            if (result.contains(recipient)) {
-                                newResult.add(recipient);
-                            }
+                    // the two results are different collections, so we AND
+                    // them
+                    // Ensure that the finalResult only contains recipients
+                    // in the result collection
+                    Collection newResult = new ArrayList();
+                    MailAddress recipient = null;
+                    for (Iterator i = finalResult.iterator(); i.hasNext();) {
+                        recipient = (MailAddress) i.next();
+                        // log("recipient="+recipient.toString());
+                        if (result.contains(recipient)) {
+                            newResult.add(recipient);
                         }
-                        recipient = null;
-                        // basically the finalResult gets replaced with a
-                        // smaller result
-                        // otherwise finalResult would have been equal to result
-                        // (in all cases)
-                        finalResult = newResult;
-                    } else {
-                        finalResult = result;
                     }
+                    recipient = null;
+                    // basically the finalResult gets replaced with a
+                    // smaller result
+                    // otherwise finalResult would have been equal to result
+                    // (in all cases)
+                    finalResult = newResult;
                 }
             }
             result = null;
