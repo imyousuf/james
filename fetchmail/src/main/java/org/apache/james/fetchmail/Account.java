@@ -264,6 +264,29 @@ class Account implements Comparable<Account> {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final Account other = (Account) obj;
+        return getSequenceNumber() == other.getSequenceNumber();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return 31 * 17 + getSequenceNumber();
+    }
+
+    /**
      * Returns the deferredRecipientNotFoundMessageIDs. lazily initialised.
      * 
      * @return List
