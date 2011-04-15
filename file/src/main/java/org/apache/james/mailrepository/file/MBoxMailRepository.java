@@ -516,7 +516,7 @@ public class MBoxMailRepository implements MailRepository, LogEnabled, Configura
                 public MimeMessage messageAction(String messageSeparator, String bodyText, long messageStart) {
                     try {
                         String key = generateKeyValue(bodyText);
-                        mList.put(key, new Long(messageStart));
+                        mList.put(key, Long.valueOf(messageStart));
                         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
                             getLogger().debug(this.getClass().getName() + " Key " + key + " at " + messageStart);
                         }

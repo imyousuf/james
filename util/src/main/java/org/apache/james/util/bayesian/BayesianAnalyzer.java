@@ -387,9 +387,9 @@ public class BayesianAnalyzer {
                 Integer value = null;
 
                 if (target.containsKey(token)) {
-                    value = new Integer(((Integer) target.get(token)).intValue() + 1);
+                    value = Integer.valueOf(((Integer) target.get(token)).intValue() + 1);
                 } else {
-                    value = new Integer(1);
+                    value = Integer.valueOf(1);
                 }
 
                 target.put(token, value);

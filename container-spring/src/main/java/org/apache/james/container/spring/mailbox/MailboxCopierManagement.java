@@ -20,7 +20,6 @@ package org.apache.james.container.spring.mailbox;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -58,11 +57,9 @@ public class MailboxCopierManagement implements MailboxCopierManagementMBean, Ap
 
         Map<String, MailboxManager> beans = context.getBeansOfType(MailboxManager.class);
 
-        Iterator<String> keys = beans.keySet().iterator();
-        while (keys.hasNext()) {
-            String key = keys.next();
-            String name = beans.get(key).getClass().getName();
-            bMap.put(key, name);
+        for (Map.Entry<String, MailboxManager> entry : beans.entrySet()) {
+            String name = entry.getValue().getClass().getName();
+            bMap.put(entry.getKey(), name);
         }
 
         return bMap;

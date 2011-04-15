@@ -99,15 +99,11 @@ public class RecipientRewriteTableUtil {
     static public String replaceParameters(String str, Map<String, String> parameters) {
         if (str != null && parameters != null) {
             // Do parameter replacements for this string resource.
-            Iterator<String> paramNames = parameters.keySet().iterator();
             StringBuffer replaceBuffer = new StringBuffer(64);
-            while (paramNames.hasNext()) {
-                String paramName = (String) paramNames.next();
-                String paramValue = (String) parameters.get(paramName);
-                replaceBuffer.append("${").append(paramName).append("}");
-                str = substituteSubString(str, replaceBuffer.toString(), paramValue);
-                if (paramNames.hasNext())
-                    replaceBuffer.setLength(0);
+            for (Map.Entry<String, String> entry : parameters.entrySet()) {
+                replaceBuffer.setLength(0);
+                replaceBuffer.append("${").append(entry.getKey()).append("}");
+                str = substituteSubString(str, replaceBuffer.toString(), entry.getValue());
             }
         }
 

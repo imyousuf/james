@@ -32,22 +32,22 @@ public class TimeConverter {
 
     static {
         // add allowed units and their respective multiplier
-        multipliers.put("msec", new Integer(1));
-        multipliers.put("msecs", new Integer(1));
-        multipliers.put("sec", new Integer(1000));
-        multipliers.put("secs", new Integer(1000));
-        multipliers.put("minute", new Integer(1000 * 60));
-        multipliers.put("minutes", new Integer(1000 * 60));
-        multipliers.put("hour", new Integer(1000 * 60 * 60));
-        multipliers.put("hours", new Integer(1000 * 60 * 60));
-        multipliers.put("day", new Integer(1000 * 60 * 60 * 24));
-        multipliers.put("days", new Integer(1000 * 60 * 60 * 24));
+        multipliers.put("msec", Integer.valueOf(1));
+        multipliers.put("msecs", Integer.valueOf(1));
+        multipliers.put("sec", Integer.valueOf(1000));
+        multipliers.put("secs", Integer.valueOf(1000));
+        multipliers.put("minute", Integer.valueOf(1000 * 60));
+        multipliers.put("minutes", Integer.valueOf(1000 * 60));
+        multipliers.put("hour", Integer.valueOf(1000 * 60 * 60));
+        multipliers.put("hours", Integer.valueOf(1000 * 60 * 60));
+        multipliers.put("day", Integer.valueOf(1000 * 60 * 60 * 24));
+        multipliers.put("days", Integer.valueOf(1000 * 60 * 60 * 24));
 
         PATTERN = Pattern.compile(PATTERN_STRING);
 
     }
 
-    // Get sure it can not be instanciated
+    // Get sure it can not be instantiated
     private TimeConverter() {
     }
 

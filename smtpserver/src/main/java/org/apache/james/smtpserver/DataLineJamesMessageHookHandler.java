@@ -282,7 +282,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
          */
         public int getSize() {
             try {
-                return new Long(mail.getMessageSize()).intValue();
+                return (int)mail.getMessageSize();
             } catch (MessagingException e) {
                 return -1;
             }

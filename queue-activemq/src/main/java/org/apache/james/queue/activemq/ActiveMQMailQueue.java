@@ -217,10 +217,8 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport {
                 Queue queue = session.createQueue(queuename);
 
                 producer = session.createProducer(queue);
-                Iterator<String> keys = props.keySet().iterator();
-                while (keys.hasNext()) {
-                    String key = keys.next();
-                    blobMessage.setObjectProperty(key, props.get(key));
+                for (Map.Entry<String, Object> entry : props.entrySet()) {
+                    blobMessage.setObjectProperty(entry.getKey(), entry.getValue());
                 }
                 producer.send(blobMessage, Message.DEFAULT_DELIVERY_MODE, msgPrio, Message.DEFAULT_TIME_TO_LIVE);
             } else {

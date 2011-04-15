@@ -32,7 +32,6 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -223,15 +222,11 @@ public class SqlResources {
             String sqlString = sqlElement.getFirstChild().getNodeValue();
 
             // Do parameter replacements for this sql string.
-            Iterator<String> paramNames = parameters.keySet().iterator();
             StringBuilder replaceBuffer = new StringBuilder(64);
-            while (paramNames.hasNext()) {
-                String paramName = (String) paramNames.next();
-                String paramValue = (String) parameters.get(paramName);
-                replaceBuffer.append("${").append(paramName).append("}");
-                sqlString = substituteSubString(sqlString, replaceBuffer.toString(), paramValue);
-                if (paramNames.hasNext())
-                    replaceBuffer.setLength(0);
+            for (Map.Entry<String, String> entry : parameters.entrySet()) {
+                replaceBuffer.setLength(0);
+                replaceBuffer.append("${").append(entry.getKey()).append("}");
+                sqlString = substituteSubString(sqlString, replaceBuffer.toString(), entry.getValue());
             }
 
             // See if we already have registered a string of this value

@@ -64,6 +64,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -593,15 +594,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             // Store the new message containers, organized by server, in the
             // outgoing mail repository
             String name = mail.getName();
-            for (Iterator<String> i = targets.keySet().iterator(); i.hasNext();) {
-                String host = i.next();
-                Collection<MailAddress> rec = targets.get(host);
+            for (Map.Entry<String, Collection<MailAddress>> entry : targets.entrySet()) {
                 if (isDebug) {
-                    StringBuilder logMessageBuffer = new StringBuilder(128).append("Sending mail to ").append(rec).append(" on host ").append(host);
+                    StringBuilder logMessageBuffer = new StringBuilder(128).append("Sending mail to ").append(entry.getValue()).append(" on host ").append(entry.getKey());
                     log(logMessageBuffer.toString());
                 }
-                mail.setRecipients(rec);
-                StringBuilder nameBuffer = new StringBuilder(128).append(name).append("-to-").append(host);
+                mail.setRecipients(entry.getValue());
+                StringBuilder nameBuffer = new StringBuilder(128).append(name).append("-to-").append(entry.getKey());
                 mail.setName(nameBuffer.toString());
                 try {
                     queue.enQueue(mail);

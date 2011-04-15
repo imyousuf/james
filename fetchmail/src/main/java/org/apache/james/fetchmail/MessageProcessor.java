@@ -1257,7 +1257,7 @@ public class MessageProcessor extends ProcessorAbstract {
             aMail.setAttribute(getAttributePrefix() + "isRecipientNotFound", true);
 
         if (isMaxMessageSizeExceeded().booleanValue())
-            aMail.setAttribute(getAttributePrefix() + "isMaxMessageSizeExceeded", new Integer(getMessageIn().getSize()).toString());
+            aMail.setAttribute(getAttributePrefix() + "isMaxMessageSizeExceeded", Integer.toString(getMessageIn().getSize()));
 
         if (isRemoteReceivedHeaderInvalid().booleanValue())
             aMail.setAttribute(getAttributePrefix() + "isRemoteReceivedHeaderInvalid", true);

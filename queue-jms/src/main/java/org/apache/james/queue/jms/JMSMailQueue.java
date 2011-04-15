@@ -254,10 +254,8 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
             producer = session.createProducer(queue);
             ObjectMessage message = session.createObjectMessage();
 
-            Iterator<String> keys = props.keySet().iterator();
-            while (keys.hasNext()) {
-                String key = keys.next();
-                message.setObjectProperty(key, props.get(key));
+            for (Map.Entry<String, Object> entry : props.entrySet()) {
+                message.setObjectProperty(entry.getKey(), entry.getValue());
             }
 
             long size = mail.getMessageSize();

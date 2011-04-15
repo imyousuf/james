@@ -168,7 +168,7 @@ abstract public class JDBCBayesianAnalyzer extends BayesianAnalyzer {
                 int count = rs.getInt(2);
                 // to reduce memory, use the token only if the count is > 1
                 if (count > 1) {
-                    ham.put(token, new Integer(count));
+                    ham.put(token, Integer.valueOf(count));
                 }
             }
             // Verbose.
