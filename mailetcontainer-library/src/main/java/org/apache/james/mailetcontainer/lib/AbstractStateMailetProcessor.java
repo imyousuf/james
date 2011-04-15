@@ -312,6 +312,7 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
     }
 
     @SuppressWarnings("unchecked")
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_LOAD_OF_KNOWN_NULL_VALUE", justification = "HashMap allows the null key")
     private void parseConfiguration() throws MessagingException, ConfigurationException {
 
         // load composite matchers if there are any
@@ -349,6 +350,7 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
                     }
                 } else if (invertedMatcherName != null) {
                     // try to load from compositeMatchers first
+                    // matcherName is a known null value at this state
                     matcher = compositeMatchers.get(matcherName);
                     if (matcher == null) {
                         // no composite Matcher found, try to load it via
