@@ -98,6 +98,29 @@ public interface RecipientRewriteTableManagementMBean {
     void removeErrorMapping(String user, String domain, String error) throws Exception;
 
     /**
+     * Add domain mapping
+     * 
+     * @param domain
+     *            the domain. Null if no domain should be used
+     * @param targetDomain
+     *            the target domain for the mapping
+     * @return true if successfully
+     */
+    void addDomainMapping(String domain, String targetDomain) throws Exception;
+
+    /**
+     * Remove domain mapping
+     * 
+     * @param domain
+     *            the domain. Null if no domain should be used
+     * @param targetDomain
+     *            the target domain for the mapping
+     * 
+     * @return true if successfully
+     */
+    void removeDomainMapping(String domain, String targetDomain) throws Exception;
+
+    /**
      * Return the explicit mapping stored for the given user and domain. Return
      * null if no mapping was found
      * 

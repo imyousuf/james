@@ -141,6 +141,22 @@ public class RecipientRewriteTableManagement extends StandardMBean implements Re
         }
     }
 
+    public void addDomainMapping(String domain, String targetDomain) throws Exception {
+        try {
+            vut.addAliasDomainMapping(domain, targetDomain);
+        } catch (RecipientRewriteTableException e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    public void removeDomainMapping(String domain, String targetDomain) throws Exception {
+        try {
+            vut.removeAliasDomainMapping(domain, targetDomain);
+        } catch (RecipientRewriteTableException e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 
