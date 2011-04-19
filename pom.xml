@@ -294,6 +294,7 @@
         <configuration>
           <siteDirectory>${maven-site-plugin.siteDirectory}</siteDirectory>
           <generateReports>${maven-site-plugin.generateReports}</generateReports>
+          <generateSitemap>true</generateSitemap>
           <reportPlugins>
             <!-- Order matters. First project-info-reports, second jxr. -->
             <plugin>
