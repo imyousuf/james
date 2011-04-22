@@ -54,6 +54,9 @@
       <mailet match="All" class="RecipientRewriteTable">
         <recipientrewritetable>DefaultRecipientRewriteTable</recipientrewritetable>
       </mailet>
+      <!-- Disable this if you want to have case-sensitive local-parts of the recipients -->
+      <mailet match="RecipientIsLocal" class="RecipientToLowerCase"/>
+      
       <mailet match="RecipientIsLocal" class="LocalDelivery"/>
       <mailet match="HostIsLocal" class="ToProcessor">
         <processor>local-address-error</processor>
