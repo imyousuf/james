@@ -19,6 +19,7 @@
 
 package org.apache.james.transport.mailets;
 
+import org.apache.commons.collections.iterators.IteratorChain;
 import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.mailet.base.GenericMailet;
@@ -30,6 +31,7 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -107,14 +109,26 @@ public class LocalDelivery extends GenericMailet {
              * @see org.apache.mailet.MailetConfig#getInitParameter(java.lang.String)
              */
             public String getInitParameter(String name) {
-                return null;
+                if ("addDeliveryHeader".equals(name)) {
+                    return "Delivered-To";
+                } else if ("resetReturnPath".equals(name)) {
+                    return "true";
+                } else {
+                    return getMailetConfig().getInitParameter(name);
+                }
             }
 
             /**
              * @see org.apache.mailet.MailetConfig#getInitParameterNames()
              */
-            public Iterator<String> getInitParameterNames() {
-                return new ArrayList<String>().iterator();
+            public Iterator getInitParameterNames() {
+                IteratorChain c = new IteratorChain();
+                Collection<String> h = new ArrayList<String>();
+                h.add("addDeliveryHeader");
+                h.add("resetReturnPath");
+                c.addIterator(getMailetConfig().getInitParameterNames());
+                c.addIterator(h.iterator());
+                return c;
             }
 
             /**
