@@ -51,4 +51,17 @@ public class MailetConfigImplTest extends TestCase{
         assertEquals("mail.debug", param);
         assertEquals("true", config.getInitParameter(param));
     }
+    
+    // See JAMES-1232
+    public void testParamWithComma() throws ConfigurationException {
+        DefaultConfigurationBuilder builder = new DefaultConfigurationBuilder();
+        builder.load(new ByteArrayInputStream("<mailet><whatever>value1,value2</whatever></mailet>".getBytes()));
+        
+        MailetConfigImpl config = new MailetConfigImpl();
+        config.setConfiguration(builder);
+        
+        String param = config.getInitParameterNames().next();
+        assertEquals("whatever", param);
+        assertEquals("value1,value2", config.getInitParameter(param));
+    }
 }

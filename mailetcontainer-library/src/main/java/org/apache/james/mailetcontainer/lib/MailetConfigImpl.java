@@ -123,17 +123,29 @@ public class MailetConfigImpl implements MailetConfig {
     @SuppressWarnings("unchecked")
     public void setConfiguration(Configuration newConfiguration) {
         DefaultConfigurationBuilder builder = new DefaultConfigurationBuilder();
+        
+        // Disable the delimiter parsing. See JAMES-1232
+        builder.setDelimiterParsingDisabled(true);
         Iterator<String> keys = newConfiguration.getKeys();
         while (keys.hasNext()) {
             String key = keys.next();
-            String value = newConfiguration.getString(key);
+            String[] values = newConfiguration.getStringArray(key);
             // See JAMES-1177
             // Need to replace ".." with "."
             // See
             // http://commons.apache.org/configuration/userguide-1.2/howto_xml.html
             // Escaping dot characters in XML tags
             key = key.replaceAll("\\.\\.", "\\.");
-            builder.addProperty(key, value);
+            
+            // Convert array values to a "," delimited string value
+            StringBuilder valueBuilder = new StringBuilder();
+            for (int i = 0; i < values.length; i++) {
+                valueBuilder.append(values[i]);
+                if (i + 1 < values.length) {
+                    valueBuilder.append(",");
+                }
+            }
+            builder.addProperty(key, valueBuilder.toString());
         }
 
         configuration = builder;
