@@ -167,6 +167,11 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Resourc
     private XMLConfiguration getConfig(Resource r) throws ConfigurationException, IOException {
         XMLConfiguration config = new XMLConfiguration();
         config.setDelimiterParsingDisabled(true);
+        
+        // Don't split attributes which can have bad side-effects with matcher-conditions.
+        // See JAMES-1233
+        config.setAttributeSplittingDisabled(true);
+        
         // Use InputStream so we are not bound to File implementations of the
         // config
         config.load(r.getInputStream());
