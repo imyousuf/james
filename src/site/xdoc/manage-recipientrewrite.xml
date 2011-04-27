@@ -26,14 +26,18 @@
 <body>
 
   <section name="Manage Recipient Rewrite">
+  
+    <p>To rewrite recipients, you need to create some "mappings".</p>
 
-    <p>You will rewrite any recipient to an existing recipient. So read "mapping allows to rewrite a 'fromAny(Existing/NotExisting)' to a 'toExisting'".</p>
+    <p>You will rewrite any recipient to an existing or a non-existing server account.</p>
+    
+    <p>So read "mapping allows to rewrite a 'fromAny(Existing/NotExisting) user and/or domain' to a 'toAny(Existing/NotExisting)Account'".</p>
 
-    <p>'An existing' means a user defined in James.</p>
+    <p>'An existing account' means an account defined in the Apache James Server.</p>
     
-    <p>You can also use wildcards (*) and regular expressions in the fromAny.</p>
+    <p>You can also use regular expressions and wildcards (*) for the 'fromAny'.</p>
     
-    <p>The implemented management interface is the following</p>
+    <p>The available methods exposed in the management interface are the following:</p>
     
     <source>
     /**
