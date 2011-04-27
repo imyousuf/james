@@ -49,7 +49,7 @@
       <li>Get the source code using SVN - this method gives you access to the cutting edge code 
           base.  Instructions on how to use SVN to get the James source code 
           can be found <a href="http://www.apache.org/dev/version-control.html">here</a>.
-          James server repository is <a href="http://svn.apache.org/repos/asf/james/server/trunk">here</a>.</li>
+          James server repository is <a href="http://svn.apache.org/repos/asf/james/server/trunk">http://svn.apache.org/repos/asf/james/server/trunk</a>.</li>
       <li>You can download all James sources (server,...) if you check out <a href="http://svn.apache.org/repos/asf/james/current">http://svn.apache.org/repos/asf/james/current/</a></li>
     </ol>
 
