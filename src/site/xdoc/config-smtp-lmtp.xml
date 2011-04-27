@@ -25,6 +25,16 @@
 
 <body>
 
+  <section name="Incoming and outgoing SMTP">
+
+    <p>This page details the configuration for Incoming SMTP</p>
+    
+    <p>The outgoing (remote delivery) is implemented in the RemoteDelivery mailets. The configuration details for 
+       outgoing SMTP traffic can be read on <a href="dev-provided-mailets.html">this page</a> (section RemoteDelivery) and
+       shoud be update in the <a href="config-mailetcontainer.html">mailetcontainer</a>.</p>
+  
+  </section>
+
   <section name="SMTP Configuration">
   
     <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/smtpserver.xml">smtpserver.xml</a> in SVN to get some examples and hints.</p>
