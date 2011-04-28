@@ -23,9 +23,9 @@
        xmlns:camel="http://camel.apache.org/schema/spring"
        xmlns:amq="http://activemq.apache.org/schema/core" 
        xsi:schemaLocation="
-          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-          http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring-2.5.0.xsd
-          http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core-5.4.1.xsd">
+          http://www.springframework.org/schema/beans context/XSD/spring-beans-3.0.xsd
+          http://camel.apache.org/schema/spring context/XSD/camel-spring-2.5.0.xsd
+          http://activemq.apache.org/schema/core context/XSD/activemq-core-5.4.2.xsd">
 
     <!-- 
     ===========================================================================
