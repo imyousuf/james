@@ -28,8 +28,6 @@
         <class>org.apache.james.mailbox.jpa.mail.model.JPAHeader</class>
         <class>org.apache.james.mailbox.jpa.mail.model.JPAMailbox</class>
         <class>org.apache.james.mailbox.jpa.mail.model.openjpa.AbstractJPAMessage</class>
-        <class>org.apache.james.mailbox.jpa.mail.model.openjpa.AbstractJPAMailboxMembership</class>
-        <class>org.apache.james.mailbox.jpa.mail.model.openjpa.JPAMailboxMembership</class>
         <class>org.apache.james.mailbox.jpa.mail.model.openjpa.JPAMessage</class>
         <class>org.apache.james.mailbox.jpa.mail.model.JPAProperty</class>
         <class>org.apache.james.mailbox.jpa.user.model.JPASubscription</class>
@@ -38,7 +36,6 @@
         <class>org.apache.james.rrt.jpa.model.JPARecipientRewrite</class>
         <properties>
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
-            <property name="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
             <property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/>
             <property name="openjpa.jdbc.QuerySQLCache" value="false"/>
         </properties>

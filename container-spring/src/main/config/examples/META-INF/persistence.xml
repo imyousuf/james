@@ -32,16 +32,12 @@
         <class>org.apache.james.mailbox.jpa.mail.model.JPAHeader</class>
         <class>org.apache.james.mailbox.jpa.mail.model.JPAMailbox</class>
         <class>org.apache.james.mailbox.jpa.mail.model.openjpa.AbstractJPAMessage</class>
-        <class>org.apache.james.mailbox.jpa.mail.model.openjpa.AbstractJPAMailboxMembership</class>
         <!-- This needs to get used when you want to use streaming. Remember to comment the following classes
-             org.apache.james.mailbox.jpa.mail.model.JPAMailboxMembership
              org.apache.james.mailbox.jpa.mail.model.JPAMessage
              If you don't do this the EntityManager will get confused!
-        <class>org.apache.james.mailbox.jpa.mail.model.openjpa.JPAStreamingMailboxMembership</class>
         <class>org.apache.james.mailbox.jpa.mail.model.openjpa.JPAStreamingMessage</class>
         -->
         <!-- Comment if you want to use streaming -->
-        <class>org.apache.james.mailbox.jpa.mail.model.openjpa.JPAMailboxMembership</class>
         <class>org.apache.james.mailbox.jpa.mail.model.openjpa.JPAMessage</class>
 
         <class>org.apache.james.mailbox.jpa.mail.model.JPAProperty</class>
@@ -59,8 +55,6 @@
         <properties>
             <!--  Create tables on startup -->
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
-            <!--  Create foreign keys on startup -->
-            <property name="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
             <!--  Reorder SQL statements to satisfy database foreign key constraints -->
             <property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/>
             <!--  Disable query cache for now. It seems to be buggy. -->
