@@ -55,6 +55,8 @@
         <properties>
             <!--  Create tables on startup -->
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <!--  Create foreign keys on startup -->
+            <property name="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=cascade, JoinForeignKeyDeleteAction=cascade"/>
             <!--  Reorder SQL statements to satisfy database foreign key constraints -->
             <property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/>
             <!--  Disable query cache for now. It seems to be buggy. -->
