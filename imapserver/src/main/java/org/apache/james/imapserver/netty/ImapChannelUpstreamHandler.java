@@ -64,12 +64,14 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
     private ImapEncoder encoder;
 
     private final ImapHeartbeatHandler heartbeatHandler = new ImapHeartbeatHandler();
+
+    private boolean plainAuthDisallowed;
     
-    public ImapChannelUpstreamHandler(final String hello, final ImapProcessor processor, ImapEncoder encoder, final Logger logger, boolean compress) {
-        this(hello, processor, encoder, logger, compress, null, null);
+    public ImapChannelUpstreamHandler(final String hello, final ImapProcessor processor, ImapEncoder encoder, final Logger logger, boolean compress, boolean plainAuthDisallowed) {
+        this(hello, processor, encoder, logger, compress, plainAuthDisallowed, null, null);
     }
 
-    public ImapChannelUpstreamHandler(final String hello, final ImapProcessor processor, ImapEncoder encoder, final Logger logger, boolean compress, SSLContext context, String[] enabledCipherSuites) {
+    public ImapChannelUpstreamHandler(final String hello, final ImapProcessor processor, ImapEncoder encoder, final Logger logger, boolean compress, boolean plainAuthDisallowed, SSLContext context, String[] enabledCipherSuites) {
         this.logger = logger;
         this.hello = hello;
         this.processor = processor;
@@ -77,6 +79,7 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
         this.context = context;
         this.enabledCipherSuites = enabledCipherSuites;
         this.compress = compress;
+        this.plainAuthDisallowed = plainAuthDisallowed;
     }
 
     private Logger getLogger(Channel channel) {
@@ -86,7 +89,8 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
     @Override
     public void channelBound(final ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
 
-        ImapSession imapsession = new NettyImapSession(ctx, logger, context, enabledCipherSuites, compress);
+        // TODO: make this configurable
+        ImapSession imapsession = new NettyImapSession(ctx, logger, context, enabledCipherSuites, compress, plainAuthDisallowed);
         attributes.set(ctx.getChannel(), imapsession);
         super.channelBound(ctx, e);
     }

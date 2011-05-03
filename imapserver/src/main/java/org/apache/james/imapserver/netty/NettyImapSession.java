@@ -47,13 +47,15 @@ public class NettyImapSession implements ImapSession, NettyConstants {
     private SessionLog log;
     private ChannelHandlerContext context;
     private int handlerCount;
+    private boolean plainAuthDisallowed;
 
-    public NettyImapSession(ChannelHandlerContext context, Logger log, SSLContext sslContext, String[] enabledCipherSuites, boolean compress) {
+    public NettyImapSession(ChannelHandlerContext context, Logger log, SSLContext sslContext, String[] enabledCipherSuites, boolean compress, boolean plainAuthDisallowed) {
         this.context = context;
         this.log = new SessionLog(context.getChannel().getId() + "", log);
         this.sslContext = sslContext;
         this.enabledCipherSuites = enabledCipherSuites;
         this.compress = compress;
+        this.plainAuthDisallowed = plainAuthDisallowed;
     }
 
     /**
@@ -258,6 +260,22 @@ public class NettyImapSession implements ImapSession, NettyConstants {
      */
     public Logger getLog() {
         return log;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.imap.api.process.ImapSession#isPlainAuthDisallowed()
+     */
+    public boolean isPlainAuthDisallowed() {
+        return plainAuthDisallowed;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.imap.api.process.ImapSession#isTLSActive()
+     */
+    public boolean isTLSActive() {
+        return context.getPipeline().get(SSL_HANDLER) != null;
     }
 
 }

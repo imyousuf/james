@@ -66,6 +66,8 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
     private int maxLineLength;
 
     private int inMemorySizeLimit;
+
+    private boolean plainAuthDisallowed;
     
     
 
@@ -97,6 +99,7 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
         compress = configuration.getBoolean("compress", false);
         maxLineLength = configuration.getInt("maxLineLength", DEFAULT_MAX_LINE_LENGTH);
         inMemorySizeLimit = configuration.getInt("inMemorySizeLimit", DEFAULT_IN_MEMORY_SIZE_LIMIT);
+        plainAuthDisallowed = configuration.getBoolean("plainAuthDisallowed", false);
     }
 
     /*
@@ -174,9 +177,9 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
     protected ChannelUpstreamHandler createCoreHandler() {
         ImapChannelUpstreamHandler coreHandler;
         if (isStartTLSSupported()) {
-           coreHandler = new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress, getSSLContext(), getEnabledCipherSuites());
+           coreHandler = new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress, plainAuthDisallowed, getSSLContext(), getEnabledCipherSuites());
         } else {
-           coreHandler = new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress);
+           coreHandler = new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress, plainAuthDisallowed);
         }
         return coreHandler;
     }
