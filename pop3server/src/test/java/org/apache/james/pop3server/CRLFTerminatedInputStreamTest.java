@@ -20,68 +20,32 @@
 package org.apache.james.pop3server;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import org.apache.james.pop3server.core.CRLFTerminatedInputStream;
 
-import junit.framework.TestCase;
-
-public class CRLFTerminatedInputStreamTest extends TestCase {
+public class CRLFTerminatedInputStreamTest extends AbstractInputStreamTest {
 
     public void testCRLFPresent() throws IOException {
         String data = "Subject: test\r\n\r\ndata\r\n";
-        check(data, data);
-        checkWithArray(data, data);
+        checkRead(new CRLFTerminatedInputStream(new ByteArrayInputStream(data.getBytes())), data);
+        checkReadViaArray(new CRLFTerminatedInputStream(new ByteArrayInputStream(data.getBytes())), data);
 
     }
 
     public void testCRPresent() throws IOException {
         String data = "Subject: test\r\n\r\ndata\r";
         String expected = data + "\n";
-        check(data, expected);
-        checkWithArray(data, expected);
+        checkRead(new CRLFTerminatedInputStream(new ByteArrayInputStream(data.getBytes())), expected);
+        checkReadViaArray(new CRLFTerminatedInputStream(new ByteArrayInputStream(data.getBytes())), expected);
     }
 
     public void testNonPresent() throws IOException {
         String data = "Subject: test\r\n\r\ndata";
         String expected = data + "\r\n";
-        check(data, expected);
-        checkWithArray(data, expected);
+        checkRead(new CRLFTerminatedInputStream(new ByteArrayInputStream(data.getBytes())), expected);
+        checkReadViaArray(new CRLFTerminatedInputStream(new ByteArrayInputStream(data.getBytes())), expected);
 
     }
 
-    private void check(String source, String expected) throws IOException {
-        CRLFTerminatedInputStream in = new CRLFTerminatedInputStream(new ByteArrayInputStream(source.getBytes()));
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        int i = -1;
-        while ((i = in.read()) != -1) {
-            out.write(i);
-        }
-        in.close();
-        out.close();
-
-        String output = new String(out.toByteArray());
-        assertEquals(expected, output);
-    }
-
-    private void checkWithArray(String source, String expected) throws IOException {
-        CRLFTerminatedInputStream in = new CRLFTerminatedInputStream(new ByteArrayInputStream(source.getBytes()));
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        byte[] buf = new byte[1024];
-        int i = 0;
-        while ((i = in.read(buf)) != -1) {
-            out.write(buf, 0, i);
-        }
-
-        in.close();
-        out.close();
-
-        String output = new String(out.toByteArray());
-        assertEquals(expected, output);
-    }
 }

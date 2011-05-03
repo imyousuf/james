@@ -53,7 +53,9 @@ public class CRLFTerminatedInputStream extends FilterInputStream {
 
                 return fillArray(b, off, len);
             } else {
-                last = b[r - 1];
+                // Make sure we respect the offset. Otherwise it could let the RETRCmdHandler
+                // hang forever. See JAMES-1222
+                last = b[off + r - 1];
                 return r;
             }
         } else {

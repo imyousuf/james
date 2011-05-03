@@ -20,79 +20,59 @@
 package org.apache.james.pop3server;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import org.apache.james.pop3server.core.ExtraDotInputStream;
 
-import junit.framework.TestCase;
-
-public class ExtraDotInputStreamTest extends TestCase {
+public class ExtraDotInputStreamTest extends AbstractInputStreamTest {
 
     public void testExtraDot() throws IOException {
         String data = "This\r\n.\r\nThis.\r\n";
         String expectedOutput = "This\r\n..\r\nThis.\r\n";
-        ExtraDotInputStream in = new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes()));
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        int i = -1;
-        while ((i = in.read()) != -1) {
-            out.write(i);
-        }
-        in.close();
-        out.close();
-
-        String output = new String(out.toByteArray());
-        assertEquals(expectedOutput, output);
+        
+        checkRead(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), expectedOutput);
+        checkReadViaArray(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), expectedOutput);
 
     }
 
+    public void testNoExtraDotOnDoubleDot() throws IOException {
+        String data = "This\r\n..\r\nThis.\r\n";
+        
+        checkRead(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), data);
+        checkReadViaArray(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), data);
+
+    }
+    
+
+    public void testNoExtraDotOnDotWithText() throws IOException {
+        String data = "This\r\n.TestText\r\nThis.\r\n";
+        
+        checkRead(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), data);
+        checkReadViaArray(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), data);
+
+    }
+    
     public void testNoDotCLRF() throws IOException {
         String data = "ABCD\r\n";
-        ExtraDotInputStream in = new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes()));
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        int i = -1;
-        while ((i = in.read()) != -1) {
-            out.write(i);
-        }
-        in.close();
-        out.close();
-
-        String output = new String(out.toByteArray());
-        assertEquals(data, output);
+        checkRead(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), data);
+        checkReadViaArray(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), data);
     }
 
     public void testNoDot() throws IOException {
         String data = "ABCD";
-        ExtraDotInputStream in = new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes()));
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        int i = -1;
-        while ((i = in.read()) != -1) {
-            out.write(i);
-        }
-        in.close();
-        out.close();
-
-        String output = new String(out.toByteArray());
-        assertEquals(data, output);
+        checkRead(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), data);
+        checkReadViaArray(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), data);
     }
 
     // Proof of BUG JAMES-1152
     public void testNoDotHeaderBody() throws IOException {
         String data = "Subject: test\r\n\r\nABCD\r\n";
-        ExtraDotInputStream in = new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes()));
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        checkRead(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), data);
+        checkReadViaArray(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), data);
 
-        int i = -1;
-        while ((i = in.read()) != -1) {
-            out.write(i);
-        }
-        in.close();
-        out.close();
-
-        String output = new String(out.toByteArray());
-        assertEquals(data, output);
     }
+   
+
+
+    
 }
