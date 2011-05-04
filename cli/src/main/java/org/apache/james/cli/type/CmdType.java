@@ -27,8 +27,13 @@ public enum CmdType {
     LISTUSERS("listusers", 1), 
     ADDDOMAIN("adddomain", 2), 
     REMOVEDOMAIN("removedomain", 2), 
-    LISTDOMAINS("listdomains", 1);
-
+    LISTDOMAINS("listdomains", 1),
+    LISTMAPPINGS("listmappings", 1),
+    LISTUSERDOMAINMAPPINGS("listuserdomainmappings", 3),
+    ADDADDRESSMAPPING("addaddressmapping", 4),
+    REMOVEADDRESSMAPPING("removeaddressmapping", 4),
+    ADDREGEXMAPPING("addregexmapping", 4),
+    REMOVEREGEXMAPPING("removeregexmapping", 4);
     private String command;
     private int arguments;
 

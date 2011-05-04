@@ -20,6 +20,10 @@ package org.apache.james.cli;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -150,6 +154,48 @@ public class ServerCmd {
                     printUsage();
                     System.exit(1);
                 }
+            } else if (CmdType.LISTMAPPINGS.equals(cmdType)) {
+                if (cmdType.hasCorrectArguments(arguments.length)) {
+                    sCmd.print(probe.listMappings(), System.out);
+                } else {
+                    printUsage();
+                    System.exit(1);
+                }
+            } else if (CmdType.LISTUSERDOMAINMAPPINGS.equals(cmdType)) {
+                if (cmdType.hasCorrectArguments(arguments.length)) {
+                    sCmd.print(probe.listUserDomainMappings(arguments[1], arguments[2]).toArray(new String[0]), System.out);
+                } else {
+                    printUsage();
+                    System.exit(1);
+                }
+            } else if (CmdType.ADDADDRESSMAPPING.equals(cmdType)) {
+                if (cmdType.hasCorrectArguments(arguments.length)) {
+                    probe.addAddressMapping(arguments[1], arguments[2], arguments[3]);
+                } else {
+                    printUsage();
+                    System.exit(1);
+                }
+            } else if (CmdType.REMOVEADDRESSMAPPING.equals(cmdType)) {
+                if (cmdType.hasCorrectArguments(arguments.length)) {
+                    probe.removeAddressMapping(arguments[1], arguments[2], arguments[3]);
+                } else {
+                    printUsage();
+                    System.exit(1);
+                }
+            } else if (CmdType.ADDREGEXMAPPING.equals(cmdType)) {
+                if (cmdType.hasCorrectArguments(arguments.length)) {
+                    probe.addRegexMapping(arguments[1], arguments[2], arguments[3]);
+                } else {
+                    printUsage();
+                    System.exit(1);
+                }
+            } else if (CmdType.REMOVEREGEXMAPPING.equals(cmdType)) {
+                if (cmdType.hasCorrectArguments(arguments.length)) {
+                    probe.removeRegexMapping(arguments[1], arguments[2], arguments[3]);
+                } else {
+                    printUsage();
+                    System.exit(1);
+                }
             } else {
                 System.err.println("Unrecognized command: " + cmdName + ".");
                 printUsage();
@@ -183,6 +229,21 @@ public class ServerCmd {
         out.println();
     }
 
+    public void print(Map<String,Collection<String>> map, PrintStream out) {
+        if (map == null)
+            return;
+        
+        Iterator<Entry<String, Collection<String>>> entries = map.entrySet().iterator();
+        while(entries.hasNext()) {
+            Entry<String, Collection<String>> entry = entries.next();
+            out.print(entry.getKey());
+            out.print("=");
+            out.println(entry.getValue().toString());
+        }
+        out.println();
+    }
+
+    
     /*
      * Prints usage information to stdout.
      */
@@ -195,9 +256,12 @@ public class ServerCmd {
                 + "adddomain <domainname>%n"
                 + "removedomain <domainname>%n" 
                 + "listdomains%n"
-                // + "addMapping <address|regex> <user> <domain> <fromaddress|regexstring>%n"
-                // + "removeMapping <address|regex> <user> <domain> <fromaddress|regexstring>%n"
-                // + "listMappings [<user> <domain>]%n"
+                + "addAddressMapping <user> <domain> <fromaddress>%n"
+                + "removeAddressMapping <user> <domain> <fromaddress>%n"
+                + "addRegexMapping <user> <domain> <regex>%n"
+                + "removeRegexMapping <user> <domain> <regex>%n"
+                + "listuserdomainmappings <user> <domain>%n"
+                + "listmappings%n"
                 );
         String usage = String.format("java %s --host <arg> <command>%n", ServerCmd.class.getName());
         hf.printHelp(usage, "", options, header);

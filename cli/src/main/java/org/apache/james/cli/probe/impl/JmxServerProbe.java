@@ -39,7 +39,7 @@ public class JmxServerProbe implements ServerProbe {
 
     // TODO: Move this to somewhere else
     private final static String DOMAINLIST_OBJECT_NAME = "org.apache.james:type=component,name=domainlist";
-    private final static String VIRTUALUSERTABLE_OBJECT_NAME = "org.apache.james:type=component,name=virtualusertable";
+    private final static String VIRTUALUSERTABLE_OBJECT_NAME = "org.apache.james:type=component,name=recipientrewritetable";
     private final static String USERSREPOSITORY_OBJECT_NAME = "org.apache.james:type=component,name=usersrepository";
 
     private MBeanServerConnection mbeanServerConn;
