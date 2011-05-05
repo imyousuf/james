@@ -22,6 +22,8 @@ package org.apache.james.pop3server.core;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.james.pop3server.ReadByteFilterInputStream;
+
 /**
  * Adds extra dot if dot occurs in message body at beginning of line (according
  * to RFC1939)

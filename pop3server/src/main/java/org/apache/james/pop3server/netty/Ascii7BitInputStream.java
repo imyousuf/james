@@ -16,41 +16,45 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-package org.apache.james.pop3server.core;
+package org.apache.james.pop3server.netty;
 
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ReadByteFilterInputStream extends FilterInputStream {
+import org.apache.james.pop3server.ReadByteFilterInputStream;
 
-    protected ReadByteFilterInputStream(InputStream in) {
+/**
+ *
+ *  {@link FilterInputStream} which replace every char which is not a 7-bit ASCII char 
+ *  in the stream. Thats makes sure we don't try to send a char over the wire which is not supported
+ *  by the POP3 rfc.
+ *  
+ *
+ */
+public class Ascii7BitInputStream extends ReadByteFilterInputStream{
+
+    private final char replacementChar;
+    public final static char DEFAULT_REPLACEMENT_CHAR = '?';
+    
+    public Ascii7BitInputStream(InputStream in, char replacementChar) {
         super(in);
+        this.replacementChar = replacementChar;
+    }
+
+    public Ascii7BitInputStream(InputStream in) {
+        this(in, DEFAULT_REPLACEMENT_CHAR);
     }
 
     @Override
-    public int read(byte[] b, int off, int len) throws IOException {
-        int i;
-        for (i = 0; i < len; i++) {
-            int a = read();
-            if (i == 0 && a == -1) {
-                return -1;
-            } else {
-                if (a == -1) {
-                    break;
-                } else {
-                    b[off++] = (byte) a;
-                }
-            }
+    public int read() throws IOException {
+        int i = in.read();
+        // check if we need to replace it with the replacement char
+        if (i > 127) {
+            return replacementChar;
+        } else {
+            return i;
         }
-        return i;
-
-    }
-
-    @Override
-    public int read(byte[] b) throws IOException {
-        return read(b, 0, b.length);
     }
 
 }
