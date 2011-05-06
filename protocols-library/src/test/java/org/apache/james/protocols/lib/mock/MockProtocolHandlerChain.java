@@ -33,6 +33,7 @@ import org.apache.james.protocols.api.ExtensibleHandler;
 import org.apache.james.protocols.api.HandlersPackage;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.api.WiringException;
+import org.apache.james.protocols.lib.ConfigurableProtocolHandlerchain;
 import org.slf4j.Logger;
 
 /**
@@ -43,7 +44,7 @@ import org.slf4j.Logger;
  * TODO: Move this to test package as it is the only place where it get used
  */
 @SuppressWarnings("unchecked")
-public class MockProtocolHandlerChain implements ProtocolHandlerChain, Configurable, LogEnabled {
+public class MockProtocolHandlerChain implements ConfigurableProtocolHandlerchain, Configurable, LogEnabled {
 
     private Logger log;
     private String coreHandlersPackage;
@@ -222,5 +223,10 @@ public class MockProtocolHandlerChain implements ProtocolHandlerChain, Configura
      */
     public void setLog(Logger log) {
         this.log = log;
+    }
+
+    @Override
+    public void init(HierarchicalConfiguration config) throws ConfigurationException {
+        
     }
 }

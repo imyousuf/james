@@ -20,8 +20,10 @@ package org.apache.james.pop3server.netty;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
-import org.apache.james.protocols.api.ProtocolHandlerChain;
+import org.apache.james.protocols.lib.ConfigurableProtocolHandlerchain;
 import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
@@ -36,13 +38,33 @@ public class POP3Server extends AbstractConfigurableAsyncServer implements POP3S
      */
     private POP3HandlerConfigurationData theConfigData = new POP3HandlerConfigurationDataImpl();
 
-    private ProtocolHandlerChain handlerChain;
+    private ConfigurableProtocolHandlerchain handlerChain;
+
+    private HierarchicalConfiguration config;
 
     @Resource(name = "pop3handlerchain")
-    public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
+    public void setProtocolHandlerChain(ConfigurableProtocolHandlerchain handlerChain) {
         this.handlerChain = handlerChain;
     }
 
+    @Override
+    protected void preInit() throws Exception {
+        super.preInit();
+        HierarchicalConfiguration hconfig = config.configurationAt("handlerchain");
+        hconfig.addProperty("[@jmxName]", jmxName);
+        hconfig.addProperty("[@jmxHandlersPackage]", "org.apache.james.pop3server.jmx.JMXHandlersLoader");
+        hconfig.addProperty("[@coreHandlersPackage]", "org.apache.james.pop3server.core.CoreCmdHandlerLoader");
+
+        handlerChain.init(hconfig);
+    }
+
+    public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
+        super.doConfigure(configuration);
+        this.config = configuration;
+      
+
+    }
+    
     @Override
     protected int getDefaultPort() {
         return 110;

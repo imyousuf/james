@@ -23,7 +23,7 @@ import javax.annotation.Resource;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
-import org.apache.james.protocols.api.ProtocolHandlerChain;
+import org.apache.james.protocols.lib.ConfigurableProtocolHandlerchain;
 import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
@@ -39,7 +39,7 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
      * Command handlers , Message handlers and connection handlers Constructed
      * during initialisation to allow dependency injection.
      */
-    private ProtocolHandlerChain handlerChain;
+    private ConfigurableProtocolHandlerchain handlerChain;
 
     /**
      * Whether authentication is required to use this SMTP server.
@@ -86,12 +86,27 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
 
     private boolean verifyIdentity;
 
+    private HierarchicalConfiguration config;
+
     @Resource(name = "smtphandlerchain")
-    public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
+    public void setProtocolHandlerChain(ConfigurableProtocolHandlerchain handlerChain) {
         this.handlerChain = handlerChain;
     }
 
+    @Override
+    protected void preInit() throws Exception {
+        super.preInit();
+        HierarchicalConfiguration hconfig = config.configurationAt("handlerchain");
+        hconfig.addProperty("[@jmxName]", jmxName);
+
+        hconfig.addProperty("[@jmxHandlersPackage]", "org.apache.james.smtpserver.jmx.JMXHandlersLoader");
+        hconfig.addProperty("[@coreHandlersPackage]", "org.apache.james.smtpserver.CoreCmdHandlerLoader");
+        handlerChain.init(hconfig);
+    }
+
     public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
+        this.config = configuration;
+        
         if (isEnabled()) {
             String authRequiredString = configuration.getString("authRequired", "false").trim().toLowerCase();
             if (authRequiredString.equals("true"))

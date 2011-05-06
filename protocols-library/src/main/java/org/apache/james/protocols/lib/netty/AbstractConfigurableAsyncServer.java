@@ -103,7 +103,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     private SSLContext context;
 
-    private String jmxName;
+    protected String jmxName;
 
     private String[] enabledCipherSuites;
 

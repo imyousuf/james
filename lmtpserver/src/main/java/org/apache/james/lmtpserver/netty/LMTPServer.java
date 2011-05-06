@@ -23,7 +23,7 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.protocols.api.ProtocolHandlerChain;
+import org.apache.james.protocols.lib.ConfigurableProtocolHandlerchain;
 import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.smtpserver.netty.SMTPChannelUpstreamHandler;
@@ -38,12 +38,13 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
      * 0, means no limit.
      */
     private long maxMessageSize = 0;
-    private ProtocolHandlerChain handlerChain;
+    private ConfigurableProtocolHandlerchain handlerChain;
     private LMTPConfiguration lmtpConfig = new LMTPConfiguration();
     private String lmtpGreeting;
+    private HierarchicalConfiguration config;
 
     @Resource(name = "lmtphandlerchain")
-    public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
+    public void setProtocolHandlerChain(ConfigurableProtocolHandlerchain handlerChain) {
         this.handlerChain = handlerChain;
     }
 
@@ -67,7 +68,20 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
         return "LMTP Service";
     }
 
+    @Override
+    protected void preInit() throws Exception {
+        super.preInit();
+        HierarchicalConfiguration hconfig = config.configurationAt("handlerchain");
+        hconfig.addProperty("[@jmxName]", jmxName);
+        hconfig.addProperty("[@jmxHandlersPackage]", "org.apache.james.lmtpserver.jmx.JMXHandlersLoader");
+        hconfig.addProperty("[@coreHandlersPackage]", "org.apache.james.lmtpserver.CoreCmdHandlerLoader");
+
+        handlerChain.init(hconfig);
+    }
+
     public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
+        this.config = configuration;
+   
         if (isEnabled()) {
 
             // get the message size limit from the conf file and multiply

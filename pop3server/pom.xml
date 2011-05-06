@@ -89,6 +89,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-mailbox-maildir</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-core</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
