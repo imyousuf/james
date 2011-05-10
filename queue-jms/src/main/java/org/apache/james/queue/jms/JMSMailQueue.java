@@ -420,7 +420,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
         while (namesTokenizer.hasMoreTokens()) {
             String name = namesTokenizer.nextToken();
             
-            // Now case the property back to Serializable and set it as attribute.
+            // Now cast the property back to Serializable and set it as attribute.
             // See JAMES-1241
             Object attrValue = message.getObjectProperty(name);
             if ( attrValue instanceof Serializable) {   
