@@ -419,9 +419,15 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
         StringTokenizer namesTokenizer = new StringTokenizer(attributeNames, JAMES_MAIL_SEPARATOR);
         while (namesTokenizer.hasMoreTokens()) {
             String name = namesTokenizer.nextToken();
-            Serializable attrValue = message.getStringProperty(name);
-
-            mail.setAttribute(name, attrValue);
+            
+            // Now case the property back to Serializable and set it as attribute.
+            // See JAMES-1241
+            Object attrValue = message.getObjectProperty(name);
+            if ( attrValue instanceof Serializable) {   
+                mail.setAttribute(name, (Serializable) attrValue);
+            } else {
+                logger.error("Not supported mail attribute " + name + " of type " + attrValue);
+            }
         }
 
         String sender = message.getStringProperty(JAMES_MAIL_SENDER);
