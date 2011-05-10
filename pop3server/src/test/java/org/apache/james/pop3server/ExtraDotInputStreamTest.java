@@ -35,20 +35,22 @@ public class ExtraDotInputStreamTest extends AbstractInputStreamTest {
 
     }
 
-    public void testNoExtraDotOnDoubleDot() throws IOException {
+    public void testExtraDotOnDoubleDot() throws IOException {
         String data = "This\r\n..\r\nThis.\r\n";
-        
-        checkRead(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), data);
-        checkReadViaArray(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), data);
+        String expectedOutput = "This\r\n...\r\nThis.\r\n";
+
+        checkRead(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), expectedOutput);
+        checkReadViaArray(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), expectedOutput);
 
     }
     
 
-    public void testNoExtraDotOnDotWithText() throws IOException {
+    public void testExtraDotOnDotWithText() throws IOException {
         String data = "This\r\n.TestText\r\nThis.\r\n";
-        
-        checkRead(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), data);
-        checkReadViaArray(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), data);
+        String expected = "This\r\n..TestText\r\nThis.\r\n";
+
+        checkRead(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), expected);
+        checkReadViaArray(new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes())), expected);
 
     }
     

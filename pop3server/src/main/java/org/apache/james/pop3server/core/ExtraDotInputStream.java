@@ -21,6 +21,7 @@ package org.apache.james.pop3server.core;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PushbackInputStream;
 
 import org.apache.james.pop3server.ReadByteFilterInputStream;
 
@@ -30,71 +31,34 @@ import org.apache.james.pop3server.ReadByteFilterInputStream;
  */
 public class ExtraDotInputStream extends ReadByteFilterInputStream {
 
-    byte[] buf = new byte[3];
-    int pos = 0;
-    boolean end = false;
-    boolean extraDot = false;
-    boolean startLine;
-    int last;
+    boolean startLine = true;
+    private int last;
 
     public ExtraDotInputStream(InputStream in) {
-        super(in);
+        super(new PushbackInputStream(in, 2));
         startLine = true;
     }
 
+    
     @Override
-    public synchronized int read() throws IOException {
-        if (end)
-            return -1;
-
-        if (startLine) {
-            int i = 0;
-            // check if we still have something in the buffer
-            // if so we need to copy it so we don't lose data
-
-            // See JAMES-1152
-            if (pos != -1 && pos != 0) {
-                byte[] tmpBuf = new byte[3];
-                while (pos < buf.length) {
-                    tmpBuf[i++] = buf[pos++];
-                }
-
-                buf = tmpBuf;
-            }
-            while (i < buf.length) {
-                buf[i++] = (byte) in.read();
-            }
-            if (buf[0] == '.' && buf[1] == '\r' && buf[2] == '\n') {
-                extraDot = true;
-            }
-            startLine = false;
-            pos = 0;
-        }
-
-        int a;
-        if (pos == -1) {
-            a = in.read();
-        } else {
-            if (extraDot) {
-                extraDot = false;
-                return '.';
-            } else {
-                a = buf[pos++];
-
-                if (pos == buf.length) {
-                    pos = -1;
-                }
-                if (a == -1) {
-                    end = true;
-                }
-            }
-
-        }
-        if (last == '\r' && a == '\n') {
-            startLine = true;
-        }
-        last = a;
-        return a;
+    public int read() throws IOException {
+       PushbackInputStream pin = (PushbackInputStream) in;
+       int i = pin.read();
+       if (startLine) {
+           startLine = false;
+           if (i == '.') {
+               pin.unread(i);
+               return '.';
+           }
+           
+       }
+      
+       if (last == '\r' && i == '\n') {
+           startLine = true;
+       }
+       last = i;
+       return i;
+       
 
     }
 

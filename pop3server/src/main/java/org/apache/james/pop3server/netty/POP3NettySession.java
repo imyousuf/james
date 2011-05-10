@@ -18,7 +18,6 @@
  ****************************************************************/
 package org.apache.james.pop3server.netty;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -118,10 +117,4 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
     public void setUserMailbox(MessageManager mailbox) {
         this.mailbox = mailbox;
     }
-
-    @Override
-    public void writeStream(InputStream stream) {
-        super.writeStream(new Ascii7BitInputStream(stream));
-    }
-
 }
