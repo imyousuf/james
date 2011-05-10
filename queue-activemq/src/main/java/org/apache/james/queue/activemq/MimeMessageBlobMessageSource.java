@@ -25,8 +25,8 @@ import java.util.List;
 
 import javax.mail.internet.SharedInputStream;
 
-import org.apache.activemq.Disposable;
 import org.apache.james.core.MimeMessageSource;
+import org.apache.james.lifecycle.api.Disposable;
 
 /**
  *
