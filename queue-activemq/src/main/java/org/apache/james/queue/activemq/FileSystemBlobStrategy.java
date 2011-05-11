@@ -25,10 +25,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.jms.JMSException;
-import javax.mail.util.SharedFileInputStream;
 
 import org.apache.activemq.BlobMessage;
 import org.apache.activemq.blob.BlobDownloadStrategy;
@@ -46,7 +44,6 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
 
     private final FileSystem fs;
     private final BlobTransferPolicy policy;
-    private final ConcurrentHashMap<String, SharedFileInputStream> map = new ConcurrentHashMap<String, SharedFileInputStream>();
     private int splitCount;
 
     public FileSystemBlobStrategy(final BlobTransferPolicy policy, final FileSystem fs, int splitCount) {
@@ -115,13 +112,6 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
      */
     public void deleteFile(ActiveMQBlobMessage message) throws IOException, JMSException {
         File f = getFile(message);
-        SharedFileInputStream in = map.remove(f.getCanonicalPath());
-        try {
-            if (in != null)
-                in.close();
-        } catch (IOException e) {
-            // ignore here
-        }
         if (f.exists()) {
             if (f.delete() == false) {
                 throw new IOException("Unable to delete file " + f);
@@ -134,15 +124,7 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
      */
     public InputStream getInputStream(ActiveMQBlobMessage message) throws IOException, JMSException {
         File f = getFile(message);
-        String key = f.getCanonicalPath();
-        // use exactly one SharedFileInputStream per file so we can keep track
-        // of filehandles
-        // See JAMES-1122
-        SharedFileInputStream in = map.putIfAbsent(key, new SharedFileInputStream(f));
-        if (in == null) {
-            in = map.get(key);
-        }
-        return in;
+        return new FileInputStream(f);
     }
 
     /**

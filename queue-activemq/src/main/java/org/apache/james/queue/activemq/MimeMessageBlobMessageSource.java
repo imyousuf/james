@@ -20,28 +20,23 @@ package org.apache.james.queue.activemq;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.mail.internet.SharedInputStream;
+import javax.jms.JMSException;
 
+import org.apache.activemq.BlobMessage;
 import org.apache.james.core.MimeMessageSource;
-import org.apache.james.lifecycle.api.Disposable;
 
 /**
  *
  */
-public class MimeMessageBlobMessageSource extends MimeMessageSource implements ActiveMQSupport, Disposable {
+public class MimeMessageBlobMessageSource extends MimeMessageSource implements ActiveMQSupport {
 
-    private SharedInputStream in;
     private String sourceId;
-    private long size;
-    private List<InputStream> streams = new ArrayList<InputStream>();
+    private BlobMessage message;
 
-    public MimeMessageBlobMessageSource(SharedInputStream in, long size, String sourceId) {
-        this.in = in;
-        this.size = size;
-        this.sourceId = sourceId;
+    public MimeMessageBlobMessageSource(BlobMessage message) throws JMSException {
+        this.message = message;
+        this.sourceId = message.getJMSMessageID();
     }
 
     /*
@@ -49,10 +44,12 @@ public class MimeMessageBlobMessageSource extends MimeMessageSource implements A
      * 
      * @see org.apache.james.core.MimeMessageSource#getInputStream()
      */
-    public synchronized InputStream getInputStream() throws IOException {
-        InputStream sin = in.newStream(0, -1);
-        streams.add(sin);
-        return sin;
+    public InputStream getInputStream() throws IOException {
+        try {
+            return message.getInputStream();
+        } catch (JMSException e) {
+            throw new IOException("Unable to open stream", e);
+        }
     }
 
     /*
@@ -66,34 +63,18 @@ public class MimeMessageBlobMessageSource extends MimeMessageSource implements A
 
     @Override
     public long getMessageSize() throws IOException {
-        // if the size is < 1 we seems to not had it stored in the property, so
-        // fallback to super implementation
-        if (size == -1) {
-            super.getMessageSize();
-        }
-        return size;
-    }
-
-    /**
-     * Call dispose on the {@link InputStream}
-     */
-    public synchronized void dispose() {
-
         try {
-            ((InputStream) in).close();
-        } catch (IOException e) {
-            // ignore on dispose
-        }
-        in = null;
-        for (int i = 0; i < streams.size(); i++) {
-            InputStream s = streams.get(i);
-            try {
-                s.close();
-            } catch (IOException e) {
-                // ignore on dispose
+            long size = message.getLongProperty(JAMES_MAIL_MESSAGE_SIZE);
+
+            // if the size is < 1 we seems to not had it stored in the property, so
+            // fallback to super implementation
+            if (size == -1) {
+                super.getMessageSize();
             }
-            s = null;
+            return size;
+        } catch (JMSException e) {
+            throw new IOException("Unable to get message size", e);
         }
-        streams.clear();
+
     }
 }

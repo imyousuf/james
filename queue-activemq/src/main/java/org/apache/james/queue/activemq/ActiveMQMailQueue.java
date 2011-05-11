@@ -19,9 +19,7 @@
 package org.apache.james.queue.activemq;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +36,6 @@ import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.SharedInputStream;
 
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.BlobMessage;
@@ -46,9 +43,7 @@ import org.apache.activemq.command.ActiveMQBlobMessage;
 import org.apache.activemq.util.JMSExceptionSupport;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStream;
-import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.core.MimeMessageSource;
-import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.jms.JMSMailQueue;
 import org.apache.mailet.Mail;
@@ -137,23 +132,9 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport {
                     // Ignore on error
                     logger.debug("Unable to get url from blobmessage for mail " + mail.getName());
                 }
-                InputStream in = blobMessage.getInputStream();
-                MimeMessageSource source;
-
-                // if its a SharedInputStream we can make use of some more
-                // performant implementation which don't need to copy the
-                // message to a temporary file
-                if (in instanceof SharedInputStream) {
-                    String sourceId = message.getJMSMessageID();
-                    long size = message.getLongProperty(JAMES_MAIL_MESSAGE_SIZE);
-                    source = new MimeMessageBlobMessageSource((SharedInputStream) in, size, sourceId);
-                } else {
-                    source = new MimeMessageInputStreamSource(mail.getName(), in);
-                }
-
+                MimeMessageSource source = new MimeMessageBlobMessageSource(blobMessage);
                 mail.setMessage(new MimeMessageCopyOnWriteProxy(source));
-            } catch (IOException e) {
-                throw new MailQueueException("Unable to populate MimeMessage for mail " + mail.getName(), e);
+            
             } catch (JMSException e) {
                 throw new MailQueueException("Unable to populate MimeMessage for mail " + mail.getName(), e);
             }
@@ -162,6 +143,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport {
         }
     }
 
+    
     /*
      * (non-Javadoc)
      * 
@@ -182,10 +164,21 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport {
                 MimeMessage wrapper = mm;
 
                 ActiveMQSession amqSession = getAMQSession(session);
-
+                
+                /*
+                 * Remove this optimization as it could lead to problems when the same blob content
+                 * is shared across different messages. 
+                 * 
+                 * I still think it would be a good idea to somehow do this but at the moment it's just 
+                 * safer to disable it.
+                 * 
+                 * TODO: Re-Enable it again once it works!
+                 * 
+                 * See JAMES-1240
                 if (wrapper instanceof MimeMessageCopyOnWriteProxy) {
                     wrapper = ((MimeMessageCopyOnWriteProxy) mm).getWrappedMessage();
                 }
+
                 if (wrapper instanceof MimeMessageWrapper) {
                     URL blobUrl = (URL) mail.getAttribute(JAMES_BLOB_URL);
                     String fromQueue = (String) mail.getAttribute(JAMES_QUEUE_NAME);
@@ -195,21 +188,17 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport {
                         // the message content was not changed so don't need to
                         // upload it again and can just point to the url
                         blobMessage = amqSession.createBlobMessage(blobUrl);
-
-                        // thats important so we don't delete the blob file
-                        // after complete the processing!
-                        mail.setAttribute(JAMES_REUSE_BLOB_URL, true);
                         reuse = true;
-
                     }
 
-                }
+                }*/
                 if (blobMessage == null) {
                     // just use the MimeMessageInputStream which can read every
                     // MimeMessage implementation
                     blobMessage = amqSession.createBlobMessage(new MimeMessageInputStream(wrapper));
                 }
-
+                 
+                    
                 // store the queue name in the props
                 props.put(JAMES_QUEUE_NAME, queuename);
 
@@ -220,10 +209,14 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport {
                     blobMessage.setObjectProperty(entry.getKey(), entry.getValue());
                 }
                 producer.send(blobMessage, Message.DEFAULT_DELIVERY_MODE, msgPrio, Message.DEFAULT_TIME_TO_LIVE);
+                    
+              
+
             } else {
                 super.produceMail(session, props, msgPrio, mail);
             }
         } catch (JMSException e) {
+            e.printStackTrace();
             if (!reuse && blobMessage != null && blobMessage instanceof ActiveMQBlobMessage) {
                 ((ActiveMQBlobMessage) blobMessage).deleteFile();
             }
