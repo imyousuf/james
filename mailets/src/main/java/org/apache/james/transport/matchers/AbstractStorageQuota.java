@@ -135,7 +135,7 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
 
             // get all mailboxes for the user to calculate the size
             // See JAMES-1198
-            List<MailboxMetaData> mList = manager.search(new MailboxQuery(MailboxPath.inbox(username), "", session.getPathDelimiter()), session);
+            List<MailboxMetaData> mList = manager.search(new MailboxQuery(MailboxPath.inbox(session), "", session.getPathDelimiter()), session);
             for (int i = 0; i < mList.size(); i++) {
                 MessageManager mailbox = manager.getMailbox(mList.get(i).getPath(), session);
                 Iterator<MessageResult> results = mailbox.getMessages(MessageRange.all(), new FetchGroupImpl(FetchGroup.MINIMAL), session);

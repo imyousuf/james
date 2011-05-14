@@ -66,7 +66,7 @@ public class PassCmdHandler extends RsetCmdHandler {
                 // before in the session
                 mailboxManager.startProcessingRequest(mSession);
 
-                MailboxPath mailboxPath = MailboxPath.inbox(session.getUser());
+                MailboxPath mailboxPath = MailboxPath.inbox(mSession);
 
                 // check if mailbox exists.. if not just create it
                 if (mailboxManager.mailboxExists(mailboxPath, mSession) == false) {

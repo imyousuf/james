@@ -696,9 +696,9 @@ public class POP3ServerTest extends TestCase {
         m_pop3Protocol.connect("127.0.0.1", m_pop3ListenerPort);
 
         m_usersRepository.addUser("foo6", "bar6");
-
-        MailboxPath mailboxPath = MailboxPath.inbox("foo6");
         MailboxSession session = manager.login("foo6", "bar6", LoggerFactory.getLogger("Test"));
+
+        MailboxPath mailboxPath = MailboxPath.inbox(session);
 
         manager.startProcessingRequest(session);
         if (manager.mailboxExists(mailboxPath, session) == false) {

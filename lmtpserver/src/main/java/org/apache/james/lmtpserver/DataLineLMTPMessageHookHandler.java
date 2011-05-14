@@ -152,7 +152,7 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
                 }
 
                 MailboxSession mailboxSession = mailboxManager.createSystemSession(username, session.getLogger());
-                MailboxPath inbox = MailboxPath.inbox(username);
+                MailboxPath inbox = MailboxPath.inbox(mailboxSession);
 
                 mailboxManager.startProcessingRequest(mailboxSession);
 
@@ -160,7 +160,7 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
                 if (mailboxManager.mailboxExists(inbox, mailboxSession) == false) {
                     mailboxManager.createMailbox(inbox, mailboxSession);
                 }
-                mailboxManager.getMailbox(MailboxPath.inbox(username), mailboxSession).appendMessage(new MimeMessageInputStream(mail.getMessage()), new Date(), mailboxSession, true, null);
+                mailboxManager.getMailbox(MailboxPath.inbox(mailboxSession), mailboxSession).appendMessage(new MimeMessageInputStream(mail.getMessage()), new Date(), mailboxSession, true, null);
                 mailboxManager.endProcessingRequest(mailboxSession);
                 response = new SMTPResponse(SMTPRetCode.MAIL_OK, DSNStatus.getStatus(DSNStatus.SUCCESS, DSNStatus.CONTENT_OTHER) + " Message received");
 
