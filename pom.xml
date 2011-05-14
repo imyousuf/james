@@ -1407,7 +1407,7 @@
     <imap.version>0.2-M2-SNAPSHOT</imap.version>
     <protocols.version>1.4</protocols.version>
     <jsieve.version>0.4</jsieve.version>
-    <jackrabbit.version>2.2.2</jackrabbit.version>
+    <jackrabbit.version>2.2.5</jackrabbit.version>
     
     <!-- For more details see -->
     <!-- http://java.sun.com/products/javamail/javadocs/javax/mail/internet/package-summary.html -->
