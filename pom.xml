@@ -588,7 +588,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-standard-mailets</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>1.1</version>
       <exclusions>
         <exclusion>
           <groupId>javax.mail</groupId>
@@ -599,7 +599,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-standard-mailets</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>1.1</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
@@ -1408,7 +1408,7 @@
     <spring.version>3.0.5.RELEASE</spring.version>
     <mailbox.version>0.2-M2-SNAPSHOT</mailbox.version>
     <imap.version>0.2-M2-SNAPSHOT</imap.version>
-    <protocols.version>1.4-SNAPSHOT</protocols.version>
+    <protocols.version>1.4</protocols.version>
     <jsieve.version>0.4</jsieve.version>
     <jackrabbit.version>2.2.2</jackrabbit.version>
     
