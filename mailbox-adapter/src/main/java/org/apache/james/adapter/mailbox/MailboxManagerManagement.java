@@ -63,7 +63,7 @@ public class MailboxManagerManagement extends StandardMBean implements MailboxMa
         try {
             session = mailboxManager.createSystemSession(username, log);
             mailboxManager.startProcessingRequest(session);
-            List<MailboxMetaData> mList = mailboxManager.search(new MailboxQuery(MailboxPath.inbox(username), "", session.getPathDelimiter()), session);
+            List<MailboxMetaData> mList = mailboxManager.search(new MailboxQuery(MailboxPath.inbox(session), "", session.getPathDelimiter()), session);
             for (int i = 0; i < mList.size(); i++) {
                 mailboxManager.deleteMailbox(mList.get(i).getPath(), session);
             }
@@ -105,7 +105,7 @@ public class MailboxManagerManagement extends StandardMBean implements MailboxMa
         try {
             session = mailboxManager.createSystemSession(username, log);
             mailboxManager.startProcessingRequest(session);
-            List<MailboxMetaData> mList = mailboxManager.search(new MailboxQuery(MailboxPath.inbox(username), "", session.getPathDelimiter()), session);
+            List<MailboxMetaData> mList = mailboxManager.search(new MailboxQuery(MailboxPath.inbox(session), "", session.getPathDelimiter()), session);
             for (int i = 0; i < mList.size(); i++) {
                 boxes.add(mList.get(i).getPath().getName());
             }
