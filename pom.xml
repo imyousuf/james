@@ -945,13 +945,10 @@
       <artifactId>geronimo-javamail_1.4_mail</artifactId>
       <version>1.6</version>
     </dependency>
-   
-   <!-- Use 1.0.3 as 1.0.5 seems to was compiled with jdk6  -->
-   <!-- See DAEMON-200 -->
     <dependency>
       <groupId>commons-daemon</groupId>
       <artifactId>commons-daemon</artifactId>
-      <version>1.0.3</version>
+      <version>1.0.5</version>
     </dependency>
     <dependency>
       <groupId>commons-collections</groupId>
