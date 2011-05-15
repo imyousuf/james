@@ -278,4 +278,12 @@ public class NettyImapSession implements ImapSession, NettyConstants {
         return context.getPipeline().get(SSL_HANDLER) != null;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.imap.api.process.ImapSession#supportMultipleNamespaces()
+     */
+    public boolean supportMultipleNamespaces() {
+        return false;
+    }
+
 }
