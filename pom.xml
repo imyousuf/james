@@ -852,15 +852,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <!--
-       - I can't find any usage of this dependency in this project.
-       - I can't find this dependency anywhere, nor in maven repository nor in this project
-   <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-memory</artifactId>
-      <version>${imap.version}</version>
-    </dependency>
-    -->
 
     <dependency>
         <groupId>com.h2database</groupId>
@@ -869,15 +860,6 @@
         <scope>test</scope>
     </dependency>
 
-    <!--
-       - I can't find any usage of this dependency in this project.
-       - I can't find in any maven repository bcjdk15, only bcmail-jdk15
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcjdk15</artifactId>
-      <version>1.45</version>
-    </dependency>
-    -->
     <dependency>
       <groupId>org.apache.james.jspf</groupId>
       <artifactId>apache-jspf-resolver</artifactId>
