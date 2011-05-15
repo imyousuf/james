@@ -286,4 +286,12 @@ public class NettyImapSession implements ImapSession, NettyConstants {
         return false;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.imap.api.process.ImapSession#isCompressionActive()
+     */
+    public boolean isCompressionActive() {
+        return context.getPipeline().get(ZLIB_DECODER) != null;
+    }
+
 }
