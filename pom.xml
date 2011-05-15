@@ -1059,8 +1059,8 @@
     </dependency>
     <dependency>
       <groupId>commons-beanutils</groupId>
-      <artifactId>commons-beanutils</artifactId>
-      <version>1.7.0</version>
+      <artifactId>commons-beanutils-core</artifactId>
+      <version>1.8.3</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
