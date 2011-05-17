@@ -26,84 +26,101 @@
 <body>
     
   <section name="SSL / TLS Configuration">
-<!--    
-    <p>This document explains how to enable James 3.0 services to use Transport Layer Security (TLS) for encrypted client-server communication.</p>
 
-    <subsection name="Making SSL/TLS Server Sockets Available Inside Apache James Server">
-    
-      <p>James uses the Sun Java Secure Sockets Extension (JSSE) infrastructure to provide TLS/SSL 
-      sockets.  JSSE comes packaged with several vendor Java distributions (i.e. Sun Java 1.4.x, 
-      IBM Java 1.3.x).  For these distributions, please follow the vendor provided instructions for
-      configuring the JVM to use JSSE services.</p>
-      <p>If you are using a Java distribution that does not include JSSE as part of the 
-      distribution you will need to download the JSSE package separately.  It can be obtained from 
-      <a href="http://java.sun.com/products/jsse">here</a>.  Please follow Sun's instructions for installation 
-      and configuration of JSSE.</p>
-      <p>In either case, you will need to statically define a JSSE TLS provider.  In general, this 
-      is the default installation.</p>
-      <p>Once you've installed JSSE, James still needs to be configured to take advantage of the JSSE
-      functionality.</p>
-    
+    <p>This document explains how to enable James 3.0 servers to use Transport Layer Security (TLS) for encrypted client-server communication.</p>
+
+    <subsection name="Configure a Server to Use SSL/TLS">
+
+      <p>Each of the servers <a href="config-smtp-lmtp.html">SMTP</a>, 
+         <a href="config-pop3.html">POP3</a> and <a href="config-imap.html">IMAP</a> 
+         supports use of SSL/TLS.</p>
+         
+      <p>You need to add a block in the corresponding configuration file (smtpserver.xml, pop3server.xml, imapserver.xml,..)</p>
+      
+      <source>
+&lt;tls socketTLS="false" startTLS="false"&gt;
+  &lt;keystore&gt;file://conf/keystore&lt;/keystore&gt;
+  &lt;secret&gt;yoursecret&lt;/secret&gt;
+  &lt;provider&gt;org.bouncycastle.jce.provider.BouncyCastleProvider&lt;/provider&gt;
+&lt;/tls&gt;
+</source>
+         
+      <p>Each of these block has an optional boolean configuration element <b>socketTLS</b> and <b>startTLS</b> which is used to toggle 
+         use of TLS for the service.</p>
+
+      <p>You will now need to create your certificate store and place it in the james/conf/ folder with the name you defined in the keystore tag.</p>
+
     </subsection>
-    
+
     <subsection name="Certificate Keystores">
     
       <p>To use TLS/SSL inside James you will need a certificate keystore.</p>
-    
-    </subsection>
-    
-    <subsection name="Configuring the Server Socket Factory">
-    
-      <p>The out of the box configuration file contains a template for the SSL configuration in place.  Specifically, 
-      in the sockets block, under the server-sockets element, there is a commented out factory with the 
-      name "ssl".  The first step to configuring the server socket factory is uncommenting out this element.</p>
-      <p>The factory element contains several children.  Of these, it should only be necessary to adjust two or three children.</p>
-      <p>The required file element specifies the location of the keystore to be used by the factory.  This is specified
-      as a file path using Unix-style formatting.  The path is taken to be relative to the apps/james/ subdirectory of
-      the application installation directory unless an absolute path is specified.</p>
-      <p>The password element should be set to the keystore password.  This password should have been specified 
-      when the keystore was created, and it is required to open the keystore.  This value is required.</p>
-      <p>Finally, it may be necessary to adjust the type element.  This element can take on any keystore type 
-      supported by the JSSE provider being used (see the JSSE documentation for details).  The out of the box 
-      configuration specifies JKS (Java Keystore).</p>
-      <p>The remaining children should not need to be deleted or adjusted.</p>
+      <p></p>
+      <p><b>Preparing the Certificate Keystore</b></p>
+      <p>(Adapted from the Tomcat 4.1 documentation)</p>
+      <p>James currently operates only on JKS format keystores. This is Java's standard "Java KeyStore" format, and is the format created by the keytool command-line utility. This tool is included in the JDK.</p>
+      <p>To import an existing certificate into a JKS keystore, please read the documentation (in your JDK documentation package) about keytool.</p>
+      <p>To create a new keystore from scratch, containing a single self-signed Certificate, execute the following from a terminal command line:</p>
+      <p>keytool -genkey -alias james -keyalg RSA -keystore your_keystore_filename</p>
+      <p>(The RSA algorithm should be preferred as a secure algorithm, and this also ensures general compatibility with other servers and components.)</p>
+      <p>As a suggested standard, create the keystore in the james/conf directory, with a name like james.keystore.</p>
+      <p>After executing this command, you will first be prompted for the keystore password.</p>
+      <p>Next, you will be prompted for general information about this Certificate, such as company, contact name, and so on. This information may be displayed to users when importing into the certificate store of the client, so make sure that the information provided here matches what they will expect.</p>
+      <p>Important: in the "distinguished name", set the "common name" (CN) to the DNS name of your James server, the one you will use to access it from your mail client (like "mail.xyz.com").</p>
+      <p>Finally, you will be prompted for the key password, which is the password specifically for this Certificate (as opposed to any other Certificates stored in the same keystore file).</p>
+      <p>If everything was successful, you now have a keystore file with a Certificate that can be used by your server.</p>
+      <p>You MUST have only one certificate in the keystore file used by James.</p>
+      <p></p>
+      <p><b>Installing a Certificate from a Certificate Authority</b></p>
+      <p>(Adapted from the Tomcat 4.1 documentation</p>
+      <p>To obtain and install a Certificate from a Certificate Authority (like verisign.com, thawte.com or trustcenter.de) you should have read the previous section and then follow these instructions:</p>
+      <p>Create a local Certificate Signing Request (CSR)</p>
+      <p>In order to obtain a Certificate from the Certificate Authority of your choice you have to create a so called Certificate Signing Request (CSR). That CSR will be used by the Certificate Authority to create a Certificate that will identify your James server as "secure". To create a CSR follow these steps:</p>
+      <p>Create a local Certificate as described in the previous section.</p>
+      <p>The CSR is then created with:</p>
+      <p>keytool -certreq -keyalg RSA -alias james -file certreq.csr -keystore your_keystore_filename</p>
+      <p>Now you have a file called certreq.csr. The file is encoded in PEM format. You can submit it to the Certificate Authority (look at the documentation of the Certificate Authority website on how to do this). In return you get a Certificate.</p>
+      <p></p>
+      <p><b>Importing the Certificate</b></p>
+      <p>Now that you have your Certificate you can import it into you local keystore. First of all you may have to import a so called Chain Certificate or Root Certificate into your keystore (the major Certificate Authorities are already in place, so it's unlikely that you will need to perform this step). After that you can procede with importing your Certificate.</p>
+      <p>Optionally Importing a so called Chain Certificate or Root Certificate</p>
+      <p>Download a Chain Certificate from the Certificate Authority you obtained the Certificate from.</p>
+      <p>For Verisign.com go to: http://www.verisign.com/support/install/intermediate.html</p>
+      <p>For Trustcenter.de go to: http://www.trustcenter.de/certservices/cacerts/en/en.htm#server</p>
+      <p>For Thawte.com go to: http://www.thawte.com/certs/trustmap.html (seems no longer valid)</p>
+      <p>Import the Chain Certificate into you keystore</p>
+      <p>keytool -import -alias root -keystore your_keystore_filename -trustcacerts -file filename_of_the_chain_certificate</p>
+      <p></p>
+      <p><b>Importing the requested Certificate</b></p>
+      <p>And finally import your new Certificate (It must be in X509 format):</p>
+      <p>keytool -import -alias james -keystore your_keystore_filename -trustcacerts -file your_certificate_filename</p>
+      <p></p>
+      <p>See also: http://www.agentbob.info/agentbob/79.html</p>
 
     </subsection>
+    
+    <subsection name="Verifying a SSL/TLS-enabled James Server">
 
-    <subsection name="Configuring a Service to Use SSL/TLS">
-
-      <p>Each of the services - <a href="config-smtp-lmtp.html">SMTP</a>, 
-      <a href="config-pop3.html">POP3</a>, 
-      and <a href="config-remotemanager.html">RemoteManager</a> - supports use of TLS.  Each of
-      these services has an optional boolean configuration element <b>useTLS</b> which is used to toggle 
-      use of TLS for the service.  When this value is set to true, that particular service will use the "ssl" 
-      server socket factory to spawn server sockets.</p>
-
-    </subsection>
-
-    <subsection name="Verifying a SSL/TLS-enabled James Service">
-
-      <p>After you've configured a particular service to use TLS/SSL connections, the service port 
-      should no longer accept unencrypted TCP/IP connections.  This can be tested by using a telnet 
-      client to directly connect to the service port.  The telnet connection should simply hang until 
-      the client times out.</p>
+      <p>After you've configured a particular server to use TLS/SSL connections, the server port 
+        should no longer accept unencrypted TCP/IP connections.  This can be tested by using a telnet 
+        client to directly connect to the server port.  The telnet connection should simply hang until 
+        the client times out.</p>
   
       <p>To validate that the port is properly accepting SSL connections an SSL client can be used to 
-      open a connection to the service port.  One such client is OpenSSL, available from the 
-      <a href="http://www.openssl.org">OpenSSL web site</a>.  Follow the instructions provided with 
-      the SSL client to create a connection to the service port.  Upon connection, the usual 
-      service greeting should appear.</p>
+        open a connection to the server port.  One such client is OpenSSL, available from the 
+        <a href="http://www.openssl.org">OpenSSL web site</a>.  Follow the instructions provided with 
+        the SSL client to create a connection to the server port.  Upon connection, the usual 
+        server greeting should appear.</p>
     
     </subsection>
---> 
+
   </section>
 
   <section name="Simultaneous Support of SSL/TLS and non-SSL/TLS per Protocol">
 <!--
    <p>See smtp_ssl.xml in example folder.</p>
 -->
-  </section>
-  
+  </section>  
 
 </body>
 
