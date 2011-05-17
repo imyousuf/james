@@ -94,6 +94,12 @@
 
     </subsection>
     
+    <subsection name="JMX">
+    
+      <p>JMX (Java Management Extension) is used for the management.</p>
+  
+    </subsection>  
+
   </section>
   
 </body>
