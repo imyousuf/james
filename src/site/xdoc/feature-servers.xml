@@ -94,15 +94,6 @@
 
     </subsection>
     
-    <subsection name="RemoteManager">
-    
-      <p>James provides a simple telnet-based interface for control.  Through this interface you can add 
-      and delete users, configure per-user aliases and forward addresses, and shut down the server.</p>
-
-      <p>More on the configuring the RemoteManager can be found <a href="config-remotemanager.html">here</a>.</p>
-  
-    </subsection>  
-      
   </section>
   
 </body>
