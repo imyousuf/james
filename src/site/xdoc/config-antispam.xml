@@ -27,6 +27,32 @@
 
   <section name="Antispam Configuration">
   
+    <p>Apache James Server Anti-Spam system can be configured via
+       SMTP Hook (see <a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/smtpserver.xml">examples</a>).
+       and Mailet (see <a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/mailetcontainer.xml">examples</a>)
+       </p>
+    <ul>
+      <li>FastFail SMTP Hooks :This first part acts to reject before spooling
+          on the SMTP level. SpamAssasin hook can be used. 
+          Non-existent users, DSN filter, domains with invalid MX record, 
+          can also be rejected.</li>
+      <li>Black listing Mailet</li>
+      <li>Grey listing Mailet</li>
+      <li>SpamAssassin Mailet is designed to classify the messages as spam or not 
+          with an configurable score threshold. Usually a message will only be 
+          considered as spam if it matches multiple criteria; matching just a single test 
+          will not usually be enough to reach the threshold.</li>
+      <li>BayesianAnalysis in the Mailet uses Bayesian probability to classify mail as 
+          spam or not spam. It relies on the training data coming from the users’ judgment. 
+          Users need to manually judge as spam and send to spam@thisdomain.com, oppositely, 
+          if not spam they then send to not.spam@thisdomain.com. BayesianAnalysisfeeder learns 
+          from this training dataset, and build predictive models based on Bayesian probability. 
+          There will be a certain table for maintaining the frequency of Corpus for keywords 
+          in the database. Every 10 mins a thread in the BayesianAnalysis will check and update 
+          the table. Also, the correct approach is to send the original spam or non-spam 
+          as an attachment to another message sent to the feeder in order to avoid bias from the 
+          current sender's email header.</li>
+    </ul>
   </section>
 
 </body>
