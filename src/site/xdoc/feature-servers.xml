@@ -31,7 +31,7 @@
     
       <p>Apache James is an open source project intended to produce a robust, flexible, and powerful 
       enterprise class server that provides email and email-related services.  It is also designed to
-      be highly customizable, allowing administrators to configure James to process email in a 
+      be highly customizable, allowing administrators to configure Apache James to process email in a 
       nearly endless variety of fashions.</p>
       
       <p>The standard Apache James distribution deploys inside the Spring dependency injection container.
