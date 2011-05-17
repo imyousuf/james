@@ -23,6 +23,10 @@
     <title>Develop on James</title>
     <author email="site-dev@james.apache.org">James Project Web Team</author>
   </properties>
+  
+  <head>
+    <script type="text/javascript" src="./js/dev.js" />
+  </head>
 
 <body>
 
@@ -46,7 +50,8 @@
 
   <section name="Technical Architecture">
   
-    <img src="images/uml/org.apache.james-package.png"/>
+    <a href="images/uml/org.apache.james-package-large.png" id="high-level-arch-img-id"><img src="images/uml/org.apache.james-package.png"/></a>
+    <p><a href="images/uml/org.apache.james-package-large.png" id="high-level-arch-txt-id">Click to enlarge image</a></p>
   
     <p>James uses many other components: Spring, ActiveMQ, OpenJPA, Netty, Jackrabbit, Derby...</p>
     
