@@ -20,7 +20,9 @@ package org.apache.james.dnsservice.library;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.mailet.HostAddress;
@@ -49,6 +51,8 @@ public class MXHostAddressIterator implements Iterator<HostAddress> {
         this.useSingleIP = useSingleIP;
         this.logger = logger;
         this.defaultPort = defaultPort;
+        
+        init();
     }
 
     /*
@@ -57,70 +61,53 @@ public class MXHostAddressIterator implements Iterator<HostAddress> {
      * @see java.util.Iterator#hasNext()
      */
     public boolean hasNext() {
-        /*
-         * Make sure that when next() is called, that we can provide a
-         * HostAddress. This means that we need to have an inner iterator, and
-         * verify that it has addresses. We could, for example, run into a
-         * situation where the next mxHost didn't have any valid addresses.
-         */
-        if ((addresses == null || !addresses.hasNext()) && hosts.hasNext())
-            do {
-                String nextHostname = (String) hosts.next();
-                final String hostname;
-                final String port;
-
-                int idx = nextHostname.indexOf(':');
-                if (idx > 0) {
-                    port = nextHostname.substring(idx + 1);
-                    hostname = nextHostname.substring(0, idx);
-                } else {
-                    hostname = nextHostname;
-                    port = defaultPort + "";
-                }
-
-                InetAddress[] addrs = null;
-                try {
-                    if (useSingleIP) {
-                        addrs = new InetAddress[] { dns.getByName(hostname) };
-                    } else {
-                        addrs = dns.getAllByName(hostname);
-                    }
-                } catch (UnknownHostException uhe) {
-                    // this should never happen, since we just got
-                    // this host from mxHosts, which should have
-                    // already done this check.
-                    StringBuffer logBuffer = new StringBuffer(128).append("Couldn't resolve IP address for discovered host ").append(hostname).append(".");
-                    logger.error(logBuffer.toString());
-                }
-                final InetAddress[] ipAddresses = addrs;
-
-                addresses = new Iterator<HostAddress>() {
-                    int i = 0;
-
-                    public boolean hasNext() {
-                        return ipAddresses != null && i < ipAddresses.length;
-                    }
-
-                    public HostAddress next() {
-                        return new org.apache.mailet.HostAddress(hostname, "smtp://" + ipAddresses[i++].getHostAddress() + ":" + port);
-                    }
-
-                    public void remove() {
-                        throw new UnsupportedOperationException("remove not supported by this iterator");
-                    }
-                };
-            } while (!addresses.hasNext() && hosts.hasNext());
-
-        return addresses != null && addresses.hasNext();
+     
+        return addresses.hasNext();
     }
 
+    private void init() {
+        final List<HostAddress> hAddresses = new ArrayList<HostAddress>();
+        while (hosts.hasNext()) {
+            String nextHostname = (String) hosts.next();
+            final String hostname;
+            final String port;
+
+            int idx = nextHostname.indexOf(':');
+            if (idx > 0) {
+                port = nextHostname.substring(idx + 1);
+                hostname = nextHostname.substring(0, idx);
+            } else {
+                hostname = nextHostname;
+                port = defaultPort + "";
+            }
+
+            InetAddress[] addrs = null;
+            try {
+                if (useSingleIP) {
+                    addrs = new InetAddress[] { dns.getByName(hostname) };
+                } else {
+                    addrs = dns.getAllByName(hostname);
+                }
+            } catch (UnknownHostException uhe) {
+                // this should never happen, since we just got
+                // this host from mxHosts, which should have
+                // already done this check.
+                StringBuffer logBuffer = new StringBuffer(128).append("Couldn't resolve IP address for discovered host ").append(hostname).append(".");
+                logger.error(logBuffer.toString());
+            }
+            for (int i = 0; i < addrs.length; i++) {
+                hAddresses.add(new org.apache.mailet.HostAddress(hostname, "smtp://" + addrs[i].getHostAddress() + ":" + port));
+            }
+        }
+        addresses = hAddresses.iterator();
+    }
     /*
      * (non-Javadoc)
      * 
      * @see java.util.Iterator#next()
      */
     public HostAddress next() {
-        return addresses != null ? addresses.next() : null;
+        return addresses.next();
     }
 
     /**
