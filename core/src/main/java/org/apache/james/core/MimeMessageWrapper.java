@@ -643,10 +643,13 @@ public class MimeMessageWrapper extends MimeMessage implements Disposable {
         } else {
             try {
 
-                if (!bodyModified && headersModified && source != null) {
+                // Try to optimize if possible to prevent OOM on big mails.
+                // See JAMES-1252 for an example
+                if (!bodyModified && source != null) {
                     // ok only the headers were modified so we don't need to
                     // copy the whole message content into memory
                     InputStream in = source.getInputStream();
+                    
                     // skip over headers from original stream we want to use the
                     // in memory ones
                     new MailHeaders(in);
