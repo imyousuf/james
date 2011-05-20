@@ -152,6 +152,11 @@
         </amq:transportConnectors>
     </amq:broker>
     <amq:connectionFactory id="amqConnectionFactory" brokerURL="vm://james?create=false">
+        <amq:prefetchPolicy>
+            <!-- Disable prefetch so slow consuming can not block other threads -->
+            <!-- See JAMES-1253 -->
+            <amq:prefetchPolicy queuePrefetch="0" topicPrefetch="0"/>
+        </amq:prefetchPolicy>
         <property name="blobTransferPolicy" ref="blobTransferPolicy"/>
     </amq:connectionFactory>
     <bean id="blobTransferPolicy" class="org.apache.james.queue.activemq.FileSystemBlobTransferPolicy">
