@@ -20,6 +20,7 @@ Thank you for testing Apache James Server 3.0-M3!
     - Numerous IMAP bug fixes (better client support, memory improvement, NIO and IO support...)
     - Support for IMAP IDLE (RFC 2177, server transmit updates to the client in real time)
     - Support for IMAP User Flags
+    - Support for IMAP WITHIN Extensions (RFC 5032)
     - Telnet Management has been removed in favor of JMX with client shell
     - More metrics counters available via JMX
     - JPA validated against more databases (among others Oracle)
@@ -33,6 +34,7 @@ Thank you for testing Apache James Server 3.0-M3!
     - Composite Matchers
     - Mailing list functionality has been removed
     - More documentation on web site for configuration,...
+    - Java 1.6 mandatory
     - ... and much more, see details on https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=10411&version=12315512
   * What's new in 3.0-M3 for developers
     - Less maven modules
