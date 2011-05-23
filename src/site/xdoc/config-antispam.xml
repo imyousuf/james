@@ -27,15 +27,27 @@
 
   <section name="Antispam Configuration">
   
-    <p>Apache James Server Anti-Spam system can be configured via
-       SMTP Hook (see <a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/smtpserver.xml">examples</a>).
-       and Mailet (see <a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/mailetcontainer.xml">examples</a>)
-       </p>
+    <p>Apache James Server Anti-Spam system can be configured via two main different mechanisms:</p>
+    
     <ul>
-      <li>FastFail SMTP Hooks :This first part acts to reject before spooling
-          on the SMTP level. SpamAssasin hook can be used. 
-          Non-existent users, DSN filter, domains with invalid MX record, 
-          can also be rejected.</li>
+       <li>SMTP Hooks see <a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/smtpserver.xml">examples</a>.</li>
+       <li>Mailets: see <a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/mailetcontainer.xml">examples</a>.</li>
+    </ul>
+
+    <subsection name="AntiSpam SMTP Hooks">
+  
+      <p>"FastFail" SMTP Hooks acts to reject before spooling
+          on the SMTP level. SpamAssasin hook can be used as a fastfail hook, therefore
+          SpamAssassin must run as a server on the same machine as the Apache James Server.</p>
+      
+      <p>SMTP Hooks for non-existent users, DSN filter, domains with invalid MX record, 
+          can also be configured.</p>
+          
+    </subsection>
+
+    <subsection name="AntiSpam Mailets">
+    
+    <ul>
       <li>Black listing Mailet</li>
       <li>Grey listing Mailet</li>
       <li>SpamAssassin Mailet is designed to classify the messages as spam or not 
@@ -53,6 +65,9 @@
           as an attachment to another message sent to the feeder in order to avoid bias from the 
           current sender's email header.</li>
     </ul>
+    
+    </subsection>
+    
   </section>
 
 </body>
