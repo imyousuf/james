@@ -50,8 +50,8 @@
 
   <section name="Technical Architecture">
   
-    <a href="images/uml/org.apache.james-package-large.png" id="high-level-arch-img-id"><img src="images/uml/org.apache.james-package.png"/></a>
-    <p><a href="images/uml/org.apache.james-package-large.png" id="high-level-arch-txt-id">Click to enlarge image</a></p>
+    <a href="images/uml/org.apache.james-package_large.png" id="high-level-arch-img-id"><img src="images/uml/org.apache.james-package_small.png"/></a>
+    <p><a href="images/uml/org.apache.james-package_large.png" id="high-level-arch-txt-id">Click to enlarge image</a></p>
   
     <p>James uses many other components: Spring, ActiveMQ, OpenJPA, Netty, Jackrabbit, Derby...</p>
     
