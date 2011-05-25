@@ -31,13 +31,6 @@
 
 <section name="Extend James">
 
-  <subsection name="Modules Details">
-  
-    <a href="images/uml/org.apache.james-package-detail_large.png" id="arch-img-id"><img src="images/uml/org.apache.james-package-detail_small.png"/></a>
-    <p><a href="images/uml/org.apache.james-package-detail_large.png" id="arch-txt-id">Click to enlarge image</a></p>
-    
-  </subsection>
-  
   <subsection name="Custom Mailet">
   
     <p>See the <a href="dev-extend-mailet.html">mailet</a> page for more information.</p>
