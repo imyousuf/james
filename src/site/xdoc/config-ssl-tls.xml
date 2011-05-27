@@ -56,6 +56,18 @@
       <p>Each of these block has an optional boolean configuration element <b>socketTLS</b> and <b>startTLS</b> which is used to toggle 
          use of SSL or TLS for the service.</p>
          
+      <p>With socketTLS (SSL/TLS in Thunderbird), all the communication is encrypted.</p>
+
+      <p>With startTLS (STARTTLS in Thunderbird), the preamble is readable, but the rest is encrypted.</p>
+
+<code>
+* OK JAMES IMAP4rev1 Server  Server 192.168.1.4 is ready.
+* CAPABILITY IMAP4rev1 LITERAL+ CHILDREN WITHIN STARTTLS IDLE NAMESPACE UIDPLUS UNSELECT AUTH=PLAIN
+1 OK CAPABILITY completed.
+2 OK STARTTLS Begin TLS negotiation now.
+... rest is encrypted...
+</code>
+         
       <p>You can only enable one of the both at the same time for a service.</p>
 
       <p>It is also recommended to change the port number on which the service will listen:</p>
@@ -66,7 +78,7 @@
       </ul>
 
       <p>You will now need to create your certificate store and place it in the james/conf/ folder with the name you defined in the keystore tag.</p>
-
+      
     </subsection>
 
     <subsection name="Certificate Keystores">
