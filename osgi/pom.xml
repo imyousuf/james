@@ -46,7 +46,33 @@
        <url>http://zodiac.springsource.com/maven/bundles/milestone</url>
      </repository>
    </repositories>
-   <build/>
+   <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+         <configuration>       
+           <archive>
+            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile> 
+            <manifest>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+            <manifestEntries>
+              <Fragment-Host>org.springframework.osgi.extender</Fragment-Host>
+            </manifestEntries>
+          </archive>
+        </configuration>       
+        <executions>
+          <execution>
+            <goals>
+              <goal>jar</goal>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
   <dependencies> 
     <dependency>
