@@ -31,32 +31,32 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+<!--
+Inherit configuration from parent pom.
+-->
+        <executions>
+          <execution>
+            <goals>
+              <goal>jar</goal>
+<!--
+Allow tests to be used by other modules.
+Parent pom build failure prevents inheritance.
+-->
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+ 
+      <plugin>
         <groupId>org.apache.james</groupId>
         <artifactId>maven-mailetdocs-plugin</artifactId>
         <version>0.1</version>
         <configuration>
             <outputDirectory>target/mailetdocs</outputDirectory>
         </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-         <configuration>       
-           <archive>
-            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile> 
-            <manifest>
-              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-            </manifest>
-          </archive>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>jar</goal>
-              <goal>test-jar</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.felix</groupId>

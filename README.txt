@@ -1,26 +1,17 @@
-   _                    _             __                           
-  /_\  _ __   __ _  ___| |__   ___    \ \  __ _ _ __ ___   ___ ___ 
- //_\\| '_ \ / _` |/ __| '_ \ / _ \    \ \/ _` | '_ ` _ \ / _ | __|
-/  _  \ |_) | (_| | (__| | | |  __/ /\_/ / (_| | | | | | |  __|__ \
-\_/ \_/ .__/ \__,_|\___|_| |_|\___| \___/ \__,_|_| |_| |_|\___|___/
-      |_|                                                          
-
- __                            _____    ___               _____ 
-/ _\ ___ _ ____   _____ _ __  |___ /   / _ \        /\/\ |___ / 
-\ \ / _ \ '__\ \ / / _ \ '__|   |_ \  | | | |_____ /    \  |_ \ 
-_\ \  __/ |   \ V /  __/ |     ___) |_| |_| |_____/ /\/\ \___) |
-\__/\___|_|    \_/ \___|_|    |____/(_)\___/      \/    \/____/ 
-                                                                
---------------------------------------------------------------------                                                            
 ### http://james.apache.org/server/3/ ###
 
-Thank you for testing Apache James Server 3.0-M3!
+Thank you for testing Apache James Server 3.0-beta1!
 
-  * What's new in 3.0-M3 for end users
+  * What's new in 3.0-beta1 for end users
     - Numerous IMAP bug fixes (better client support, memory improvement, NIO and IO support...)
     - Support for IMAP IDLE (RFC 2177, server transmit updates to the client in real time)
     - Support for IMAP User Flags
     - Support for IMAP WITHIN Extensions (RFC 5032)
+    - Support for IMAP SEARCHRES
+    - Support for IMAP AUTH=PLAIN
+    - Support for IMAP ENABLE
+    - Support for IMAP ESEARCH
+    - Support for IMAP I18NLEVEL=1
     - Telnet Management has been removed in favor of JMX with client shell
     - More metrics counters available via JMX
     - JPA validated against more databases (among others Oracle)
@@ -36,7 +27,7 @@ Thank you for testing Apache James Server 3.0-M3!
     - More documentation on web site for configuration,...
     - Java 1.6 mandatory
     - ... and much more, see details on https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=10411&version=12315512
-  * What's new in 3.0-M3 for developers
+  * What's new in 3.0-beta1 for developers
     - Less maven modules
     - Maven 3.0.2 required to build
     - Upgrade to latest frameworks versions (netty, activemq, jackrabbit...)
