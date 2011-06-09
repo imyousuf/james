@@ -27,7 +27,7 @@
   <groupId>org.apache.james</groupId>
   <artifactId>james-server</artifactId>
   <name>Apache James Server</name>
-  <version>3.0-beta2-SNAPSHOT</version>
+  <version>3.0-beta1</version>
   <description>The Apache Java Enterprise Mail Server (a.k.a. JAMES Server)</description>
   <url>http://james.apache.org/server/head/</url>
   <inceptionYear>2002</inceptionYear>
@@ -79,9 +79,9 @@
     </notifiers>
   </ciManagement>
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/james/server/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/james/server/trunk</developerConnection>
-    <url>http://svn.apache.org/viewcvs.cgi/james/server/trunk?root=Apache-SVN</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta1</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta1</developerConnection>
+    <url>http://svn.apache.org/viewcvs.cgi/james/server/trunk/tags/james-server-3.0-beta1?root=Apache-SVN</url>
   </scm>
   
   <repositories>
