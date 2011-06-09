@@ -21,6 +21,7 @@ package org.apache.james.imapserver.netty;
 
 import java.io.InputStream;
 
+import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.james.imap.decode.DecodingException;
 import org.apache.james.imap.decode.ImapRequestLineReader;
 import org.apache.james.imap.decode.base.EolInputStream;
@@ -90,7 +91,8 @@ public class NettyImapRequestLineReader extends AbstractNettyImapRequestLineRead
         nextSeen = false;
         nextChar = 0;
 
-        ChannelBufferInputStream in = new ChannelBufferInputStream(buffer, size);
+        // limit the size via commons-io as ChannelBufferInputStream size limiting is buggy
+        InputStream in = new BoundedInputStream(new ChannelBufferInputStream(buffer), size); 
         if (extraCRLF) {
             return new EolInputStream(this, in);
         } else {
