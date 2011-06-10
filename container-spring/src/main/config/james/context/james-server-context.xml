@@ -39,6 +39,11 @@
     <bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor">
         <property name="order" value="3" />
     </bean>
+    
+    <!-- 
+      Enable support for Persistence Annotations processing.
+     -->
+    <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
 
     <!-- 
       Spring "Bean-Post-Processor" for LogEnabled interface.
