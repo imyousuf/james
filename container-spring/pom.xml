@@ -42,15 +42,12 @@
 
   <build>
     <plugins>
-<!--
-There is no longer a clear public license for a dependent artifact in Maven central. 
-Commenting out until this is resolved
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>appassembler-maven-plugin</artifactId>
-        <version>1.1.1</version>
+        <version>1.0</version>
         <configuration>
-          <!- - Include etc/ in the beginning of the classpath declaration in the bin scripts - ->
+          <!-- Include etc/ in the beginning of the classpath declaration in the bin scripts -->
           <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
           <configurationDirectory>conf</configurationDirectory>
           <target>${project.build.directory}/appassembler</target>
@@ -58,9 +55,9 @@ Commenting out until this is resolved
           <repositoryName>lib</repositoryName>
           <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
           <environmentSetupFileName>setenv</environmentSetupFileName>
-          <!- -  set some sane defaults for memory - ->
+          <!--   set some sane defaults for memory -->
           <extraJvmArguments>-Xms128m -Xmx512m -Djava.system.class.loader=org.apache.james.container.spring.context.JamesClassLoader ${jmx.system-properties} ${javamail.system-properties} ${james.system-properties}</extraJvmArguments>
-          <!- - Generate bin scripts for windows and unix per default - ->
+          <!-- Generate bin scripts for windows and unix per default -->
           <platforms>
             <platform>windows</platform>
             <platform>unix</platform>
@@ -68,9 +65,9 @@ Commenting out until this is resolved
           <programs>
             <program>
               <mainClass>org.apache.james.container.spring.Main</mainClass>
-              <!- - call it only run because appassemble will add .bat by default on windows - ->              
+              <!-- call it only run because appassemble will add .bat by default on windows -->              
               <name>run</name>
-              <!- - Only generate windows bat script for this application - ->
+              <!-- Only generate windows bat script for this application -->
               <platforms>
                 <platform>windows</platform>
               </platforms>
@@ -78,18 +75,18 @@ Commenting out until this is resolved
             <program>
               <mainClass>org.apache.james.container.spring.Main</mainClass>
               <name>run.sh</name>
-              <!- - Only generate unix shell script for this application - ->
+              <!-- Only generate unix shell script for this application -->
               <platforms>
                 <platform>unix</platform>
               </platforms>
             </program>
             
-            <!- - This create the scripts for the command line administration client. Maybe this should better be moved to the cli module, but I'm not sure yet - ->
+            <!-- This create the scripts for the command line administration client. Maybe this should better be moved to the cli module, but I'm not sure yet -->
             <program>
               <mainClass>org.apache.james.cli.ServerCmd</mainClass>
-              <!- - call it only run because appassemble will add .bat by default on windows - ->              
+              <!-- call it only run because appassemble will add .bat by default on windows -->              
               <name>james-cli</name>
-              <!- - Only generate windows bat script for this application - ->
+              <!-- Only generate windows bat script for this application -->
               <platforms>
                 <platform>windows</platform>
               </platforms>
@@ -97,12 +94,17 @@ Commenting out until this is resolved
             <program>
               <mainClass>org.apache.james.cli.ServerCmd</mainClass>
               <name>james-cli.sh</name>
-              <!- - Only generate unix shell script for the client - ->
+              <!-- Only generate unix shell script for the client -->
               <platforms>
                 <platform>unix</platform>
               </platforms>
             </program>
           </programs>
+
+<!--
+There is no a public license for the JSW artifact in Maven central,
+and public licenses no longer appear to be available from the rights holder. 
+Commenting out until this is resolved
                    
           <daemons>
             <daemon>
@@ -220,7 +222,7 @@ Commenting out until this is resolved
                          
             </daemon>
           </daemons>
-          
+          -->
         </configuration>
         <executions>
           <execution>
@@ -228,7 +230,12 @@ Commenting out until this is resolved
             <phase>package</phase>
             <goals>
               <goal>assemble</goal>
+<!--
+There is no a public license for the JSW artifact in Maven central,
+and public licenses no longer appear to be available from the rights holder. 
+Commenting out until this is resolved.
               <goal>generate-daemons</goal>
+-->
             </goals>
           </execution>
         </executions>
@@ -243,22 +250,32 @@ Commenting out until this is resolved
             <configuration>
 
               <tasks>
-                <!- - this is only needed because windows freak out on long cmd lines, so we strip of the absolute path
+                <!-- this is only needed because windows freak out on long cmd lines, so we strip of the absolute path
                      from the lib dir to make windows happy again
-                - ->
+                -->
                 <replace file="${project.build.directory}/appassembler/bin/run.bat" token="%BASEDIR%\lib" value="..\lib" />
                 <replace file="${project.build.directory}/appassembler/bin/run.sh" token="setenv" value="setenv.sh" />
                 
-                <!- - this is needed because appassembler is not really smart on some settings - ->
+                <!-- this is needed because appassembler is not really smart on some settings -->
+<!--
+There is no a public license for the JSW artifact in Maven central,
+and public licenses no longer appear to be available from the rights holder. 
+Commenting out until this is resolved
+
                 <replace file="${project.build.directory}/appassembler/jsw/james/conf/wrapper.conf" token="lib/wrapper.jar" value="%REPO_DIR%/wrapper.jar" />
                 <replace file="${project.build.directory}/appassembler/jsw/james/bin/james" token="logs" value="var" />
-                
-                <!- -  copy the linux wrapper-linux-x86-32 to wrapper, so use it as default if no matching wrapper was found- ->
+-->                
+                <!--  copy the linux wrapper-linux-x86-32 to wrapper, so use it as default if no matching wrapper was found-->
+<!--
+There is no a public license for the JSW artifact in Maven central,
+and public licenses no longer appear to be available from the rights holder. 
+Commenting out until this is resolved
+
                 <copy file="${project.build.directory}/appassembler/jsw/james/bin/wrapper-linux-x86-32" tofile="${project.build.directory}/appassembler/jsw/james/bin/wrapper" />
-             
-                <!- - this is only needed because windows freak out on long cmd lines, so we strip of the absolute path
+-->             
+                <!-- this is only needed because windows freak out on long cmd lines, so we strip of the absolute path
                      from the lib dir to make windows happy again
-                - ->
+                -->
                 <replace file="${project.build.directory}/appassembler/bin/james-cli.bat" token="%BASEDIR%\lib" value="..\lib" />
                 <replace file="${project.build.directory}/appassembler/bin/james-cli.sh" token="setenv" value="setenv.sh" />
               </tasks>
@@ -270,7 +287,7 @@ Commenting out until this is resolved
           </execution>
         </executions>
       </plugin>
-      -->
+      
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
