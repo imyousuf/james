@@ -30,7 +30,6 @@
       <directory>..</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>BUILD*</include>
         <include>LICENSE*</include>
         <include>NOTICE*</include>
         <include>README*</include>
