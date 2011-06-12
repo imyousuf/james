@@ -315,7 +315,13 @@
               <targetPath>WEB-INF/conf/</targetPath>
               
             </resource>
-
+            <resource>
+              <!--
+              An inelegant and fagile way to add LICENSE, NOTICE and DEPENDENCIES.
+              Is there a better way? 
+              -->
+              <directory>target/maven-shared-archive-resources</directory>
+            </resource>
           </webResources>
         </configuration>
         <executions>
