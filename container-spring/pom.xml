@@ -99,13 +99,7 @@
                 <platform>unix</platform>
               </platforms>
             </program>
-          </programs>
-
-<!--
-There is no a public license for the JSW artifact in Maven central,
-and public licenses no longer appear to be available from the rights holder. 
-Commenting out until this is resolved
-                   
+          </programs>                   
           <daemons>
             <daemon>
               <id>james</id>
@@ -114,6 +108,68 @@ Commenting out until this is resolved
                 <commandLineArgument>start</commandLineArgument>
               </commandLineArguments>
               <platforms>
+<!--
+=======================================================================
+
+JSW relies on software licensed under the following "Tanuki Software License" 
+
+BEGIN Tanuki Software License =========================================
+  Copyright (c) 1999, 2006 Tanuki Software, Inc.
+
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of the Java Service Wrapper and associated
+  documentation files (the "Software"), to deal in the Software
+  without  restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sub-license,
+  and/or sell copies of the Software, and to permit persons to
+  whom the Software is furnished to do so, subject to the
+  following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+  NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
+  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.
+
+
+  Portions of the Software have been derived from source code
+  developed by Silver Egg Technology under the following license:
+
+  BEGIN Silver Egg Techology License =================================
+    
+    Copyright (c) 2001 Silver Egg Technology
+    
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the "Software"), to deal in the Software without 
+    restriction, including without limitation the rights to use, 
+    copy, modify, merge, publish, distribute, sub-license, and/or 
+    sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following 
+    conditions:
+    
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+    NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
+    
+  END Silver Egg Techology License =====================================
+END Tanuki Software License ============================================
+========================================================================
+-->
                 <platform>jsw</platform>
               </platforms>   
               <generatorConfigurations>
@@ -230,12 +286,7 @@ Commenting out until this is resolved
             <phase>package</phase>
             <goals>
               <goal>assemble</goal>
-<!--
-There is no a public license for the JSW artifact in Maven central,
-and public licenses no longer appear to be available from the rights holder. 
-Commenting out until this is resolved.
               <goal>generate-daemons</goal>
--->
             </goals>
           </execution>
         </executions>
@@ -257,22 +308,11 @@ Commenting out until this is resolved.
                 <replace file="${project.build.directory}/appassembler/bin/run.sh" token="setenv" value="setenv.sh" />
                 
                 <!-- this is needed because appassembler is not really smart on some settings -->
-<!--
-There is no a public license for the JSW artifact in Maven central,
-and public licenses no longer appear to be available from the rights holder. 
-Commenting out until this is resolved
-
                 <replace file="${project.build.directory}/appassembler/jsw/james/conf/wrapper.conf" token="lib/wrapper.jar" value="%REPO_DIR%/wrapper.jar" />
                 <replace file="${project.build.directory}/appassembler/jsw/james/bin/james" token="logs" value="var" />
--->                
-                <!--  copy the linux wrapper-linux-x86-32 to wrapper, so use it as default if no matching wrapper was found-->
-<!--
-There is no a public license for the JSW artifact in Maven central,
-and public licenses no longer appear to be available from the rights holder. 
-Commenting out until this is resolved
 
+                <!--  copy the linux wrapper-linux-x86-32 to wrapper, so use it as default if no matching wrapper was found-->
                 <copy file="${project.build.directory}/appassembler/jsw/james/bin/wrapper-linux-x86-32" tofile="${project.build.directory}/appassembler/jsw/james/bin/wrapper" />
--->             
                 <!-- this is only needed because windows freak out on long cmd lines, so we strip of the absolute path
                      from the lib dir to make windows happy again
                 -->
