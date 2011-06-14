@@ -78,11 +78,10 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
             domains = entityManager.createNamedQuery("listDomainNames").getResultList();
             transaction.commit();
         } catch (PersistenceException e) {
-            getLogger().debug("Failed to list domains", e);
+            getLogger().error("Failed to list domains", e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
-
             throw new DomainListException("Unable to retrieve domains", e);
         } finally {
             entityManager.close();
@@ -110,7 +109,7 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
             transaction.commit();
             return false;
         } catch (PersistenceException e) {
-            getLogger().debug("Failed to find domain", e);
+            getLogger().error("Failed to find domain", e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
@@ -135,7 +134,7 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
             entityManager.persist(jpaDomain);
             transaction.commit();
         } catch (PersistenceException e) {
-            getLogger().debug("Failed to save domain", e);
+            getLogger().error("Failed to save domain", e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
@@ -159,7 +158,7 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
             entityManager.createNamedQuery("deleteDomainByName").setParameter("name", domain).executeUpdate();
             transaction.commit();
         } catch (PersistenceException e) {
-            getLogger().debug("Failed to remove domain", e);
+            getLogger().error("Failed to remove domain", e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
