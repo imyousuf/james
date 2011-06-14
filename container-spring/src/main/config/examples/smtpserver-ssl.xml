@@ -18,13 +18,14 @@
  -->
  <!--
    You can add a second SMTP server with SSL enabled in spring context
-     <bean id="smtpserver-ssl" class="org.apache.james.smtpserver.netty.SMTPServer">
-         <property name="protocolHandlerChain" ref="smtpProtocolHandlerChain-ssl"/>
-     </bean>
-     <bean id="smtpProtocolHandlerChain-ssl" class="org.apache.james.container.spring.bean.postprocessor.ProtocolHandlerChainPostProcessor">
-       <property name="coreHandlersPackage" value="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>
-       <property name="beanName" value="smtpserver-ssl"/>
-     </bean> 
+    <bean id="smtpserver-ssl" class="org.apache.james.smtpserver.netty.SMTPServer">
+    <property name="protocolHandlerChain" ref="smtpProtocolHandlerChain-ssl"/>
+    </bean>
+    <bean id="smtpProtocolHandlerChain-ssl" class="org.apache.james.container.spring.bean.postprocessor.ProtocolHandlerChainPostProcessor">
+      <property name="coreHandlersPackage" value="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>
+      <property name="jmxHandlersPackage" value="org.apache.james.smtpserver.jmx.JMXHandlersLoader"/>
+      <property name="beanName" value="smtpserver-ssl"/>
+    </bean> 
    You also need to define another jmxName (see https://issues.apache.org/jira/browse/JAMES-1105)
  -->
  <smtpserver enabled="true">
