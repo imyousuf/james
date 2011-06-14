@@ -85,12 +85,13 @@
     
       <p>To use TLS/SSL inside James you will need a certificate keystore.</p>
       <p></p>
-      <p><b>Preparing the Certificate Keystore</b></p>
+      
+      <p><b>Creating your own Certificate Keystore</b></p>
         <p>(Adapted from the Tomcat 4.1 documentation)</p>
         <p>James currently operates only on JKS format keystores. This is Java's standard "Java KeyStore" format, and is the format created by the keytool command-line utility. This tool is included in the JDK.</p>
         <p>To import an existing certificate into a JKS keystore, please read the documentation (in your JDK documentation package) about keytool.</p>
         <p>To create a new keystore from scratch, containing a single self-signed Certificate, execute the following from a terminal command line:</p>
-        <p>keytool -genkey -alias james -keyalg RSA -keystore your_keystore_filename</p>
+        <p><code>keytool -genkey -alias james -keyalg RSA -keystore your_keystore_filename</code></p>
         <p>(The RSA algorithm should be preferred as a secure algorithm, and this also ensures general compatibility with other servers and components.)</p>
         <p>As a suggested standard, create the keystore in the james/conf directory, with a name like james.keystore.</p>
         <p>After executing this command, you will first be prompted for the keystore password.</p>
@@ -100,7 +101,8 @@
         <p>If everything was successful, you now have a keystore file with a Certificate that can be used by your server.</p>
         <p>You MUST have only one certificate in the keystore file used by James.</p>
         <p></p>
-      <p><b>Installing a Certificate from a Certificate Authority</b></p>
+      
+      <p><b>Installing a Certificate provided by a Certificate Authority</b></p>
         <p>(Adapted from the Tomcat 4.1 documentation</p>
         <p>To obtain and install a Certificate from a Certificate Authority (like verisign.com, thawte.com or trustcenter.de) you should have read the previous section and then follow these instructions:</p>
         <p>Create a local Certificate Signing Request (CSR)</p>
@@ -138,6 +140,17 @@
         <a href="http://www.openssl.org">OpenSSL web site</a>.  Follow the instructions provided with 
         the SSL client to create a connection to the server port.  Upon connection, the usual 
         server greeting should appear.</p>
+        
+      <source>
+/usr/bin/openssl s_client -quiet -connect localhost:465
+depth=0 /C=Unknown/ST=Unknown/L=Unknown/O=Unknown/OU=Unknown/CN=Unknown
+verify error:num=18:self signed certificate
+verify return:1
+depth=0 /C=Unknown/ST=Unknown/L=Unknown/O=Unknown/OU=Unknown/CN=Unknown
+verify return:1
+220 192.168.0.208 SMTP Server (JAMES SMTP Server) ready Thu, 9 Jun
+2011 20:31:07 +0200 (CEST)
+</source>
     
     </subsection>
 
