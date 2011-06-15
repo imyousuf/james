@@ -88,6 +88,9 @@ public class MXHostAddressIterator implements Iterator<HostAddress> {
                 } else {
                     addrs = dns.getAllByName(hostname);
                 }
+                for (int i = 0; i < addrs.length; i++) {
+                    hAddresses.add(new org.apache.mailet.HostAddress(hostname, "smtp://" + addrs[i].getHostAddress() + ":" + port));
+                }
             } catch (UnknownHostException uhe) {
                 // this should never happen, since we just got
                 // this host from mxHosts, which should have
@@ -95,9 +98,7 @@ public class MXHostAddressIterator implements Iterator<HostAddress> {
                 StringBuffer logBuffer = new StringBuffer(128).append("Couldn't resolve IP address for discovered host ").append(hostname).append(".");
                 logger.error(logBuffer.toString());
             }
-            for (int i = 0; i < addrs.length; i++) {
-                hAddresses.add(new org.apache.mailet.HostAddress(hostname, "smtp://" + addrs[i].getHostAddress() + ":" + port));
-            }
+
         }
         addresses = hAddresses.iterator();
     }
