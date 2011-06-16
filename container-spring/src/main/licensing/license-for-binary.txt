@@ -214,4 +214,8 @@ Within the lib directory
     from The Legion of the Bouncy Castle http://www.bouncycastle.org/
       bcmail-jdk15-1.45.jar
       bcprov-jdk15-1.45.jar
-
+  placed in the public domain 
+    by The AOP Alliance http://aopalliance.sourceforge.net/
+      aopalliance-1.0.jar
+    by Doug Lea
+      concurrent-1.3.4.jar

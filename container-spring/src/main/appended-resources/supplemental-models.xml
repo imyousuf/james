@@ -345,6 +345,34 @@ The Legion Of The Bouncy Castle
         </organization>
     </project>
   </supplement>
+ <!-- 
  
+ =============================================================
+ The AOP Alliance
+  -->
+   <supplement>
+    <project>
+        <groupId>aopalliance</groupId>
+        <artifactId>aopalliance</artifactId>
+        <organization>
+            <name>The AOP Alliance</name>
+            <url>http://aopalliance.sourceforge.net/</url>
+        </organization>
+    </project>
+  </supplement>
+ <!-- 
  
+ =============================================================
+ Doug Lea
+  -->
+   <supplement>
+    <project>
+        <groupId>concurrent</groupId>
+        <artifactId>concurrent</artifactId>
+        <organization>
+            <name>Doug Lea</name>
+            <url>http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html/</url>
+        </organization>
+    </project>
+  </supplement> 
 </supplementalDataModels>
