@@ -390,4 +390,21 @@ The Legion Of The Bouncy Castle
         </organization>
     </project>
   </supplement>  
+<!-- 
+
+
+==============================================================
+dnsjava
+ -->
+   <supplement>
+    <project>
+        <groupId>dnsjava</groupId>
+        <artifactId>dnsjava</artifactId>
+        <organization>
+            <name>dnsjava</name>
+            <url>http://www.dnsjava.org</url>
+        </organization>
+    </project>
+  </supplement>  
+ 
 </supplementalDataModels>
