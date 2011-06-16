@@ -406,5 +406,20 @@ dnsjava
         </organization>
     </project>
   </supplement>  
+<!-- 
+
+=============================================================
+Christian Kohlschütter
+ -->
+   <supplement>
+    <project>
+        <groupId>de.l3s.boilerpipe</groupId>
+        <artifactId>boilerpipe</artifactId>
+        <organization>
+            <name>Boilerpipe</name>
+            <url>http://code.google.com/p/boilerpipe/</url>
+        </organization>
+    </project>
+  </supplement>  
  
 </supplementalDataModels>
