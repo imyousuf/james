@@ -91,12 +91,6 @@ Parent pom build failure prevents inheritance.
     </dependency>  
     
     <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>annotations</artifactId>
-      <scope>compile</scope>
-    </dependency> 
-
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
