@@ -374,5 +374,20 @@ The Legion Of The Bouncy Castle
             <url>http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html/</url>
         </organization>
     </project>
-  </supplement> 
+  </supplement>
+ <!-- 
+ 
+ =============================================================
+ Drew Noakes
+  -->
+   <supplement>
+    <project>
+        <groupId>com.drewnoakes</groupId>
+        <artifactId>metadata-extractor</artifactId>
+        <organization>
+            <name>Drew Noakes</name>
+            <url>http://www.drewnoakes.com/code/exif/</url>
+        </organization>
+    </project>
+  </supplement>  
 </supplementalDataModels>
