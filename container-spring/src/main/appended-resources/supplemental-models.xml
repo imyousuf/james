@@ -426,7 +426,7 @@ Boilerpipe
 =============================================================
 John Cowan
  -->
-    <supplement>
+  <supplement>
     <project>
         <groupId>org.ccil.cowan.tagsoup</groupId>
         <artifactId>tagsoup</artifactId>
@@ -436,5 +436,19 @@ John Cowan
         </organization>
     </project>
   </supplement>  
- 
+<!-- 
+
+=============================================================
+Serp
+ -->
+  <supplement>
+    <project>
+        <groupId>net.sourceforge.serp</groupId>
+        <artifactId>serp</artifactId>
+        <organization>
+            <name>Serp</name>
+            <url>http://serp.sourceforge.net</url>
+        </organization>
+    </project>
+  </supplement>  
 </supplementalDataModels>
