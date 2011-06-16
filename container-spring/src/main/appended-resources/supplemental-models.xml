@@ -409,7 +409,7 @@ dnsjava
 <!-- 
 
 =============================================================
-Christian Kohlschütter
+Boilerpipe
  -->
    <supplement>
     <project>
@@ -418,6 +418,21 @@ Christian Kohlschütter
         <organization>
             <name>Boilerpipe</name>
             <url>http://code.google.com/p/boilerpipe/</url>
+        </organization>
+    </project>
+  </supplement>  
+<!-- 
+
+=============================================================
+John Cowan
+ -->
+    <supplement>
+    <project>
+        <groupId>org.ccil.cowan.tagsoup</groupId>
+        <artifactId>tagsoup</artifactId>
+        <organization>
+            <name>John Cowan</name>
+            <url>http://home.ccil.org/~cowan</url>
         </organization>
     </project>
   </supplement>  

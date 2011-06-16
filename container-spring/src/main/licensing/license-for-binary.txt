@@ -195,6 +195,8 @@ Within the lib directory
       spring-web-3.0.5.RELEASE.jar
    from Boilerpipe http://code.google.com/p/boilerpipe/
       boilerpipe-1.1.0.jar
+   from John Cowan http://home.ccil.org/~cowan/XML/tagsoup/
+      tagsoup-1.2.jar
   licensed under the Bouncy Castle Licence http://www.bouncycastle.org/licence.html (as follows)
             Copyright (c) 2000 - 2011 The Legion Of The Bouncy Castle (http://www.bouncycastle.org)
 
