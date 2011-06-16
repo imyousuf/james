@@ -18,12 +18,12 @@
   <context-param>
     <param-name>contextConfigLocation</param-name>
     <param-value>
-      /WEB-INF/conf/spring-beans.xml
+      /WEB-INF/conf/context/james-server-context.xml
     </param-value>
   </context-param>
   <context-param>
      <param-name>contextClass</param-name>
-     <param-value>org.apache.james.container.spring.JamesServerWebApplicationContext</param-value>
+     <param-value>org.apache.james.container.spring.context.web.JamesServerWebApplicationContext</param-value>
    </context-param>
    <listener>
       <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
