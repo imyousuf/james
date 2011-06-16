@@ -28,7 +28,7 @@
   <artifactId>james-server</artifactId>
   <name>Apache James Server</name>
   <version>3.0-beta2-SNAPSHOT</version>
-  <description>The Apache Java Enterprise Mail Server (a.k.a. JAMES Server)</description>
+  <description>Apache James Mail Server</description>
   <url>http://james.apache.org/server/head/</url>
   <inceptionYear>2002</inceptionYear>
   <packaging>pom</packaging>
