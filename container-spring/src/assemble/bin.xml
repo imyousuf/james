@@ -30,8 +30,6 @@
       <directory>..</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>LICENSE*</include>
-        <include>NOTICE*</include>
         <include>README*</include>
       </includes>
     </fileSet>
@@ -127,6 +125,19 @@
       <outputDirectory>bin</outputDirectory>
       <fileMode>0755</fileMode>
     </fileSet>
-    
   </fileSets>
+  <files>
+     <file>
+       <source>src/main/licensing/notice-for-binary.txt</source>
+       <outputDirectory>/</outputDirectory>
+       <destName>NOTICE</destName>
+       <lineEnding>crlf</lineEnding>
+     </file>
+     <file>
+       <source>src/main/licensing/license-for-binary.txt</source>
+       <outputDirectory>/</outputDirectory>
+       <destName>LICENSE</destName>
+       <lineEnding>crlf</lineEnding>
+     </file>
+   </files>
 </assembly>
