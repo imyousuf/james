@@ -319,4 +319,32 @@ d5c550739c4c0cb7ca527ef46c9aed72fb215eee  org.springframework.web-3.0.5.RELEASE.
     </project>
   </supplement>
   
+  
+<!-- 
+
+===========================================================
+The Legion Of The Bouncy Castle
+ -->
+   <supplement>
+    <project>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcmail-jdk15</artifactId>
+        <organization>
+            <name>The Legion of the Bouncy Castle</name>
+            <url>http://www.bouncycastle.org/</url>
+        </organization>
+    </project>
+  </supplement>
+   <supplement>
+    <project>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk15</artifactId>
+        <organization>
+            <name>The Legion of the Bouncy Castle</name>
+            <url>http://www.bouncycastle.org/</url>
+        </organization>
+    </project>
+  </supplement>
+ 
+ 
 </supplementalDataModels>
