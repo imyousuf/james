@@ -1370,7 +1370,7 @@
     <activemq.version>5.4.2</activemq.version>
     <spring.version>3.0.5.RELEASE</spring.version>
     <mailbox.version>0.2</mailbox.version>
-    <imap.version>0.3-SNAPSHOT</imap.version>
+    <imap.version>0.2.1</imap.version>
     <protocols.version>1.4</protocols.version>
     <jsieve.version>0.4</jsieve.version>
     <jackrabbit.version>2.2.5</jackrabbit.version>
