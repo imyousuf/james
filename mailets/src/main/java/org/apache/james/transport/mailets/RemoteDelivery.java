@@ -897,7 +897,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             // MX record. Just log the exception. We'll worry
                             // about
                             // failing the message at the end of the loop.
-                            log(me.getMessage());
+                            
+                            // Also include the stacktrace if debug is enabled. See JAMES-1257
+                            if (isDebug) {
+                                log(me.getMessage(), me.getCause());
+                            } else {
+                                log(me.getMessage());
+                            }
                             continue;
                         }
                         // if the transport is a SMTPTransport (from sun) some
