@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.apache.james.mailbox.Content;
 import org.apache.james.mailbox.InputStreamContent;
@@ -41,7 +42,6 @@ import org.apache.james.mailbox.MessageRange;
 import org.apache.james.mailbox.MessageResult;
 import org.apache.james.mailbox.MessageResult.FetchGroup;
 import org.apache.james.mailbox.MessageResult.Header;
-import org.apache.james.mailbox.util.FetchGroupImpl;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.Request;
@@ -52,7 +52,20 @@ import org.apache.james.protocols.api.Response;
  */
 public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
     private final static String COMMAND_NAME = "TOP";
+    private final static FetchGroup GROUP = new FetchGroup() {
 
+        @Override
+        public int content() {
+            return BODY_CONTENT | HEADERS;
+        }
+
+        @Override
+        public Set<PartContentDescriptor> getPartContentDescriptors() {
+            return null;
+        }
+        
+    };
+    
     /**
      * Handler method called upon receipt of a TOP command. This command
      * retrieves the top N lines of a specified message in the mailbox.
@@ -95,9 +108,8 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                 MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
                 Long uid = uidList.get(num - 1).getUid();
                 if (deletedUidList.contains(uid) == false) {
-                    FetchGroupImpl fetchGroup = new FetchGroupImpl(FetchGroup.BODY_CONTENT);
-                    fetchGroup.or(FetchGroup.HEADERS);
-                    Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.one(uid), fetchGroup, mailboxSession);
+
+                    Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.one(uid), GROUP, mailboxSession);
 
                     if (results.hasNext()) {
                         MessageResult result = results.next();
@@ -209,7 +221,7 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
         }
 
         @Override
-        public synchronized int read() throws IOException {
+        public int read() throws IOException {
             if (limit != -1) {
                 if (count <= limit) {
                     int a = in.read();

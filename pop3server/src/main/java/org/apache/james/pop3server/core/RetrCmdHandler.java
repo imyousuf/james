@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.apache.james.mailbox.Content;
 import org.apache.james.mailbox.InputStreamContent;
@@ -37,7 +38,6 @@ import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.MessageRange;
 import org.apache.james.mailbox.MessageResult;
 import org.apache.james.mailbox.MessageResult.FetchGroup;
-import org.apache.james.mailbox.util.FetchGroupImpl;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.CommandHandler;
@@ -50,7 +50,19 @@ import org.apache.james.protocols.api.Response;
 public class RetrCmdHandler implements CommandHandler<POP3Session> {
 
     private final static String COMMAND_NAME = "RETR";
+    private final static FetchGroup GROUP = new FetchGroup() {
 
+        @Override
+        public int content() {
+            return FULL_CONTENT;
+        }
+
+        @Override
+        public Set<PartContentDescriptor> getPartContentDescriptors() {
+            return null;
+        }
+        
+    };
     /**
      * Handler method called upon receipt of a RETR command. This command
      * retrieves a particular mail message from the mailbox.
@@ -74,7 +86,7 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
                 MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
                 Long uid = uidList.get(num - 1).getUid();
                 if (deletedUidList.contains(uid) == false) {
-                    Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.one(uid), new FetchGroupImpl(FetchGroup.FULL_CONTENT), mailboxSession);
+                    Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.one(uid), GROUP, mailboxSession);
 
                     if (results.hasNext()) {
                         MessageResult result = results.next();

@@ -23,13 +23,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.MessageRange;
 import org.apache.james.mailbox.MessageResult;
 import org.apache.james.mailbox.MessageResult.FetchGroup;
-import org.apache.james.mailbox.util.FetchGroupImpl;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.CommandHandler;
@@ -42,6 +42,20 @@ import org.apache.james.protocols.api.Response;
 public class RsetCmdHandler implements CommandHandler<POP3Session> {
     private final static String COMMAND_NAME = "RSET";
 
+    private final static FetchGroup GROUP = new FetchGroup() {
+
+        @Override
+        public int content() {
+            return MINIMAL;
+        }
+
+        @Override
+        public Set<PartContentDescriptor> getPartContentDescriptors() {
+            return null;
+        }
+        
+    };
+    
     /**
      * Handler method called upon receipt of a RSET command. Calls stat() to
      * reset the mailbox.
@@ -68,7 +82,7 @@ public class RsetCmdHandler implements CommandHandler<POP3Session> {
             MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
 
             List<MessageMetaData> uids = new ArrayList<MessageMetaData>();
-            Iterator<MessageResult> it = session.getUserMailbox().getMessages(MessageRange.all(), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
+            Iterator<MessageResult> it = session.getUserMailbox().getMessages(MessageRange.all(), GROUP, mailboxSession);
             while (it.hasNext()) {
                 MessageResult result = it.next();
                 uids.add(new MessageMetaData(result.getUid(), result.getSize()));
