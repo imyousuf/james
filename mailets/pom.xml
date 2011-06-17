@@ -152,6 +152,7 @@ Parent pom build failure prevents inheritance.
     <dependency>
       <groupId>${javax.activation.groupId}</groupId>
       <artifactId>${javax.activation.artifactId}</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james.jspf</groupId>
