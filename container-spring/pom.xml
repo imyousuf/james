@@ -278,7 +278,6 @@ END Tanuki Software License ============================================
                          
             </daemon>
           </daemons>
-          -->
         </configuration>
         <executions>
           <execution>
