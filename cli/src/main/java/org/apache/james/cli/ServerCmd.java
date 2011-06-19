@@ -20,6 +20,7 @@ package org.apache.james.cli;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -65,6 +66,9 @@ public class ServerCmd {
      * @throws ParseException
      */
     public static void main(String[] args) throws IOException, InterruptedException, ParseException {
+        
+        long start = Calendar.getInstance().getTimeInMillis();
+        
         CommandLineParser parser = new PosixParser();
         CommandLine cmd = null;
 
@@ -109,8 +113,10 @@ public class ServerCmd {
         // Execute the requested command.
         String[] arguments = cmd.getArgs();
         String cmdName = arguments[0];
+        CmdType cmdType = null;
         try {
-            CmdType cmdType = CmdType.lookup(cmdName);
+
+            cmdType = CmdType.lookup(cmdName);
 
             if (CmdType.ADDUSER.equals(cmdType)) {
                 if (cmdType.hasCorrectArguments(arguments.length)) {
@@ -205,7 +211,9 @@ public class ServerCmd {
             sCmd.onException(e, System.err);
             System.exit(1);
         }
-
+        
+        sCmd.print(new String[]{cmdType.getCommand() + " command executed sucessfully in " 
+                + (Calendar.getInstance().getTimeInMillis() - start) + " ms."}, System.out);
         System.exit(0);
     }
 
