@@ -293,32 +293,40 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
         int currentPrio = -1;
         List<String> samePrio = new ArrayList<String>();
         for (int i = 0; i < mxAnswers.length; i++) {
-            boolean same = true;
-
+            boolean same = false;
+            boolean lastItem = i + 1 == mxAnswers.length;
             MXRecord mx = mxAnswers[i];
             if (i == 0) {
                 currentPrio = mx.getPriority();
-                samePrio.add(mx.getTarget().toString());
             } else {
                 if (currentPrio == mx.getPriority()) {
-                    samePrio.add(mx.getTarget().toString());
+                    same = true;
                 } else {
                     same = false;
                 }
             }
-            // see if we need to insert the elements now
-            if (same == false || i + 1 == mxAnswers.length) {
+            
+            String mxRecord = mx.getTarget().toString();
+            if (same) {
+                samePrio.add(mxRecord);
+            } else {
                 // shuffle entries with same prio
                 // JAMES-913
                 Collections.shuffle(samePrio);
                 servers.addAll(samePrio);
-
-                if (same == false && i + 1 < mxAnswers.length) {
-                    samePrio.clear();
-                    samePrio.add(mx.getTarget().toString());
-                }
+                    
+                samePrio.clear();
+                samePrio.add(mxRecord);
+                
             }
-            logger.debug(new StringBuffer("Found MX record ").append(mx.getTarget().toString()).toString());
+            
+            if (lastItem) {
+                // shuffle entries with same prio
+                // JAMES-913
+                Collections.shuffle(samePrio);
+                servers.addAll(samePrio);
+            }
+            logger.debug(new StringBuffer("Found MX record ").append(mxRecord).toString());
         }
         return servers;
     }

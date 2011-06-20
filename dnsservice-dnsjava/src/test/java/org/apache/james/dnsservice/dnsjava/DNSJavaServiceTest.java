@@ -37,6 +37,7 @@ import org.xbill.DNS.Zone;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import junit.framework.TestCase;
@@ -94,6 +95,59 @@ public class DNSJavaServiceTest extends TestCase {
         assertEquals("mail.test-zone.com.", res.iterator().next());
     }
 
+
+    /**
+     * Test for JAMES-1251
+     */
+    public void testTwoMXSamePrio() throws Exception {
+        dnsServer.setResolver(null);
+        dnsServer.setCache(new ZoneCache("two-mx.sameprio."));
+        // a.setSearchPath(new String[] { "searchdomain.com." });
+        Collection<String> records = dnsServer.findMXRecords("two-mx.sameprio.");
+        assertEquals(2, records.size());
+        assertTrue(records.contains("mx1.two-mx.sameprio."));
+        assertTrue(records.contains("mx2.two-mx.sameprio."));
+    }
+
+    public void testThreeMX() throws Exception {
+        dnsServer.setResolver(null);
+        dnsServer.setCache(new ZoneCache("three-mx.bar."));
+        // a.setSearchPath(new String[] { "searchdomain.com." });
+        ArrayList<String> records = new ArrayList<String>(dnsServer.findMXRecords("three-mx.bar."));
+        assertEquals(3, records.size());
+        assertTrue(records.contains("mx1.three-mx.bar."));
+        assertTrue(records.contains("mx2.three-mx.bar."));
+        assertEquals("mx3.three-mx.bar.", records.get(2));
+
+    }
+
+    
+    /**
+     * Test for JAMES-1251
+     */
+    public void testTwoMXDifferentPrio() throws Exception {
+        dnsServer.setResolver(null);
+        dnsServer.setCache(new ZoneCache("two-mx.differentprio."));
+        // a.setSearchPath(new String[] { "searchdomain.com." });
+        Collection<String> records = dnsServer.findMXRecords("two-mx.differentprio.");
+        assertEquals(2, records.size());
+        assertTrue(records.contains("mx1.two-mx.differentprio."));
+        assertTrue(records.contains("mx2.two-mx.differentprio."));
+        
+    }
+
+    /**
+     * Test for JAMES-1251
+     */
+    public void testOneMX() throws Exception {
+        dnsServer.setResolver(null);
+        dnsServer.setCache(new ZoneCache("one-mx.bar."));
+        // a.setSearchPath(new String[] { "searchdomain.com." });
+        Collection<String> records = dnsServer.findMXRecords("one-mx.bar.");
+        assertEquals(1, records.size());
+        assertTrue(records.contains("mx1.one-mx.bar."));
+        
+    }
     /*
      * public void testCNAMEasMXrecords() throws Exception { // Zone z =
      * loadZone("brandilyncollins.com."); dnsServer.setResolver(null);
@@ -210,10 +264,6 @@ public class DNSJavaServiceTest extends TestCase {
             // return super.lookupRecords(arg0, arg1, arg2);
         }
 
-        public void setCleanInterval(int arg0) {
-            throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
-        }
-
         public void setMaxCache(int arg0) {
             throw new UnsupportedOperationException("ZoneCache is a mock used only for testing purpose");
         }
@@ -233,16 +283,9 @@ public class DNSJavaServiceTest extends TestCase {
             resolver = r;
         }
 
-        public Resolver getResolver() {
-            return resolver;
-        }
 
         public void setCache(Cache c) {
             cache = c;
-        }
-
-        public Cache getCache() {
-            return cache;
         }
     }
 
