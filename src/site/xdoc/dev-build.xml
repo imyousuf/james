@@ -20,7 +20,7 @@
 <document>
 
  <properties>
-  <title>Build James from Source</title>
+  <title>Build Apache James from Source</title>
 </properties>
 
 <body>
@@ -49,8 +49,9 @@
       <li>Get the source code using SVN - this method gives you access to the cutting edge code 
           base.  Instructions on how to use SVN to get the James source code 
           can be found <a href="http://www.apache.org/dev/version-control.html">here</a>.
-          James server repository is <a href="http://svn.apache.org/repos/asf/james/server/trunk">http://svn.apache.org/repos/asf/james/server/trunk</a>.</li>
-      <li>You can download all James sources (server,...) if you check out <a href="http://svn.apache.org/repos/asf/james/current">http://svn.apache.org/repos/asf/james/current/</a></li>
+          Apache James Server beta1 repository is <a href="http://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta1/">http://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta1/</a>.</li>
+      <li>For information, you can download all Apache James sources (server, mailbox, imap, mailet...) if you check out <a href="http://svn.apache.org/repos/asf/james/current">http://svn.apache.org/repos/asf/james/current/</a>.
+         Watch out!: you will get a release, but what we call a "trunk", that is on constant development and debugging.</li>
     </ol>
 
     <p>We consider in this document that you have checked-out James source code in JAMES_SRC_HOME directory.</p>
@@ -92,7 +93,7 @@
       subdirectory of the James source directory.  
       This directory will be deleted if you run build with the clean argument.</p>
     <p><strong>Warning!</strong> Any changes you've made in the 'dist' directory 
-      will be lost after a recompilation. If you are running James fro this directory
+      will be lost after a recompilation. If you are running James for this directory
       we recommend you backup to avoid losing work. </p>
 
   </section>
@@ -116,18 +117,6 @@
       <p>Select the modules you want to import (by default, all) and click on <code>Finish</code>
         to execute the import.</p>
                 
-<p>
-    <div class="ui-widget">
-      <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
-        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
-        <strong>The screenshots on this page contain an outdated list of projects. 
-         Refer to <a href="http://svn.apache.org/repos/asf/james/server/">http://svn.apache.org/repos/asf/james/server/</a> 
-         for the accurate list.</strong>
-		</p>
-      </div>
-    </div>
-</p>
-      <br/>
       <img src="./images/eclipse/eclipse-import-maven-view-2.gif"/>
       
       <p>You can also import other projects from 
@@ -159,6 +148,8 @@
             from <code>container-spring\src\main\config\james</code> folder to a <code>conf</code> folder 
             (<code>conf</code> folder must be a sub-folder of the JAMES_SRC_HOME directory where you made the check-out).
             As non-root privilege user, you may need to change the SMTP/IMAP/POP3 ports to values higher than 1024.</li>
+         <li>For ease, you can also create 2 new eclipse projects to edit the files and visualize the created mails/store/...: 
+             james-server-container-spring-conf and james-server-container-spring-var.</li>
      </ol>
      <img src="./images/eclipse/eclipse-m2eclipse-projects.gif"/>
     
