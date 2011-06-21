@@ -157,7 +157,8 @@
              new folder called <code>stage</code> as Eclipse source folder).</li>
         <li>Copy all files (except context folder log4j.properties and META-INF/persistence.xml) 
             from <code>container-spring\src\main\config\james</code> folder to a <code>conf</code> folder 
-            (<code>conf</code> folder must be a sub-folder of the JAMES_SRC_HOME directory where you made the check-out).</li>
+            (<code>conf</code> folder must be a sub-folder of the JAMES_SRC_HOME directory where you made the check-out).
+            As non-root privilege user, you may need to change the SMTP/IMAP/POP3 ports to values higher than 1024.</li>
      </ol>
      <img src="./images/eclipse/eclipse-m2eclipse-projects.gif"/>
     
