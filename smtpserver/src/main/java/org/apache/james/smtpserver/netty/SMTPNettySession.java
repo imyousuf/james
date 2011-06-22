@@ -116,8 +116,11 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession {
      */
     public void pushLineHandler(LineHandler<SMTPSession> overrideCommandHandler) {
         lineHandlerCount++;
-
-        getChannelHandlerContext().getPipeline().addAfter("timeoutHandler", "lineHandler" + lineHandlerCount, new LineHandlerUpstreamHandler<SMTPSession>(overrideCommandHandler));
+        // Add the linehandler in front of the coreHandler so we can be sure 
+        // it is executed with the same ExecutorHandler as the coreHandler (if one exist)
+        // 
+        // See JAMES-1277
+        getChannelHandlerContext().getPipeline().addBefore("coreHandler", "lineHandler" + lineHandlerCount, new LineHandlerUpstreamHandler<SMTPSession>(overrideCommandHandler));
     }
 
     /**
