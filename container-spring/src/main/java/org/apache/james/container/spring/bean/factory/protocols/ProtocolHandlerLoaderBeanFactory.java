@@ -16,35 +16,41 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-package org.apache.james.smtpserver.fastfail;
-
-import java.util.List;
+package org.apache.james.container.spring.bean.factory.protocols;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.james.container.spring.bean.AbstractBeanFactory;
 import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
+import org.apache.james.protocols.api.ProtocolHandler;
+import org.apache.james.protocols.api.ProtocolHandlerLoader;
+import org.springframework.beans.BeansException;
 
-public class SpamTrapHandler extends org.apache.james.protocols.smtp.core.fastfail.SpamTrapHandler implements LifecycleAwareProtocolHandler {
+public class ProtocolHandlerLoaderBeanFactory extends AbstractBeanFactory implements ProtocolHandlerLoader{
 
     @SuppressWarnings("unchecked")
     @Override
-    public void init(Configuration config) throws ConfigurationException {
-        List<String> rcpts = config.getList("spamTrapRecip");
+    public ProtocolHandler load(Configuration config) throws LoadingException {
+        
+        try {
+            // Use the classloader which is used for bean instance stuff
+            Class<ProtocolHandler> c = (Class<ProtocolHandler>) getBeanFactory().getBeanClassLoader().loadClass(config.getString("[@class]"));
+            ProtocolHandler handler =  (ProtocolHandler) getBeanFactory().createBean(c);
+            if (handler instanceof LifecycleAwareProtocolHandler) {
+                ((LifecycleAwareProtocolHandler) handler).init(config);
+            }
+            return handler;
+        } catch (ClassNotFoundException e) {
+            throw new LoadingException("Unable to load handler", e);
 
-        if (rcpts.isEmpty() == false) {
-            setSpamTrapRecipients(rcpts);
-        } else {
-            throw new ConfigurationException("Please configure a spamTrapRecip.");
+        } catch (BeansException e) {
+            throw new LoadingException("Unable to load handler", e);
+        } catch (ConfigurationException e) {
+            throw new LoadingException("Unable to load handler", e);
         }
 
-        setBlockTime(config.getLong("blockTime", blockTime));        
+
     }
 
-    @Override
-    public void destroy() {
-        // nothing to-do
-    }
-
-
+    
 }

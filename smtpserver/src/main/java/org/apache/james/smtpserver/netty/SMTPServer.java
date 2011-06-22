@@ -23,9 +23,12 @@ import javax.annotation.Resource;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
-import org.apache.james.protocols.api.ProtocolHandlerChain;
+import org.apache.james.protocols.api.ProtocolHandlerLoader;
+import org.apache.james.protocols.lib.ProtocolHandlerChainImpl;
 import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
+import org.apache.james.smtpserver.CoreCmdHandlerLoader;
+import org.apache.james.smtpserver.jmx.JMXHandlersLoader;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
@@ -39,7 +42,7 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
      * Command handlers , Message handlers and connection handlers Constructed
      * during initialisation to allow dependency injection.
      */
-    private ProtocolHandlerChain handlerChain;
+    private ProtocolHandlerChainImpl handlerChain;
 
     /**
      * Whether authentication is required to use this SMTP server.
@@ -86,9 +89,13 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
 
     private boolean verifyIdentity;
 
-    @Resource(name = "smtphandlerchain")
-    public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
-        this.handlerChain = handlerChain;
+    private ProtocolHandlerLoader loader;
+
+    private HierarchicalConfiguration configuration;
+
+    @Resource(name = "protocolhandlerloader")
+    public void setProtocolHandlerLoader(ProtocolHandlerLoader loader) {
+        this.loader = loader;
     }
 
     public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
@@ -160,6 +167,20 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
             verifyIdentity = configuration.getBoolean("verifyIdentity", true);
 
         }
+        this.configuration = configuration;
+    }
+
+    @Override
+    protected void postDestroy() {
+        super.postDestroy();
+        handlerChain.destroy();
+    }
+
+    @Override
+    protected void preInit() throws Exception {
+        super.preInit();
+        handlerChain = new ProtocolHandlerChainImpl(loader, configuration.configurationAt("handlerchain"), jmxName, CoreCmdHandlerLoader.class.getName(), JMXHandlersLoader.class.getName());
+        handlerChain.init();
     }
 
     /**

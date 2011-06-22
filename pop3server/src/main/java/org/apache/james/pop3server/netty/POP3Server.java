@@ -20,8 +20,13 @@ package org.apache.james.pop3server.netty;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
-import org.apache.james.protocols.api.ProtocolHandlerChain;
+import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
+import org.apache.james.pop3server.jmx.JMXHandlersLoader;
+import org.apache.james.protocols.api.ProtocolHandlerLoader;
+import org.apache.james.protocols.lib.ProtocolHandlerChainImpl;
 import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
@@ -36,16 +41,41 @@ public class POP3Server extends AbstractConfigurableAsyncServer implements POP3S
      */
     private POP3HandlerConfigurationData theConfigData = new POP3HandlerConfigurationDataImpl();
 
-    private ProtocolHandlerChain handlerChain;
+    private ProtocolHandlerChainImpl handlerChain;
 
-    @Resource(name = "pop3handlerchain")
-    public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
-        this.handlerChain = handlerChain;
+    private ProtocolHandlerLoader loader;
+
+    private HierarchicalConfiguration config;
+
+    @Resource(name = "protocolhandlerloader")
+    public void setProtocolHandlerLoader(ProtocolHandlerLoader loader) {
+        this.loader = loader;
+    }
+    
+    @Override
+    protected void preInit() throws Exception {
+        super.preInit();
+        handlerChain = new ProtocolHandlerChainImpl(loader, config.configurationAt("handlerchain"), jmxName, CoreCmdHandlerLoader.class.getName(), JMXHandlersLoader.class.getName());
+        handlerChain.init();
+    }
+
+    @Override
+    protected void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
+        super.doConfigure(config);
+        this.config = config;
     }
 
     @Override
     protected int getDefaultPort() {
         return 110;
+    }
+    
+    
+
+    @Override
+    protected void postDestroy() {
+        super.postDestroy();
+        handlerChain.destroy();
     }
 
     /*

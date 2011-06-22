@@ -24,9 +24,9 @@ import java.util.Iterator;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.lifecycle.api.Configurable;
+import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.dsn.DSNStatus;
 import org.apache.james.protocols.smtp.hook.HookResult;
@@ -64,7 +64,7 @@ import org.apache.mailet.Mail;
  * 
  * </p>
  */
-public class SpamAssassinHandler implements JamesMessageHook, Configurable {
+public class SpamAssassinHandler implements JamesMessageHook, LifecycleAwareProtocolHandler {
 
     /** The port spamd is listen on */
     private int spamdPort = 783;
@@ -74,19 +74,6 @@ public class SpamAssassinHandler implements JamesMessageHook, Configurable {
 
     /** The hits on which the message get rejected */
     private double spamdRejectionHits = 0.0;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
-     * configuration.HierarchicalConfiguration)
-     */
-    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-        setSpamdHost(config.getString("spamdHost", "localhost"));
-        setSpamdPort(config.getInt("spamdPort", 783));
-        setSpamdRejectionHits(config.getDouble("spamdRejectionHits", 0.0));
-    }
 
     /**
      * Set the host the spamd daemon is running at
@@ -162,5 +149,17 @@ public class SpamAssassinHandler implements JamesMessageHook, Configurable {
             session.getLogger().error(e.getMessage());
         }
         return new HookResult(HookReturnCode.DECLINED);
+    }
+
+    @Override
+    public void init(Configuration config) throws ConfigurationException {
+        setSpamdHost(config.getString("spamdHost", "localhost"));
+        setSpamdPort(config.getInt("spamdPort", 783));
+        setSpamdRejectionHits(config.getDouble("spamdRejectionHits", 0.0));        
+    }
+
+    @Override
+    public void destroy() {
+        // nothing to-do
     }
 }

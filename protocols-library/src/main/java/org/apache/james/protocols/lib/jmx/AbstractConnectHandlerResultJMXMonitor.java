@@ -20,15 +20,16 @@ package org.apache.james.protocols.lib.jmx;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.protocols.api.ConnectHandler;
 import org.apache.james.protocols.api.ConnectHandlerResultHandler;
 import org.apache.james.protocols.api.ExtensibleHandler;
+import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.protocols.api.WiringException;
 
@@ -37,10 +38,23 @@ import org.apache.james.protocols.api.WiringException;
  * 
  * @param <S>
  */
-public abstract class AbstractConnectHandlerResultJMXMonitor<S extends ProtocolSession> implements ConnectHandlerResultHandler<S>, ExtensibleHandler, Configurable {
+public abstract class AbstractConnectHandlerResultJMXMonitor<S extends ProtocolSession> implements ConnectHandlerResultHandler<S>, ExtensibleHandler, LifecycleAwareProtocolHandler {
 
     private Map<String, ConnectHandlerStats> cStats = new HashMap<String, ConnectHandlerStats>();
     private String jmxName;
+
+    @Override
+    public void init(Configuration config) throws ConfigurationException {
+        this.jmxName = config.getString("jmxName", getDefaultJMXName());        
+    }
+
+    @Override
+    public void destroy() {
+        Iterator<ConnectHandlerStats> it =cStats.values().iterator();
+        while(it.hasNext()) {
+            it.next().dispose();
+        }
+    }
 
     /*
      * (non-Javadoc)
@@ -99,16 +113,4 @@ public abstract class AbstractConnectHandlerResultJMXMonitor<S extends ProtocolS
      * @return defaultJMXName
      */
     protected abstract String getDefaultJMXName();
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
-     * configuration.HierarchicalConfiguration)
-     */
-    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-        this.jmxName = config.getString("jmxName", getDefaultJMXName());
-    }
-
 }

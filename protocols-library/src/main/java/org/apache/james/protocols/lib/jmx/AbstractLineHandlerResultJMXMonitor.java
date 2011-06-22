@@ -20,13 +20,14 @@ package org.apache.james.protocols.lib.jmx;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.protocols.api.ExtensibleHandler;
+import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
 import org.apache.james.protocols.api.LineHandler;
 import org.apache.james.protocols.api.LineHandlerResultHandler;
 import org.apache.james.protocols.api.ProtocolSession;
@@ -37,7 +38,7 @@ import org.apache.james.protocols.api.WiringException;
  * 
  * @param <S>
  */
-public abstract class AbstractLineHandlerResultJMXMonitor<S extends ProtocolSession> implements LineHandlerResultHandler<S>, ExtensibleHandler, Configurable {
+public abstract class AbstractLineHandlerResultJMXMonitor<S extends ProtocolSession> implements LineHandlerResultHandler<S>, ExtensibleHandler, LifecycleAwareProtocolHandler {
 
     private Map<String, LineHandlerStats> lStats = new HashMap<String, LineHandlerStats>();
     private String jmxName;
@@ -93,16 +94,17 @@ public abstract class AbstractLineHandlerResultJMXMonitor<S extends ProtocolSess
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
-     * configuration.HierarchicalConfiguration)
-     */
-    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-        this.jmxName = config.getString("jmxName", getDefaultJMXName());
+    @Override
+    public void init(Configuration config) throws ConfigurationException {
+        this.jmxName = config.getString("jmxName", getDefaultJMXName());        
+    }
 
+    @Override
+    public void destroy() {
+        Iterator<LineHandlerStats> it = lStats.values().iterator();
+        while(it.hasNext()) {
+            it.next().dispose();
+        }
     }
 
     /**

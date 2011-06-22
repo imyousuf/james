@@ -19,15 +19,14 @@
 
 package org.apache.james.smtpserver.fastfail;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.jspf.core.DNSService;
 import org.apache.james.jspf.core.exceptions.SPFErrorConstants;
 import org.apache.james.jspf.executor.SPFResult;
 import org.apache.james.jspf.impl.DefaultSPF;
 import org.apache.james.jspf.impl.SPF;
-import org.apache.james.lifecycle.api.Configurable;
-import org.apache.james.lifecycle.api.LogEnabled;
+import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
 import org.apache.james.protocols.smtp.SMTPRetCode;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.dsn.DSNStatus;
@@ -41,7 +40,7 @@ import org.apache.mailet.MailAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SPFHandler implements JamesMessageHook, LogEnabled, MailHook, RcptHook, Configurable {
+public class SPFHandler implements JamesMessageHook, MailHook, RcptHook, LifecycleAwareProtocolHandler {
 
     /** This log is the fall back shared by all instances */
     private static final Logger FALLBACK_LOG = LoggerFactory.getLogger(SPFHandler.class);
@@ -68,29 +67,6 @@ public class SPFHandler implements JamesMessageHook, LogEnabled, MailHook, RcptH
     private boolean blockPermError = true;
 
     private SPF spf = new DefaultSPF(new SPFLogger());
-
-    /**
-     * Sets the service log.<br>
-     * Where available, a context sensitive log should be used.
-     * 
-     * @param Log
-     *            not null
-     */
-    public void setLog(Logger log) {
-        this.serviceLog = log;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
-     * configuration.HierarchicalConfiguration)
-     */
-    public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
-        setBlockSoftFail(handlerConfiguration.getBoolean("blockSoftFail", false));
-        setBlockPermError(handlerConfiguration.getBoolean("blockPermError", true));
-    }
 
     /**
      * block the email on a softfail
@@ -318,6 +294,17 @@ public class SPFHandler implements JamesMessageHook, LogEnabled, MailHook, RcptH
         mail.setAttribute(SPF_HEADER_MAIL_ATTRIBUTE_NAME, (String) session.getState().get(SPF_HEADER));
 
         return null;
+    }
+
+    @Override
+    public void init(Configuration config) throws ConfigurationException {
+        setBlockSoftFail(config.getBoolean("blockSoftFail", false));
+        setBlockPermError(config.getBoolean("blockPermError", true));        
+    }
+
+    @Override
+    public void destroy() {
+        // nothing to-do
     }
 
 }

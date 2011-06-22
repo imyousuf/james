@@ -23,6 +23,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
@@ -31,21 +32,13 @@ import org.apache.mailet.Mail;
 /**
  * Adds the header to the message
  */
-public class SetMimeHeaderHandler implements JamesMessageHook {
+public class SetMimeHeaderHandler implements JamesMessageHook, LifecycleAwareProtocolHandler {
 
     /**
      * The header name and value that needs to be added
      */
     private String headerName;
     private String headerValue;
-
-    /**
-     * @see org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.Configuration)
-     */
-    public void configure(Configuration handlerConfiguration) throws ConfigurationException {
-        setHeaderName(handlerConfiguration.getString("headername"));
-        setHeaderValue(handlerConfiguration.getString("headervalue"));
-    }
 
     /**
      * Set the header name
@@ -88,6 +81,17 @@ public class SetMimeHeaderHandler implements JamesMessageHook {
         }
 
         return new HookResult(HookReturnCode.DECLINED);
+    }
+
+    @Override
+    public void init(Configuration config) throws ConfigurationException {
+        setHeaderName(config.getString("headername"));
+        setHeaderValue(config.getString("headervalue"));        
+    }
+
+    @Override
+    public void destroy() {
+        // nothing todo
     }
 
 }

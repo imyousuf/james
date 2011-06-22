@@ -24,9 +24,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.lifecycle.api.Configurable;
+import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
@@ -40,7 +41,7 @@ import org.apache.mailet.MailAddress;
  * if the {@link Mail} has more then one recipient, then the highest priority
  * (which was found) is set
  */
-public class MailPriorityHandler implements JamesMessageHook, Configurable {
+public class MailPriorityHandler implements JamesMessageHook, LifecycleAwareProtocolHandler {
 
     private Map<String, Integer> prioMap = new HashMap<String, Integer>();
 
@@ -80,16 +81,10 @@ public class MailPriorityHandler implements JamesMessageHook, Configurable {
         return new HookResult(HookReturnCode.DECLINED);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
-     * configuration.HierarchicalConfiguration)
-     */
     @SuppressWarnings("unchecked")
-    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-        List<HierarchicalConfiguration> entries = config.configurationsAt("priorityEntries.priorityEntry");
+    @Override
+    public void init(Configuration config) throws ConfigurationException {
+        List<HierarchicalConfiguration> entries = ((HierarchicalConfiguration)config).configurationsAt("priorityEntries.priorityEntry");
         for (int i = 0; i < entries.size(); i++) {
             HierarchicalConfiguration prioConf = entries.get(i);
             String domain = prioConf.getString("domain");
@@ -98,7 +93,12 @@ public class MailPriorityHandler implements JamesMessageHook, Configurable {
                 throw new ConfigurationException("configured priority must be >= " + MailPrioritySupport.LOW_PRIORITY + " and <= " + MailPrioritySupport.HIGH_PRIORITY);
             }
             prioMap.put(domain, prio);
-        }
+        }        
+    }
+
+    @Override
+    public void destroy() {
+        // nothing todo
     }
 
 }

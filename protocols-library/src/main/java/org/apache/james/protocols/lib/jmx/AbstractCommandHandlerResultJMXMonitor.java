@@ -20,12 +20,16 @@ package org.apache.james.protocols.lib.jmx;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.api.CommandHandlerResultHandler;
 import org.apache.james.protocols.api.ExtensibleHandler;
+import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.api.WiringException;
@@ -33,9 +37,10 @@ import org.apache.james.protocols.api.WiringException;
 /**
  * Expose JMX statistics for {@link CommandHandler}
  */
-public abstract class AbstractCommandHandlerResultJMXMonitor<R extends Response, S extends ProtocolSession> implements CommandHandlerResultHandler<R, S>, ExtensibleHandler {
+public abstract class AbstractCommandHandlerResultJMXMonitor<R extends Response, S extends ProtocolSession> implements CommandHandlerResultHandler<R, S>, ExtensibleHandler, LifecycleAwareProtocolHandler {
 
     private Map<String, AbstractCommandHandlerStats<R>> cStats = new HashMap<String, AbstractCommandHandlerStats<R>>();
+    private String jmxName;
 
     /*
      * (non-Javadoc)
@@ -101,5 +106,25 @@ public abstract class AbstractCommandHandlerResultJMXMonitor<R extends Response,
      * @throws Exception
      */
     protected abstract AbstractCommandHandlerStats<R> createCommandHandlerStats(CommandHandler<S> handler) throws Exception;
+
+
+    @Override
+    public void init(Configuration config) throws ConfigurationException {
+        this.jmxName = config.getString("jmxName", getDefaultJMXName());
+        
+    }
+    protected abstract String getDefaultJMXName();
+    
+    protected String getJMXName() {
+        return jmxName;
+    }
+    
+    @Override
+    public void destroy() {
+        Iterator<AbstractCommandHandlerStats<R>> it = cStats.values().iterator();
+        while(it.hasNext()) {
+            it.next().dispose();
+        }
+    }
 
 }

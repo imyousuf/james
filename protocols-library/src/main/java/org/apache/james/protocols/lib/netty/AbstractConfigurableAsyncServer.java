@@ -103,7 +103,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     private SSLContext context;
 
-    private String jmxName;
+    protected String jmxName;
 
     private String[] enabledCipherSuites;
 
@@ -252,6 +252,9 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
             buildSSLContext();
             executionHandler = createExecutionHander();
             bind();
+            
+            getLogger().info("Init " + getServiceType() + " done");
+
         }
     }
 
@@ -260,12 +263,22 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         getLogger().info("Dispose " + getServiceType());
         if (isEnabled()) {
             unbind();
+            postDestroy();
+
             if (executionHandler != null) {
                 executionHandler.releaseExternalResources();
             }
+            
         }
+        getLogger().info("Dispose " + getServiceType() + " done");
+
     }
 
+    protected void postDestroy() {
+        
+    }
+    
+    
     /**
      * This method is called on init of the Server. Subclasses should override
      * this method to init stuff

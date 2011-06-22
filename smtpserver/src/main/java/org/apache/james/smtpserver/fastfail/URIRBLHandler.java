@@ -33,11 +33,10 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimePart;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dnsservice.api.DNSService;
-import org.apache.james.lifecycle.api.Configurable;
-import org.apache.james.lifecycle.api.LogEnabled;
+import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.dsn.DSNStatus;
 import org.apache.james.protocols.smtp.hook.HookResult;
@@ -51,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * Extract domains from message and check against URIRBLServer. For more
  * informations see <a href="http://www.surbl.org">www.surbl.org</a>
  */
-public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable {
+public class URIRBLHandler implements JamesMessageHook, LifecycleAwareProtocolHandler {
 
     /** This log is the fall back shared by all instances */
     private static final Logger FALLBACK_LOG = LoggerFactory.getLogger(URIRBLHandler.class);
@@ -72,16 +71,6 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
 
     private boolean getDetail = false;
 
-    /**
-     * Sets the service log.<br>
-     * Where available, a context sensitive log should be used.
-     * 
-     * @param Log
-     *            not null
-     */
-    public void setLog(Logger log) {
-        this.serviceLog = log;
-    }
 
     /**
      * Gets the DNS service.
@@ -103,32 +92,6 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
         this.dnsService = dnsService;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
-     * configuration.HierarchicalConfiguration)
-     */
-    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-        String[] servers = config.getStringArray("uriRblServers.server");
-        Collection<String> serverCollection = new ArrayList<String>();
-        for (int i = 0; i < servers.length; i++) {
-            String rblServerName = servers[i];
-            serverCollection.add(rblServerName);
-            if (serviceLog.isInfoEnabled()) {
-                serviceLog.info("Adding uriRBL server: " + rblServerName);
-            }
-        }
-        if (serverCollection != null && serverCollection.size() > 0) {
-            setUriRblServer(serverCollection);
-        } else {
-            throw new ConfigurationException("Please provide at least one server");
-        }
-
-        setGetDetail(config.getBoolean("getDetail", false));
-
-    }
 
     /**
      * Set the UriRBL Servers
@@ -270,5 +233,31 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
             session.getLogger().error(e.getMessage());
         }
         return false;
+    }
+
+    @Override
+    public void init(Configuration config) throws ConfigurationException {
+        String[] servers = config.getStringArray("uriRblServers.server");
+        Collection<String> serverCollection = new ArrayList<String>();
+        for (int i = 0; i < servers.length; i++) {
+            String rblServerName = servers[i];
+            serverCollection.add(rblServerName);
+            if (serviceLog.isInfoEnabled()) {
+                serviceLog.info("Adding uriRBL server: " + rblServerName);
+            }
+        }
+        if (serverCollection != null && serverCollection.size() > 0) {
+            setUriRblServer(serverCollection);
+        } else {
+            throw new ConfigurationException("Please provide at least one server");
+        }
+
+        setGetDetail(config.getBoolean("getDetail", false));        
+    }
+
+    @Override
+    public void destroy() {
+        // TODO Auto-generated method stub
+        
     }
 }

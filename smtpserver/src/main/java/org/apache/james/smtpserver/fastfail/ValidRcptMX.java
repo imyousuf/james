@@ -27,13 +27,12 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.TemporaryResolutionException;
 import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
-import org.apache.james.lifecycle.api.Configurable;
-import org.apache.james.lifecycle.api.LogEnabled;
+import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
 import org.apache.james.protocols.smtp.SMTPRetCode;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.dsn.DSNStatus;
@@ -48,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * This class can be used to reject email with bogus MX which is send from a
  * authorized user or an authorized network.
  */
-public class ValidRcptMX implements LogEnabled, RcptHook, Configurable {
+public class ValidRcptMX implements LifecycleAwareProtocolHandler, RcptHook {
 
     /** This log is the fall back shared by all instances */
     private static final Logger FALLBACK_LOG = LoggerFactory.getLogger(ValidRcptMX.class);
@@ -96,32 +95,6 @@ public class ValidRcptMX implements LogEnabled, RcptHook, Configurable {
         this.dnsService = dnsService;
     }
 
-    /**
-     * @see org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.Configuration)
-     */
-    @SuppressWarnings("unchecked")
-    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-
-        List<String> networks = config.getList("invalidMXNetworks");
-
-        if (networks.isEmpty() == false) {
-
-            Collection<String> bannedNetworks = new ArrayList<String>();
-
-            for (int i = 0; i < networks.size(); i++) {
-                String network = networks.get(i);
-                bannedNetworks.add(network.trim());
-            }
-
-            setBannedNetworks(bannedNetworks, dnsService);
-
-            serviceLog.info("Invalid MX Networks: " + bNetwork.toString());
-
-        } else {
-            throw new ConfigurationException("Please configure at least on invalid MX network");
-        }
-
-    }
 
     /**
      * Set the banned networks
@@ -175,5 +148,33 @@ public class ValidRcptMX implements LogEnabled, RcptHook, Configurable {
             }
         }
         return new HookResult(HookReturnCode.DECLINED);
+    }
+
+    @Override
+    public void init(Configuration config) throws ConfigurationException {
+
+        List<String> networks = config.getList("invalidMXNetworks");
+
+        if (networks.isEmpty() == false) {
+
+            Collection<String> bannedNetworks = new ArrayList<String>();
+
+            for (int i = 0; i < networks.size(); i++) {
+                String network = networks.get(i);
+                bannedNetworks.add(network.trim());
+            }
+
+            setBannedNetworks(bannedNetworks, dnsService);
+
+            serviceLog.info("Invalid MX Networks: " + bNetwork.toString());
+
+        } else {
+            throw new ConfigurationException("Please configure at least on invalid MX network");
+        }
+    }
+
+    @Override
+    public void destroy() {
+        // nothing to-do
     }
 }

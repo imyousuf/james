@@ -24,12 +24,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PreDestroy;
-
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.protocols.api.ExtensibleHandler;
+import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
 import org.apache.james.protocols.api.WiringException;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.hook.Hook;
@@ -40,7 +38,7 @@ import org.apache.james.protocols.smtp.hook.HookResultHook;
  * {@link HookResultHook} implementation which will register a
  * {@link HookStatsMBean} under JMX for every Hook it processed
  */
-public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler, Configurable {
+public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler, LifecycleAwareProtocolHandler {
 
     private Map<String, HookStats> hookStats = new HashMap<String, HookStats>();
     private String jmxPath;
@@ -61,17 +59,6 @@ public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler, 
             stats.increment(result.getResult());
         }
         return result;
-    }
-
-    @PreDestroy
-    public void dispose() {
-        synchronized (hookStats) {
-            Iterator<HookStats> stats = hookStats.values().iterator();
-            while (stats.hasNext()) {
-                stats.next().dispose();
-            }
-            hookStats.clear();
-        }
     }
 
     /*
@@ -112,18 +99,23 @@ public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler, 
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
-     * configuration.HierarchicalConfiguration)
-     */
-    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-        this.jmxPath = config.getString("jmxName", getDefaultJMXName());
-    }
-
     protected String getDefaultJMXName() {
         return "smtpserver";
+    }
+
+    @Override
+    public void init(Configuration config) throws ConfigurationException {
+        this.jmxPath = config.getString("jmxName", getDefaultJMXName());        
+    }
+
+    @Override
+    public void destroy() {
+        synchronized (hookStats) {
+            Iterator<HookStats> stats = hookStats.values().iterator();
+            while (stats.hasNext()) {
+                stats.next().dispose();
+            }
+            hookStats.clear();
+        }        
     }
 }

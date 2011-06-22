@@ -19,21 +19,21 @@
 
 package org.apache.james.smtpserver.fastfail;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.lifecycle.api.Configurable;
+import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
 
-public class MaxRcptHandler extends org.apache.james.protocols.smtp.core.fastfail.MaxRcptHandler implements Configurable {
+public class MaxRcptHandler extends org.apache.james.protocols.smtp.core.fastfail.MaxRcptHandler implements LifecycleAwareProtocolHandler {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
-     * configuration.HierarchicalConfiguration)
-     */
-    public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
-        int maxRcpt = handlerConfiguration.getInt("maxRcpt", 0);
-        setMaxRcpt(maxRcpt);
+    @Override
+    public void init(Configuration config) throws ConfigurationException {
+        int maxRcpt = config.getInt("maxRcpt", 0);
+        setMaxRcpt(maxRcpt);        
+    }
+
+    @Override
+    public void destroy() {
+        // nothing todo
+        
     }
 }

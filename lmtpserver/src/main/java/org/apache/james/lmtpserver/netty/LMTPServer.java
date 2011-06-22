@@ -23,7 +23,10 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.protocols.api.ProtocolHandlerChain;
+import org.apache.james.lmtpserver.CoreCmdHandlerLoader;
+import org.apache.james.lmtpserver.jmx.JMXHandlersLoader;
+import org.apache.james.protocols.api.ProtocolHandlerLoader;
+import org.apache.james.protocols.lib.ProtocolHandlerChainImpl;
 import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.smtpserver.netty.SMTPChannelUpstreamHandler;
@@ -38,15 +41,29 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
      * 0, means no limit.
      */
     private long maxMessageSize = 0;
-    private ProtocolHandlerChain handlerChain;
+    private ProtocolHandlerChainImpl handlerChain;
     private LMTPConfiguration lmtpConfig = new LMTPConfiguration();
     private String lmtpGreeting;
+    private ProtocolHandlerLoader loader;
+    private HierarchicalConfiguration config;
 
-    @Resource(name = "lmtphandlerchain")
-    public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
-        this.handlerChain = handlerChain;
+    @Resource(name = "protocolhandlerloader")
+    public void setProtocolHandlerLoader(ProtocolHandlerLoader loader) {
+        this.loader = loader;
     }
 
+    @Override
+    protected void preInit() throws Exception {
+        super.preInit();
+        handlerChain = new ProtocolHandlerChainImpl(loader, config.configurationAt("handlerchain"), jmxName, CoreCmdHandlerLoader.class.getName(), JMXHandlersLoader.class.getName());
+        handlerChain.init();
+    }
+
+    @Override
+    protected void postDestroy() {
+        super.postDestroy();
+        handlerChain.destroy();
+    }
     /*
      * (non-Javadoc)
      * 
@@ -83,6 +100,7 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
             lmtpGreeting = configuration.getString("lmtpGreeting", null);
 
         }
+        this.config = configuration;
     }
 
     /**

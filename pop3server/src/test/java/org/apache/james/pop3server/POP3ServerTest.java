@@ -50,8 +50,7 @@ import org.apache.james.mailbox.store.Authenticator;
 import org.apache.james.pop3server.netty.POP3Server;
 import org.apache.james.protocols.lib.POP3BeforeSMTPHelper;
 import org.apache.james.protocols.lib.PortUtil;
-import org.apache.james.protocols.lib.mock.MockJSR250Loader;
-import org.apache.james.protocols.lib.mock.MockProtocolHandlerChain;
+import org.apache.james.protocols.lib.mock.MockProtocolHandlerLoader;
 import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.lib.mock.MockUsersRepository;
 import org.slf4j.Logger;
@@ -63,10 +62,9 @@ public class POP3ServerTest extends TestCase {
     private POP3TestConfiguration m_testConfiguration;
     private MockUsersRepository m_usersRepository = new MockUsersRepository();
     private POP3Client m_pop3Protocol = null;
-    private MockJSR250Loader serviceManager;
     protected DNSService dnsservice;
     protected MockFileSystem fSystem;
-    protected MockProtocolHandlerChain chain;
+    protected MockProtocolHandlerLoader chain;
     private InMemoryMailboxManager manager;
     private byte[] content =        ("Return-path: return@test.com\r\n"+
             "Content-Transfer-Encoding: plain\r\n"+
@@ -93,7 +91,7 @@ public class POP3ServerTest extends TestCase {
         m_pop3Server = createPOP3Server();
         m_pop3Server.setDNSService(dnsservice);
         m_pop3Server.setFileSystem(fSystem);
-        m_pop3Server.setProtocolHandlerChain(chain);
+        m_pop3Server.setProtocolHandlerLoader(chain);
 
         Logger log = LoggerFactory.getLogger("Mock");
         // slf4j can't set programmatically any log level. It's just a facade
@@ -104,24 +102,19 @@ public class POP3ServerTest extends TestCase {
     protected void setUp() throws Exception {
         setUpServiceManager();
 
-        chain = new MockProtocolHandlerChain();
-        chain.setLoader(serviceManager);
-        chain.setLog(LoggerFactory.getLogger("ChainLog"));
-
         setUpPOP3Server();
         m_testConfiguration = new POP3TestConfiguration(m_pop3ListenerPort);
     }
 
     protected void finishSetUp(POP3TestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
-        chain.configure(testConfiguration);
-        chain.init();
         initPOP3Server(testConfiguration);
+        
     }
 
     protected void setUpServiceManager() throws Exception {
-        serviceManager = new MockJSR250Loader();
-        serviceManager.put("usersrepository", m_usersRepository);
+        chain = new MockProtocolHandlerLoader();
+        chain.put("usersrepository", m_usersRepository);
 
         InMemoryMailboxSessionMapperFactory factory = new InMemoryMailboxSessionMapperFactory();
 
@@ -138,12 +131,12 @@ public class POP3ServerTest extends TestCase {
             }
         }, new InMemoryCachingUidProvider());
 
-        serviceManager.put("mailboxmanager", manager);
+        chain.put("mailboxmanager", manager);
 
         dnsservice = setUpDNSServer();
-        serviceManager.put("dnsservice", setUpDNSServer());
+        chain.put("dnsservice", setUpDNSServer());
         fSystem = new MockFileSystem();
-        serviceManager.put("filesystem", fSystem);
+        chain.put("filesystem", fSystem);
 
     }
 
@@ -170,15 +163,17 @@ public class POP3ServerTest extends TestCase {
             }
         }
         } catch (Exception e){
-            
+            e.printStackTrace();
         }
 
         manager.deleteEverything();
         // manager.deleteAll();
+        chain.dispose();
 
         m_pop3Server.destroy();
-
+        
         super.tearDown();
+
     }
 
     public void testAuthenticationFail() throws Exception {

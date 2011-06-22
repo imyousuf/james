@@ -33,17 +33,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
 import org.apache.james.filesystem.api.FileSystem;
-import org.apache.james.lifecycle.api.Configurable;
-import org.apache.james.lifecycle.api.LogEnabled;
+import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler;
 import org.apache.james.protocols.smtp.hook.HookResult;
@@ -58,7 +56,7 @@ import org.slf4j.LoggerFactory;
 /**
  * GreylistHandler which can be used to activate Greylisting
  */
-public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogEnabled, Configurable {
+public class JDBCGreylistHandler extends AbstractGreylistHandler implements LifecycleAwareProtocolHandler {
 
     /** This log is the fall back shared by all instances */
     private static final Logger FALLBACK_LOG = LoggerFactory.getLogger(JDBCGreylistHandler.class);
@@ -183,66 +181,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
     protected NetMatcher getWhiteListedNetworks() {
         return wNetworks;
     }
-
-    /**
-     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#configure(org.apache.commons.configuration.Configuration)
-     */
-    public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
-        try {
-            setTempBlockTime(handlerConfiguration.getString("tempBlockTime"));
-        } catch (NumberFormatException e) {
-            throw new ConfigurationException(e.getMessage());
-        }
-
-        try {
-            setAutoWhiteListLifeTime(handlerConfiguration.getString("autoWhiteListLifeTime"));
-        } catch (NumberFormatException e) {
-            throw new ConfigurationException(e.getMessage());
-        }
-
-        try {
-            setUnseenLifeTime(handlerConfiguration.getString("unseenLifeTime"));
-        } catch (NumberFormatException e) {
-            throw new ConfigurationException(e.getMessage());
-        }
-        String nets = handlerConfiguration.getString("whitelistedNetworks");
-        if (nets != null) {
-            String[] whitelistArray = nets.split(",");
-            List<String> wList = new ArrayList<String>(whitelistArray.length);
-            for (int i = 0; i < whitelistArray.length; i++) {
-                wList.add(whitelistArray[i].trim());
-            }
-            setWhiteListedNetworks(new NetMatcher(wList, dnsService));
-            serviceLog.info("Whitelisted addresses: " + getWhiteListedNetworks().toString());
-
-        }
-
-        // Get the SQL file location
-        String sFile = handlerConfiguration.getString("sqlFile", null);
-        if (sFile != null) {
-
-            setSqlFileUrl(sFile);
-
-            if (!sqlFileUrl.startsWith("file://") && !sqlFileUrl.startsWith("classpath:")) {
-                throw new ConfigurationException("Malformed sqlFile - Must be of the format \"file://<filename>\".");
-            }
-        } else {
-            throw new ConfigurationException("sqlFile is not configured");
-        }
-    }
-
-    @PostConstruct
-    public void init() throws Exception {
-        try {
-            initSqlQueries(datasource.getConnection(), sqlFileUrl);
-
-            // create table if not exist
-            createTable("greyListTableName", "createGreyListTable");
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to init datasource", e);
-        }
-    }
-
+    
     /**
      * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#getGreyListData(java.lang.String,
      *      java.lang.String, java.lang.String)
@@ -468,5 +407,63 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      */
     public void setLog(Logger log) {
         this.serviceLog = log;
+    }
+
+    @Override
+    public void init(Configuration handlerConfiguration) throws ConfigurationException {
+        try {
+            setTempBlockTime(handlerConfiguration.getString("tempBlockTime"));
+        } catch (NumberFormatException e) {
+            throw new ConfigurationException(e.getMessage());
+        }
+
+        try {
+            setAutoWhiteListLifeTime(handlerConfiguration.getString("autoWhiteListLifeTime"));
+        } catch (NumberFormatException e) {
+            throw new ConfigurationException(e.getMessage());
+        }
+
+        try {
+            setUnseenLifeTime(handlerConfiguration.getString("unseenLifeTime"));
+        } catch (NumberFormatException e) {
+            throw new ConfigurationException(e.getMessage());
+        }
+        String nets = handlerConfiguration.getString("whitelistedNetworks");
+        if (nets != null) {
+            String[] whitelistArray = nets.split(",");
+            List<String> wList = new ArrayList<String>(whitelistArray.length);
+            for (int i = 0; i < whitelistArray.length; i++) {
+                wList.add(whitelistArray[i].trim());
+            }
+            setWhiteListedNetworks(new NetMatcher(wList, dnsService));
+            serviceLog.info("Whitelisted addresses: " + getWhiteListedNetworks().toString());
+
+        }
+
+        // Get the SQL file location
+        String sFile = handlerConfiguration.getString("sqlFile", null);
+        if (sFile != null) {
+
+            setSqlFileUrl(sFile);
+
+            if (!sqlFileUrl.startsWith("file://") && !sqlFileUrl.startsWith("classpath:")) {
+                throw new ConfigurationException("Malformed sqlFile - Must be of the format \"file://<filename>\".");
+            }
+        } else {
+            throw new ConfigurationException("sqlFile is not configured");
+        }
+        try {
+            initSqlQueries(datasource.getConnection(), sqlFileUrl);
+
+            // create table if not exist
+            createTable("greyListTableName", "createGreyListTable");
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to init datasource", e);
+        }
+    }
+
+    @Override
+    public void destroy() {
+        // nothing todo
     }
 }

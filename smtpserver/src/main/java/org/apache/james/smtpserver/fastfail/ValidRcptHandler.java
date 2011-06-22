@@ -23,11 +23,11 @@ import java.util.Collection;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.DomainListException;
-import org.apache.james.lifecycle.api.Configurable;
+import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.fastfail.AbstractValidRcptHandler;
 import org.apache.james.rrt.api.RecipientRewriteTable;
@@ -40,7 +40,7 @@ import org.apache.mailet.MailAddress;
 /**
  * Handler which reject invalid recipients
  */
-public class ValidRcptHandler extends AbstractValidRcptHandler implements Configurable {
+public class ValidRcptHandler extends AbstractValidRcptHandler implements LifecycleAwareProtocolHandler {
 
     private UsersRepository users;
 
@@ -85,14 +85,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Config
     public void setDomainList(DomainList domains) {
         this.domains = domains;
     }
-
-    /**
-     * @see org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.Configuration)
-     */
-    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-        setRecipientRewriteTableSupport(config.getBoolean("enableRecipientRewriteTable", true));
-    }
-
+    
     public void setRecipientRewriteTableSupport(boolean useVut) {
         this.useVut = useVut;
     }
@@ -154,5 +147,16 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Config
             session.getLogger().error("Unable to get domains", e);
             return false;
         }
+    }
+
+    @Override
+    public void init(Configuration config) throws ConfigurationException {
+        setRecipientRewriteTableSupport(config.getBoolean("enableRecipientRewriteTable", true));
+        
+    }
+
+    @Override
+    public void destroy() {
+        // nothing to-do
     }
 }

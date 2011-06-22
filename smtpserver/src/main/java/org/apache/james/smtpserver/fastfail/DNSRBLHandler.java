@@ -24,25 +24,25 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dnsservice.api.DNSService;
-import org.apache.james.lifecycle.api.Configurable;
+import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
 import org.apache.james.smtpserver.SMTPServerDNSServiceAdapter;
 
-public class DNSRBLHandler extends org.apache.james.protocols.smtp.core.fastfail.DNSRBLHandler implements Configurable {
+public class DNSRBLHandler extends org.apache.james.protocols.smtp.core.fastfail.DNSRBLHandler implements LifecycleAwareProtocolHandler {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
-     * configuration.HierarchicalConfiguration)
-     */
+    @Resource(name = "dnsservice")
+    public void setDNSService(DNSService dns) {
+        super.setDNSService(new SMTPServerDNSServiceAdapter(dns));
+    }
+
     @SuppressWarnings("unchecked")
-    public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
+    @Override
+    public void init(Configuration config) throws ConfigurationException {
         boolean validConfig = false;
-
+        HierarchicalConfiguration handlerConfiguration = (HierarchicalConfiguration)config;
         ArrayList<String> rblserverCollection = new ArrayList<String>();
         List<String> whiteList = handlerConfiguration.getList("rblservers.whitelist");
         if (whiteList != null) {
@@ -77,11 +77,12 @@ public class DNSRBLHandler extends org.apache.james.protocols.smtp.core.fastfail
             throw new ConfigurationException("Please configure whitelist or blacklist");
         }
 
-        setGetDetail(handlerConfiguration.getBoolean("getDetail", false));
+        setGetDetail(handlerConfiguration.getBoolean("getDetail", false));        
     }
 
-    @Resource(name = "dnsservice")
-    public void setDNSService(DNSService dns) {
-        super.setDNSService(new SMTPServerDNSServiceAdapter(dns));
+    @Override
+    public void destroy() {
+        // TODO Auto-generated method stub
+        
     }
 }

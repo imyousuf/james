@@ -19,22 +19,16 @@
 
 package org.apache.james.smtpserver.fastfail;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.lifecycle.api.Configurable;
+import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
 
-public class TarpitHandler extends org.apache.james.protocols.smtp.core.fastfail.TarpitHandler implements Configurable {
+public class TarpitHandler extends org.apache.james.protocols.smtp.core.fastfail.TarpitHandler implements LifecycleAwareProtocolHandler {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
-     * configuration.HierarchicalConfiguration)
-     */
-    public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
-        int tarpitRcptCount = handlerConfiguration.getInt("tarpitRcptCount", 0);
-        long tarpitSleepTime = handlerConfiguration.getLong("tarpitSleepTime", 5000);
+    @Override
+    public void init(Configuration config) throws ConfigurationException {
+        int tarpitRcptCount = config.getInt("tarpitRcptCount", 0);
+        long tarpitSleepTime = config.getLong("tarpitSleepTime", 5000);
         if (tarpitRcptCount == 0)
             throw new ConfigurationException("Please set the tarpitRcptCount bigger values as 0");
 
@@ -42,6 +36,12 @@ public class TarpitHandler extends org.apache.james.protocols.smtp.core.fastfail
             throw new ConfigurationException("Please set the tarpitSleepTimeto a bigger values as 0");
 
         setTarpitRcptCount(tarpitRcptCount);
-        setTarpitSleepTime(tarpitSleepTime);
+        setTarpitSleepTime(tarpitSleepTime);        
     }
+
+    @Override
+    public void destroy() {
+        // nothing to-do
+    }
+
 }
