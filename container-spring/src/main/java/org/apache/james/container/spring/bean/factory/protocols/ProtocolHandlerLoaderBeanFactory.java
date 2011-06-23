@@ -30,11 +30,11 @@ public class ProtocolHandlerLoaderBeanFactory extends AbstractBeanFactory implem
 
     @SuppressWarnings("unchecked")
     @Override
-    public ProtocolHandler load(Configuration config) throws LoadingException {
+    public ProtocolHandler load(String name, Configuration config) throws LoadingException {
         
         try {
             // Use the classloader which is used for bean instance stuff
-            Class<ProtocolHandler> c = (Class<ProtocolHandler>) getBeanFactory().getBeanClassLoader().loadClass(config.getString("[@class]"));
+            Class<ProtocolHandler> c = (Class<ProtocolHandler>) getBeanFactory().getBeanClassLoader().loadClass(name);
             ProtocolHandler handler =  (ProtocolHandler) getBeanFactory().createBean(c);
             if (handler instanceof LifecycleAwareProtocolHandler) {
                 ((LifecycleAwareProtocolHandler) handler).init(config);

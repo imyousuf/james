@@ -68,13 +68,13 @@ public class ProtocolHandlerChainImpl implements ProtocolHandlerChain{
 
         String jmxHandlersPackage = handlerchainConfig.getString("[@jmxHandlersPackage]");
  
-        HandlersPackage handlersPackage = (HandlersPackage) loader.load(addHandler(coreHandlersPackage));
+        HandlersPackage handlersPackage = (HandlersPackage) loader.load(coreHandlersPackage, addHandler(coreHandlersPackage));
         registerHandlersPackage(handlersPackage, null, children);
 
         if (handlerchainConfig.getBoolean("[@enableJmx]", true)) {
             DefaultConfigurationBuilder builder = new DefaultConfigurationBuilder();
             builder.addProperty("jmxName", jmxName);
-            HandlersPackage jmxPackage = (HandlersPackage) loader.load(addHandler(jmxHandlersPackage));
+            HandlersPackage jmxPackage = (HandlersPackage) loader.load(jmxHandlersPackage, addHandler(jmxHandlersPackage));
             
             registerHandlersPackage(jmxPackage, builder, children);
         }
@@ -83,7 +83,7 @@ public class ProtocolHandlerChainImpl implements ProtocolHandlerChain{
             HierarchicalConfiguration hConf = children.get(i);
             String className = hConf.getString("[@class]", null);
             if (className != null) {
-                handlers.add(loader.load(hConf));
+                handlers.add(loader.load(className, hConf));
             } else {
                 throw new ConfigurationException("Missing @class attribute in configuration: " + ConfigurationUtils.toString(hConf));
             }

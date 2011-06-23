@@ -18,9 +18,9 @@ import org.apache.james.protocols.api.ProtocolHandlerLoader;
 public class MockProtocolHandlerLoader implements ProtocolHandlerLoader{
 
     @Override
-    public ProtocolHandler load(Configuration config) throws LoadingException {
+    public ProtocolHandler load(String name, Configuration config) throws LoadingException {
         try {
-            ProtocolHandler obj = create(config.getString("[@class]"));
+            ProtocolHandler obj = create(name);
             injectResources(obj);
             postConstruct(obj);
             synchronized (this) {
