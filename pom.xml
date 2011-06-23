@@ -253,7 +253,7 @@
         </executions>
 
         <configuration>
-          <excludeDependencies>${camel.osgi.exclude.dependencies}</excludeDependencies>
+          <excludeDependencies>${james.osgi.exclude.dependencies}</excludeDependencies>
           <instructions>
             <Bundle-Name>${project.artifactId}</Bundle-Name>
             <Export-Package>${james.osgi.export}</Export-Package>
