@@ -84,10 +84,6 @@
       <artifactId>org.osgi.core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-annotation_1.0_spec</artifactId>
-    </dependency> 
-    <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-container-spring</artifactId>
     </dependency> 

@@ -74,10 +74,6 @@
       <groupId>${javax.mail.groupId}</groupId>
       <artifactId>${javax.mail.artifactId}</artifactId>
     </dependency>
-    <dependency>
-       <groupId>org.apache.geronimo.specs</groupId>
-       <artifactId>geronimo-annotation_1.0_spec</artifactId>
-    </dependency>
    <dependency>
      <groupId>org.apache.camel</groupId>
      <artifactId>camel-core</artifactId>
