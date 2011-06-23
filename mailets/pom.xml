@@ -150,17 +150,12 @@ Parent pom build failure prevents inheritance.
       <artifactId>${javax.mail.artifactId}</artifactId>
     </dependency>
     <dependency>
-      <groupId>${javax.activation.groupId}</groupId>
-      <artifactId>${javax.activation.artifactId}</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.james.jspf</groupId>
       <artifactId>apache-jspf-resolver</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-configuration</groupId>
-      <artifactId>commons-configuration</artifactId>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -183,12 +178,6 @@ Parent pom build failure prevents inheritance.
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet-base</artifactId>
-      <classifier>tests</classifier>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-standard-mailets</artifactId>
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>

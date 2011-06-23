@@ -36,6 +36,18 @@
           <groupId>org.apache.james</groupId>
           <artifactId>james-server-dnsservice-api</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.apache.james</groupId>
+          <artifactId>james-server-dnsservice-library</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.james</groupId>
+          <artifactId>james-server-queue-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.james.jspf</groupId>
+          <artifactId>apache-jspf-resolver</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     
