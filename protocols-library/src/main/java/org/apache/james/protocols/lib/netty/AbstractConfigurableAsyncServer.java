@@ -36,7 +36,6 @@ import javax.net.ssl.SSLContext;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.filesystem.api.FileSystem;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
@@ -84,8 +83,6 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     private Logger logger;
 
-    private DNSService dns;
-
     private boolean enabled;
 
     protected int connPerIP;
@@ -112,12 +109,6 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     private ExecutionHandler executionHandler = null;
 
     private int maxExecutorThreads;
-
-    
-    @Resource(name = "dnsservice")
-    public final void setDNSService(DNSService dns) {
-        this.dns = dns;
-    }
 
     @Resource(name = "filesystem")
     public final void setFileSystem(FileSystem filesystem) {
@@ -293,15 +284,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         // override me
     }
 
-    /**
-     * Return the DNSService
-     * 
-     * @return dns
-     */
-    protected DNSService getDNSService() {
-        return dns;
-    }
-
+  
     /**
      * Return the FileSystem
      * 
@@ -321,7 +304,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         StringBuilder infoBuffer;
         String hostName = null;
         try {
-            hostName = dns.getHostName(dns.getLocalHost());
+            hostName = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException ue) {
             hostName = "localhost";
         }

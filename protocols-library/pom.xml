@@ -84,10 +84,6 @@ Parent pom build failure prevents inheritance.
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-dnsservice-api</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.james.protocols</groupId>
       <artifactId>protocols-api</artifactId>
     </dependency>

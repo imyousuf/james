@@ -22,8 +22,6 @@ package org.apache.james.pop3server;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Reader;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -35,8 +33,6 @@ import junit.framework.TestCase;
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
 import org.apache.commons.net.pop3.POP3Reply;
-import org.apache.james.dnsservice.api.DNSService;
-import org.apache.james.dnsservice.api.mock.MockDNSService;
 import org.apache.james.filesystem.api.mock.MockFileSystem;
 import org.apache.james.mailbox.MailboxConstants;
 import org.apache.james.mailbox.MailboxException;
@@ -62,7 +58,6 @@ public class POP3ServerTest extends TestCase {
     private POP3TestConfiguration m_testConfiguration;
     private MockUsersRepository m_usersRepository = new MockUsersRepository();
     private POP3Client m_pop3Protocol = null;
-    protected DNSService dnsservice;
     protected MockFileSystem fSystem;
     protected MockProtocolHandlerLoader chain;
     private InMemoryMailboxManager manager;
@@ -89,7 +84,6 @@ public class POP3ServerTest extends TestCase {
     protected void setUpPOP3Server() throws Exception {
 
         m_pop3Server = createPOP3Server();
-        m_pop3Server.setDNSService(dnsservice);
         m_pop3Server.setFileSystem(fSystem);
         m_pop3Server.setProtocolHandlerLoader(chain);
 
@@ -133,25 +127,9 @@ public class POP3ServerTest extends TestCase {
 
         chain.put("mailboxmanager", manager);
 
-        dnsservice = setUpDNSServer();
-        chain.put("dnsservice", setUpDNSServer());
         fSystem = new MockFileSystem();
         chain.put("filesystem", fSystem);
 
-    }
-
-    private DNSService setUpDNSServer() {
-        DNSService dns = new MockDNSService() {
-            public String getHostName(InetAddress addr) {
-                return "localhost";
-            }
-
-            public InetAddress getLocalHost() throws UnknownHostException {
-                return InetAddress.getLocalHost();
-            }
-
-        };
-        return dns;
     }
 
     protected void tearDown() throws Exception {

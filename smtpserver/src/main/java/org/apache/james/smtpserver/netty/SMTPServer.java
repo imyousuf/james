@@ -22,6 +22,7 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
 import org.apache.james.protocols.api.ProtocolHandlerLoader;
 import org.apache.james.protocols.lib.ProtocolHandlerChainImpl;
@@ -93,11 +94,18 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
 
     private HierarchicalConfiguration configuration;
 
+    private DNSService dns;
+
     @Resource(name = "protocolhandlerloader")
     public void setProtocolHandlerLoader(ProtocolHandlerLoader loader) {
         this.loader = loader;
     }
 
+    @Resource(name = "dnsservice")
+    public void setDNSService(DNSService dns) {
+        this.dns = dns;
+    }
+    
     public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         if (isEnabled()) {
             String authRequiredString = configuration.getString("authRequired", "false").trim().toLowerCase();
@@ -138,7 +146,7 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
                     String addr = st.nextToken();
                     networks.add(addr);
                 }
-                authorizedNetworks = new NetMatcher(networks, getDNSService());
+                authorizedNetworks = new NetMatcher(networks, dns);
             }
 
             if (authorizedNetworks != null) {
