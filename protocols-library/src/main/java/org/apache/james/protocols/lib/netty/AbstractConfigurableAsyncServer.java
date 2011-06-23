@@ -575,7 +575,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     
     @Override
     protected ChannelPipelineFactory createPipelineFactory(ChannelGroup group) {
-        return new AbstractExecutorAwareChannelPipelineFactory(connPerIP, connPerIP, connPerIP, group, enabledCipherSuites) {
+        return new AbstractExecutorAwareChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group, enabledCipherSuites) {
             @Override
             protected SSLContext getSSLContext() {
                 return AbstractConfigurableAsyncServer.this.getSSLContext();

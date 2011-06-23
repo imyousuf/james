@@ -212,7 +212,7 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol.disconnect();
     }
 
-    /*
+   
     public void testConnectionLimit() throws Exception {
         m_testConfiguration.setConnectionLimit(2);
         finishSetUp(m_testConfiguration);
@@ -241,7 +241,7 @@ public class SMTPServerTest extends TestCase {
         Thread.sleep(3000);
 
     }
-    */
+   
 
     protected void finishSetUp(SMTPTestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();

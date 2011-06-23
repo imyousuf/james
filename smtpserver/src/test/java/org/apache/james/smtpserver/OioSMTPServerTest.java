@@ -27,12 +27,4 @@ public class OioSMTPServerTest extends SMTPServerTest {
     protected SMTPServer createSMTPServer() {
         return new OioSMTPServer();
     }
-
-    /**
-     * TODO: This should not be needed
-     */
-    public void testConnectionLimit() throws Exception {
-        // TODO: Check why the connection limit is not working with IO
-        // implementation
-    }
 }
