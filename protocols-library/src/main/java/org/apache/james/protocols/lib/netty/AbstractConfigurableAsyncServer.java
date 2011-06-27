@@ -266,7 +266,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     }
 
     protected void postDestroy() {
-        
+        // override me
     }
     
     

@@ -18,52 +18,31 @@
  ****************************************************************/
 package org.apache.james.lmtpserver.netty;
 
-import javax.annotation.Resource;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.lmtpserver.CoreCmdHandlerLoader;
 import org.apache.james.lmtpserver.jmx.JMXHandlersLoader;
-import org.apache.james.protocols.api.ProtocolHandlerLoader;
-import org.apache.james.protocols.lib.ProtocolHandlerChainImpl;
-import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
+import org.apache.james.protocols.api.HandlersPackage;
+import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.smtpserver.netty.SMTPChannelUpstreamHandler;
 import org.apache.james.smtpserver.netty.SMTPResponseEncoder;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
-public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPServerMBean {
+public class LMTPServer extends AbstractProtocolAsyncServer implements LMTPServerMBean {
 
     /**
      * The maximum message size allowed by this SMTP server. The default value,
      * 0, means no limit.
      */
     private long maxMessageSize = 0;
-    private ProtocolHandlerChainImpl handlerChain;
     private LMTPConfiguration lmtpConfig = new LMTPConfiguration();
     private String lmtpGreeting;
-    private ProtocolHandlerLoader loader;
-    private HierarchicalConfiguration config;
 
-    @Resource(name = "protocolhandlerloader")
-    public void setProtocolHandlerLoader(ProtocolHandlerLoader loader) {
-        this.loader = loader;
-    }
 
-    @Override
-    protected void preInit() throws Exception {
-        super.preInit();
-        handlerChain = new ProtocolHandlerChainImpl(loader, config.configurationAt("handlerchain"), jmxName, CoreCmdHandlerLoader.class.getName(), JMXHandlersLoader.class.getName());
-        handlerChain.init();
-    }
-
-    @Override
-    protected void postDestroy() {
-        super.postDestroy();
-        handlerChain.destroy();
-    }
     /*
      * (non-Javadoc)
      * 
@@ -85,6 +64,7 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
     }
 
     public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
+        super.doConfigure(configuration);
         if (isEnabled()) {
 
             // get the message size limit from the conf file and multiply
@@ -100,7 +80,6 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
             lmtpGreeting = configuration.getString("lmtpGreeting", null);
 
         }
-        this.config = configuration;
     }
 
     /**
@@ -185,16 +164,6 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
      * (non-Javadoc)
      * 
      * @see
-     * org.apache.james.protocols.smtp.SMTPServerMBean#getNetworkInterface()
-     */
-    public String getNetworkInterface() {
-        return "unknown";
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
      * org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer#
      * getDefaultJMXName()
      */
@@ -224,7 +193,7 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
 
     @Override
     protected ChannelUpstreamHandler createCoreHandler() {
-        return new SMTPChannelUpstreamHandler(handlerChain, lmtpConfig, getLogger());
+        return new SMTPChannelUpstreamHandler(getProtocolHandlerChain(), lmtpConfig, getLogger());
     }
 
     @Override
@@ -240,6 +209,16 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
     @Override
     protected boolean isSSLSocket() {
         return false;
+    }
+
+    @Override
+    protected Class<? extends HandlersPackage> getCoreHandlersPackage() {
+        return CoreCmdHandlerLoader.class;
+    }
+
+    @Override
+    protected Class<? extends HandlersPackage> getJMXHandlersPackage() {
+        return JMXHandlersLoader.class;
     }
 
 }

@@ -44,12 +44,12 @@ public class ProtocolHandlerChainImpl implements ProtocolHandlerChain{
     private String jmxHandlersPackage;
     private List<Object> handlers = new LinkedList<Object>();
     
-    public ProtocolHandlerChainImpl(ProtocolHandlerLoader loader, HierarchicalConfiguration handlerchainConfig, String jmxName, String coreHandlersPackage, String jmxHandlersPackage) {
+    public ProtocolHandlerChainImpl(ProtocolHandlerLoader loader, HierarchicalConfiguration handlerchainConfig, String jmxName, Class<? extends HandlersPackage> coreHandlersPackage, Class<? extends HandlersPackage> jmxHandlersPackage) {
         this.loader = loader;
         this.handlerchainConfig = handlerchainConfig;
         this.jmxName = jmxName;
-        this.coreHandlersPackage = coreHandlersPackage;
-        this.jmxHandlersPackage = jmxHandlersPackage;
+        this.coreHandlersPackage = coreHandlersPackage.getName();
+        this.jmxHandlersPackage = jmxHandlersPackage.getName();
     }
     
     @SuppressWarnings("unchecked")

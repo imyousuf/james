@@ -24,9 +24,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
-import org.apache.james.protocols.api.ProtocolHandlerLoader;
-import org.apache.james.protocols.lib.ProtocolHandlerChainImpl;
-import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
+import org.apache.james.protocols.api.HandlersPackage;
+import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.smtpserver.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.jmx.JMXHandlersLoader;
@@ -36,14 +35,7 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 /**
  * NIO SMTPServer which use Netty
  */
-public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPServerMBean {
-
-    /**
-     * The handler chain - SMTPhandlers can lookup handlerchain to obtain
-     * Command handlers , Message handlers and connection handlers Constructed
-     * during initialisation to allow dependency injection.
-     */
-    private ProtocolHandlerChainImpl handlerChain;
+public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServerMBean {
 
     /**
      * Whether authentication is required to use this SMTP server.
@@ -90,16 +82,7 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
 
     private boolean verifyIdentity;
 
-    private ProtocolHandlerLoader loader;
-
-    private HierarchicalConfiguration configuration;
-
     private DNSService dns;
-
-    @Resource(name = "protocolhandlerloader")
-    public void setProtocolHandlerLoader(ProtocolHandlerLoader loader) {
-        this.loader = loader;
-    }
 
     @Resource(name = "dnsservice")
     public void setDNSService(DNSService dns) {
@@ -107,6 +90,7 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
     }
     
     public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
+        super.doConfigure(configuration);
         if (isEnabled()) {
             String authRequiredString = configuration.getString("authRequired", "false").trim().toLowerCase();
             if (authRequiredString.equals("true"))
@@ -175,20 +159,6 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
             verifyIdentity = configuration.getBoolean("verifyIdentity", true);
 
         }
-        this.configuration = configuration;
-    }
-
-    @Override
-    protected void postDestroy() {
-        super.postDestroy();
-        handlerChain.destroy();
-    }
-
-    @Override
-    protected void preInit() throws Exception {
-        super.preInit();
-        handlerChain = new ProtocolHandlerChainImpl(loader, configuration.configurationAt("handlerchain"), jmxName, CoreCmdHandlerLoader.class.getName(), JMXHandlersLoader.class.getName());
-        handlerChain.init();
     }
 
     /**
@@ -325,17 +295,7 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
     public boolean getHeloEhloEnforcement() {
         return heloEhloEnforcement;
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.protocols.smtp.SMTPServerMBean#getNetworkInterface()
-     */
-    public String getNetworkInterface() {
-        return "unknown";
-    }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -390,12 +350,22 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
 
     @Override
     protected ChannelUpstreamHandler createCoreHandler() {
-        return new SMTPChannelUpstreamHandler(handlerChain, theConfigData, getLogger(), getSSLContext(), getEnabledCipherSuites());
+        return new SMTPChannelUpstreamHandler(getProtocolHandlerChain(), theConfigData, getLogger(), getSSLContext(), getEnabledCipherSuites());
     }
 
     @Override
     protected OneToOneEncoder createEncoder() {
         return new SMTPResponseEncoder();
+    }
+
+    @Override
+    protected Class<? extends HandlersPackage> getCoreHandlersPackage() {
+        return CoreCmdHandlerLoader.class;
+    }
+
+    @Override
+    protected Class<? extends HandlersPackage> getJMXHandlersPackage() {
+        return JMXHandlersLoader.class;
     }
 
 }
