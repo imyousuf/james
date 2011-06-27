@@ -67,11 +67,9 @@ Parent pom build failure prevents inheritance.
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>
     </dependency>  
-
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
+      <groupId>${javax.mail.groupId}</groupId>
+      <artifactId>${javax.mail.artifactId}</artifactId>
     </dependency>
   </dependencies>
 </project>

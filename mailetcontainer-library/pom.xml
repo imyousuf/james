@@ -68,6 +68,10 @@ Parent pom build failure prevents inheritance.
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mailetcontainer-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-queue-api</artifactId>
     </dependency>
     <dependency>
@@ -110,6 +114,12 @@ Parent pom build failure prevents inheritance.
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-standard-mailets</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mailetcontainer-api</artifactId>
+      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
   </dependencies>
