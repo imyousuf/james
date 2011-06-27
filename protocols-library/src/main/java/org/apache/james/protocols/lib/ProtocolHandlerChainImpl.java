@@ -159,6 +159,9 @@ public class ProtocolHandlerChainImpl implements ProtocolHandlerChain{
         return hList;
     }
 
+    /**
+     * Destroy all loaded {@link LifecycleAwareProtocolHandler}
+     */
     public void destroy() {
         LinkedList<LifecycleAwareProtocolHandler> lHandlers = getHandlers(LifecycleAwareProtocolHandler.class);
         for (LifecycleAwareProtocolHandler handler: lHandlers) {

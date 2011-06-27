@@ -26,7 +26,7 @@ import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
 /**
- * Count active connections
+ * Count connections
  */
 public class ConnectionCountHandler extends SimpleChannelUpstreamHandler {
 
@@ -55,6 +55,12 @@ public class ConnectionCountHandler extends SimpleChannelUpstreamHandler {
         return currentConnectionCount.get();
     }
 
+    /**
+     * Return the count of all connections which where made till the server
+     * was started
+     * 
+     * @return tillCount
+     */
     public long getConnectionsTillStartup() {
         return connectionsTillStartup.get();
     }

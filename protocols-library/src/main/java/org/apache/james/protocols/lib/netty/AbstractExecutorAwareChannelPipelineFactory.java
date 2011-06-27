@@ -23,6 +23,11 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.execution.ExecutionHandler;
 
+/**
+ * Abstract base class which should get used if you MAY need an {@link ExecutionHandler}
+ * 
+ *
+ */
 public abstract class AbstractExecutorAwareChannelPipelineFactory extends AbstractSSLAwareChannelPipelineFactory{
 
 
@@ -43,7 +48,18 @@ public abstract class AbstractExecutorAwareChannelPipelineFactory extends Abstra
         return pipeLine;
     }
 
+    /**
+     * Return the {@link ExecutionHandler} to use or null if none
+     * should get used
+     * 
+     * @return eHandler
+     */
     protected abstract ExecutionHandler getExecutionHandler();
     
+    /**
+     * REturn the {@link ConnectionCountHandler} to use
+     * 
+     * @return cHandler
+     */
     protected abstract ConnectionCountHandler getConnectionCountHandler();
 }
