@@ -30,10 +30,14 @@
   <properties>
       <!-- OSGI stuff -->
     <james.osgi.export>
+      !org.apache.james.container.spring.resource.*,
+      !org.apache.james.container.spring.context.*,
       org.apache.james.*
     </james.osgi.export>
-    <!-- exclude spring web support for now -->
+    <!-- exclude spring web support and commons-daemon for now -->
     <james.osgi.import>
+      !org.apache.commons.commons.daemon.*,
+      !org.apache.james.mailbox.copier.*,
       !org.springframework.web.*,
       *
     </james.osgi.import>

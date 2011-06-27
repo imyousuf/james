@@ -27,6 +27,16 @@
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-mailetcontainer-library</artifactId>
   <name>Apache James Server Mailetcontainer library</name>
+  <properties>
+      <!-- OSGI stuff -->
+    <james.osgi.export>
+      org.apache.james.mailetcontainer.*
+    </james.osgi.export>
+    <james.osgi.import>
+      *
+    </james.osgi.import>
+  </properties> 
+  
    <build>
           <plugins>
       <plugin>
