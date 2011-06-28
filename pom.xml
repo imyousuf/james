@@ -60,7 +60,6 @@
     <module>mailetcontainer-camel</module>
     <module>mailets</module>
     <module>protocols-library</module>
-    <module>osgi</module>
     <module>pop3server</module>
     <module>smtpserver</module>
     <module>queue-api</module>

@@ -41,6 +41,9 @@
       !org.springframework.web.*,
       *
     </james.osgi.import>
+    <james.osgi.dynamic>
+      *
+    </james.osgi.dynamic>
   </properties> 
 
 
