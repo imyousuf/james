@@ -27,6 +27,11 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+/**
+ * {@link ScheduledThreadPoolExecutor} which expose statistics via JMX
+ * 
+ *
+ */
 public class JMXEnabledScheduledThreadPoolExecutor extends ScheduledThreadPoolExecutor implements JMXEnabledScheduledThreadPoolExecutorMBean {
 
     private String jmxPath;
@@ -160,5 +165,13 @@ public class JMXEnabledScheduledThreadPoolExecutor extends ScheduledThreadPoolEx
      */
     public int getQueuedTasks() {
         return getQueue().size();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#getMaximalThreads()
+     */
+    public int getMaximalThreads() {
+        return getMaximumPoolSize();
     }
 }

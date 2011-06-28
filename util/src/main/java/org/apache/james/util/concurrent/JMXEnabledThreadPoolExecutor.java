@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -160,6 +161,14 @@ public class JMXEnabledThreadPoolExecutor extends ThreadPoolExecutor implements 
         return getQueue().size();
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#getMaximalThreads()
+     */
+    public int getMaximalThreads() {
+        return getMaximumPoolSize();
+    }
+
     /**
      * Create a cached instance of this class. If jmxPath is null it will not
      * register itself to the {@link MBeanServer}
@@ -184,5 +193,13 @@ public class JMXEnabledThreadPoolExecutor extends ThreadPoolExecutor implements 
      */
     public static JMXEnabledThreadPoolExecutor newCachedThreadPool(String jmxPath, NamedThreadFactory factory) {
         return new JMXEnabledThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), factory, jmxPath);
+    }
+    
+    public static JMXEnabledThreadPoolExecutor newFixedThreadPool(String jmxPath, int nThreads, NamedThreadFactory threadFactory) {
+        return new JMXEnabledThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory, jmxPath);
+    }
+    
+    public static JMXEnabledThreadPoolExecutor newFixedThreadPool(String jmxPath, String name, int nThreads) {
+        return newFixedThreadPool(jmxPath, nThreads, new NamedThreadFactory(name));
     }
 }

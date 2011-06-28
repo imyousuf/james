@@ -19,7 +19,7 @@
 
 package org.apache.james.mailetcontainer.lib;
 
-import java.util.Collection;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -35,8 +35,10 @@ import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.mailetcontainer.api.jmx.MailSpoolerMBean;
 import org.apache.james.queue.api.MailQueue;
+import org.apache.james.queue.api.MailQueue.MailQueueException;
 import org.apache.james.queue.api.MailQueue.MailQueueItem;
 import org.apache.james.queue.api.MailQueueFactory;
+import org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutor;
 import org.apache.mailet.Mail;
 import org.slf4j.Logger;
 
@@ -45,8 +47,6 @@ import org.slf4j.Logger;
  * from the spool, directing messages to the appropriate processor, and removing
  * them from the spool when processing is complete.
  * 
- * TODO: We should better use a ExecutorService here and only spawn a new Thread
- * if needed
  */
 public class JamesMailSpooler implements Runnable, Configurable, LogEnabled, MailSpoolerMBean {
 
@@ -64,14 +64,18 @@ public class JamesMailSpooler implements Runnable, Configurable, LogEnabled, Mai
     private AtomicBoolean active = new AtomicBoolean(false);
 
     /** Spool threads */
-    private Collection<Thread> spoolThreads;
-
+    private ExecutorService dequeueService;
+    
+    private ExecutorService workerService;
+    
     /** The mail processor */
     private MailProcessor mailProcessor;
 
     private Logger logger;
 
     private MailQueueFactory queueFactory;
+
+    private int numDequeueThreads;
 
     @Resource(name = "mailqueuefactory")
     public void setMailQueueFactory(MailQueueFactory queueFactory) {
@@ -91,6 +95,8 @@ public class JamesMailSpooler implements Runnable, Configurable, LogEnabled, Mai
      * configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
+        numDequeueThreads = config.getInt("dequeueThreads", 2);
+
         numThreads = config.getInt("threads", 100);
     }
 
@@ -109,11 +115,12 @@ public class JamesMailSpooler implements Runnable, Configurable, LogEnabled, Mai
         }
 
         active.set(true);
-        spoolThreads = new java.util.ArrayList<Thread>(numThreads);
-        for (int i = 0; i < numThreads; i++) {
-            Thread reader = new Thread(this, "Spool Thread #" + i);
-            spoolThreads.add(reader);
-            reader.start();
+        workerService = JMXEnabledThreadPoolExecutor.newFixedThreadPool("org.apache.james:type=component,component=mailetcontainer,name=mailspooler,sub-type=threadpool", "spooler", numThreads);
+        dequeueService = JMXEnabledThreadPoolExecutor.newFixedThreadPool("org.apache.james:type=component,component=mailetcontainer,name=mailspooler,sub-type=threadpool", "dequeuer", numDequeueThreads);
+        
+        for (int i = 0; i < numDequeueThreads; i++) {
+            Thread reader = new Thread(this, "Dequeue Thread #" + i);
+            dequeueService.execute(reader);
         }
     }
 
@@ -131,41 +138,57 @@ public class JamesMailSpooler implements Runnable, Configurable, LogEnabled, Mai
         while (active.get()) {
             numActive.incrementAndGet();
 
+            final MailQueueItem queueItem;
             try {
-                MailQueueItem queueItem = queue.deQueue();
+                queueItem = queue.deQueue();
+                workerService.execute(new Runnable() {
 
-                // increase count
-                processingActive.incrementAndGet();
+                    @Override
+                    public void run() {
+                        try {
+                            // increase count
+                            processingActive.incrementAndGet();
 
-                Mail mail = queueItem.getMail();
-                if (logger.isDebugEnabled()) {
-                    StringBuffer debugBuffer = new StringBuffer(64).append("==== Begin processing mail ").append(mail.getName()).append("====");
-                    logger.debug(debugBuffer.toString());
-                }
+                            Mail mail = queueItem.getMail();
+                            if (logger.isDebugEnabled()) {
+                                StringBuffer debugBuffer = new StringBuffer(64).append("==== Begin processing mail ").append(mail.getName()).append("====");
+                                logger.debug(debugBuffer.toString());
+                            }
 
-                try {
-                    mailProcessor.service(mail);
-                    queueItem.done(true);
-                } catch (Exception e) {
-                    if (active.get() && logger.isErrorEnabled()) {
-                        logger.error("Exception processing mail while spooling " + e.getMessage(), e);
+                            try {
+                                mailProcessor.service(mail);
+                                queueItem.done(true);
+                            } catch (Exception e) {
+                                if (active.get() && logger.isErrorEnabled()) {
+                                    logger.error("Exception processing mail while spooling " + e.getMessage(), e);
+                                }
+                                queueItem.done(false);
+
+                            } finally {
+                                LifecycleUtil.dispose(mail);
+                                mail = null;
+                            }
+                        } catch (Throwable e) {
+                            if (active.get() && logger.isErrorEnabled()) {
+                                logger.error("Exception processing mail while spooling " + e.getMessage(), e);
+
+                            }
+                        } finally {
+                            processingActive.decrementAndGet();
+                            numActive.decrementAndGet();
+                        }
+
                     }
-                    queueItem.done(false);
-
-                } finally {
-                    LifecycleUtil.dispose(mail);
-                    mail = null;
-                }
-
-            } catch (Throwable e) {
+                });
+                  
+               
+            } catch (MailQueueException e1) {
                 if (active.get() && logger.isErrorEnabled()) {
-                    logger.error("Exception processing mail while spooling " + e.getMessage(), e);
+                    logger.error("Exception dequeue mail", e1);
 
                 }
-            } finally {
-                processingActive.decrementAndGet();
-                numActive.decrementAndGet();
             }
+          
 
         }
         if (logger.isInfoEnabled()) {
@@ -187,10 +210,9 @@ public class JamesMailSpooler implements Runnable, Configurable, LogEnabled, Mai
     public void dispose() {
         logger.info(getClass().getName() + " dispose...");
         active.set(false); // shutdown the threads
-        for (Thread thread : spoolThreads) {
-            thread.interrupt(); // interrupt any waiting accept() calls.
-        }
-
+        dequeueService.shutdownNow();
+        workerService.shutdown();
+        
         long stop = System.currentTimeMillis() + 60000;
         // give the spooler threads one minute to terminate gracefully
         while (numActive.get() != 0 && stop > System.currentTimeMillis()) {

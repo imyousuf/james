@@ -54,4 +54,11 @@ public interface JMXEnabledThreadPoolExecutorMBean {
      * @return aTime
      */
     double getAverageTaskTime();
+    
+    /**
+     * Return the maximal allowed count of threads
+     * 
+     * @return maxThreads
+     */
+    int getMaximalThreads();
 }
