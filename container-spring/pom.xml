@@ -563,7 +563,10 @@ END Tanuki Software License ============================================
       <groupId>${javax.mail.groupId}</groupId>
       <artifactId>${javax.mail.artifactId}</artifactId>
     </dependency>
-    
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
     
     <!-- Runtime dependencies which will get included in the generated binary distribution -->
     <dependency>
@@ -579,11 +582,6 @@ END Tanuki Software License ============================================
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
