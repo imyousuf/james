@@ -27,6 +27,20 @@
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-lmtpserver</artifactId>
   <name>Apache James Server LMTP</name>
+  <properties>
+      <!-- OSGI stuff -->
+    <james.osgi.export>
+      org.apache.james.lmtpserver.*
+    </james.osgi.export>
+    <james.osgi.import>
+      *
+    </james.osgi.import>
+    <!-- Allow dynamic imports because the user is allowed to add handlers and hooks -->
+    <james.osgi.dynamic>
+      *
+    </james.osgi.dynamic>
+  </properties> 
+  
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>

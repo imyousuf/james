@@ -27,7 +27,7 @@
        http://www.springframework.org/schema/beans   
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">                   
 
-    <osgi:service ref="lmtpserver">
+    <osgi:service ref="smtpserver">
       <osgi:interfaces>
        <beans:value>org.apache.james.smtpserver.netty.SMTPServerMBean</beans:value>
       </osgi:interfaces>
