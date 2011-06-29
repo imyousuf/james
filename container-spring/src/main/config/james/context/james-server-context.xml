@@ -194,14 +194,15 @@
     <!-- 
       Mailet Container Beans.
      -->
-    <bean id="mailprocessor" name="processorRoute" class="org.apache.james.mailetcontainer.camel.CamelCompositeProcessor"/>
+    <bean id="mailprocessor" name="processorRoute" class="org.apache.james.mailetcontainer.impl.camel.CamelCompositeProcessor"/>
+  
     <!-- 
       mailcontext bean must be defined after mailProcessor 
       otherwise LogEnabled injection via LogEnabledBeanPostProcessor will not occur before 
       it is used - Seems like a Spring bug.
     -->
-    <bean id="mailetcontext" class="org.apache.james.mailetcontainer.camel.CamelMailetContext"/>
-    <bean id="mailspooler" class="org.apache.james.mailetcontainer.lib.JamesMailSpooler"/>
+    <bean id="mailetcontext" class="org.apache.james.mailetcontainer.impl.JamesMailetContext"/>
+    <bean id="mailspooler" class="org.apache.james.mailetcontainer.impl.JamesMailSpooler"/>
 
     <!-- 
       Mailet and Matcher "Bean-Factory".
