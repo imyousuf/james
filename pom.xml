@@ -56,7 +56,6 @@
     <module>lifecycle-api</module>
     <module>mailbox-adapter</module>
     <module>mailetcontainer-api</module>
-    <module>mailetcontainer-library</module>
     <module>mailetcontainer-camel</module>
     <module>mailets</module>
     <module>protocols-library</module>
@@ -628,18 +627,6 @@
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mailetcontainer-library</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mailetcontainer-library</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
