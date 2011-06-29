@@ -59,7 +59,7 @@
     - JPA validated against more databases (among others Oracle)
     - Multiple address and port configurations per protocol
     - POP3 is now operational (was buggy in 3.0-M2)
-    - Mailbox Tooling to copier from a persistence to another persistence
+    - Mailbox Tooling to copy from a persistence to another persistence
     - Upgrade tool from James 2.3 is available
     - Better logging on protocols with adjustable level
     - Full mailet package must be specified
