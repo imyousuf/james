@@ -35,10 +35,6 @@
     <james.osgi.import>
       *
     </james.osgi.import>
-    <!-- Allow dynamic imports because the user is allowed to add handlers and hooks -->
-    <james.osgi.dynamic>
-      *
-    </james.osgi.dynamic>
   </properties> 
   <dependencies>
     <dependency>
