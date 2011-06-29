@@ -81,17 +81,20 @@ Removed from trunk for now.
         <item name="Sieve" href="/config-sieve.html" />
         <item name="Anti Spam" href="/config-antispam.html" />
       </item>
-      <item name="4. Manage James" href="/manage.html" collapse="true" >
+      <item name="4. Manage" href="/manage.html" collapse="true" >
         <item name="Domains" href="/manage-domains.html" />
         <item name="Users" href="/manage-users.html" />
         <item name="Recipient Rewrite" href="/manage-recipientrewrite.html" />
       </item>
-      <item name="5. Monitor James" href="/monitor.html" collapse="true" >
+      <item name="5. Monitor" href="/monitor.html" collapse="true" >
         <item name="Logging" href="/monitor-logging.html" />
         <item name="JMX" href="/monitor-jmx.html" />
         <item name="Folders" href="/monitor-folders.html" />
       </item>
-      <item name="6. Upgrade from James 2.3" href="/upgrade-2.3.html" />
+      <item name="6. Upgrade" collapse="true" >
+        <item name="Upgrade from 2.3" href="/upgrade-2.3.html" />
+        <item name="Upgrade database" href="/upgrade-database.html" />
+      </item>
     </menu>
 
     <menu name="Developers Corner">
