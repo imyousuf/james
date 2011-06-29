@@ -60,7 +60,7 @@ import org.apache.mailet.MailetContext;
 import org.apache.mailet.base.RFC2822Headers;
 import org.slf4j.Logger;
 
-public abstract class JamesMailetContext implements MailetContext, LogEnabled, Configurable {
+public class JamesMailetContext implements MailetContext, LogEnabled, Configurable {
 
     /** A hash table of server attributes These are the MailetContext attributes */
     private Hashtable<String, Object> attributes = new Hashtable<String, Object>();
