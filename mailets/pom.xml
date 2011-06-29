@@ -28,6 +28,20 @@
   <artifactId>james-server-mailets</artifactId>
   <name>Apache James Server Mailets</name>
   <packaging>jar</packaging>
+  <properties>
+    <!-- OSGI stuff -->
+    <james.osgi.export>
+      org.apache.james.transport.mailets.*,
+      org.apache.james.transport.matchers.*
+    </james.osgi.export>
+    <!-- Exclude JSPF as dnsjnio is not OSGI ready yet -->
+    <!-- TODO: Contribute a patch for this! -->
+    <james.osgi.import>
+      !org.apache.james.jspf.*,
+      *
+    </james.osgi.import>
+  </properties> 
+  
   <build>
     <plugins>
       <plugin>
@@ -56,28 +70,6 @@ Parent pom build failure prevents inheritance.
         <version>0.1</version>
         <configuration>
             <outputDirectory>target/mailetdocs</outputDirectory>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>bundle-manifest</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>manifest</goal>
-            </goals>
-          </execution>
-        </executions>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <!-- exclude jspf for now, cause dnsjnio is not osgi ready -->
-            <Import-Package>!org.apache.james.jspf.*, *</Import-Package>
-            <Export-Package>org.apache.james.transport.mailets.*,org.apache.james.transport.matchers</Export-Package>
-            <Embed-Dependency>*;scope=runtime</Embed-Dependency>
-          </instructions>
         </configuration>
       </plugin>
     </plugins>

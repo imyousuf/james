@@ -30,7 +30,7 @@
   <properties>
       <!-- OSGI stuff -->
     <james.osgi.export>
-      org.apache.james.*
+      org.apache.james.core.*
     </james.osgi.export>
     <james.osgi.import>
       *
