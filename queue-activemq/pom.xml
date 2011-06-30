@@ -27,6 +27,26 @@
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-queue-activemq</artifactId>
   <name>Apache James Server ActiveMQ Queue</name>
+  <properties>
+      <!-- OSGI stuff -->
+    <james.osgi.export>
+      org.apache.james.queue.activemq.*
+    </james.osgi.export>
+    <!-- Add the needed imports for ActiveMQ and Spring which are needed to startup the bundle-->
+    <james.osgi.import>
+      org.apache.activemq.xbean,
+      org.apache.activemq.broker,
+      org.apache.activemq.pool,
+      org.apache.activemq.broker.region.policy,
+      org.apache.activemq.broker.jmx,
+      org.apache.activemq.store.amq,
+      org.apache.activemq.plugin,
+      org.apache.activemq.spring,
+      org.springframework.jms.connection.*,
+      org.springframework.transaction.support.*,
+      *
+    </james.osgi.import>
+  </properties> 
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
