@@ -136,7 +136,6 @@ public class JamesMailSpooler implements Runnable, Configurable, LogEnabled, Mai
         }
 
         while (active.get()) {
-            numActive.incrementAndGet();
 
             final MailQueueItem queueItem;
             try {
@@ -146,6 +145,8 @@ public class JamesMailSpooler implements Runnable, Configurable, LogEnabled, Mai
                     @Override
                     public void run() {
                         try {
+                            numActive.incrementAndGet();
+
                             // increase count
                             processingActive.incrementAndGet();
 
