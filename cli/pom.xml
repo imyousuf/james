@@ -58,10 +58,23 @@ Parent pom build failure prevents inheritance.
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>java</goal>
+            </goals>
+         </execution>
+        </executions>
+        <configuration>
+          <mainClass>org.apache.james.cli.ServerCmd</mainClass>
+        </configuration>
+      </plugin>
     </plugins>
    </build>
-
-
+   
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -77,4 +90,5 @@ Parent pom build failure prevents inheritance.
       <scope>test</scope>
     </dependency>
   </dependencies>
+
 </project>

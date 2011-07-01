@@ -95,6 +95,7 @@
     <p><strong>Warning!</strong> Any changes you've made in the 'dist' directory 
       will be lost after a recompilation. If you are running James for this directory
       we recommend you backup to avoid losing work. </p>
+    <p>You can also invoke the command line from a shell. Go to the server project cli folder and type mvn exec:java -Dexec.args="-h localhost -p 9999 help"</p>
 
   </section>
 
