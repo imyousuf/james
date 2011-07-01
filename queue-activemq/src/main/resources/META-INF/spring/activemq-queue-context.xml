@@ -33,7 +33,8 @@
    <osgix:cm-properties id="cmProps" persistent-id="org.apache.james">
       <prop key="amq.brokerURL">vm://james?create=false</prop>
       <prop key="amq.sessionCacheSize">10</prop>      
-      <prop key="amq.baseDir">/var/store/activemq/</prop>      
+      <prop key="amq.baseDir">/var/store/activemq/</prop>
+      <prop key="amq.useBlobMessages">true</prop>
    </osgix:cm-properties>
 
    <!-- placeholder configurer -->
@@ -48,7 +49,9 @@
     <!-- 
       James Mail Queue Factory
      -->
-    <bean id="mailqueuefactory" class="org.apache.james.queue.activemq.ActiveMQMailQueueFactory" depends-on="broker"/>
+    <bean id="mailqueuefactory" class="org.apache.james.queue.activemq.ActiveMQMailQueueFactory" depends-on="broker">
+        <property name="useBlobMessages" value="${amq.useBlobMessages}"/>
+    </bean>
 
     <!-- 
       ActiveMQ Broker, Connections, Blob

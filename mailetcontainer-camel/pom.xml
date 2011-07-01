@@ -23,6 +23,17 @@
     <groupId>org.apache.james</groupId>
     <version>3.0-beta2-SNAPSHOT</version>
   </parent>
+  <properties>
+      <!-- OSGI stuff -->
+    <james.osgi.export>
+      org.apache.james.mailetcontainer.impl.*,
+      org.apache.james.mailetcontainer.lib.*
+    </james.osgi.export>
+    <james.osgi.import>
+      *
+    </james.osgi.import>
+  </properties> 
+  
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-mailetcontainer-camel</artifactId>
