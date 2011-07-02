@@ -37,8 +37,8 @@
     <!-- Exclude JSPF as dnsjnio is not OSGI ready yet -->
     <!-- TODO: Contribute a patch for this! -->
     <james.osgi.import>
-      !org.apache.james.jspf.*,
-      *
+      *,
+      !org.apache.james.jspf.*
     </james.osgi.import>
   </properties> 
   
