@@ -36,7 +36,7 @@
     </james.osgi.export>
     <!-- exclude spring web support and commons-daemon for now -->
     <james.osgi.import>
-      !org.apache.commons.commons.daemon.*,
+      !org.apache.commons.daemon.*,
       !org.apache.james.mailbox.copier.*,
       !org.springframework.web.*,
       *
