@@ -36,10 +36,10 @@
     </james.osgi.export>
     <!-- exclude spring web support and commons-daemon for now -->
     <james.osgi.import>
+      *
       !org.apache.commons.daemon.*,
       !org.apache.james.mailbox.copier.*,
       !org.springframework.web.*,
-      *
     </james.osgi.import>
     <james.osgi.dynamic>
       *
@@ -137,6 +137,14 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.osgi</groupId>
+      <artifactId>spring-osgi-extender</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>

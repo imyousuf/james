@@ -26,6 +26,12 @@
     <!-- Import PostBeanProcessors -->
     <import resource="classpath*:org/apache/james/container/spring/server-context.xml"/>
     
+    <!-- Register the service trackers -->
+    <bean id="usersrepositoryTracker" class="org.apache.james.container.spring.osgi.UsersRepositoryTracker"/>
+    <bean id="domainlistTracker" class="org.apache.james.container.spring.osgi.DomainListTracker"/>
+    <bean id="recipientrewritetableTracker" class="org.apache.james.container.spring.osgi.RecipientRwriteTableTracker"/>
+    
+
     <!-- 
       Mailet and Matcher "Bean-Factory".
      -->
