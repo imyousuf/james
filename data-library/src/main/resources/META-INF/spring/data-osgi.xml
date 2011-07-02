@@ -8,16 +8,21 @@
        http://www.springframework.org/schema/osgi/spring-osgi-1.2.xsd
        http://www.springframework.org/schema/beans   
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">                   
-
-    <!--  export the dnsserver as osgi service -->
-    <osgi:service ref="domainlist">
-      <osgi:interfaces>
-       <beans:value>org.apache.james.domainlist.api.DomainList</beans:value>
-      </osgi:interfaces>
-    </osgi:service>
+       
     <osgi:service ref="domainlistmanagement">
       <osgi:interfaces>
        <beans:value>org.apache.james.domainlist.api.DomainListManagementMBean</beans:value>
       </osgi:interfaces>
-    </osgi:service>                                        
+    </osgi:service>
+
+    <osgi:service ref="recipientrewritetablemanagement">
+      <osgi:interfaces>
+       <beans:value>org.apache.james.rrt.api.RecipientRewriteTableManagementMBean</beans:value>
+      </osgi:interfaces>
+    </osgi:service>  
+    <osgi:service ref="usersrepositorymanagement">
+      <osgi:interfaces>
+       <beans:value>org.apache.james.user.api.UsersRepositoryManagementMBean</beans:value>
+      </osgi:interfaces>
+    </osgi:service>  
 </beans:beans>

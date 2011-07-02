@@ -27,6 +27,15 @@
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-data-library</artifactId>
   <name>Apache James Server Data Library</name>
+  <properties>
+    <!-- OSGI stuff -->
+    <james.osgi.export>
+      org.apache.james.*,
+    </james.osgi.export>
+    <james.osgi.import>
+      *
+    </james.osgi.import>
+  </properties> 
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>

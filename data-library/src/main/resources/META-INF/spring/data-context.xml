@@ -21,7 +21,8 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
   
     
-    <bean id="domainlist" class="org.apache.james.domainlist.xml.XMLDomainList" />
     <bean id="domainlistmanagement" class="org.apache.james.domainlist.lib.DomainListManagement" />
+    <bean id="recipientrewritetablemanagement" class="org.apache.james.rrt.lib.RecipientRewriteTableManagement" />
+    <bean id="usersrepositorymanagement" class="org.apache.james.user.lib.UsersRepositoryManagement" />
 
 </beans>
