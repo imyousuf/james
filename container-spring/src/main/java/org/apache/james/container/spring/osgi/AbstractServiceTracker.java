@@ -44,7 +44,7 @@ import org.springframework.osgi.service.exporter.support.BeanNameServiceProperti
  * This {@link BundleListener} use the extender pattern to scan all loaded
  * bundles if a class name with a given name is present. If so it register in
  * the {@link BeanDefinitionRegistry} and also register it to
- * {@link BundleContext} as service. This allows to dynamic load and unload osgi
+ * {@link BundleContext} as service. This allows to dynamic load and unload OSGI
  * bundles
  * 
  */
@@ -71,6 +71,7 @@ public abstract class AbstractServiceTracker implements BeanFactoryAware, Bundle
     public void bundleChanged(BundleEvent event) {
         Bundle b = event.getBundle();
 
+        // Check if the event was fired for this class
         if (b.equals(this.context.getBundle())) {
             return;
         }
@@ -80,21 +81,26 @@ public abstract class AbstractServiceTracker implements BeanFactoryAware, Bundle
             Enumeration<?> entrs = b.findEntries("/", "*.class", true);
             if (entrs != null) {
 
+                // Loop over all the classes 
                 while (entrs.hasMoreElements()) {
                     URL e = (URL) entrs.nextElement();
                     String file = e.getFile();
 
                     String className = file.replaceAll("/", ".").replaceAll(".class", "").replaceFirst(".", "");
                     if (className.equals(configuredClass)) {
+                        
+                        // Get the right service properties from the resolver
                         Properties p = new Properties();
                         p.putAll(resolver.getServiceProperties(getComponentName()));
                         Class<?> clazz = getServiceClass();
+                        
                         // Create the definition and register it
                         BeanDefinitionRegistry registry = (BeanDefinitionRegistry) factory;
                         BeanDefinition def = BeanDefinitionBuilder.genericBeanDefinition(className).getBeanDefinition();
                         registry.registerBeanDefinition(getComponentName(), def);
 
-                        reg = b.getBundleContext().registerService(clazz.getName(), factory.getBean(clazz), p);
+                        // register the bean as service in the BundleContext
+                        reg = b.getBundleContext().registerService(clazz.getName(), factory.getBean(getComponentName(), clazz), p);
                     }
                 }
             }
@@ -130,6 +136,7 @@ public abstract class AbstractServiceTracker implements BeanFactoryAware, Bundle
 
     @Override
     public void destroy() throws Exception {
+        // Its time to unregister the listener so we are sure resources are released
         if (context != null) {
             context.removeBundleListener(this);
         }
