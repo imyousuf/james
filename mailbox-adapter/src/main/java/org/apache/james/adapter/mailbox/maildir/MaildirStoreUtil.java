@@ -21,6 +21,7 @@ package org.apache.james.adapter.mailbox.maildir;
 import java.io.FileNotFoundException;
 
 import org.apache.james.filesystem.api.FileSystem;
+import org.apache.james.mailbox.MailboxPathLocker;
 import org.apache.james.mailbox.maildir.MaildirStore;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersRepositoryException;
@@ -36,11 +37,12 @@ public class MaildirStoreUtil {
      * @param fs
      * @param mailServer
      * @param rootURL
+     * @param locker
      * @return store
      * @throws FileNotFoundException
      * @throws UsersRepositoryException
      */
-    public static MaildirStore create(FileSystem fs, UsersRepository usersRepos, String rootURL) throws FileNotFoundException, UsersRepositoryException {
+    public static MaildirStore create(FileSystem fs, UsersRepository usersRepos, String rootURL, MailboxPathLocker locker) throws FileNotFoundException, UsersRepositoryException {
         StringBuffer root = new StringBuffer();
         root.append(fs.getFile(rootURL).getAbsolutePath());
         if (usersRepos.supportVirtualHosting()) {
@@ -49,6 +51,6 @@ public class MaildirStoreUtil {
             root.append("/").append(MaildirStore.PATH_USER).append("/");
         }
 
-        return new MaildirStore(root.toString());
+        return new MaildirStore(root.toString(), locker);
     }
 }
