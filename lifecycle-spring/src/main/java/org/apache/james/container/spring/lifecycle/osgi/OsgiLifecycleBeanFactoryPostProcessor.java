@@ -16,10 +16,10 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.osgi;
+package org.apache.james.container.spring.lifecycle.osgi;
 
-import org.apache.james.container.spring.bean.postprocessor.ConfigurableBeanPostProcessor;
-import org.apache.james.container.spring.bean.postprocessor.LogEnabledBeanPostProcessor;
+import org.apache.james.container.spring.lifecycle.ConfigurableBeanPostProcessor;
+import org.apache.james.container.spring.lifecycle.LogEnabledBeanPostProcessor;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
@@ -53,6 +53,7 @@ public class OsgiLifecycleBeanFactoryPostProcessor implements OsgiBeanFactoryPos
         loggingProcessor.setBeanFactory(factory);
         factory.addBeanPostProcessor(loggingProcessor);
         configurationProcessor.setBeanFactory(factory);
+        factory.addBeanPostProcessor(configurationProcessor);
         annotationProcessor.setBeanFactory(factory);
         factory.addBeanPostProcessor(annotationProcessor);
 

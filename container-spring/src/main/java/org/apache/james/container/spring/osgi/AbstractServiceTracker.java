@@ -23,7 +23,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.container.spring.provider.configuration.ConfigurationProvider;
+import org.apache.james.container.spring.lifecycle.ConfigurationProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.provider.log;
+package org.apache.james.container.spring.lifecycle;
 
 import org.slf4j.Logger;
 

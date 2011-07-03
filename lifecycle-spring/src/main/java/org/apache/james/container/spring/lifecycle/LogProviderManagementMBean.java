@@ -16,39 +16,22 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.bean.postprocessor;
+package org.apache.james.container.spring.lifecycle;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.container.spring.bean.AbstractLifecycleBeanPostProcessor;
-import org.apache.james.container.spring.provider.configuration.ConfigurationProvider;
-import org.apache.james.lifecycle.api.Configurable;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Inject Commons Configuration to beans which implement the Configurable
- * interface
+ * Allow to change loglevel via JMX
  */
-public class ConfigurableBeanPostProcessor extends AbstractLifecycleBeanPostProcessor<Configurable> {
+public interface LogProviderManagementMBean {
 
-    private ConfigurationProvider provider;
+    List<String> getSupportedLogLevels();
 
-    public void setConfigurationProvider(ConfigurationProvider provider) {
-        this.provider = provider;
-    }
+    Map<String, String> getLogLevels();
 
-    @Override
-    protected Class<Configurable> getLifeCycleInterface() {
-        return Configurable.class;
-    }
+    String getLogLevel(String component);
 
-    @Override
-    protected void executeLifecycleMethodBeforeInit(Configurable bean, String beanname) throws Exception {
-        HierarchicalConfiguration config = provider.getConfiguration(beanname);
-        bean.configure(config);
-    }
-
-    @Override
-    protected void executeLifecycleMethodAfterInit(Configurable bean, String beanname) throws Exception {
-        // Do nothing.
-    }
+    void setLogLevel(String component, String loglevel);
 
 }

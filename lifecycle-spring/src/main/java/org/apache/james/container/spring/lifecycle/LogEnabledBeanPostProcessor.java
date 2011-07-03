@@ -16,22 +16,34 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.provider.log;
+package org.apache.james.container.spring.lifecycle;
 
-import java.util.List;
-import java.util.Map;
+import org.apache.james.lifecycle.api.LogEnabled;
 
 /**
- * Allow to change loglevel via JMX
+ * Inject Commons Log to beans which implement LogEnabled.
  */
-public interface LogProviderManagementMBean {
+public class LogEnabledBeanPostProcessor extends AbstractLifecycleBeanPostProcessor<LogEnabled> {
 
-    List<String> getSupportedLogLevels();
+    private LogProvider provider;
 
-    Map<String, String> getLogLevels();
+    public void setLogProvider(LogProvider provider) {
+        this.provider = provider;
+    }
 
-    String getLogLevel(String component);
+    @Override
+    protected Class<LogEnabled> getLifeCycleInterface() {
+        return LogEnabled.class;
+    }
 
-    void setLogLevel(String component, String loglevel);
+    @Override
+    protected void executeLifecycleMethodBeforeInit(LogEnabled bean, String beanname) throws Exception {
+        bean.setLog(provider.getLog(beanname));
+    }
+
+    @Override
+    protected void executeLifecycleMethodAfterInit(LogEnabled bean, String beanname) throws Exception {
+        // Do nothing.
+    }
 
 }

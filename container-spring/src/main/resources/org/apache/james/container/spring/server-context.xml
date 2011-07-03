@@ -52,7 +52,7 @@
         <property name="configurationProvider" ref="configurationprovider" />
         <property name="order" value="1" />
     </bean>
-    <bean id="configurationprovider" class="org.apache.james.container.spring.provider.configuration.ConfigurationProviderImpl">
+    <bean id="configurationprovider" class="org.apache.james.container.spring.osgi.OSGIConfigurationProvider">
     <!--  
         <property name="configurationMappings">
             <map>

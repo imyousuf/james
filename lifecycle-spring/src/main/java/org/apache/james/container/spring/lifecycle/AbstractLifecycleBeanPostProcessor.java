@@ -16,10 +16,13 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.bean;
+package org.apache.james.container.spring.lifecycle;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
@@ -30,9 +33,15 @@ import org.springframework.core.PriorityOrdered;
  * 
  * @param <T>
  */
-public abstract class AbstractLifecycleBeanPostProcessor<T> extends AbstractBeanFactory implements BeanPostProcessor, PriorityOrdered {
+public abstract class AbstractLifecycleBeanPostProcessor<T> implements BeanPostProcessor, PriorityOrdered, BeanFactoryAware {
 
     private int order = Ordered.HIGHEST_PRECEDENCE;
+    private ListableBeanFactory factory;
+
+    @Override
+    public void setBeanFactory(BeanFactory factory) throws BeansException {
+        this.factory = (ListableBeanFactory) factory;
+    }
 
     /*
      * (non-Javadoc)
@@ -48,7 +57,7 @@ public abstract class AbstractLifecycleBeanPostProcessor<T> extends AbstractBean
                 // Check if the bean is registered in the context.
                 // If not it was created by the container and so there
                 // is no need to execute the callback.
-                if (getBeanFactory().containsBeanDefinition(name)) {
+                if (factory.containsBeanDefinition(name)) {
                     executeLifecycleMethodBeforeInit((T) bean, name);
                 }
             }
@@ -72,7 +81,7 @@ public abstract class AbstractLifecycleBeanPostProcessor<T> extends AbstractBean
                 // Check if the bean is registered in the context.
                 // If not it was created by the container and so there is no
                 // need to execute the callback.
-                if (getBeanFactory().containsBeanDefinition(name)) {
+                if (factory.containsBeanDefinition(name)) {
                     executeLifecycleMethodAfterInit((T) bean, name);
                 }
             }

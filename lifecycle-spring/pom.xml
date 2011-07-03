@@ -25,8 +25,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-server-container-spring</artifactId>
-  <name>Apache James Server Container Spring</name>
+  <artifactId>james-server-lifecycle-spring</artifactId>
+  <name>Apache James Server Lifecycle Spring</name>
   <properties>
       <!-- OSGI stuff -->
     <james.osgi.export>
@@ -66,6 +66,9 @@
               <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
             </manifest>
+            <manifestEntries>
+              <Fragment-Host>org.springframework.osgi.extender</Fragment-Host>
+            </manifestEntries>
           </archive>
         </configuration>       
         <executions>
@@ -84,11 +87,6 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-lifecycle-spring</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>james-server-lifecycle-api</artifactId>
     </dependency>
     <dependency>
@@ -97,35 +95,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mailetcontainer-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>james-server-data-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-core</artifactId>
-    </dependency>
-   <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-mailbox-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-mailbox-tool</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james.protocols</groupId>
-      <artifactId>protocols-api</artifactId>
-    </dependency>
-     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-mailet</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-daemon</groupId>
-      <artifactId>commons-daemon</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
@@ -140,21 +110,12 @@
       <artifactId>spring-context</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-web</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.osgi</groupId>
       <artifactId>spring-osgi-extender</artifactId>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <scope>provided</scope>
     </dependency>
      <dependency>
       <groupId>commons-configuration</groupId>
@@ -165,13 +126,8 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>${javax.mail.groupId}</groupId>
-      <artifactId>${javax.mail.artifactId}</artifactId>
-    </dependency>
-    <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
     </dependency>
-
   </dependencies>
 </project>

@@ -1,4 +1,4 @@
-package org.apache.james.container.spring.osgi;
+package org.apache.james.container.spring.lifecycle.osgi;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -7,7 +7,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 
-public class OSGIConfigurationProvider implements org.apache.james.container.spring.provider.configuration.ConfigurationProvider{
+public class OSGIConfigurationProvider implements org.apache.james.container.spring.lifecycle.ConfigurationProvider{
 
     @Override
     public void registerConfiguration(String beanName, HierarchicalConfiguration conf) {

@@ -21,8 +21,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
   
     <!-- Import PostBeanProcessors -->
+    <!--  
     <import resource="classpath*:org/apache/james/container/spring/server-context.xml"/>
-    
+    -->
     <bean id="dnsservice" class="org.apache.james.dnsservice.dnsjava.DNSJavaService" />
 
 </beans>
