@@ -39,10 +39,9 @@ import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxPath;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.MessageManager;
-import org.apache.james.mailbox.inmemory.InMemoryMailboxManager;
 import org.apache.james.mailbox.inmemory.InMemoryMailboxSessionMapperFactory;
-import org.apache.james.mailbox.inmemory.mail.InMemoryCachingUidProvider;
 import org.apache.james.mailbox.store.Authenticator;
+import org.apache.james.mailbox.store.StoreMailboxManager;
 import org.apache.james.pop3server.netty.POP3Server;
 import org.apache.james.protocols.lib.POP3BeforeSMTPHelper;
 import org.apache.james.protocols.lib.PortUtil;
@@ -60,7 +59,7 @@ public class POP3ServerTest extends TestCase {
     private POP3Client m_pop3Protocol = null;
     protected MockFileSystem fSystem;
     protected MockProtocolHandlerLoader chain;
-    private InMemoryMailboxManager manager;
+    private StoreMailboxManager<Long> manager;
     private byte[] content =        ("Return-path: return@test.com\r\n"+
             "Content-Transfer-Encoding: plain\r\n"+
             "Subject: test\r\n\r\n"+
@@ -112,7 +111,7 @@ public class POP3ServerTest extends TestCase {
 
         InMemoryMailboxSessionMapperFactory factory = new InMemoryMailboxSessionMapperFactory();
 
-        manager = new InMemoryMailboxManager(factory, new Authenticator() {
+        manager = new StoreMailboxManager<Long>(factory, new Authenticator() {
 
             public boolean isAuthentic(String userid, CharSequence passwd) {
                 try {
@@ -123,7 +122,7 @@ public class POP3ServerTest extends TestCase {
                     return false;
                 }
             }
-        }, new InMemoryCachingUidProvider());
+        });
 
         chain.put("mailboxmanager", manager);
 
@@ -144,8 +143,6 @@ public class POP3ServerTest extends TestCase {
             e.printStackTrace();
         }
 
-        manager.deleteEverything();
-        // manager.deleteAll();
         chain.dispose();
 
         m_pop3Server.destroy();
