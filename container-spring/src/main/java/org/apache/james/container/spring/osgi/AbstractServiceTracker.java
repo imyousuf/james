@@ -19,7 +19,9 @@
 package org.apache.james.container.spring.osgi;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -53,7 +55,7 @@ public abstract class AbstractServiceTracker implements BeanFactoryAware, Bundle
     private BundleContext context;
     private BeanFactory factory;
     private String configuredClass;
-    private ServiceRegistration reg;
+    private final List<ServiceRegistration> reg = new ArrayList<ServiceRegistration>();
 
     @Override
     public void setBeanFactory(BeanFactory factory) throws BeansException {
@@ -105,18 +107,24 @@ public abstract class AbstractServiceTracker implements BeanFactoryAware, Bundle
                         registry.registerBeanDefinition(getComponentName(), def);
 
                         // register the bean as service in the BundleContext
-                        reg = b.getBundleContext().registerService(clazz.getName(), factory.getBean(getComponentName(), clazz), p);
+                        reg.add(b.getBundleContext().registerService(clazz.getName(), factory.getBean(getComponentName(), clazz), p));
                     }
                 }
             }
             break;
         case BundleEvent.STOPPED:
             if (reg != null) {
-
-                // Check if we need to unregister the service
-                if (b.equals(reg.getReference().getBundle())) {
-                    reg.unregister();
+                List<ServiceRegistration> removed = new ArrayList<ServiceRegistration>();
+                for (int i = 0; i < reg.size(); i++) {
+                    ServiceRegistration sr = reg.get(i);
+                    // Check if we need to unregister the service
+                    if (b.equals(sr.getReference().getBundle())) {
+                        sr.unregister();
+                        removed.add(sr);
+                    } 
                 }
+                reg.removeAll(removed);
+               
             }
             break;
         default:
@@ -132,7 +140,9 @@ public abstract class AbstractServiceTracker implements BeanFactoryAware, Bundle
 
         // Get the configuration for the class
         configuredClass = config.getString("[@class]");
-        context.addBundleListener(this);
+        if (context != null) {
+            context.addBundleListener(this);
+        }
     }
 
     @Override
