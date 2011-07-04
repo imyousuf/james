@@ -108,6 +108,9 @@ Parent pom build failure prevents inheritance.
       <groupId>org.jboss.netty</groupId>
       <artifactId>netty</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-annotation_1.1_spec</artifactId>
+    </dependency>
   </dependencies>
 </project>
