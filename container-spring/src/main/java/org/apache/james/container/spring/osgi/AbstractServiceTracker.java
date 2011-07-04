@@ -53,7 +53,6 @@ public abstract class AbstractServiceTracker implements BeanFactoryAware, Bundle
     private BundleContext context;
     private BeanFactory factory;
     private String configuredClass;
-    private BeanNameServicePropertiesResolver resolver;
     private ServiceRegistration reg;
 
     @Override
@@ -91,6 +90,12 @@ public abstract class AbstractServiceTracker implements BeanFactoryAware, Bundle
                         
                         // Get the right service properties from the resolver
                         Properties p = new Properties();
+
+                        // Setup a resolver
+                        BeanNameServicePropertiesResolver resolver = new BeanNameServicePropertiesResolver();
+                        resolver.setBundleContext(b.getBundleContext());
+
+                        
                         p.putAll(resolver.getServiceProperties(getComponentName()));
                         Class<?> clazz = getServiceClass();
                         
@@ -124,10 +129,6 @@ public abstract class AbstractServiceTracker implements BeanFactoryAware, Bundle
     public void afterPropertiesSet() throws Exception {
         ConfigurationProvider confProvider = factory.getBean(ConfigurationProvider.class);
         HierarchicalConfiguration config = confProvider.getConfiguration(getComponentName());
-
-        // Setup a resolver
-        resolver = new BeanNameServicePropertiesResolver();
-        resolver.setBundleContext(context);
 
         // Get the configuration for the class
         configuredClass = config.getString("[@class]");
