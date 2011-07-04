@@ -27,7 +27,15 @@
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-ldap</artifactId>
   <name>Apache James Server LDAP Data Implementation</name>
-  
+  <properties>
+      <!-- OSGI stuff -->
+    <james.osgi.export>
+      org.apache.james.*,
+    </james.osgi.export>
+    <james.osgi.import>
+      *
+    </james.osgi.import>
+  </properties> 
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
