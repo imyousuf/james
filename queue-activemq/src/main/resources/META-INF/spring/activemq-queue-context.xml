@@ -25,10 +25,7 @@
          http://www.springframework.org/schema/osgi-compendium http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd
          http://www.springframework.org/schema/context 
          http://www.springframework.org/schema/context/spring-context.xsd">
-         
-    <!-- Import PostBeanProcessors -->
-    <import resource="classpath*:org/apache/james/container/spring/server-context.xml"/>
-    
+
    <!-- Configuration Admin entries so the user can overwrite them if needed -->
    <osgix:cm-properties id="cmProps" persistent-id="org.apache.james">
       <prop key="amq.brokerURL">vm://james?create=false</prop>

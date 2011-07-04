@@ -24,9 +24,6 @@
            http://www.springframework.org/schema/context 
            http://www.springframework.org/schema/context/spring-context.xsd">
          
-    <!-- Import PostBeanProcessors -->
-    <import resource="classpath*:org/apache/james/container/spring/server-context.xml"/>
-    
     <!-- Configuration Admin entries so the user can overwrite them if needed -->
     <!-- This allows the user to switch also to the OIO based server -->
     <osgix:cm-properties id="cmProps" persistent-id="org.apache.james">
