@@ -13,25 +13,13 @@
         express or implied. See the License for the ! ! specific language
         governing permissions and limitations ! ! under the License. !
     -->
-
 <beans xmlns="http://www.springframework.org/schema/beans" 
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
-       xmlns:ctx="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-           http://www.springframework.org/schema/osgi-compendium http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd
-           http://www.springframework.org/schema/context 
-           http://www.springframework.org/schema/context/spring-context.xsd">
-         
-    <!-- Configuration Admin entries so the user can overwrite them if needed -->
-    <!-- This allows the user to switch also to the OIO based server -->
-    <osgix:cm-properties id="cmProps" persistent-id="org.apache.james">
-      <prop key="lmtpserver.class">org.apache.james.lmtpserver.netty.LMTPServer</prop>
-    </osgix:cm-properties>
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
     <!-- 
       LMTP Server
      -->
-    <bean id="lmtpserver" class="${lmtpserver.class}"/>
+    <bean id="lmtpserver" class="org.apache.james.lmtpserver.netty.LMTPServer"/>
     
 </beans>
