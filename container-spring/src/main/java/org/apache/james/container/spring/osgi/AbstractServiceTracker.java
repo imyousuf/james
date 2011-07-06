@@ -30,16 +30,21 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.context.ApplicationContext;
 import org.springframework.osgi.context.BundleContextAware;
+import org.springframework.osgi.service.exporter.OsgiServicePropertiesResolver;
 import org.springframework.osgi.service.exporter.support.BeanNameServicePropertiesResolver;
 
 /**
@@ -53,9 +58,9 @@ import org.springframework.osgi.service.exporter.support.BeanNameServiceProperti
 public abstract class AbstractServiceTracker implements BeanFactoryAware, BundleListener, BundleContextAware, InitializingBean, DisposableBean {
 
     private BundleContext context;
-    private BeanFactory factory;
     private String configuredClass;
     private final List<ServiceRegistration> reg = new ArrayList<ServiceRegistration>();
+    private BeanFactory factory;
 
     @Override
     public void setBeanFactory(BeanFactory factory) throws BeansException {
@@ -89,7 +94,7 @@ public abstract class AbstractServiceTracker implements BeanFactoryAware, Bundle
 
                     String className = file.replaceAll("/", ".").replaceAll(".class", "").replaceFirst(".", "");
                     if (className.equals(configuredClass)) {
-                        
+                        BeanFactory bFactory = getBeanFactory(b.getBundleContext());
                         // Get the right service properties from the resolver
                         Properties p = new Properties();
 
@@ -102,12 +107,12 @@ public abstract class AbstractServiceTracker implements BeanFactoryAware, Bundle
                         Class<?> clazz = getServiceClass();
                         
                         // Create the definition and register it
-                        BeanDefinitionRegistry registry = (BeanDefinitionRegistry) factory;
+                        BeanDefinitionRegistry registry = (BeanDefinitionRegistry) bFactory;
                         BeanDefinition def = BeanDefinitionBuilder.genericBeanDefinition(className).getBeanDefinition();
                         registry.registerBeanDefinition(getComponentName(), def);
 
                         // register the bean as service in the BundleContext
-                        reg.add(b.getBundleContext().registerService(clazz.getName(), factory.getBean(getComponentName(), clazz), p));
+                        reg.add(b.getBundleContext().registerService(clazz.getName(), bFactory.getBean(getComponentName(), clazz), p));
                     }
                 }
             }
@@ -131,6 +136,23 @@ public abstract class AbstractServiceTracker implements BeanFactoryAware, Bundle
             break;
         }
 
+    }
+
+    private static AutowireCapableBeanFactory getBeanFactory(final BundleContext bundleContext) {
+        final String filter = "(" + OsgiServicePropertiesResolver.BEAN_NAME_PROPERTY_KEY + "=" + bundleContext.getBundle().getSymbolicName() + ")";
+        final ServiceReference[] applicationContextRefs;       
+        try {
+            applicationContextRefs = bundleContext.getServiceReferences(ApplicationContext.class.getName(), filter);
+        } catch (final InvalidSyntaxException e) {
+            throw new RuntimeException(e);
+        }
+       
+        if(applicationContextRefs.length != 1) {
+            return null;
+        }
+       
+        return ((ApplicationContext) bundleContext.getService(applicationContextRefs[0])).getAutowireCapableBeanFactory();
+       
     }
 
     @Override
