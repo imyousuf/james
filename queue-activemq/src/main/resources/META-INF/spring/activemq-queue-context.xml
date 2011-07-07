@@ -27,11 +27,11 @@
          http://www.springframework.org/schema/context/spring-context.xsd">
 
    <!-- Configuration Admin entries so the user can overwrite them if needed -->
-   <osgix:cm-properties id="cmProps" persistent-id="org.apache.james">
-      <prop key="amq.brokerURL">vm://james?create=false</prop>
-      <prop key="amq.sessionCacheSize">10</prop>      
-      <prop key="amq.baseDir">/var/store/activemq/</prop>
-      <prop key="amq.useBlobMessages">true</prop>
+   <osgix:cm-properties id="cmProps" persistent-id="org.apache.james.activemq">
+      <prop key="brokerURL">vm://james?create=false</prop>
+      <prop key="sessionCacheSize">10</prop>      
+      <prop key="baseDir">/var/store/activemq/</prop>
+      <prop key="useBlobMessages">true</prop>
    </osgix:cm-properties>
 
    <!-- placeholder configurer -->
@@ -47,13 +47,13 @@
       James Mail Queue Factory
      -->
     <bean id="mailqueuefactory" class="org.apache.james.queue.activemq.ActiveMQMailQueueFactory" depends-on="broker">
-        <property name="useBlobMessages" value="${amq.useBlobMessages}"/>
+        <property name="useBlobMessages" value="${useBlobMessages}"/>
     </bean>
 
     <!-- 
       ActiveMQ Broker, Connections, Blob
      -->
-    <amq:broker useJmx="true" persistent="true" brokerName="james" dataDirectory="${amq.baseDir}/brokers" useShutdownHook="false" schedulerSupport="false" id="broker">
+    <amq:broker useJmx="true" persistent="true" brokerName="james" dataDirectory="${baseDir}/brokers" useShutdownHook="false" schedulerSupport="false" id="broker">
         <amq:destinationPolicy>
             <amq:policyMap>
                 <amq:policyEntries>
@@ -76,7 +76,7 @@
             <amq:transportConnector uri="tcp://localhost:0" />
         </amq:transportConnectors>
     </amq:broker>
-    <amq:connectionFactory id="amqConnectionFactory" brokerURL="${amq.brokerURL}">
+    <amq:connectionFactory id="amqConnectionFactory" brokerURL="${brokerURL}">
         <amq:prefetchPolicy>
             <!-- Disable prefetch so slow consuming can not block other threads -->
             <!-- See JAMES-1253 -->
@@ -85,11 +85,11 @@
         <property name="blobTransferPolicy" ref="blobTransferPolicy"/>
     </amq:connectionFactory>
     <bean id="blobTransferPolicy" class="org.apache.james.queue.activemq.FileSystemBlobTransferPolicy">
-        <property name="defaultUploadUrl" value="${amq.baseDir}/blob-transfer"/>
+        <property name="defaultUploadUrl" value="${baseDir}/blob-transfer"/>
     </bean>
     <bean id="jmsConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
        <property name="targetConnectionFactory" ref="amqConnectionFactory"/>
-       <property name="sessionCacheSize" value="${amq.sessionCacheSize}"/>
+       <property name="sessionCacheSize" value="${sessionCacheSize}"/>
        <property name="cacheConsumers" value="false"/>
        <property name="cacheProducers" value="true"/>
     </bean>
