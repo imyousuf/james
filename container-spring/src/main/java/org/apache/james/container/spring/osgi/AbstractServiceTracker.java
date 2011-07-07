@@ -19,10 +19,7 @@
 package org.apache.james.container.spring.osgi;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.container.spring.lifecycle.ConfigurationProvider;
@@ -30,38 +27,37 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.osgi.context.BundleContextAware;
+import org.springframework.osgi.context.support.AbstractDelegatedExecutionApplicationContext;
 import org.springframework.osgi.service.exporter.OsgiServicePropertiesResolver;
-import org.springframework.osgi.service.exporter.support.BeanNameServicePropertiesResolver;
+import org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean;
 
 /**
  * This {@link BundleListener} use the extender pattern to scan all loaded
  * bundles if a class name with a given name is present. If so it register in
- * the {@link BeanDefinitionRegistry} and also register it to
- * {@link BundleContext} as service. This allows to dynamic load and unload OSGI
- * bundles
+ * the {@link BeanDefinitionRegistry} and also register it to the OSG-Registry via an {@link OsgiServiceFactoryBean}
  * 
  */
 public abstract class AbstractServiceTracker implements BeanFactoryAware, BundleListener, BundleContextAware, InitializingBean, DisposableBean {
 
     private BundleContext context;
     private String configuredClass;
-    private final List<ServiceRegistration> reg = new ArrayList<ServiceRegistration>();
+    private volatile OsgiServiceFactoryBean osgiFactoryBean;
     private BeanFactory factory;
-
+    private Logger logger = LoggerFactory.getLogger(AbstractServiceTracker.class);
+    
     @Override
     public void setBeanFactory(BeanFactory factory) throws BeansException {
         this.factory = factory;
@@ -72,7 +68,6 @@ public abstract class AbstractServiceTracker implements BeanFactoryAware, Bundle
         this.context = context;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void bundleChanged(BundleEvent event) {
         Bundle b = event.getBundle();
@@ -87,49 +82,45 @@ public abstract class AbstractServiceTracker implements BeanFactoryAware, Bundle
             Enumeration<?> entrs = b.findEntries("/", "*.class", true);
             if (entrs != null) {
 
-                // Loop over all the classes 
+                // Loop over all the classes
                 while (entrs.hasMoreElements()) {
                     URL e = (URL) entrs.nextElement();
                     String file = e.getFile();
 
                     String className = file.replaceAll("/", ".").replaceAll(".class", "").replaceFirst(".", "");
                     if (className.equals(configuredClass)) {
-                        BeanFactory bFactory = getBeanFactory(b.getBundleContext());
-                        // Get the right service properties from the resolver
-                        Properties p = new Properties();
+                        try {
 
-                        // Setup a resolver
-                        BeanNameServicePropertiesResolver resolver = new BeanNameServicePropertiesResolver();
-                        resolver.setBundleContext(b.getBundleContext());
+                            BeanFactory bFactory = getBeanFactory(b.getBundleContext());
+                            Class<?> clazz = getServiceClass();
 
-                        
-                        p.putAll(resolver.getServiceProperties(getComponentName()));
-                        Class<?> clazz = getServiceClass();
-                        
-                        // Create the definition and register it
-                        BeanDefinitionRegistry registry = (BeanDefinitionRegistry) bFactory;
-                        BeanDefinition def = BeanDefinitionBuilder.genericBeanDefinition(className).getBeanDefinition();
-                        registry.registerBeanDefinition(getComponentName(), def);
+                            // Create the definition and register it
+                            BeanDefinitionRegistry registry = (BeanDefinitionRegistry) bFactory;
+                            BeanDefinition def = BeanDefinitionBuilder.genericBeanDefinition(className).getBeanDefinition();
+                            registry.registerBeanDefinition(getComponentName(), def);
 
-                        // register the bean as service in the BundleContext
-                        reg.add(b.getBundleContext().registerService(clazz.getName(), bFactory.getBean(getComponentName(), clazz), p));
+                            // register the bean as service in the OSGI-Registry
+                            osgiFactoryBean = new OsgiServiceFactoryBean();
+                            osgiFactoryBean.setTargetBeanName(getComponentName());
+                            osgiFactoryBean.setBeanFactory(bFactory);
+                            osgiFactoryBean.setBundleContext(b.getBundleContext());
+                            osgiFactoryBean.setInterfaces(new Class[] { clazz });
+                            osgiFactoryBean.afterPropertiesSet();
+                            logger.debug("Registered " + configuredClass + " in the OSGI-Registry with interface " + clazz.getName());
+                        } catch (Exception e1) {
+                            logger.error("Unable to register " + configuredClass + " in the OSGI-Registry", e1);
+                        }
                     }
                 }
             }
             break;
         case BundleEvent.STOPPED:
-            if (reg != null) {
-                List<ServiceRegistration> removed = new ArrayList<ServiceRegistration>();
-                for (int i = 0; i < reg.size(); i++) {
-                    ServiceRegistration sr = reg.get(i);
-                    // Check if we need to unregister the service
-                    if (b.equals(sr.getReference().getBundle())) {
-                        sr.unregister();
-                        removed.add(sr);
-                    } 
-                }
-                reg.removeAll(removed);
-               
+            // check if we need to destroy the OsgiFactoryBean. This also include the unregister from the OSGI-Registry
+            if (osgiFactoryBean != null) {
+                osgiFactoryBean.destroy();
+                osgiFactoryBean = null;
+                logger.debug("Unregistered " + configuredClass + " in the OSGI-Registry with interface " + getServiceClass().getName());
+
             }
             break;
         default:
@@ -138,20 +129,33 @@ public abstract class AbstractServiceTracker implements BeanFactoryAware, Bundle
 
     }
 
-    private static AutowireCapableBeanFactory getBeanFactory(final BundleContext bundleContext) {
+    
+    /**
+     * Return the {@link BeanFactory} for the given {@link BundleContext}. If none can be found we just create a new {@link AbstractDelegatedExecutionApplicationContext} and return the {@link BeanFactory} of it
+     * 
+     * 
+     * @param bundleContext
+     * @return factory
+     * @throws Exception
+     */
+    private BeanFactory getBeanFactory(final BundleContext bundleContext) throws Exception {
         final String filter = "(" + OsgiServicePropertiesResolver.BEAN_NAME_PROPERTY_KEY + "=" + bundleContext.getBundle().getSymbolicName() + ")";
-        final ServiceReference[] applicationContextRefs;       
-        try {
-            applicationContextRefs = bundleContext.getServiceReferences(ApplicationContext.class.getName(), filter);
-        } catch (final InvalidSyntaxException e) {
-            throw new RuntimeException(e);
+        final ServiceReference[] applicationContextRefs = bundleContext.getServiceReferences(ApplicationContext.class.getName(), filter);
+        
+        // Check if we found an ApplicationContext. If not create one
+        if(applicationContextRefs == null || applicationContextRefs.length != 1) {
+            
+            // Create a new context which just serve as registry later
+            AbstractDelegatedExecutionApplicationContext context = new AbstractDelegatedExecutionApplicationContext() {
+            };
+            context.setBundleContext(bundleContext);
+            context.setPublishContextAsService(true);
+            context.refresh();
+            return context.getBeanFactory();
+        } else {
+            return ((ApplicationContext) bundleContext.getService(applicationContextRefs[0])).getAutowireCapableBeanFactory();
         }
        
-        if(applicationContextRefs.length != 1) {
-            return null;
-        }
-       
-        return ((ApplicationContext) bundleContext.getService(applicationContextRefs[0])).getAutowireCapableBeanFactory();
        
     }
 
