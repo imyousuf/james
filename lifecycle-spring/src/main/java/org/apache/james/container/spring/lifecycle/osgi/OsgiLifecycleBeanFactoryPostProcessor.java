@@ -18,44 +18,71 @@
  ****************************************************************/
 package org.apache.james.container.spring.lifecycle.osgi;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 import org.apache.james.container.spring.lifecycle.ConfigurableBeanPostProcessor;
+import org.apache.james.container.spring.lifecycle.ConfigurationProvider;
 import org.apache.james.container.spring.lifecycle.LogEnabledBeanPostProcessor;
+import org.apache.james.container.spring.lifecycle.LogProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
 import org.springframework.osgi.extender.OsgiBeanFactoryPostProcessor;
 
 
 public class OsgiLifecycleBeanFactoryPostProcessor implements OsgiBeanFactoryPostProcessor {
 
-    private ConfigurableBeanPostProcessor configurationProcessor;
-    private LogEnabledBeanPostProcessor loggingProcessor;
-    private CommonAnnotationBeanPostProcessor annotationProcessor;
 
-    public void setConfigurationProcessor(ConfigurableBeanPostProcessor configurationProcessor) {
-        this.configurationProcessor = configurationProcessor;
+    private ConfigurationProvider confProvider;
+    private LogProvider logProvider;
+
+    public void setConfigurationProvider(ConfigurationProvider confProvider) {
+        this.confProvider = confProvider;
     }
 
-    public void setLoggingProcessor(LogEnabledBeanPostProcessor loggingProcessor) {
-        this.loggingProcessor = loggingProcessor;
+    public void setLogProvider(LogProvider logProvider) {
+        this.logProvider = logProvider;
     }
 
-    public void setAnnotationProcessor(CommonAnnotationBeanPostProcessor annotationProcessor) {
-        this.annotationProcessor = annotationProcessor;
-    }
 
     @Override
     public void postProcessBeanFactory(BundleContext context, ConfigurableListableBeanFactory factory) throws BeansException, InvalidSyntaxException, BundleException {
         // We need to set the beanfactory by hand. This MAY be a bug in spring-dm but I'm not sure yet
+        LogEnabledBeanPostProcessor loggingProcessor = new LogEnabledBeanPostProcessor();
         loggingProcessor.setBeanFactory(factory);
+        loggingProcessor.setLogProvider(logProvider);
+        loggingProcessor.setOrder(0);
         factory.addBeanPostProcessor(loggingProcessor);
+        
+        OSGIResourceAnnotationBeanPostProcessor resourceProcessor = new OSGIResourceAnnotationBeanPostProcessor();
+        resourceProcessor.setBeanClassLoader(factory.getBeanClassLoader());
+        resourceProcessor.setBeanFactory(factory);
+        resourceProcessor.setBundleContext(context);
+        resourceProcessor.setTimeout(60 * 1000);
+        factory.addBeanPostProcessor(resourceProcessor);
+        
+        OSGIPersistenceUnitAnnotationBeanPostProcessor persistenceProcessor = new OSGIPersistenceUnitAnnotationBeanPostProcessor();
+        persistenceProcessor.setBeanClassLoader(factory.getBeanClassLoader());
+        persistenceProcessor.setBeanFactory(factory);
+        persistenceProcessor.setBundleContext(context);
+        persistenceProcessor.setTimeout(60 * 1000);
+        factory.addBeanPostProcessor(persistenceProcessor);
+        
+        ConfigurableBeanPostProcessor configurationProcessor = new ConfigurableBeanPostProcessor();
         configurationProcessor.setBeanFactory(factory);
+        configurationProcessor.setConfigurationProvider(confProvider);
+        configurationProcessor.setOrder(2);
         factory.addBeanPostProcessor(configurationProcessor);
-        annotationProcessor.setBeanFactory(factory);
+        
+        InitDestroyAnnotationBeanPostProcessor annotationProcessor = new InitDestroyAnnotationBeanPostProcessor();
+        annotationProcessor.setInitAnnotationType(PostConstruct.class);
+        annotationProcessor.setDestroyAnnotationType(PreDestroy.class);
         factory.addBeanPostProcessor(annotationProcessor);
+
 
     }
 

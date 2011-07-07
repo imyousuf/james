@@ -23,35 +23,14 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
     <!-- 
-    ===========================================================================
-       Annotation - Bean Post-Processors
-    ===========================================================================
-    -->
-          
-    <!-- 
-      Enable Java Annotations processing.
-     -->
-    <bean id="annotationProcessor" class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor">
-        <property name="order" value="3" />
-    </bean>
-
-    <!-- 
       Spring "Bean-Post-Processor" for LogEnabled interface.
      -->
-    <bean id="loggingProcessor" class="org.apache.james.container.spring.lifecycle.LogEnabledBeanPostProcessor">
-        <property name="logProvider" ref="logprovider" />
-        <property name="order" value="0" />
-    </bean>
     <bean id="logprovider" class="org.apache.james.container.spring.lifecycle.LogProviderImpl">
     </bean>
 
     <!-- 
       Spring "Bean-Post-Processor" for Configurable interface.
      -->
-    <bean id="configurationProcessor" class="org.apache.james.container.spring.lifecycle.ConfigurableBeanPostProcessor">
-        <property name="configurationProvider" ref="configurationprovider" />
-        <property name="order" value="1" />
-    </bean>
     <bean id="configurationprovider" class="org.apache.james.container.spring.lifecycle.osgi.OSGIConfigurationProvider">
     <!--  
         <property name="configurationMappings">
@@ -65,9 +44,8 @@
     </bean>
     
     <bean class="org.apache.james.container.spring.lifecycle.osgi.OsgiLifecycleBeanFactoryPostProcessor">
-        <property name="loggingProcessor" ref="loggingProcessor" />
-        <property name="configurationProcessor" ref="configurationProcessor" />
-        <property name="annotationProcessor" ref="annotationProcessor" />
+        <property name="logProvider" ref="logprovider" />
+        <property name="configurationProvider" ref="configurationprovider" />
     </bean>
   
 </beans>
