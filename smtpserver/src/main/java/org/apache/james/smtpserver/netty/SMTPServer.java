@@ -83,12 +83,28 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
     private boolean verifyIdentity;
 
     private DNSService dns;
+    private String authorizedAddresses;
 
     @Resource(name = "dnsservice")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
     }
     
+    @Override
+    protected void preInit() throws Exception {
+        if (authorizedAddresses != null) {
+            java.util.StringTokenizer st = new java.util.StringTokenizer(authorizedAddresses, ", ", false);
+            java.util.Collection<String> networks = new java.util.ArrayList<String>();
+            while (st.hasMoreTokens()) {
+                String addr = st.nextToken();
+                networks.add(addr);
+            }
+            authorizedNetworks = new NetMatcher(networks, dns);
+        }
+        super.preInit();
+    }
+
+    @Override
     public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         super.doConfigure(configuration);
         if (isEnabled()) {
@@ -105,7 +121,7 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
                 getLogger().info("This SMTP server does not require authentication.");
             }
 
-            String authorizedAddresses = configuration.getString("authorizedAddresses", null);
+            authorizedAddresses = configuration.getString("authorizedAddresses", null);
             if (authRequired == AUTH_DISABLED && authorizedAddresses == null) {
                 /*
                  * if SMTP AUTH is not required then we will use
@@ -123,16 +139,7 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
                 authorizedAddresses = "0.0.0.0/0.0.0.0";
             }
 
-            if (authorizedAddresses != null) {
-                java.util.StringTokenizer st = new java.util.StringTokenizer(authorizedAddresses, ", ", false);
-                java.util.Collection<String> networks = new java.util.ArrayList<String>();
-                while (st.hasMoreTokens()) {
-                    String addr = st.nextToken();
-                    networks.add(addr);
-                }
-                authorizedNetworks = new NetMatcher(networks, dns);
-            }
-
+          
             if (authorizedNetworks != null) {
                 getLogger().info("Authorized addresses: " + authorizedNetworks.toString());
             }
