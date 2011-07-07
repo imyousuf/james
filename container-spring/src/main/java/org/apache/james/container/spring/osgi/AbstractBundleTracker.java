@@ -50,13 +50,13 @@ import org.springframework.osgi.service.exporter.support.OsgiServiceFactoryBean;
  * the {@link BeanDefinitionRegistry} and also register it to the OSG-Registry via an {@link OsgiServiceFactoryBean}
  * 
  */
-public abstract class AbstractServiceTracker implements BeanFactoryAware, BundleListener, BundleContextAware, InitializingBean, DisposableBean {
+public abstract class AbstractBundleTracker implements BeanFactoryAware, BundleListener, BundleContextAware, InitializingBean, DisposableBean {
 
     private BundleContext context;
     private String configuredClass;
     private volatile OsgiServiceFactoryBean osgiFactoryBean;
     private BeanFactory factory;
-    private Logger logger = LoggerFactory.getLogger(AbstractServiceTracker.class);
+    private Logger logger = LoggerFactory.getLogger(AbstractBundleTracker.class);
     
     @Override
     public void setBeanFactory(BeanFactory factory) throws BeansException {
