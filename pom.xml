@@ -864,7 +864,7 @@
     <dependency>
       <groupId>org.apache.james.jspf</groupId>
       <artifactId>apache-jspf-resolver</artifactId>
-      <version>0.9.8</version>
+      <version>0.9.9</version>
       <exclusions>
         <exclusion>
           <artifactId>log4j</artifactId>
