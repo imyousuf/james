@@ -21,7 +21,7 @@
   <parent>
     <artifactId>james-server</artifactId>
     <groupId>org.apache.james</groupId>
-    <version>3.0-beta3</version>
+    <version>3.0-beta4-SNAPSHOT</version>
   </parent>
   <properties>
       <!-- OSGI stuff -->
