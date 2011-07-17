@@ -32,8 +32,9 @@ import java.util.Iterator;
 public interface MailRepository {
 
     /**
-     * Stores a message in this repository. Shouldn't this return the key under
-     * which it is stored?
+     * Stores a message in this repository. 
+     * 
+     * TODO: Shouldn't this return the key under which it is stored?
      * 
      * @param mc
      *            the mail message to store
