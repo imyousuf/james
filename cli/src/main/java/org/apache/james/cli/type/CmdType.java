@@ -33,7 +33,8 @@ public enum CmdType {
     ADDADDRESSMAPPING("addaddressmapping", 4),
     REMOVEADDRESSMAPPING("removeaddressmapping", 4),
     ADDREGEXMAPPING("addregexmapping", 4),
-    REMOVEREGEXMAPPING("removeregexmapping", 4);
+    REMOVEREGEXMAPPING("removeregexmapping", 4),
+    SETPASSWORD("setpassword", 3);
     private String command;
     private int arguments;
 

@@ -71,6 +71,9 @@ public class CmdTypeTest extends TestCase {
 
         result = CmdType.lookup(CmdType.LISTDOMAINS.getCommand());
         assertEquals(CmdType.LISTDOMAINS, result);
+        
+        result = CmdType.lookup(CmdType.SETPASSWORD.getCommand());
+        assertEquals(CmdType.SETPASSWORD, result);
 
         // Test known bad value
         result = CmdType.lookup("");

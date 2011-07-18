@@ -202,6 +202,13 @@ public class ServerCmd {
                     printUsage();
                     System.exit(1);
                 }
+            } else if (CmdType.SETPASSWORD.equals(cmdType)) {
+                if (cmdType.hasCorrectArguments(arguments.length)) {
+                    probe.setPassword(arguments[1], arguments[2]);
+                } else {
+                    printUsage();
+                    System.exit(1);
+                }
             } else {
                 System.err.println("Unrecognized command: " + cmdName + ".");
                 printUsage();
@@ -259,6 +266,7 @@ public class ServerCmd {
         HelpFormatter hf = new HelpFormatter();
         String header = String.format("%nAvailable commands:%n" 
                 + "adduser <username> <password>%n"
+                + "setpassword <username> <password>%n"
                 + "removeuser <username>%n" 
                 + "listusers%n" 
                 + "adddomain <domainname>%n"
