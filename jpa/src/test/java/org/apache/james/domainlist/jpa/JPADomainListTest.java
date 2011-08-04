@@ -18,17 +18,11 @@
  ****************************************************************/
 package org.apache.james.domainlist.jpa;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 
-import junit.framework.TestCase;
-
-import org.apache.james.dnsservice.api.DNSService;
-import org.apache.james.dnsservice.api.mock.MockDNSService;
-import org.apache.james.domainlist.api.DomainListException;
-import org.apache.james.domainlist.jpa.JPADomainList;
+import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.jpa.model.JPADomain;
+import org.apache.james.domainlist.lib.AbstractDomainListTest;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;
 import org.apache.openjpa.persistence.OpenJPAPersistence;
 import org.slf4j.LoggerFactory;
@@ -36,37 +30,27 @@ import org.slf4j.LoggerFactory;
 /**
  * Test the JPA implementation of the DomainList.
  */
-public class JPADomainListTest extends TestCase {
-
-    // Domains we will play with.
-    private final String DOMAIN_1 = "domain1.tld";
-    private final String DOMAIN_2 = "domain2.tld";
-    private final String DOMAIN_3 = "domain3.tld";
-    private final String DOMAIN_4 = "domain4.tld";
-    private final String DOMAIN_5 = "domain5.tld";
+public class JPADomainListTest extends AbstractDomainListTest {
 
     /**
      * The OpenJPA Entity Manager used for the tests.
      */
     private OpenJPAEntityManagerFactory factory;
 
-    /**
-     * The properties for the OpenJPA Entity Manager.
-     */
-    private HashMap<String, String> properties;
-
-    /**
-     * The JPA DomainList service.
-     */
-    private JPADomainList jpaDomainList;
-
     @Override
     protected void setUp() throws Exception {
-
         super.setUp();
+    }
 
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
+
+    @Override
+    protected DomainList createDomainList() {
         // Use a memory database.
-        properties = new HashMap<String, String>();
+        HashMap<String, String> properties = new HashMap<String, String>();
         properties.put("openjpa.ConnectionDriverName", org.apache.derby.jdbc.EmbeddedDriver.class.getName());
         properties.put("openjpa.ConnectionURL", "jdbc:derby:memory:JPADomainListTestDB;create=true");
         properties.put("openjpa.Log", "JDBC=WARN, SQL=WARN, Runtime=WARN");
@@ -76,103 +60,15 @@ public class JPADomainListTest extends TestCase {
         factory = OpenJPAPersistence.getEntityManagerFactory(properties);
 
         // Initialize the JPADomainList (no autodetect,...).
-        jpaDomainList = new JPADomainList();
+        JPADomainList jpaDomainList = new JPADomainList();
         jpaDomainList.setLog(LoggerFactory.getLogger("JPADomainListMockLog"));
-        jpaDomainList.setDNSService(setUpDNSServer("localhost"));
+        jpaDomainList.setDNSService(getDNSServer("localhost"));
         jpaDomainList.setAutoDetect(false);
         jpaDomainList.setAutoDetectIP(false);
         jpaDomainList.setEntityManagerFactory(factory);
+        
+        return jpaDomainList;
 
-        // Always delete everything before running any tests.
-        deleteAll();
-
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    /**
-     * Add 3 domains and list them.
-     * 
-     * @throws DomainListException
-     */
-    public void createListDomains() throws DomainListException {
-        jpaDomainList.addDomain(DOMAIN_3);
-        jpaDomainList.addDomain(DOMAIN_4);
-        jpaDomainList.addDomain(DOMAIN_5);
-        assertEquals(3, jpaDomainList.getDomains().length);
-    }
-
-    /**
-     * Add a domain and check it is present.
-     * 
-     * @throws DomainListException
-     */
-    public void testAddContainsDomain() throws DomainListException {
-        jpaDomainList.addDomain(DOMAIN_2);
-        jpaDomainList.containsDomain(DOMAIN_2);
-    }
-
-    /**
-     * Add and remove a domain, and check database is empty.
-     * 
-     * @throws DomainListException
-     */
-    public void testAddRemoveContainsSameDomain() throws DomainListException {
-        jpaDomainList.addDomain(DOMAIN_1);
-        jpaDomainList.removeDomain(DOMAIN_1);
-        assertEquals(null, jpaDomainList.getDomains());
-    }
-
-    /**
-     * Add a domain and remove another domain, and check first domain is still
-     * present.
-     * 
-     * @throws DomainListException
-     */
-    public void testAddRemoveContainsDifferentDomain() throws DomainListException {
-        jpaDomainList.addDomain(DOMAIN_1);
-        jpaDomainList.removeDomain(DOMAIN_2);
-        assertEquals(1, jpaDomainList.getDomains().length);
-        assertEquals(true, jpaDomainList.containsDomain(DOMAIN_1));
-    }
-
-    /**
-     * Delete all possible domains from database.
-     * 
-     * @throws DomainListException
-     */
-    private void deleteAll() throws DomainListException {
-        jpaDomainList.removeDomain(DOMAIN_1);
-        jpaDomainList.removeDomain(DOMAIN_2);
-        jpaDomainList.removeDomain(DOMAIN_3);
-        jpaDomainList.removeDomain(DOMAIN_4);
-        jpaDomainList.removeDomain(DOMAIN_5);
-    }
-
-    /**
-     * Return a fake DNSServer.
-     * 
-     * @param hostName
-     * @return
-     */
-    private DNSService setUpDNSServer(final String hostName) {
-        DNSService dns = new MockDNSService() {
-            public String getHostName(InetAddress inet) {
-                return hostName;
-            }
-
-            public InetAddress[] getAllByName(String name) throws UnknownHostException {
-                return new InetAddress[] { InetAddress.getByName("127.0.0.1") };
-            }
-
-            public InetAddress getLocalHost() throws UnknownHostException {
-                return InetAddress.getLocalHost();
-            }
-        };
-        return dns;
     }
 
 }
