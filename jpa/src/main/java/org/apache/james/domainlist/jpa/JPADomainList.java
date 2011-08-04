@@ -32,14 +32,13 @@ import javax.persistence.PersistenceUnit;
 import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.domainlist.jpa.model.JPADomain;
 import org.apache.james.domainlist.lib.AbstractDomainList;
-import org.apache.james.lifecycle.api.Configurable;
 
 /**
  * JPA implementation of the DomainList.<br>
  * This implementation is compatible with the JDBCDomainList, meaning same
  * database schema can be reused.
  */
-public class JPADomainList extends AbstractDomainList implements Configurable {
+public class JPADomainList extends AbstractDomainList {
 
     /**
      * The entity manager to access the database.
