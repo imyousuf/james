@@ -33,8 +33,12 @@ import org.apache.james.user.api.model.User;
 
 @Entity(name = "JamesUser")
 @Table(name = "JAMES_USER")
-@NamedQueries({ @NamedQuery(name = "findUserByName", query = "SELECT user FROM JamesUser user WHERE user.name=:name"), @NamedQuery(name = "deleteUserByName", query = "DELETE FROM JamesUser user WHERE user.name=:name"),
-        @NamedQuery(name = "containsUser", query = "SELECT COUNT(user) FROM JamesUser user WHERE user.name=:name"), @NamedQuery(name = "countUsers", query = "SELECT COUNT(user) FROM JamesUser user"), @NamedQuery(name = "listUserNames", query = "SELECT user.name FROM JamesUser user") })
+@NamedQueries({ 
+    @NamedQuery(name = "findUserByName", query = "SELECT user FROM JamesUser user WHERE user.name=:name"), 
+    @NamedQuery(name = "deleteUserByName", query = "DELETE FROM JamesUser user WHERE user.name=:name"),
+    @NamedQuery(name = "containsUser", query = "SELECT COUNT(user) FROM JamesUser user WHERE user.name=:name"), 
+    @NamedQuery(name = "countUsers", query = "SELECT COUNT(user) FROM JamesUser user"), 
+    @NamedQuery(name = "listUserNames", query = "SELECT user.name FROM JamesUser user") })
 public class JPAUser implements User {
 
     /**

@@ -34,8 +34,10 @@ import javax.persistence.Table;
  */
 @Entity(name = "JamesRecipientRewrite")
 @Table(name = "JAMES_RECIPIENT_REWRITE")
-@NamedQueries({ @NamedQuery(name = "selectMappings", query = "SELECT rrt FROM JamesRecipientRewrite rrt WHERE (rrt.user LIKE :user OR rrt.user='*') and (rrt.domain like :domain or rrt.domain='*') ORDER BY rrt.domain DESC"),
-        @NamedQuery(name = "selectUserDomainMapping", query = "SELECT rrt FROM JamesRecipientRewrite rrt WHERE rrt.user=:user AND rrt.domain=:domain"), @NamedQuery(name = "selectAllMappings", query = "SELECT rrt FROM JamesRecipientRewrite rrt"),
+@NamedQueries({ 
+    @NamedQuery(name = "selectMappings", query = "SELECT rrt FROM JamesRecipientRewrite rrt WHERE (rrt.user LIKE :user OR rrt.user='*') and (rrt.domain like :domain or rrt.domain='*') ORDER BY rrt.domain DESC"),
+        @NamedQuery(name = "selectUserDomainMapping", query = "SELECT rrt FROM JamesRecipientRewrite rrt WHERE rrt.user=:user AND rrt.domain=:domain"), 
+        @NamedQuery(name = "selectAllMappings", query = "SELECT rrt FROM JamesRecipientRewrite rrt"),
         @NamedQuery(name = "deleteMapping", query = "DELETE FROM JamesRecipientRewrite rrt WHERE rrt.user=:user AND rrt.domain=:domain AND rrt.targetAddress=:targetAddress"),
         @NamedQuery(name = "updateMapping", query = "UPDATE JamesRecipientRewrite rrt SET rrt.targetAddress=:targetAddress WHERE rrt.user=:user AND rrt.domain=:domain") })
 @IdClass(JPARecipientRewrite.RecipientRewriteTableId.class)
