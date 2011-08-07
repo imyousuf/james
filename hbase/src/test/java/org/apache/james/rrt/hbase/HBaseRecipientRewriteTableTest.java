@@ -19,13 +19,42 @@
 package org.apache.james.rrt.hbase;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseTestingUtility;
+import org.apache.hadoop.hbase.MiniHBaseCluster;
 import org.apache.james.rrt.api.RecipientRewriteTableException;
 import org.apache.james.rrt.lib.AbstractRecipientRewriteTable;
 import org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest;
+import org.apache.james.system.hbase.TablePool;
+import org.apache.log4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HBaseRecipientRewriteTableTest extends AbstractRecipientRewriteTableTest {
 
+    private static Logger logger = Logger.getLogger(HBaseRecipientRewriteTableTest.class);
+    
+    private static MiniHBaseCluster hbaseCluster;
+    
+    public void setUp() throws Exception {
+        super.setUp();
+        HBaseTestingUtility htu = new HBaseTestingUtility();
+        htu.getConfiguration().setBoolean("dfs.support.append", true);
+        try {
+            hbaseCluster = htu.startMiniCluster();
+        } 
+        catch (Exception e) {
+            logger.error("Exception when starting HBase Mini Cluster", e);
+        }
+        TablePool.getInstance(getConfiguration());
+    }
+    
+    public void tearDown() throws Exception {
+        super.tearDown();
+       if (hbaseCluster != null) {
+           hbaseCluster.shutdown();
+       }
+    }
+    
     @Override
     protected AbstractRecipientRewriteTable getRecipientRewriteTable() throws Exception {
         HBaseRecipientRewriteTable rrt = new HBaseRecipientRewriteTable();
@@ -78,6 +107,13 @@ public class HBaseRecipientRewriteTableTest extends AbstractRecipientRewriteTabl
         } catch (RecipientRewriteTableException e) {
             return false;
         }
+    }
+
+    public static Configuration getConfiguration() {
+        if (hbaseCluster == null) {
+            throw new IllegalStateException("Please instanciate HBaseTestingUtility before invoking this method");
+        }
+        return hbaseCluster.getConfiguration();
     }
 
 }
