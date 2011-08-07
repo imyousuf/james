@@ -43,7 +43,7 @@
          file (james-server-context.xml) which imports 4 other files (1 per mailbox type): james-mailbox-jcr-context.xml, james-mailbox-jpa-context.xml, 
          james-mailbox-maildir-context.xml, james-mailbox-memory-context.xml.</p>
     
-      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/spring-beans.xml">spring-beans.xml</a> in SVN to 
+      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/spring-beans.xml">spring-beans.xml</a> in SVN to 
          get some examples and hints.</p>
       
       <p>spring beans files are the place where the Apache James Server wiring is done. It should be modified only by expert-users.</p>
@@ -52,7 +52,7 @@
 
     <subsection name="database.properties">
     
-      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/database.properties">database.properties</a> in SVN to get some examples and hints.</p>
+      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/database.properties">database.properties</a> in SVN to get some examples and hints.</p>
 
       <p>The database connection in database.properties</p>
 
@@ -89,7 +89,7 @@
     
     <subsection name="META-INF/persistence.xml">
     
-      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/META-INF/persistence.xml">META-INF/persistence.xml</a> in SVN to get some examples and hints.</p>
+      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/META-INF/persistence.xml">META-INF/persistence.xml</a> in SVN to get some examples and hints.</p>
       
       <p>The JPA mapping and properties are defined in the in META-INF/persistence.xml.</p>
       
@@ -102,7 +102,7 @@
 
     <subsection name="jmx.properties">
     
-      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/jmx.properties">jmx.properties</a> in SVN to get some examples and hints.</p>
+      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/jmx.properties">jmx.properties</a> in SVN to get some examples and hints.</p>
       
       <p>This is used to configure the JMX MBean server via which all management is achieved (also used by via the james-cli).</p>
       
@@ -117,7 +117,7 @@
 
     <subsection name="sqlResources.xml">
     
-      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/sqlResources.xml">sqlResources.xml</a> in SVN to get some examples and hints.</p>
+      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/sqlResources.xml">sqlResources.xml</a> in SVN to get some examples and hints.</p>
       
       <p>This file is deprecated but some mailets... still need it. The standard way to access database
          is JPA, but some functionalities are not yet migrated and still need the sqlResources.xml resources.</p>
@@ -138,7 +138,7 @@
 
     <subsection name="JCR Repository Configuration">
 
-      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/jcr-repository.xml">jcr-repository.xml</a> in SVN to get some examples and hints.</p>
+      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/jcr-repository.xml">jcr-repository.xml</a> in SVN to get some examples and hints.</p>
       
       <p>Used to configure the JCR mailbox (if configure in mailbox.xml).</p>
 

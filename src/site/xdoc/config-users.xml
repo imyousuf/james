@@ -31,7 +31,7 @@
   
       <p>User repositories are required to store James user information and authentication data</p>
   
-      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/usersrepository.xml">usersrepository.xml</a> in SVN to get some examples and hints.</p>
+      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/usersrepository.xml">usersrepository.xml</a> in SVN to get some examples and hints.</p>
       
     </subsection>
     

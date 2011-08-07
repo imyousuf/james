@@ -27,7 +27,7 @@
 
   <section name="Mailbox Configuration">
 
-    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/mailbox.xml">mailbox.xml</a> in SVN to get some examples and hints.</p>
+    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/mailbox.xml">mailbox.xml</a> in SVN to get some examples and hints.</p>
     
     <p>Use this configuration to define the type of mailbox storage used to persist the user's mails.</p>
     

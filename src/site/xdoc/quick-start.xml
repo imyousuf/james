@@ -42,12 +42,12 @@ Step 0: Requirements
 Step 1: Download
 #################
 
-  * Download james-server-container-spring-3.0-M3-bin.zip from http://james.apache.org/download.cgi#Apache_James_Server
+  * Download james-server-container-spring-3.0-beta3-bin.zip from http://james.apache.org/download.cgi#Apache_James_Server
 
 Step 2: Deploy
 ##############
 
-  * Unzip james-server-container-spring-3.0-M3-bin.zip.
+  * Unzip james-server-container-spring-3.0-beta3-bin.zip.
   * You should have a folder with sub-folders bin, conf, lib, log, var and four text files.
 
 $ unzip james-server-container-spring-3.0-M2-bin.tar.gz

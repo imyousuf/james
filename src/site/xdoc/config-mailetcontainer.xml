@@ -27,9 +27,9 @@
 
   <section name="Mailet Container Configuration">
 
-    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/mailetcontainer.xml">mailetcontainer.xml</a> in SVN to get some examples and hints.</p>
+    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/mailetcontainer.xml">mailetcontainer.xml</a> in SVN to get some examples and hints.</p>
     
-    <p>Changes between 3.0-M2 and 3.0-M3:</p>
+    <p>Changes between 3.0-M2 and 3.0-beta3:</p>
     <ul>
       <li>No more mailetpackage specification in mailetcontainer.xml</li>
       <li>Exactly one standard package, hard-coded in source code</li>

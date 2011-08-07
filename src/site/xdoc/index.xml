@@ -46,7 +46,7 @@
 			<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
 				<p>
                   <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-				  <span style="font-weight:bold; color:white;">Hey! Apache James Server 3.0-M3 is out - <a href="quick-start.html" style="color:white;">Click here to Quick Start Apache James Server!.</a>
+				  <span style="font-weight:bold; color:white;">Hey! Apache James Server 3.0-beta3 is out - <a href="quick-start.html" style="color:white;">Click here to Quick Start Apache James Server!.</a>
                   Some issues are identified in some use cases with clients such as Outlook Express,...
                   You are kindly invited to report any issue on <a href="https://issues.apache.org/jira/browse/JAMES" style="color:white;">https://issues.apache.org/jira/browse/JAMES</a>
                   or on our mailing list (<a href="http://james.apache.org/mail.html" style="color:white;">http://james.apache.org/mail.html</a>)</span>
@@ -64,11 +64,11 @@
 	      <a href="manage.html">manage</a>, <a href="monitor.html">monitor</a> 
 	      and <a href="dev.html">develop</a> Apache James Server.</p>
 	      
-        <p>Download Apache James Mail Server 3.0-M3 and <a href="quick-start.html">quick-start</a> it!</p>
+        <p>Download Apache James Mail Server 3.0-beta3 and <a href="quick-start.html">quick-start</a> it!</p>
         <p>
           <span class="minibutton btn-download">
             <a href="http://james.apache.org/download.cgi#Apache_James_Server">
-              <span><span class="icon"></span>Early Apache James Server 3.0-M3</span>
+              <span><span class="icon"></span>Early Apache James Server 3.0-beta3</span>
             </a>
           </span>
         </p>
@@ -165,7 +165,7 @@
 	           Component Oriented Programming and  Inversion of Control. The stable and robust 
 	           Spring container provides a strong foundation for the Apache James Server.</p>
 	    
-	        <p>The internal and exposed APIs for this 3.0-M3 release are under current validation and are 
+	        <p>The internal and exposed APIs for this 3.0-beta3 release are under current validation and are 
 	          expected to be subject to change - <a href="dev.html">read more</a>.</p>
 	         
             <p><img src="images/uml/org.apache.james-package-small.png" width="400px" /></p>

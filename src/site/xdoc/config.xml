@@ -39,116 +39,116 @@
       </tr>
     
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/spring-beans.xml">spring-beans.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/spring-beans.xml">spring-beans.xml</a></td>
         <td><a href="config-serverwide.html">Server-wide Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/database.properties">database.properties</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/database.properties">database.properties</a></td>
         <td><a href="config-serverwide.html">Server-wide Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/META-INF/persistence.xml">META-INF/persistence.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/META-INF/persistence.xml">META-INF/persistence.xml</a></td>
         <td><a href="config-serverwide.html">Server-wide Configuration</a></td>
         <td></td>
       </tr>
       <tr>
         <td>
-          <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/jmx.properties">jmx.properties</a><br/>
+          <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/jmx.properties">jmx.properties</a><br/>
 <!-- 
-          <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/jmx.access">jmx.access</a><br/>
-          <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/jmx.password">jmx.password</a><br/>
+          <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/jmx.access">jmx.access</a><br/>
+          <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/jmx.password">jmx.password</a><br/>
 -->
          </td>
         <td><a href="config-serverwide.html">Server-wide Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/sqlResources.xml">sqlResources.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/sqlResources.xml">sqlResources.xml</a></td>
         <td><a href="config-serverwide.html">Server-wide Configuration</a></td>
         <td>Deprecated</td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/jcr-repository.xml">jcr-repository.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/jcr-repository.xml">jcr-repository.xml</a></td>
         <td><a href="config-serverwide.html">Server-wide Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/domainlist.xml">domainlist.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/domainlist.xml">domainlist.xml</a></td>
         <td><a href="config-domainlist.html">Domain List Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/usersrepository.xml">usersrepository.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/usersrepository.xml">usersrepository.xml</a></td>
         <td><a href="config-users.html">Users Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/recipientrewritetable.xml">recipientrewritetable.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/recipientrewritetable.xml">recipientrewritetable.xml</a></td>
         <td><a href="config-recipientrewritetable.html">Recipient Rewrite Table Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/mailbox.xml">mailbox.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/mailbox.xml">mailbox.xml</a></td>
         <td><a href="config-mailbox.html">Mailbox Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/mailrepositorystore.xml">mailrepositorystore.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/mailrepositorystore.xml">mailrepositorystore.xml</a></td>
         <td><a href="config-mailrepositorystore.html">Mail Repository Stores Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/dnsservice.xml">dnsservice.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/dnsservice.xml">dnsservice.xml</a></td>
         <td><a href="config-dnsservice.html">DNS Service Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/smtpserver.xml">smtpserver.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/smtpserver.xml">smtpserver.xml</a></td>
         <td><a href="config-smtp-lmtp.html">SMTP Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/lmtpserver.xml">lmtpserver.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/lmtpserver.xml">lmtpserver.xml</a></td>
         <td><a href="config-smtp-lmtp.html">LMTP Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/pop3server.xml">pop3server.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/pop3server.xml">pop3server.xml</a></td>
         <td><a href="config-pop3.html">POP3 Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/imapserver.xml">imapserver.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/imapserver.xml">imapserver.xml</a></td>
         <td><a href="config-imap4.html">IMAP4 Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/mailetcontainer.xml">mailetcontainer.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/mailetcontainer.xml">mailetcontainer.xml</a></td>
         <td><a href="config-mailetcontainer.html">Mailet Container Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/fetchmail.xml">fetchmail.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/fetchmail.xml">fetchmail.xml</a></td>
         <td><a href="config-fetchmail.html">FetchMail Configuration</a></td>
         <td></td>
       </tr>
 <!-- 
 Removed from trunk for now.
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/james-listmanager.xml">james-listmanager.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/james-listmanager.xml">james-listmanager.xml</a></td>
         <td><a href="config-listmanager.html">List Manager Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/miResources.xml">miResources.xml</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/miResources.xml">miResources.xml</a></td>
         <td>SQL Resources for Mailing lists</td>
         <td></td>
       </tr>
 -->
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/log4j.properties">log4j.properties</a></td>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/log4j.properties">log4j.properties</a></td>
         <td>See <a href="monitor-logging.html">monitoring with log4j</a> section.</td>
         <td></td>
       </tr>

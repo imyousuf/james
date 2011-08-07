@@ -27,7 +27,7 @@
 
   <section name="DomainList Configuration">
 
-    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M3/container-spring/src/main/config/examples/domainlist.xml">domainlist.xml</a> in SVN to get some examples and hints.</p>
+    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-beta3/container-spring/src/main/config/examples/domainlist.xml">domainlist.xml</a> in SVN to get some examples and hints.</p>
     
       <p>This configuration block is defined by the <strong>domainlist</strong> tag.</p>
       
