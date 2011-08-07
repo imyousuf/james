@@ -206,8 +206,8 @@ public abstract class AbstractRecipientRewriteTableTest extends TestCase {
             assertTrue("Added virtual mapping", addMapping(RecipientRewriteTable.WILDCARD, domain, address, ADDRESS_TYPE));
             assertTrue("Added virtual mapping", addMapping(user, domain, address2, ADDRESS_TYPE));
 
-            assertTrue("One mappings", virtualUserTable.getMappings(user, domain).size() == 1);
-            assertTrue("One mappings", virtualUserTable.getMappings(user2, domain).size() == 1);
+            assertEquals("One mappings", 1, virtualUserTable.getMappings(user, domain).size());
+            assertEquals("One mappings", 1, virtualUserTable.getMappings(user2, domain).size());
 
             assertTrue("remove virtual mapping", removeMapping(user, domain, address2, ADDRESS_TYPE));
             assertTrue("remove virtual mapping", removeMapping(RecipientRewriteTable.WILDCARD, domain, address, ADDRESS_TYPE));
