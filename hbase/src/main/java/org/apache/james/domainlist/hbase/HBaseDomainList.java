@@ -37,10 +37,19 @@ import org.apache.james.system.hbase.TablePool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Implementation of the DomainList for a HBase persistence.
+ */
 public class HBaseDomainList extends AbstractDomainList {
 
+    /**
+     * The Logger.
+     */
     private static Logger log = LoggerFactory.getLogger(HBaseDomainList.class.getName());
 
+    /* (non-Javadoc)
+     * @see org.apache.james.domainlist.api.DomainList#containsDomain(String)
+     */
     @Override
     public boolean containsDomain(String domain) throws DomainListException {
         HTable table = null;
@@ -66,6 +75,9 @@ public class HBaseDomainList extends AbstractDomainList {
         return false;
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.james.domainlist.api.DomainList#addDomain(String)
+     */
     @Override
     public void addDomain(String domain) throws DomainListException {
         HTable table = null;
@@ -111,6 +123,9 @@ public class HBaseDomainList extends AbstractDomainList {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.james.domainlist.lib.AbstractDomainList#getDomainListInternal()
+     */
     @Override
     protected List<String> getDomainListInternal() throws DomainListException {
         List<String> list = new ArrayList<String>();

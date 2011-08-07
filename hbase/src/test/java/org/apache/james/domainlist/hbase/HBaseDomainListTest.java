@@ -22,8 +22,17 @@ import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.lib.AbstractDomainListTest;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Tests for the HBase DomainList implementation.
+ * 
+ * Simply create the needed HBaseDomainList instance, and let the
+ * AbstractDomainListTest run the tests
+ */
 public class HBaseDomainListTest extends AbstractDomainListTest {
 
+    /* (non-Javadoc)
+     * @see org.apache.james.domainlist.lib.AbstractDomainListTest#createDomainList()
+     */
     @Override
     protected DomainList createDomainList() {
         HBaseDomainList domainList = new HBaseDomainList();

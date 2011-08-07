@@ -44,10 +44,21 @@ import org.apache.james.system.hbase.TablePool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Implementation of the RecipientRewriteTable for a HBase persistence.
+ * 
+ * TODO Fix wildcards, recursive and alias.
+ */
 public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
 
+    /**
+     * The Logger.
+     */
     private static Logger log = LoggerFactory.getLogger(HBaseRecipientRewriteTable.class.getName());
     
+    /* (non-Javadoc)
+     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTable#addMappingInternal(String, String, String)
+     */
     @Override
     protected void addMappingInternal(String user, String domain, String mapping) throws RecipientRewriteTableException {
         HTable table = null;
@@ -71,6 +82,9 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTable#removeMappingInternal(String, String, String)
+     */
     @Override
     protected void removeMappingInternal(String user, String domain, String mapping) throws RecipientRewriteTableException {
         HTable table = null;
@@ -94,6 +108,9 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTable#getUserDomainMappingsInternal(String, String)
+     */
     @Override
     protected Collection<String> getUserDomainMappingsInternal(String user, String domain) throws RecipientRewriteTableException {
         HTable table = null;
@@ -129,6 +146,9 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
         return list;
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTable#getAllMappingsInternal()
+     */
     @Override
     protected Map<String, Collection<String>> getAllMappingsInternal() throws RecipientRewriteTableException {
         HTable table = null;
@@ -178,6 +198,9 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
         return map;
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTable#mapAddressInternal(String, String)
+     */
     @Override
     protected String mapAddressInternal(String user, String domain) throws RecipientRewriteTableException {
         HTable table = null;

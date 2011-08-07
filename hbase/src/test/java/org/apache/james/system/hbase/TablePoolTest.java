@@ -24,6 +24,10 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+/**
+ * Simple tests for the TablePool singleton class.
+ * Check that the returned singleton and table instances and not null.
+ */
 public class TablePoolTest {
     
     @Test

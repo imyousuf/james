@@ -32,6 +32,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+/**
+ * Integration Tests for the HBase persistence implementations.
+ * 
+ * Launches a Mini HBase Cluster and run the others tests
+ * via a JUnit Test Suite.
+ * 
+ * HBaseRecipientRewriteTableTest temporary desactivated.
+ */
 @RunWith(Suite.class)
 @SuiteClasses({
     TablePoolTest.class,
@@ -41,10 +49,21 @@ import org.junit.runners.Suite.SuiteClasses;
   })
 public class JamesServerHBaseIntegrationTest {
 
+    /**
+     * The Logger.
+     */
     private static Logger logger = Logger.getLogger(JamesServerHBaseIntegrationTest.class);
     
+    /**
+     * In Memory HBase Mini Cluster.
+     */
     private static MiniHBaseCluster hbaseCluster;
     
+    /**
+     * Launches the HBase Mini Cluster before the tests.
+     * 
+     * @throws Exception
+     */
     @BeforeClass
     public static void setup() throws Exception {
         HBaseTestingUtility htu = new HBaseTestingUtility();
@@ -58,6 +77,11 @@ public class JamesServerHBaseIntegrationTest {
         TablePool.getInstance(getConfiguration());
     }
     
+    /**
+     * Shutdowns the HBase Mini Cluster after the tests.
+     * 
+     * @throws Exception
+     */
     @AfterClass
     public static void tearDown() throws Exception {
        if (hbaseCluster != null) {
@@ -65,6 +89,9 @@ public class JamesServerHBaseIntegrationTest {
        }
     }
     
+    /**
+     * @return the HBase Configuration
+     */
     public static Configuration getConfiguration() {
         if (hbaseCluster == null) {
             throw new IllegalStateException("Please instanciate HBaseTestingUtility before invoking this method");

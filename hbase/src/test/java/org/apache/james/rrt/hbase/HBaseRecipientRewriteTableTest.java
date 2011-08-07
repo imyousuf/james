@@ -29,12 +29,31 @@ import org.apache.james.system.hbase.TablePool;
 import org.apache.log4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Tests for the HBase RecipientRewriteTable implementation.
+ * 
+ * Simply create the needed HBaseRecipientRewriteTable instance, and let the
+ * AbstractRecipientRewriteTableTest run the tests.
+ * 
+ * TODO Fix wildcards, recursive and alias tests.
+ */
 public class HBaseRecipientRewriteTableTest extends AbstractRecipientRewriteTableTest {
 
+    /**
+     * The Logger.
+     */
     private static Logger logger = Logger.getLogger(HBaseRecipientRewriteTableTest.class);
     
+    /**
+     * Mini Hbase Cluster
+     * 
+     * TODO Remove this when RRT 
+     */
     private static MiniHBaseCluster hbaseCluster;
     
+    /* (non-Javadoc)
+     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest#setUp()
+     */
     public void setUp() throws Exception {
         super.setUp();
         HBaseTestingUtility htu = new HBaseTestingUtility();
@@ -48,6 +67,9 @@ public class HBaseRecipientRewriteTableTest extends AbstractRecipientRewriteTabl
         TablePool.getInstance(getConfiguration());
     }
     
+    /* (non-Javadoc)
+     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest#tearDown()
+     */
     public void tearDown() throws Exception {
         super.tearDown();
        if (hbaseCluster != null) {
@@ -55,6 +77,9 @@ public class HBaseRecipientRewriteTableTest extends AbstractRecipientRewriteTabl
        }
     }
     
+    /* (non-Javadoc)
+     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest#getRecipientRewriteTable()
+     */
     @Override
     protected AbstractRecipientRewriteTable getRecipientRewriteTable() throws Exception {
         HBaseRecipientRewriteTable rrt = new HBaseRecipientRewriteTable();
@@ -63,9 +88,8 @@ public class HBaseRecipientRewriteTableTest extends AbstractRecipientRewriteTabl
         return rrt;
     }
 
-    /**
-     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest#addMapping(java.lang.String,
-     *      java.lang.String, java.lang.String, int)
+    /* (non-Javadoc)
+     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest#addMapping(String, String, String, int)
      */
     protected boolean addMapping(String user, String domain, String mapping, int type) throws RecipientRewriteTableException {
         try {
@@ -86,9 +110,8 @@ public class HBaseRecipientRewriteTableTest extends AbstractRecipientRewriteTabl
         }
     }
 
-    /**
-     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest#removeMapping(java.lang.String,
-     *      java.lang.String, java.lang.String, int)
+    /* (non-Javadoc)
+     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest#removeMapping(String, String, String, int)
      */
     protected boolean removeMapping(String user, String domain, String mapping, int type) throws RecipientRewriteTableException {
         try {
@@ -109,6 +132,9 @@ public class HBaseRecipientRewriteTableTest extends AbstractRecipientRewriteTabl
         }
     }
 
+    /**
+     * @return the HBase configuration.
+     */
     public static Configuration getConfiguration() {
         if (hbaseCluster == null) {
             throw new IllegalStateException("Please instanciate HBaseTestingUtility before invoking this method");

@@ -20,6 +20,12 @@ package org.apache.james.user.hbase.def;
 
 import org.apache.hadoop.hbase.util.Bytes;
 
+/**
+ * Definitions for the UsersRepository HBase Table.
+ * 
+ * Contains the table name, column family name and
+ * the used column/qualifier names.
+ */
 public interface HUsersRepository {
 
     byte[] TABLE_NAME = Bytes.toBytes("JAMES_USERS");

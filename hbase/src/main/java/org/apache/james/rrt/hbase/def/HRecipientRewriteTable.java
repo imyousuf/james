@@ -20,6 +20,12 @@ package org.apache.james.rrt.hbase.def;
 
 import org.apache.hadoop.hbase.util.Bytes;
 
+/**
+ * Definitions for the RecipientRewriteTable HBase Table.
+ * 
+ * Contains the table name, column family name and
+ * the used column/qualifier names.
+ */
 public interface HRecipientRewriteTable {
 
     byte[] TABLE_NAME = Bytes.toBytes("JAMES_RRT");

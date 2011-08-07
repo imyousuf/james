@@ -43,22 +43,32 @@ import org.apache.james.user.lib.model.DefaultUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Implementation of the UserRepository for a HBase persistence.
+ */
 public class HBaseUsersRepository extends AbstractUsersRepository {
     
+    /**
+     * The Logger.
+     */
     private static Logger log = LoggerFactory.getLogger(HBaseUsersRepository.class.getName());
 
+    /**
+     * Hashing algorithm for the password.
+     */
     private String algo;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.user.lib.AbstractUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
+    /* (non-Javadoc)
+     * @see org.apache.james.user.lib.AbstractUsersRepository#doConfigure(HierarchicalConfiguration)
      */
     public void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
         algo = config.getString("algorithm", "MD5");
         super.doConfigure(config);
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.james.user.api.UsersRepository#getUserByName(String)
+     */
     @Override
     public User getUserByName(String name) throws UsersRepositoryException {
         KeyValue keyValue = getKeyValue(name);
@@ -69,6 +79,9 @@ public class HBaseUsersRepository extends AbstractUsersRepository {
         return user;
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.james.user.api.UsersRepository#updateUser(User)
+     */
     @Override
     public void updateUser(User user) throws UsersRepositoryException {
         if (user == null) {
@@ -84,6 +97,9 @@ public class HBaseUsersRepository extends AbstractUsersRepository {
         putUser((DefaultUser) user);
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.james.user.api.UsersRepository#removeUser(String)
+     */
     @Override
     public void removeUser(String name) throws UsersRepositoryException {
         HTable table = null;
@@ -106,12 +122,18 @@ public class HBaseUsersRepository extends AbstractUsersRepository {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.james.user.api.UsersRepository#contains(String)
+     */
     @Override
     public boolean contains(String name) throws UsersRepositoryException {
         KeyValue keyValue = getKeyValue(name);
         return (keyValue != null);
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.james.user.api.UsersRepository#test(String, String)
+     */
     @Override
     public boolean test(String name, String password) throws UsersRepositoryException {
         KeyValue keyValue = getKeyValue(name);
@@ -123,6 +145,9 @@ public class HBaseUsersRepository extends AbstractUsersRepository {
         return false;
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.james.user.api.UsersRepository#countUsers()
+     */
     @Override
     public int countUsers() throws UsersRepositoryException {
         HTable table = null;
@@ -156,6 +181,9 @@ public class HBaseUsersRepository extends AbstractUsersRepository {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.james.user.api.UsersRepository#list()
+     */
     @Override
     public Iterator<String> list() throws UsersRepositoryException {
         List<String> list = new ArrayList<String>();
@@ -189,6 +217,9 @@ public class HBaseUsersRepository extends AbstractUsersRepository {
         return list.iterator();
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.james.user.lib.AbstractUsersRepository#doAddUser(String, String)
+     */
     @Override
     protected void doAddUser(String username, String password) throws UsersRepositoryException {
         DefaultUser user = new DefaultUser(username, algo);
@@ -196,6 +227,13 @@ public class HBaseUsersRepository extends AbstractUsersRepository {
         putUser(user);
     }
     
+    /**
+     * Utility method to retrieve a HBase KeyValue for a given username.
+     * 
+     * @param username
+     * @return
+     * @throws UsersRepositoryException
+     */
     private KeyValue getKeyValue(String username) throws UsersRepositoryException {
         HTable table = null;
         try {
@@ -218,6 +256,12 @@ public class HBaseUsersRepository extends AbstractUsersRepository {
         }
     }
     
+    /**
+     * Utility mehtod to put a User in HBase.
+     * 
+     * @param user
+     * @throws UsersRepositoryException
+     */
     private void putUser(DefaultUser user) throws UsersRepositoryException {
         HTable table = null;
         try {

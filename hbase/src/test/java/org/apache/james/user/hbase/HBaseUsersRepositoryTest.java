@@ -28,8 +28,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Tests for the HBase UsersRepository implementation.
+ * 
+ * Simply create the needed HBaseUsersRepository instance, and let the
+ * AbstractUsersRepositoryTest run the tests
+ */
 public class HBaseUsersRepositoryTest extends AbstractUsersRepositoryTest {
 
+    /* (non-Javadoc)
+     * @see org.apache.james.user.lib.AbstractUsersRepositoryTest#setUp()
+     */
     @Override
     @Before
     protected void setUp() throws Exception {
@@ -37,12 +46,21 @@ public class HBaseUsersRepositoryTest extends AbstractUsersRepositoryTest {
         deleteAll();
     }
 
+    /* (non-Javadoc)
+     * @see org.apache.james.user.lib.AbstractUsersRepositoryTest#tearDown()
+     */
     @Override
     @After
     protected void tearDown() throws Exception {
         super.tearDown();
     }
 
+    /**
+     * Delete all users in the repository. Used between each tests.
+     * 
+     * @throws UsersRepositoryException
+     * @throws Exception
+     */
     private void deleteAll() throws UsersRepositoryException, Exception {
         Iterator<String> it = getUsersRepository().list();
         while (it.hasNext()) {
@@ -50,6 +68,9 @@ public class HBaseUsersRepositoryTest extends AbstractUsersRepositoryTest {
         }
     }
     
+    /* (non-Javadoc)
+     * @see org.apache.james.user.lib.AbstractUsersRepositoryTest#getUsersRepository()
+     */
     @Override
     protected UsersRepository getUsersRepository() throws Exception {
         HBaseUsersRepository userRepository = new HBaseUsersRepository();
