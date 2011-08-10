@@ -423,10 +423,14 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
             // Now cast the property back to Serializable and set it as attribute.
             // See JAMES-1241
             Object attrValue = message.getObjectProperty(name);
-            if ( attrValue instanceof Serializable) {   
-                mail.setAttribute(name, (Serializable) attrValue);
-            } else {
-                logger.error("Not supported mail attribute " + name + " of type " + attrValue);
+           
+            // ignore null values. See JAMES-1294
+            if (attrValue != null) {
+                if (attrValue instanceof Serializable) {   
+                    mail.setAttribute(name, (Serializable) attrValue);
+                } else {
+                    logger.error("Not supported mail attribute " + name + " of type " + attrValue + " for mail " + mail.getName());
+                }
             }
         }
 
