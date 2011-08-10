@@ -402,13 +402,14 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
         String recipients = message.getStringProperty(JAMES_MAIL_RECIPIENTS);
         StringTokenizer recipientTokenizer = new StringTokenizer(recipients, JAMES_MAIL_SEPARATOR);
         while (recipientTokenizer.hasMoreTokens()) {
+        	String token = recipientTokenizer.nextToken();
             try {
-                MailAddress rcpt = new MailAddress(recipientTokenizer.nextToken());
+                MailAddress rcpt = new MailAddress(token);
                 rcpts.add(rcpt);
             } catch (AddressException e) {
                 // Should never happen as long as the user does not modify the
                 // the header by himself
-                // Maybe we should log it anyway
+            	logger.error("Unable to parse the recipient address " + token + " for mail " + mail.getName() + ", so we ignore it", e);
             }
         }
         mail.setRecipients(rcpts);
@@ -443,7 +444,8 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
             } catch (AddressException e) {
                 // Should never happen as long as the user does not modify the
                 // the header by himself
-                // Maybe we should log it anyway
+            	logger.error("Unable to parse the sender address " + sender + " for mail " + mail.getName() + ", so we fallback to a null sender", e);
+            	mail.setSender(null);
             }
         }
 
