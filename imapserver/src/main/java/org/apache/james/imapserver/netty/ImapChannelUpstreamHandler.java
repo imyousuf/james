@@ -117,7 +117,7 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
         ctx.setAttachment(response);
 
         // write hello to client
-        response.untagged().message(hello);
+        response.untagged().message(hello).end();
         super.channelConnected(ctx, e);
 
     }
