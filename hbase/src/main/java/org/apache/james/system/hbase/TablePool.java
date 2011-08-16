@@ -54,7 +54,7 @@ public class TablePool {
      * @return
      * @throws IOException
      */
-    public static TablePool getInstance() throws IOException {
+    public static synchronized TablePool getInstance() throws IOException {
         return getInstance(HBaseConfiguration.create());
     }
 
