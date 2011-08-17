@@ -738,6 +738,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-mailbox-spring</artifactId>
+      <version>${mailbox.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-message</artifactId>
       <version>${imap.version}</version>
       <exclusions>
@@ -1376,8 +1381,8 @@
     <camel.version>2.5.0</camel.version>
     <activemq.version>5.4.2</activemq.version>
     <spring.version>3.0.5.RELEASE</spring.version>
-    <mailbox.version>0.3</mailbox.version>
-    <imap.version>0.2.1</imap.version>
+    <mailbox.version>0.4-SNAPSHOT</mailbox.version>
+    <imap.version>0.3-SNAPSHOT</imap.version>
     <protocols.version>1.5</protocols.version>
     <jsieve.version>0.4</jsieve.version>
     <jackrabbit.version>2.2.5</jackrabbit.version>

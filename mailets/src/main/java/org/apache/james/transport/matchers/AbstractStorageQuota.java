@@ -26,21 +26,20 @@ import java.util.Locale;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
+import org.apache.james.imap.processor.base.FetchGroupImpl;
 import org.apache.james.mailbox.BadCredentialsException;
 import org.apache.james.mailbox.MailboxException;
+import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.mailbox.MailboxMetaData;
 import org.apache.james.mailbox.MailboxPath;
 import org.apache.james.mailbox.MailboxQuery;
-import org.apache.james.mailbox.MessageManager;
-import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.mailbox.MailboxSession;
+import org.apache.james.mailbox.MessageManager;
 import org.apache.james.mailbox.MessageRange;
 import org.apache.james.mailbox.MessageResult;
-import org.apache.james.mailbox.MessageResult.FetchGroup;
-import org.apache.james.mailbox.util.FetchGroupImpl;
+import org.apache.james.transport.util.MailetContextLog;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersRepositoryException;
-import org.apache.james.transport.util.MailetContextLog;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
@@ -138,7 +137,7 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
             List<MailboxMetaData> mList = manager.search(new MailboxQuery(MailboxPath.inbox(session), "", session.getPathDelimiter()), session);
             for (int i = 0; i < mList.size(); i++) {
                 MessageManager mailbox = manager.getMailbox(mList.get(i).getPath(), session);
-                Iterator<MessageResult> results = mailbox.getMessages(MessageRange.all(), new FetchGroupImpl(FetchGroup.MINIMAL), session);
+                Iterator<MessageResult> results = mailbox.getMessages(MessageRange.all(), FetchGroupImpl.MINIMAL, -1, session);
                 while (results.hasNext()) {
                     size += results.next().getSize();
                 }

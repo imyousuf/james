@@ -155,6 +155,10 @@ Parent pom build failure prevents inheritance.
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-imap-processor</artifactId>
+    </dependency>   
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailbox-api</artifactId>
     </dependency>   
     <!-- Test dependencies -->

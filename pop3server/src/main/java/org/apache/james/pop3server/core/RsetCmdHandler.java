@@ -82,7 +82,7 @@ public class RsetCmdHandler implements CommandHandler<POP3Session> {
             MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
 
             List<MessageMetaData> uids = new ArrayList<MessageMetaData>();
-            Iterator<MessageResult> it = session.getUserMailbox().getMessages(MessageRange.all(), GROUP, mailboxSession);
+            Iterator<MessageResult> it = session.getUserMailbox().getMessages(MessageRange.all(), GROUP, -1, mailboxSession);
             while (it.hasNext()) {
                 MessageResult result = it.next();
                 uids.add(new MessageMetaData(result.getUid(), result.getSize()));
