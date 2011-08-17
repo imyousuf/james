@@ -63,7 +63,7 @@ public class Main implements Daemon {
      * )
      */
     public void init(DaemonContext arg0) throws Exception {
-        context = new JamesServerApplicationContext(new String[] { "context/james-server-context.xml" });
+        context = new JamesServerApplicationContext(new String[] { "META-INF/org/apache/james/spring-server.xml" });
         context.registerShutdownHook();
         context.start();
     }
