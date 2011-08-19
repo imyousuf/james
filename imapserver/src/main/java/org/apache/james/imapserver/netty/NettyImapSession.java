@@ -241,7 +241,9 @@ public class NettyImapSession implements ImapSession, NettyConstants {
      * .james.imap.api.process.ImapLineHandler)
      */
     public void pushLineHandler(ImapLineHandler lineHandler) {
-        context.getPipeline().addBefore("requestDecoder", "lineHandler" + handlerCount++, new ImapLineHandlerAdapter(lineHandler));
+        context.getChannel().setReadable(false);
+        context.getPipeline().addBefore(REQUEST_DECODER, "lineHandler" + handlerCount++, new ImapLineHandlerAdapter(lineHandler));
+        context.getChannel().setReadable(true);
     }
 
     /*
@@ -250,7 +252,9 @@ public class NettyImapSession implements ImapSession, NettyConstants {
      * @see org.apache.james.imap.api.process.ImapSession#popLineHandler()
      */
     public void popLineHandler() {
+        context.getChannel().setReadable(false);
         context.getPipeline().remove("lineHandler" + --handlerCount);
+        context.getChannel().setReadable(true);
     }
 
     /*

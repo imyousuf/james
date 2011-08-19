@@ -142,8 +142,7 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
                 // Add the text line decoder which limit the max line length,
                 // don't strip the delimiter and use CRLF as delimiter
                 pipeline.addLast(FRAMER, new DelimiterBasedFrameDecoder(maxLineLength, false, Delimiters.lineDelimiter()));
-                pipeline.addLast(REQUEST_DECODER, new ImapRequestFrameDecoder(decoder, inMemorySizeLimit));
-
+               
                 if (isSSLSocket()) {
                     // We need to set clientMode to false.
                     // See https://issues.apache.org/jira/browse/JAMES-1025
@@ -159,8 +158,10 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
                 ExecutionHandler ehandler = getExecutionHandler();
                 if (ehandler  != null) {
                     pipeline.addLast(EXECUTION_HANDLER, ehandler);
+
                 }
-               
+                pipeline.addLast(REQUEST_DECODER, new ImapRequestFrameDecoder(decoder, inMemorySizeLimit));
+
                 pipeline.addLast(CORE_HANDLER, createCoreHandler());
                 return pipeline;
             }
