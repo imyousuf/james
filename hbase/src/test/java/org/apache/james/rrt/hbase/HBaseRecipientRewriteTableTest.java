@@ -56,15 +56,17 @@ public class HBaseRecipientRewriteTableTest extends AbstractRecipientRewriteTabl
      */
     public void setUp() throws Exception {
         super.setUp();
-        HBaseTestingUtility htu = new HBaseTestingUtility();
-        htu.getConfiguration().setBoolean("dfs.support.append", true);
-        try {
-            hbaseCluster = htu.startMiniCluster();
-        } 
-        catch (Exception e) {
-            logger.error("Exception when starting HBase Mini Cluster", e);
+        if (hbaseCluster == null) {
+            HBaseTestingUtility htu = new HBaseTestingUtility();
+            htu.getConfiguration().setBoolean("dfs.support.append", true);
+            try {
+                hbaseCluster = htu.startMiniCluster();
+            } 
+            catch (Exception e) {
+                logger.error("Exception when starting HBase Mini Cluster", e);
+            }
+            TablePool.getInstance(getConfiguration());
         }
-        TablePool.getInstance(getConfiguration());
     }
     
     /* (non-Javadoc)
@@ -72,9 +74,6 @@ public class HBaseRecipientRewriteTableTest extends AbstractRecipientRewriteTabl
      */
     public void tearDown() throws Exception {
         super.tearDown();
-       if (hbaseCluster != null) {
-           hbaseCluster.shutdown();
-       }
     }
     
     /* (non-Javadoc)
