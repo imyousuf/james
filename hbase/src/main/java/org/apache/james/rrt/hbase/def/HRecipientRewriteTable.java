@@ -31,4 +31,8 @@ public interface HRecipientRewriteTable {
     byte[] TABLE_NAME = Bytes.toBytes("JAMES_RRT");
     byte[] COLUMN_FAMILY_NAME = Bytes.toBytes("JAMES_RRT");
 
+    public interface COLUMN {
+        byte [] MAPPING = Bytes.toBytes("map");
+    }
+
 }

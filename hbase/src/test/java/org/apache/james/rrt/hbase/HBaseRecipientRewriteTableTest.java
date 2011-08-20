@@ -34,8 +34,6 @@ import org.slf4j.LoggerFactory;
  * 
  * Simply create the needed HBaseRecipientRewriteTable instance, and let the
  * AbstractRecipientRewriteTableTest run the tests.
- * 
- * TODO Fix wildcards, recursive and alias tests.
  */
 public class HBaseRecipientRewriteTableTest extends AbstractRecipientRewriteTableTest {
 
@@ -43,38 +41,6 @@ public class HBaseRecipientRewriteTableTest extends AbstractRecipientRewriteTabl
      * The Logger.
      */
     private static Logger logger = Logger.getLogger(HBaseRecipientRewriteTableTest.class);
-    
-    /**
-     * Mini Hbase Cluster
-     * 
-     * TODO Remove this when RRT 
-     */
-    private static MiniHBaseCluster hbaseCluster;
-    
-    /* (non-Javadoc)
-     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest#setUp()
-     */
-    public void setUp() throws Exception {
-        super.setUp();
-        if (hbaseCluster == null) {
-            HBaseTestingUtility htu = new HBaseTestingUtility();
-            htu.getConfiguration().setBoolean("dfs.support.append", true);
-            try {
-                hbaseCluster = htu.startMiniCluster();
-            } 
-            catch (Exception e) {
-                logger.error("Exception when starting HBase Mini Cluster", e);
-            }
-            TablePool.getInstance(getConfiguration());
-        }
-    }
-    
-    /* (non-Javadoc)
-     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest#tearDown()
-     */
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
     
     /* (non-Javadoc)
      * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest#getRecipientRewriteTable()

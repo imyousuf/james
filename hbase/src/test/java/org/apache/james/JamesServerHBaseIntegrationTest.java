@@ -22,6 +22,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseTestingUtility;
 import org.apache.hadoop.hbase.MiniHBaseCluster;
 import org.apache.james.domainlist.hbase.HBaseDomainListTest;
+import org.apache.james.rrt.hbase.HBaseRecipientRewriteTableTest;
 import org.apache.james.system.hbase.TablePool;
 import org.apache.james.system.hbase.TablePoolTest;
 import org.apache.james.user.hbase.HBaseUsersRepositoryTest;
@@ -44,7 +45,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
     TablePoolTest.class,
     HBaseDomainListTest.class,
-//    HBaseRecipientRewriteTableTest.class,
+    HBaseRecipientRewriteTableTest.class,
     HBaseUsersRepositoryTest.class
   })
 public class JamesServerHBaseIntegrationTest {

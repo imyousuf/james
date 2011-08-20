@@ -27,15 +27,12 @@ import java.util.Map;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.filter.BinaryComparator;
-import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
-import org.apache.hadoop.hbase.filter.Filter;
-import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.james.rrt.api.RecipientRewriteTableException;
 import org.apache.james.rrt.hbase.def.HRecipientRewriteTable;
@@ -47,8 +44,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of the RecipientRewriteTable for a HBase persistence.
- * 
- * TODO Fix wildcard and recursive mapping.
  */
 public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
 
@@ -57,19 +52,21 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
      */
     private static Logger log = LoggerFactory.getLogger(HBaseRecipientRewriteTable.class.getName());
     
+    private static final String ROW_SEPARATOR = "@";
+    
     /* (non-Javadoc)
      * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTable#addMappingInternal(String, String, String)
      */
     @Override
     protected void addMappingInternal(String user, String domain, String mapping) throws RecipientRewriteTableException {
-        String newUser = getUserString(user);
-        String newDomain = getDomainString(domain);
-        Collection<String> map = getUserDomainMappings(newUser, newDomain);
+        String fixedUser = getFixedUser(user);
+        String fixedDomain = getFixedDomain(domain);
+        Collection<String> map = getUserDomainMappings(fixedUser, fixedDomain);
         if (map != null && map.size() != 0) {
             map.add(mapping);
-            doUpdateMapping(newUser, newDomain, RecipientRewriteTableUtil.CollectionToMapping(map));
+            doUpdateMapping(fixedUser, fixedDomain, RecipientRewriteTableUtil.CollectionToMapping(map));
         } else {
-            doAddMapping(newUser, newDomain, mapping);
+            doAddMapping(fixedUser, fixedDomain, mapping);
         }
     }
 
@@ -83,16 +80,8 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
         ResultScanner resultScanner = null;
         try {
             table = TablePool.getInstance().getRecipientRewriteTable();
-            Scan scan = new Scan();
-            scan.addFamily(HRecipientRewriteTable.COLUMN_FAMILY_NAME);
-            scan.setCaching(table.getScannerCaching() * 2);
-            Filter filter = new SingleColumnValueFilter(HRecipientRewriteTable.COLUMN_FAMILY_NAME, Bytes.toBytes(user), CompareOp.EQUAL, new BinaryComparator(Bytes.toBytes(user)));
-            scan.setFilter(filter);
-            resultScanner = table.getScanner(scan);
-            Result result = null;
-            while ((result = resultScanner.next()) != null) {
-                list.add(Bytes.toString(result.getRow()));
-            }
+            // Optimize this to only make one call.
+            feedUserDomainMappingsList(table, user, domain, list);
         } catch (IOException e) {
             log.error("Error while getting user domain mapping in HBase", e);
             throw new RecipientRewriteTableException("Error while getting user domain mapping in HBase", e);
@@ -109,6 +98,15 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
             }
         }
         return list;
+    }
+    
+    private void feedUserDomainMappingsList(HTable table, String user, String domain, Collection<String> list) throws IOException {
+        Get get = new Get(Bytes.toBytes(getRowKey(user, domain)));
+        Result result = table.get(get);
+        List<KeyValue> keyValues = result.getColumn(HRecipientRewriteTable.COLUMN_FAMILY_NAME, HRecipientRewriteTable.COLUMN.MAPPING);
+        if (keyValues.size() > 0) {
+            list.addAll(RecipientRewriteTableUtil.mappingToCollection(Bytes.toString(keyValues.get(0).getValue())));
+        }
     }
 
     /* (non-Javadoc)
@@ -130,9 +128,7 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
                 List<KeyValue> keyValues = result.list();
                 if (keyValues != null) {
                     for (KeyValue keyValue: keyValues) {
-                        byte[] user = keyValue.getQualifier();
-                        byte[] domain = keyValue.getValue();
-                        String email = Bytes.toString(user) + '@' + Bytes.toString(domain);
+                        String email = Bytes.toString(keyValue.getRow());
                         if (map == null) {
                             map = new HashMap<String, Collection<String>>();
                         }
@@ -170,18 +166,15 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
     protected String mapAddressInternal(String user, String domain) throws RecipientRewriteTableException {
         HTable table = null;
         ResultScanner resultScanner = null;
-        StringBuffer mappingBuffer = new StringBuffer();
+        String mappings = null;
         try {
             table = TablePool.getInstance().getRecipientRewriteTable();
-            Scan scan = new Scan();
-            scan.addFamily(HRecipientRewriteTable.COLUMN_FAMILY_NAME);
-            scan.setCaching(table.getScannerCaching() * 2);
-            Filter filter = new SingleColumnValueFilter(HRecipientRewriteTable.COLUMN_FAMILY_NAME, Bytes.toBytes(user), CompareOp.EQUAL, new BinaryComparator(Bytes.toBytes(domain)));
-            scan.setFilter(filter);
-            resultScanner = table.getScanner(scan);
-            Result result = null;
-            while ((result = resultScanner.next()) != null) {
-                mappingBuffer.append(Bytes.toString(result.getRow()) + ";");
+            mappings = getMapping(table, user, domain);
+            if (mappings == null) {
+                mappings = getMapping(table, WILDCARD, domain);
+            }
+            if (mappings == null) {
+                mappings = getMapping(table, user, WILDCARD);
             }
         } catch (IOException e) {
             log.error("Error while mapping address in HBase", e);
@@ -198,11 +191,17 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
                 }
             }
         }
-        if (mappingBuffer.length() == 0) {
-            return null;
+        return mappings;
+    }
+    
+    private String getMapping(HTable table, String user, String domain) throws IOException {
+        Get get = new Get(Bytes.toBytes(getRowKey(user, domain)));
+        Result result = table.get(get);
+        List<KeyValue> keyValues = result.getColumn(HRecipientRewriteTable.COLUMN_FAMILY_NAME, HRecipientRewriteTable.COLUMN.MAPPING);
+        if (keyValues.size() > 0) {
+            return Bytes.toString(keyValues.get(0).getValue());
         }
-        String mapping = mappingBuffer.toString();
-        return mapping.substring(0, mapping.length() - 1);
+        return null;
     }
     
     /* (non-Javadoc)
@@ -210,19 +209,21 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
      */
     @Override
     protected void removeMappingInternal(String user, String domain, String mapping) throws RecipientRewriteTableException {
-        String newUser = getUserString(user);
-        String newDomain = getDomainString(domain);
-        Collection<String> map = getUserDomainMappings(newUser, newDomain);
+        String fixedUser = getFixedUser(user);
+        String fixedDomain = getFixedDomain(domain);
+        Collection<String> map = getUserDomainMappings(fixedUser, fixedDomain);
         if (map != null && map.size() > 1) {
             map.remove(mapping);
-            doUpdateMapping(newUser, newDomain, RecipientRewriteTableUtil.CollectionToMapping(map));
+            doUpdateMapping(fixedUser, fixedDomain, RecipientRewriteTableUtil.CollectionToMapping(map));
         } else {
-            doRemoveMapping(newUser, newDomain, mapping);
+            doRemoveMapping(fixedUser, fixedDomain, mapping);
         }
     }
 
     /**
-     * Update the mapping for the given user and domain
+     * Update the mapping for the given user and domain.
+     * For HBase, this is simply achieved delegating
+     * the work to the doAddMapping method.
      * 
      * @param user the user
      * @param domain the domain
@@ -234,7 +235,7 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
     }
 
     /**
-     * Remove a mapping for the given user and domain
+     * Remove a mapping for the given user and domain.
      * 
      * @param user the user
      * @param domain the domain
@@ -245,8 +246,7 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
         HTable table = null;
         try {
             table = TablePool.getInstance().getRecipientRewriteTable();
-            Delete delete = new Delete(Bytes.toBytes(mapping));
-            delete.deleteColumn(HRecipientRewriteTable.COLUMN_FAMILY_NAME, Bytes.toBytes(user));
+            Delete delete = new Delete(Bytes.toBytes(getRowKey(user, domain)));
             table.delete(delete);
             table.flushCommits();
         } catch (IOException e) {
@@ -275,8 +275,8 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
         HTable table = null;
         try {
             table = TablePool.getInstance().getRecipientRewriteTable();
-            Put put = new Put(Bytes.toBytes(mapping));
-            put.add(HRecipientRewriteTable.COLUMN_FAMILY_NAME, Bytes.toBytes(user), Bytes.toBytes(domain));
+            Put put = new Put(Bytes.toBytes(getRowKey(user, domain)));
+            put.add(HRecipientRewriteTable.COLUMN_FAMILY_NAME, HRecipientRewriteTable.COLUMN.MAPPING, Bytes.toBytes(mapping));
             table.put(put);
             table.flushCommits();
         } catch (IOException e) {
@@ -291,6 +291,17 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
                 }
             }
         }
+    }
+    
+    /**
+     * Constructs a Key based on the user and domain.
+     * 
+     * @param user
+     * @param domain
+     * @return the key
+     */
+    private String getRowKey(String user, String domain) {
+        return user + ROW_SEPARATOR + domain;
     }
 
 }
