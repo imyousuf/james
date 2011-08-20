@@ -97,14 +97,4 @@ public class HBaseRecipientRewriteTableTest extends AbstractRecipientRewriteTabl
         }
     }
 
-    /**
-     * @return the HBase configuration.
-     */
-    public static Configuration getConfiguration() {
-        if (hbaseCluster == null) {
-            throw new IllegalStateException("Please instanciate HBaseTestingUtility before invoking this method");
-        }
-        return hbaseCluster.getConfiguration();
-    }
-
 }
