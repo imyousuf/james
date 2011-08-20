@@ -482,4 +482,46 @@ public abstract class AbstractRecipientRewriteTable implements RecipientRewriteT
         }
     }
 
+    /**
+     * Return user String for the given argument
+     * 
+     * @param user
+     *            the given user String
+     * @return user the user String
+     * @throws InvalidMappingException
+     *             get thrown on invalid argument
+     */
+    protected String getUserString(String user) {
+        if (user != null) {
+            if (user.equals(WILDCARD) || user.indexOf("@") < 0) {
+                return user;
+            } else {
+                throw new IllegalArgumentException("Invalid user: " + user);
+            }
+        } else {
+            return WILDCARD;
+        }
+    }
+
+    /**
+     * Return domain String for the given argument
+     * 
+     * @param domain
+     *            the given domain String
+     * @return domainString the domain String
+     * @throws InvalidMappingException
+     *             get thrown on invalid argument
+     */
+    protected String getDomainString(String domain) {
+        if (domain != null) {
+            if (domain.equals(WILDCARD) || domain.indexOf("@") < 0) {
+                return domain;
+            } else {
+                throw new IllegalArgumentException("Invalid domain: " + domain);
+            }
+        } else {
+            return WILDCARD;
+        }
+    }
+
 }
