@@ -483,15 +483,14 @@ public abstract class AbstractRecipientRewriteTable implements RecipientRewriteT
     }
 
     /**
-     * Return user String for the given argument
+     * Return user String for the given argument.
+     * If give value is null, return a wildcard.
      * 
-     * @param user
-     *            the given user String
-     * @return user the user String
-     * @throws InvalidMappingException
-     *             get thrown on invalid argument
+     * @param user the given user String
+     * @return fixedUser the fixed user String
+     * @throws InvalidMappingException get thrown on invalid argument
      */
-    protected String getUserString(String user) {
+    protected String getFixedUser(String user) {
         if (user != null) {
             if (user.equals(WILDCARD) || user.indexOf("@") < 0) {
                 return user;
@@ -504,15 +503,14 @@ public abstract class AbstractRecipientRewriteTable implements RecipientRewriteT
     }
 
     /**
-     * Return domain String for the given argument
+     * Fix the domain for the given argument.
+     * If give value is null, return a wildcard.
      * 
-     * @param domain
-     *            the given domain String
-     * @return domainString the domain String
-     * @throws InvalidMappingException
-     *             get thrown on invalid argument
+     * @param domain the given domain String
+     * @return fixedDomain the fixed domain String
+     * @throws InvalidMappingException get thrown on invalid argument
      */
-    protected String getDomainString(String domain) {
+    protected String getFixedDomain(String domain) {
         if (domain != null) {
             if (domain.equals(WILDCARD) || domain.indexOf("@") < 0) {
                 return domain;

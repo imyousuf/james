@@ -60,18 +60,15 @@ public class JPARecipientRewriteTable extends AbstractRecipientRewriteTable {
      * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTable#addMappingInternal(String, String, String)
      */
     protected void addMappingInternal(String user, String domain, String mapping) throws RecipientRewriteTableException {
-
-        String newUser = getUserString(user);
-        String newDomain = getDomainString(domain);
-        Collection<String> map = getUserDomainMappings(newUser, newDomain);
-
+        String fixedUser = getFixedUser(user);
+        String fixedDomain = getFixedDomain(domain);
+        Collection<String> map = getUserDomainMappings(fixedUser, fixedDomain);
         if (map != null && map.size() != 0) {
             map.add(mapping);
-            doUpdateMapping(newUser, newDomain, RecipientRewriteTableUtil.CollectionToMapping(map));
+            doUpdateMapping(fixedUser, fixedDomain, RecipientRewriteTableUtil.CollectionToMapping(map));
         } else {
-            doAddMapping(newUser, newDomain, mapping);
+            doAddMapping(fixedUser, fixedDomain, mapping);
         }
-
     }
 
     /**
@@ -163,14 +160,14 @@ public class JPARecipientRewriteTable extends AbstractRecipientRewriteTable {
      * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTable#removeMappingInternal(String, String, String)
      */
     protected void removeMappingInternal(String user, String domain, String mapping) throws RecipientRewriteTableException {
-        String newUser = getUserString(user);
-        String newDomain = getDomainString(domain);
-        Collection<String> map = getUserDomainMappings(newUser, newDomain);
+        String fixedUser = getFixedUser(user);
+        String fixedDomain = getFixedDomain(domain);
+        Collection<String> map = getUserDomainMappings(fixedUser, fixedDomain);
         if (map != null && map.size() > 1) {
             map.remove(mapping);
-            doUpdateMapping(newUser, newDomain, RecipientRewriteTableUtil.CollectionToMapping(map));
+            doUpdateMapping(fixedUser, fixedDomain, RecipientRewriteTableUtil.CollectionToMapping(map));
         } else {
-            doRemoveMapping(newUser, newDomain, mapping);
+            doRemoveMapping(fixedUser, fixedDomain, mapping);
         }
     }
 
