@@ -60,17 +60,17 @@ public class JPARecipientRewriteTable extends AbstractRecipientRewriteTable {
      * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTable#addMappingInternal(String,
      *      String, String)
      */
-    protected void addMappingInternal(String user, String domain, String regex) throws RecipientRewriteTableException {
+    protected void addMappingInternal(String user, String domain, String mapping) throws RecipientRewriteTableException {
 
         String newUser = getUserString(user);
         String newDomain = getDomainString(domain);
         Collection<String> map = getUserDomainMappings(newUser, newDomain);
 
         if (map != null && map.size() != 0) {
-            map.add(regex);
+            map.add(mapping);
             updateMapping(newUser, newDomain, RecipientRewriteTableUtil.CollectionToMapping(map));
         } else {
-            addRawMapping(newUser, newDomain, regex);
+            addRawMapping(newUser, newDomain, mapping);
         }
 
     }
