@@ -82,7 +82,7 @@ Parent pom build failure prevents inheritance.
           <testFailureIgnore>false</testFailureIgnore>
           <skip>false</skip>
           <includes>
-            <include>**/*IntegrationTest.java</include>
+            <include>**/*SuiteTest.java</include>
           </includes>
         </configuration>
       </plugin>

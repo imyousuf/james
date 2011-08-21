@@ -48,12 +48,12 @@ import org.junit.runners.Suite.SuiteClasses;
     HBaseRecipientRewriteTableTest.class,
     HBaseUsersRepositoryTest.class
   })
-public class JamesServerHBaseIntegrationTest {
+public class JamesServerHBaseSuiteTest {
 
     /**
      * The Logger.
      */
-    private static Logger logger = Logger.getLogger(JamesServerHBaseIntegrationTest.class);
+    private static Logger logger = Logger.getLogger(JamesServerHBaseSuiteTest.class);
     
     /**
      * In Memory HBase Mini Cluster.
