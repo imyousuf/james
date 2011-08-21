@@ -49,6 +49,7 @@
     <module>lmtpserver</module>
     <module>data-api</module>
     <module>data-library</module>
+    <module>hbase</module>
     <module>jpa</module>
     <module>jcr</module>
     <module>jdbc</module>
@@ -92,6 +93,17 @@
       <name>Java.net Repository for Maven</name>
       <url>http://download.java.net/maven/2/</url>
       <layout>default</layout>
+    </repository>
+    <repository>
+      <id>hadoop-non-releases</id>
+      <name>Hadoop non-releases</name>
+      <url>http://people.apache.org/~rawson/repo/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
     </repository>
   </repositories>
   
@@ -1316,6 +1328,27 @@
       <artifactId>org.osgi.core</artifactId>
       <version>4.2.0</version>
     </dependency>
+
+    <!-- HBase/Hadoop dependencies -->
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase</artifactId>
+      <version>${hbase.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase</artifactId>
+      <scope>test</scope>
+      <type>test-jar</type>
+      <version>${hbase.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-test</artifactId>
+      <scope>test</scope>
+      <version>${hadoop.version}</version>
+    </dependency>
+
     </dependencies>
   </dependencyManagement>
 
@@ -1391,6 +1424,8 @@
     <protocols.version>1.5</protocols.version>
     <jsieve.version>0.4</jsieve.version>
     <jackrabbit.version>2.2.5</jackrabbit.version>
+    <hbase.version>0.90.3</hbase.version>
+    <hadoop.version>0.20-append-r1057313</hadoop.version>
     
     <!-- For more details see -->
     <!-- http://java.sun.com/products/javamail/javadocs/javax/mail/internet/package-summary.html -->

@@ -29,29 +29,9 @@
   <name>Apache James Server HBase Data Persistence</name>
   
   <properties>
-    <hbase.version>0.90.3</hbase.version>
-    <hadoop.version>0.20-append-r1057313</hadoop.version>
     <junit.version>4.8.2</junit.version>
   </properties>
   
-<!-- 
-  TODO Move some definitions to server parent.
--->
-
-  <repositories>
-    <repository>
-      <id>hadoop-non-releases</id>
-      <name>Hadoop non-releases</name>
-      <url>http://people.apache.org/~rawson/repo/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
-  </repositories>
-
   <build>
     <plugins>
       <plugin>
@@ -121,7 +101,6 @@ Parent pom build failure prevents inheritance.
     <dependency>
       <groupId>org.apache.hbase</groupId>
       <artifactId>hbase</artifactId>
-      <version>${hbase.version}</version>
      </dependency>
     <dependency>
       <groupId>commons-io</groupId>
@@ -157,17 +136,10 @@ Parent pom build failure prevents inheritance.
       <artifactId>hbase</artifactId>
       <scope>test</scope>
       <type>test-jar</type>
-      <version>${hbase.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-test</artifactId>
-      <scope>test</scope>
-      <version>${hadoop.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
       <scope>test</scope>
     </dependency>
 
