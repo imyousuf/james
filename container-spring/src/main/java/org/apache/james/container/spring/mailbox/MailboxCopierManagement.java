@@ -27,6 +27,8 @@ import javax.annotation.Resource;
 import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.mailbox.copier.MailboxCopier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -35,6 +37,11 @@ import org.springframework.context.ApplicationContextAware;
  * {@link MailboxCopier} support via JMX
  */
 public class MailboxCopierManagement implements MailboxCopierManagementMBean, ApplicationContextAware {
+
+    /**
+     * The Logger.
+     */
+    private static Logger log = LoggerFactory.getLogger(MailboxCopierManagement.class.getName());
 
     private MailboxCopier copier;
     private ApplicationContext context;
@@ -78,10 +85,13 @@ public class MailboxCopierManagement implements MailboxCopierManagementMBean, Ap
         try {
             copier.copyMailboxes(context.getBean(srcBean, MailboxManager.class), context.getBean(dstBean, MailboxManager.class));
         } catch (BeansException e) {
+            log.error("An exception occured during the copy process", e);
             throw new Exception(e.getMessage());
         } catch (MailboxException e) {
+            log.error("An exception occured during the copy process", e);
             throw new Exception(e.getMessage());
         } catch (IOException e) {
+            log.error("An exception occured during the copy process", e);
             throw new Exception(e.getMessage());
         }
     }
