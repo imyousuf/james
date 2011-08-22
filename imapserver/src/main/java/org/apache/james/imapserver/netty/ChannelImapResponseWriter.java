@@ -20,7 +20,6 @@
 package org.apache.james.imapserver.netty;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import org.apache.james.imap.encode.ImapResponseWriter;
 import org.apache.james.imap.message.response.Literal;
@@ -43,9 +42,9 @@ public class ChannelImapResponseWriter implements ImapResponseWriter {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.imap.encode.ImapResponseWriter#write(java.nio.ByteBuffer)
+     * @see org.apache.james.imap.encode.ImapResponseWriter#write(byte[])
      */
-    public void write(ByteBuffer buffer) throws IOException {
+    public void write(byte[] buffer) throws IOException {
         channel.write(ChannelBuffers.wrappedBuffer(buffer));
     }
 

@@ -20,10 +20,7 @@
 package org.apache.james.pop3server.core;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.channels.Channels;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -32,7 +29,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.apache.james.mailbox.Content;
-import org.apache.james.mailbox.InputStreamContent;
 import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.MessageRange;
@@ -96,15 +92,9 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
                             // response = new
                             // POP3Response(POP3Response.OK_RESPONSE,
                             // "Message follows");
-                            Content content = result.getFullContent();
-                            InputStream in;
-                            if (content instanceof InputStreamContent) {
-                                in = ((InputStreamContent) content).getInputStream();
-                            } else {
-                                in = createInputStream(content);
-                            }
+                            Content content = result.getFullContent();                           
                             // session.writeStream(new ExtraDotInputStream(in));
-                            session.writeStream(new CRLFTerminatedInputStream(new ExtraDotInputStream(in)));
+                            session.writeStream(new CRLFTerminatedInputStream(new ExtraDotInputStream(content.getInputStream())));
 
                         } finally {
                             // write a single dot to mark message as complete
@@ -138,11 +128,6 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
         return response;
     }
 
-    protected InputStream createInputStream(Content content) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        content.writeTo(Channels.newChannel(out));
-        return new ByteArrayInputStream(out.toByteArray());
-    }
 
     /*
      * (non-Javadoc)

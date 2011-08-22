@@ -20,28 +20,24 @@
 package org.apache.james.pop3server.core;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
+import java.io.SequenceInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.apache.james.mailbox.Content;
-import org.apache.james.mailbox.InputStreamContent;
 import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.MessageRange;
 import org.apache.james.mailbox.MessageResult;
 import org.apache.james.mailbox.MessageResult.FetchGroup;
-import org.apache.james.mailbox.MessageResult.Header;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.Request;
@@ -117,31 +113,12 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                         session.writeStream(new ByteArrayInputStream((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes()));
                         try {
 
-                            ByteArrayOutputStream headersOut = new ByteArrayOutputStream();
-                            WritableByteChannel headersChannel = Channels.newChannel(headersOut);
+                          
+                            InputStream headersIn = result.getHeaders().getInputStream();
+                            InputStream bodyIn = new CountingBodyInputStream(new ExtraDotInputStream(new CRLFTerminatedInputStream(result.getBody().getInputStream())), lines);
 
-                            // write headers
-                            Iterator<Header> headers = result.headers();
-                            while (headers.hasNext()) {
-                                headers.next().writeTo(headersChannel);
-
-                                // we need to write out the CRLF after each
-                                // header
-                                headersChannel.write(ByteBuffer.wrap("\r\n".getBytes()));
-                            }
-                            // headers and body are seperated by a CRLF
-                            headersChannel.write(ByteBuffer.wrap("\r\n".getBytes()));
-                            session.writeStream(new ByteArrayInputStream(headersOut.toByteArray()));
-
-                            InputStream bodyIn;
-                            Content content = result.getBody();
-                            if (content instanceof InputStreamContent) {
-                                bodyIn = ((InputStreamContent) content).getInputStream();
-                            } else {
-                                bodyIn = createInputStream(content);
-                            }
                             // write body
-                            session.writeStream(new CountingBodyInputStream(new ExtraDotInputStream(new CRLFTerminatedInputStream(bodyIn)), lines));
+                            session.writeStream(new SequenceInputStream(Collections.enumeration(Arrays.asList(headersIn, new ByteArrayInputStream("\r\n".getBytes()), bodyIn))));
 
                         } finally {
                             // write a single dot to mark message as complete
