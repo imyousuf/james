@@ -89,8 +89,6 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler {
             cleanup(channel);
             channel.close();
         }
-
-        super.exceptionCaught(ctx, e);
     }
 
     /**
