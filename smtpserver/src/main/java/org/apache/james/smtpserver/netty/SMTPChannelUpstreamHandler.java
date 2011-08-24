@@ -30,7 +30,9 @@ import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPRetCode;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.smtpserver.SMTPConstants;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.ExceptionEvent;
@@ -78,7 +80,7 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler {
             ctx.getChannel().write(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED, "Line length exceeded. See RFC 2821 #4.5.3.1."));
         } else {
             if (channel.isConnected()) {
-                ctx.getChannel().write(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to process request"));
+                ctx.getChannel().write(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to process request")).addListener(ChannelFutureListener.CLOSE);
             }
             SMTPSession smtpSession = (SMTPSession) attributes.get(channel);
             if (smtpSession != null) {
@@ -86,8 +88,7 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler {
             } else {
                 logger.debug("Unable to process request", e.getCause());
             }
-            cleanup(channel);
-            channel.close();
+            cleanup(channel);            
         }
     }
 
