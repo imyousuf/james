@@ -80,7 +80,12 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler {
             if (channel.isConnected()) {
                 ctx.getChannel().write(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to process request"));
             }
-            logger.debug("Unable to process request", e.getCause());
+            SMTPSession smtpSession = (SMTPSession) attributes.get(channel);
+            if (smtpSession != null) {
+                smtpSession.getLogger().debug("Unable to process request", e.getCause());
+            } else {
+                logger.debug("Unable to process request", e.getCause());
+            }
             cleanup(channel);
             channel.close();
         }
