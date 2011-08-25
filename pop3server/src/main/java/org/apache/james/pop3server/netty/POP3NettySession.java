@@ -36,7 +36,6 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.DefaultFileRegion;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.handler.stream.ChunkedNioFile;
-import org.jboss.netty.handler.stream.ChunkedStream;
 import org.slf4j.Logger;
 
 /**
