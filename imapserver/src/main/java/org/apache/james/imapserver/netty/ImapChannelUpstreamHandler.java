@@ -34,7 +34,9 @@ import org.apache.james.imap.encode.base.ImapResponseComposerImpl;
 import org.apache.james.imap.main.ResponseEncoder;
 import org.apache.james.protocols.impl.ChannelAttributeSupport;
 import org.apache.james.protocols.impl.SessionLog;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelStateEvent;
@@ -150,8 +152,11 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
             if (imapSession != null)
                 imapSession.logout();
 
-            // just close the channel now!
-            ctx.getChannel().close();
+            // Make sure we close the channel after all the buffers were flushed out
+            Channel channel = ctx.getChannel();
+            if (channel.isConnected()) {
+                channel.write(ChannelBuffers.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+            }
 
         }
 
@@ -175,7 +180,11 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
             processor.process(message, responseEncoder, session);
 
             if (session.getState() == ImapSessionState.LOGOUT) {
-                ctx.getChannel().close();
+                // Make sure we close the channel after all the buffers were flushed out
+                Channel channel = ctx.getChannel();
+                if (channel.isConnected()) {
+                    channel.write(ChannelBuffers.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+                }
             }
             final IOException failure = responseEncoder.getFailure();
 
