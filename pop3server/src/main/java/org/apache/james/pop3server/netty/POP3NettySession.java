@@ -30,8 +30,11 @@ import javax.net.ssl.SSLEngine;
 import org.apache.james.mailbox.MessageManager;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.pop3server.POP3Session;
+import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.impl.AbstractSession;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.DefaultFileRegion;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
@@ -133,6 +136,9 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
         this.mailbox = mailbox;
     }
 
+    /**
+     * Remove this once a version of protocols is released which includes PROTOCOLS-28
+     */
     @Override
     public void writeStream(InputStream stream) {
         Channel channel = getChannelHandlerContext().getChannel();
@@ -152,5 +158,21 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
             super.writeStream(stream);
         }
     }
+    
+    /**
+     * Remove this once a version of protocols is released which includes PROTOCOLS-27
+     */
+    public void writeResponse(final Response response) {
+        Channel channel = getChannelHandlerContext().getChannel();
+        if (response != null && channel.isConnected()) {
+           ChannelFuture cf = channel.write(response);
+           if (response.isEndSession()) {
+                // close the channel if needed after the message was written out
+                cf.addListener(ChannelFutureListener.CLOSE);
+           }
+        }
+    }
+
+
 
 }
