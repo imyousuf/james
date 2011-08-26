@@ -30,6 +30,7 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.DefaultFileRegion;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.handler.stream.ChunkedNioFile;
 import org.jboss.netty.handler.stream.ChunkedStream;
 
@@ -67,7 +68,10 @@ public class ChannelImapResponseWriter implements ImapResponseWriter {
         InputStream in = literal.getInputStream();
         if (in instanceof FileInputStream && channel.getFactory() instanceof NioServerSocketChannelFactory) {
             FileChannel fc = ((FileInputStream) in).getChannel();
-            if (zeroCopy) {
+            // Zero-copy is only possible if no SSL/TLS is in place
+            //
+            // See JAMES-1305
+            if (zeroCopy && channel.getPipeline().get(SslHandler.class) == null) {
                 channel.write(new DefaultFileRegion(fc, fc.position(), literal.size()));
             } else {
                 channel.write(new ChunkedNioFile(fc, 8192));

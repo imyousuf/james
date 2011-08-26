@@ -38,6 +38,7 @@ import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.DefaultFileRegion;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.handler.stream.ChunkedNioFile;
 import org.slf4j.Logger;
 
@@ -145,7 +146,10 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
         if (stream instanceof FileInputStream  && channel.getFactory() instanceof NioServerSocketChannelFactory) {
             FileChannel fc = ((FileInputStream) stream).getChannel();
             try {
-                if (zeroCopy) {
+                // Zero-copy is only possible if no SSL/TLS is in place
+                //
+                // See JAMES-1305
+                if (zeroCopy && channel.getPipeline().get(SslHandler.class) == null) {
                     channel.write(new DefaultFileRegion(fc, fc.position(), fc.size()));
                 } else {
                     channel.write(new ChunkedNioFile(fc, 8192));
