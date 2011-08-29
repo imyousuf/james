@@ -66,14 +66,17 @@ public class JamesServerHBaseSuiteTest {
      * @throws Exception
      */
     @BeforeClass
-    public static void setup() throws Exception {
+    public static void setup() throws Throwable {
         HBaseTestingUtility htu = new HBaseTestingUtility();
         htu.getConfiguration().setBoolean("dfs.support.append", true);
+        htu.getConfiguration().setInt("zookeeper.session.timeout", 20000);
+        htu.getConfiguration().setInt("hbase.client.retries.number", 2);
         try {
             hbaseCluster = htu.startMiniCluster();
         } 
         catch (Exception e) {
-            logger.error("Exception when starting HBase Mini Cluster", e);
+            logger.error("HBase Mini Cluster failed to start.", e);
+            throw e.fillInStackTrace();
         }
         TablePool.getInstance(getConfiguration());
     }
