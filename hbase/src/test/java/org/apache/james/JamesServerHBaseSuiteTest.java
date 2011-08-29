@@ -21,6 +21,8 @@ package org.apache.james;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseTestingUtility;
 import org.apache.hadoop.hbase.MiniHBaseCluster;
+import org.apache.hadoop.hbase.client.NoServerForRegionException;
+import org.apache.hadoop.hbase.client.RetriesExhaustedException;
 import org.apache.james.domainlist.hbase.HBaseDomainListTest;
 import org.apache.james.rrt.hbase.HBaseRecipientRewriteTableTest;
 import org.apache.james.system.hbase.TablePool;
@@ -73,8 +75,14 @@ public class JamesServerHBaseSuiteTest {
         htu.getConfiguration().setInt("hbase.client.retries.number", 2);
         try {
             hbaseCluster = htu.startMiniCluster();
-        } 
-        catch (Exception e) {
+        } catch (NoServerForRegionException e) {
+        	logger.error("Cannot connect to HBase mini-cluster, and so cannot run tests.");
+        	logger.error("Some network configurations are known to cause this problem. " +
+        			"Workarounds are available.");
+        	logger.error("See https://issues.apache.org/jira/browse/JAMES-1309 for more details.");
+        	logger.error(e.getMessage(), e);
+        	throw e.fillInStackTrace();
+        } catch (Exception e) {
             logger.error("HBase Mini Cluster failed to start.", e);
             throw e.fillInStackTrace();
         }
