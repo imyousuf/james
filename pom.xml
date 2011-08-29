@@ -457,96 +457,96 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-cli</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-container-spring</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-queue-api</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-queue-api</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-queue-jms</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-queue-jms</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-queue-activemq</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-filesystem-api</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-filesystem-api</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-dnsservice-api</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-dnsservice-api</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-dnsservice-library</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-dnsservice-library</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-dnsservice-dnsjava</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-protocols-library</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-protocols-library</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -637,101 +637,101 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-mailetcontainer-api</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-mailetcontainer-api</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-mailetcontainer-camel</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
        
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-mailbox-adapter</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-util</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-util</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-lifecycle-api</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-data-api</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-data-api</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-jpa</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-hbase</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-file</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-jdbc</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-jcr</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-data-library</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-data-library</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
@@ -777,38 +777,38 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-ldap</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-lmtpserver</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
       
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-smtpserver</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-imapserver</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-pop3server</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-fetchmail</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-mailets</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
 
     <dependency>
@@ -860,12 +860,12 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-lifecycle-spring</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-smtpserver</artifactId>
-      <version>${project.version}</version>
+      <version>${james.server.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
@@ -1426,6 +1426,7 @@
     <spring.version>3.0.5.RELEASE</spring.version>
     <mailbox.version>0.4-SNAPSHOT</mailbox.version>
     <imap.version>0.3-SNAPSHOT</imap.version>
+    <james.server.version>${project.version}</james.server.version>
     <protocols.version>1.5</protocols.version>
     <jsieve.version>0.4</jsieve.version>
     <jackrabbit.version>2.2.5</jackrabbit.version>
