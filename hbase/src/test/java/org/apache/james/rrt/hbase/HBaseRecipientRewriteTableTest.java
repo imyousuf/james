@@ -19,13 +19,9 @@
 package org.apache.james.rrt.hbase;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseTestingUtility;
-import org.apache.hadoop.hbase.MiniHBaseCluster;
 import org.apache.james.rrt.api.RecipientRewriteTableException;
 import org.apache.james.rrt.lib.AbstractRecipientRewriteTable;
 import org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest;
-import org.apache.james.system.hbase.TablePool;
 import org.apache.log4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +50,7 @@ public class HBaseRecipientRewriteTableTest extends AbstractRecipientRewriteTabl
     }
 
     /* (non-Javadoc)
-     * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest#addMapping(String, String, String, int)
+     * @see org.apache.jŒames.rrt.lib.AbstractRecipientRewriteTableTest#addMapping(String, String, String, int)
      */
     protected boolean addMapping(String user, String domain, String mapping, int type) throws RecipientRewriteTableException {
         try {
