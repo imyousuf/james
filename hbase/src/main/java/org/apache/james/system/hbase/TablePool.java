@@ -67,7 +67,7 @@ public class TablePool {
      * @return
      * @throws IOException
      */
-    public static TablePool getInstance(Configuration configuration) throws IOException {
+    public static synchronized TablePool getInstance(Configuration configuration) throws IOException {
         if (hbaseSchema == null) {
             TablePool.configuration = configuration;
             TablePool.hbaseSchema = new TablePool();
