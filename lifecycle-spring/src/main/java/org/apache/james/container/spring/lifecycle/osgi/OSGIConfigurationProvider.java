@@ -36,6 +36,7 @@ public class OSGIConfigurationProvider implements org.apache.james.container.spr
     @Override
     public HierarchicalConfiguration getConfiguration(String beanName) throws ConfigurationException {
         XMLConfiguration config = new XMLConfiguration();
+        FileInputStream fis = null;
         config.setDelimiterParsingDisabled(true);
         
         // Don't split attributes which can have bad side-effects with matcher-conditions.
@@ -45,9 +46,18 @@ public class OSGIConfigurationProvider implements org.apache.james.container.spr
         // Use InputStream so we are not bound to File implementations of the
         // config
         try {
-            config.load(new FileInputStream("/tmp/" + beanName + ".xml"));
+            fis = new FileInputStream("/tmp/" + beanName + ".xml");
+            config.load(fis);
         } catch (FileNotFoundException e) {
             throw new ConfigurationException("Bean " + beanName);
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (Exception e) {
+                    // Left empty on purpose
+                }
+            }
         }
         
         return config;
