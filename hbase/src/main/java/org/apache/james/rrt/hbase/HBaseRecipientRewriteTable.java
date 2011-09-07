@@ -77,7 +77,6 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
     protected Collection<String> getUserDomainMappingsInternal(String user, String domain) throws RecipientRewriteTableException {
         HTable table = null;
         List<String> list = new ArrayList<String>();
-        ResultScanner resultScanner = null;
         try {
             table = TablePool.getInstance().getRecipientRewriteTable();
             // Optimize this to only make one call.
@@ -86,9 +85,6 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
             log.error("Error while getting user domain mapping in HBase", e);
             throw new RecipientRewriteTableException("Error while getting user domain mapping in HBase", e);
         } finally {
-            if (resultScanner != null) {
-                resultScanner.close();
-            }
             if (table != null) {
                 try {
                     TablePool.getInstance().putTable(table);
@@ -165,7 +161,6 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
     @Override
     protected String mapAddressInternal(String user, String domain) throws RecipientRewriteTableException {
         HTable table = null;
-        ResultScanner resultScanner = null;
         String mappings = null;
         try {
             table = TablePool.getInstance().getRecipientRewriteTable();
@@ -180,9 +175,6 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
             log.error("Error while mapping address in HBase", e);
             throw new RecipientRewriteTableException("Error while mapping address in HBase", e);
         } finally {
-            if (resultScanner != null) {
-                resultScanner.close();
-            }
             if (table != null) {
                 try {
                     TablePool.getInstance().putTable(table);
