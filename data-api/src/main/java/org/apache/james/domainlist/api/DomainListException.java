@@ -20,6 +20,8 @@ package org.apache.james.domainlist.api;
 
 public class DomainListException extends Exception {
 
+    private static final long serialVersionUID = 5475485782186877158L;
+
     public DomainListException(String msg) {
         super(msg);
     }

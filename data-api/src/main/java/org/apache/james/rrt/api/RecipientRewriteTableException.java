@@ -20,6 +20,8 @@ package org.apache.james.rrt.api;
 
 public class RecipientRewriteTableException extends Exception {
 
+    private static final long serialVersionUID = -4901897970609679632L;
+
     public RecipientRewriteTableException(String msg) {
         super(msg);
     }

@@ -21,6 +21,8 @@ package org.apache.james.user.api;
 
 public class UsersRepositoryException extends Exception {
 
+    private static final long serialVersionUID = 6122291998502677019L;
+
     public UsersRepositoryException(String msg, Throwable t) {
         super(msg, t);
     }
