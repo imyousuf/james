@@ -135,7 +135,9 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttr
                             @Override
                             public void close() throws IOException {
                                 super.close();
-                                f.delete();
+                                if (!f.delete()) {
+                                    throw new IOException("Unable to delete file " + f);
+                                }
                             }
 
                         }, retry);

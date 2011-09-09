@@ -750,11 +750,13 @@ public class MBoxMailRepository implements MailRepository, LogEnabled, Configura
             outputFile.close();
             // Delete the old mbox file
             File mbox = new File(mboxFile);
-            mbox.delete();
+            if (!mbox.delete()) {
+                throw new IOException("Unable to delete file " + mbox);
+            }
             // And rename the lock file to be the new mbox
             mbox = new File(mboxFile + WORKEXT);
             if (!mbox.renameTo(new File(mboxFile))) {
-                System.out.println("Failed to rename file!");
+                throw new IOException("Failed to rename file " + mbox + " -> " + mboxFile);
             }
 
             // Now delete the keys in mails from the main hash

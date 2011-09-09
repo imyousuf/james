@@ -106,7 +106,9 @@ public abstract class AbstractFileRepository implements Repository, Configurable
         m_filter = new ExtensionFileFilter(m_extension);
         // m_filter = new NumberedRepositoryFileFilter(getExtensionDecorator());
 
-        directory.mkdirs();
+        if (!directory.exists() && !directory.mkdirs()) {
+            throw new IOException("Unable to create directory " + directory);
+        }
 
         getLogger().info(getClass().getName() + " opened in " + m_baseDirectory);
 

@@ -104,6 +104,7 @@ public class MimeMessageInputStreamSource extends MimeMessageSource implements D
             // if sourceId is null while file is not null then we had
             // an IOxception and we have to clean the file.
             if (sourceId == null && file != null) {
+                // No need to throw an IOException when unable to delete as it's a temporary file
                 file.delete();
             }
         }
@@ -120,6 +121,7 @@ public class MimeMessageInputStreamSource extends MimeMessageSource implements D
             // if sourceId is null while file is not null then we had
             // an IOxception and we have to clean the file.
             if (sourceId == null && file != null) {
+                // No need to throw an IOException when unable to delete as it's a temporary file
                 file.delete();
             }
         }
