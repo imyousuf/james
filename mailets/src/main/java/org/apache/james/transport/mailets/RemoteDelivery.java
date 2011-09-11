@@ -25,6 +25,7 @@ import org.apache.james.dnsservice.library.MXHostAddressIterator;
 import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.lifecycle.api.LifecycleUtil;
+import org.apache.james.queue.api.MailPrioritySupport;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.james.queue.api.MailQueue.MailQueueException;
@@ -196,6 +197,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
     private MailetContextLog logAdapter;
 
+    private boolean usePriority;
+    
     @Resource(name = "mailqueuefactory")
     public void setMailQueueFactory(MailQueueFactory queueFactory) {
         this.queueFactory = queueFactory;
@@ -354,6 +357,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             log("Invalid bind setting (" + bindAddress + "): " + e.toString());
         }
 
+        
         // deal with <mail.*> attributes, passing them to javamail
         Iterator<String> i = getInitParameterNames();
         while (i.hasNext()) {
@@ -370,6 +374,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         }
 
         heloName = getInitParameter("heloName");
+
+        String prio = getInitParameter("usePriority");
+        if (prio != null) {
+        	usePriority = Boolean.valueOf(prio);
+        }
 
         // Start Workers Threads.
         workersThreadCount = Integer.parseInt(getInitParameter("deliveryThreads"));
@@ -571,6 +580,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         }
         Collection<MailAddress> recipients = mail.getRecipients();
 
+        if (usePriority) {
+        
+            // Use highest prio for new emails. See JAMES-1311
+            mail.setAttribute(MailPrioritySupport.MAIL_PRIORITY, MailPrioritySupport.HIGH_PRIORITY);
+        }
         if (gatewayServer == null) {
             // Must first organize the recipients into distinct servers (name
             // made case insensitive)
@@ -734,6 +748,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             }
 
                             long delay = getNextDelay(retries);
+                            
+                            if (usePriority) {
+                                // Use lowest priority for retries. See JAMES-1311
+                                mail.setAttribute(MailPrioritySupport.MAIL_PRIORITY, MailPrioritySupport.LOW_PRIORITY);
+                            }
                             queue.enQueue(mail, delay, TimeUnit.MILLISECONDS);
                             LifecycleUtil.dispose(mail);
 
