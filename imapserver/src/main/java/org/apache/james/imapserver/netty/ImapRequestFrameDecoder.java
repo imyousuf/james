@@ -36,7 +36,9 @@ import org.apache.james.imap.decode.ImapRequestLineReader;
 import org.apache.james.protocols.impl.ChannelAttributeSupport;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferInputStream;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.handler.codec.frame.FrameDecoder;
@@ -159,23 +161,37 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttr
             reader = new NettyImapRequestLineReader(channel, buffer, retry);
         }
 
-        try {
-            ImapMessage message = decoder.decode(reader, (ImapSession) attributes.get(channel));
+        ImapSession session = (ImapSession) attributes.get(channel);
 
-            // if size is != -1 the case was a literal. if thats the case we
-            // should not consume the line
-            // See JAMES-1199
-            if (size == -1) {
-                reader.consumeLine();
+        // check if the session was removed before to prevent a harmless NPE. See JAMES-1312
+        if (session != null) {
+            try {
+
+                ImapMessage message = decoder.decode(reader, session);
+
+                // if size is != -1 the case was a literal. if thats the case we
+                // should not consume the line
+                // See JAMES-1199
+                if (size == -1) {
+                    reader.consumeLine();
+                }
+                attachment.clear();
+                return message;
+            } catch (NettyImapRequestLineReader.NotEnoughDataException e) {
+                // this exception was thrown because we don't have enough data
+                // yet
+                int neededData = e.getNeededSize();
+                // store the needed data size for later usage
+                attachment.put(NEEDED_DATA, neededData);
+                buffer.resetReaderIndex();
+                return null;
             }
-            attachment.clear();
-            return message;
-        } catch (NettyImapRequestLineReader.NotEnoughDataException e) {
-            // this exception was thrown because we don't have enough data yet
-            int neededData = e.getNeededSize();
-            // store the needed data size for later usage
-            attachment.put(NEEDED_DATA, neededData);
-            buffer.resetReaderIndex();
+        } else {
+            // The session was null so may be the case because the channel was already closed but there were still bytes in the buffer.
+            // We now try to disconnect the client if still connected
+            if (channel.isConnected()) {
+                channel.write(ChannelBuffers.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+            }
             return null;
         }
     }
