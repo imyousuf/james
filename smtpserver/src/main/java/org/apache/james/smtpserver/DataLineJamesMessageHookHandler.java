@@ -118,7 +118,6 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
                 // transformation before writing them to output.
                 out.write(line);
             }
-            out.flush();
         } catch (IOException e) {
             LifecycleUtil.dispose(mmiss);
 
