@@ -20,7 +20,6 @@ package org.apache.james.imapserver.netty;
 
 import org.apache.james.imap.api.process.ImapLineHandler;
 import org.apache.james.imap.api.process.ImapSession;
-import org.apache.james.protocols.impl.ChannelAttributeSupport;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.MessageEvent;
@@ -32,12 +31,14 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
  * {@link #messageReceived(ChannelHandlerContext, MessageEvent)} to a
  * {@link ImapLineHandler#onLine(ImapSession, byte[])}
  */
-public class ImapLineHandlerAdapter extends SimpleChannelUpstreamHandler implements ChannelAttributeSupport {
+public class ImapLineHandlerAdapter extends SimpleChannelUpstreamHandler {
 
-    private ImapLineHandler lineHandler;
+    private final ImapLineHandler lineHandler;
+    private final ImapSession session;
 
-    public ImapLineHandlerAdapter(ImapLineHandler lineHandler) {
+    public ImapLineHandlerAdapter(ImapSession session, ImapLineHandler lineHandler) {
         this.lineHandler = lineHandler;
+        this.session = session;
     }
 
     @Override
@@ -50,7 +51,7 @@ public class ImapLineHandlerAdapter extends SimpleChannelUpstreamHandler impleme
             data = new byte[buf.readableBytes()];
             buf.readBytes(data);
         }
-        lineHandler.onLine((ImapSession) attributes.get(ctx.getChannel()), data);
+        lineHandler.onLine(session, data);
     }
 
 }

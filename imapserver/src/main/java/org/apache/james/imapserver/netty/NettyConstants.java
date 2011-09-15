@@ -18,6 +18,8 @@
  ****************************************************************/
 package org.apache.james.imapserver.netty;
 
+import org.jboss.netty.channel.ChannelLocal;
+
 /**
  * Just some constants which are used with the Netty implementation
  */
@@ -37,4 +39,5 @@ public interface NettyConstants {
     final static String EXECUTION_HANDLER = "executionHandler";
     final static String HEARTBEAT_HANDLER = "heartbeatHandler";
 
+    final static ChannelLocal<Object> attributes = new ChannelLocal<Object>();
 }

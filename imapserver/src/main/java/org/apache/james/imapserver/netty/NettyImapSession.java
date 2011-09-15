@@ -29,7 +29,6 @@ import org.apache.james.imap.api.process.ImapSession;
 import org.apache.james.imap.api.process.SelectedMailbox;
 import org.apache.james.protocols.impl.SessionLog;
 import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.compression.ZlibDecoder;
 import org.jboss.netty.handler.codec.compression.ZlibEncoder;
 import org.jboss.netty.handler.codec.compression.ZlibWrapper;
@@ -45,13 +44,13 @@ public class NettyImapSession implements ImapSession, NettyConstants {
     private String[] enabledCipherSuites;
     private boolean compress;
     private SessionLog log;
-    private ChannelHandlerContext context;
+    private Channel channel;
     private int handlerCount;
     private boolean plainAuthDisallowed;
 
-    public NettyImapSession(ChannelHandlerContext context, Logger log, SSLContext sslContext, String[] enabledCipherSuites, boolean compress, boolean plainAuthDisallowed) {
-        this.context = context;
-        this.log = new SessionLog(context.getChannel().getId() + "", log);
+    public NettyImapSession(Channel channel, Logger log, SSLContext sslContext, String[] enabledCipherSuites, boolean compress, boolean plainAuthDisallowed) {
+        this.channel = channel;
+        this.log = new SessionLog(channel.getId() + "", log);
         this.sslContext = sslContext;
         this.enabledCipherSuites = enabledCipherSuites;
         this.compress = compress;
@@ -65,7 +64,7 @@ public class NettyImapSession implements ImapSession, NettyConstants {
      * @return channel
      */
     public Channel getChannel() {
-        return context.getChannel();
+        return channel;
     }
 
     /*
@@ -170,16 +169,16 @@ public class NettyImapSession implements ImapSession, NettyConstants {
     public boolean startTLS() {
         if (supportStartTLS() == false)
             return false;
-        context.getChannel().setReadable(false);
+        channel.setReadable(false);
 
         SslHandler filter = new SslHandler(sslContext.createSSLEngine(), false);
         filter.getEngine().setUseClientMode(false);
         if (enabledCipherSuites != null && enabledCipherSuites.length > 0) {
             filter.getEngine().setEnabledCipherSuites(enabledCipherSuites);
         }
-        context.getPipeline().addFirst(SSL_HANDLER, filter);
+        channel.getPipeline().addFirst(SSL_HANDLER, filter);
 
-        context.getChannel().setReadable(true);
+        channel.setReadable(true);
 
         return true;
     }
@@ -212,7 +211,7 @@ public class NettyImapSession implements ImapSession, NettyConstants {
         if (isCompressionSupported() == false)
             return false;
 
-        context.getChannel().setReadable(false);
+        channel.setReadable(false);
         ZlibDecoder decoder = new ZlibDecoder(ZlibWrapper.NONE);
         ZlibEncoder encoder = new ZlibEncoder(ZlibWrapper.NONE, 5);
 
@@ -220,15 +219,15 @@ public class NettyImapSession implements ImapSession, NettyConstants {
         // if so we need to move the compress encoder and decoder
         // behind it in the chain
         // See JAMES-1186
-        if (context.getPipeline().get(SSL_HANDLER) == null) {
-            context.getPipeline().addFirst(ZLIB_DECODER, decoder);
-            context.getPipeline().addFirst(ZLIB_ENCODER, encoder);
+        if (channel.getPipeline().get(SSL_HANDLER) == null) {
+            channel.getPipeline().addFirst(ZLIB_DECODER, decoder);
+            channel.getPipeline().addFirst(ZLIB_ENCODER, encoder);
         } else {
-            context.getPipeline().addAfter(SSL_HANDLER, ZLIB_DECODER, decoder);
-            context.getPipeline().addAfter(SSL_HANDLER, ZLIB_ENCODER, encoder);
+            channel.getPipeline().addAfter(SSL_HANDLER, ZLIB_DECODER, decoder);
+            channel.getPipeline().addAfter(SSL_HANDLER, ZLIB_ENCODER, encoder);
         }
 
-        context.getChannel().setReadable(true);
+        channel.setReadable(true);
 
         return true;
     }
@@ -241,9 +240,9 @@ public class NettyImapSession implements ImapSession, NettyConstants {
      * .james.imap.api.process.ImapLineHandler)
      */
     public void pushLineHandler(ImapLineHandler lineHandler) {
-        context.getChannel().setReadable(false);
-        context.getPipeline().addBefore(REQUEST_DECODER, "lineHandler" + handlerCount++, new ImapLineHandlerAdapter(lineHandler));
-        context.getChannel().setReadable(true);
+        channel.setReadable(false);
+        channel.getPipeline().addBefore(REQUEST_DECODER, "lineHandler" + handlerCount++, new ImapLineHandlerAdapter(this, lineHandler));
+        channel.setReadable(true);
     }
 
     /*
@@ -252,9 +251,9 @@ public class NettyImapSession implements ImapSession, NettyConstants {
      * @see org.apache.james.imap.api.process.ImapSession#popLineHandler()
      */
     public void popLineHandler() {
-        context.getChannel().setReadable(false);
-        context.getPipeline().remove("lineHandler" + --handlerCount);
-        context.getChannel().setReadable(true);
+        channel.setReadable(false);
+        channel.getPipeline().remove("lineHandler" + --handlerCount);
+        channel.setReadable(true);
     }
 
     /*
@@ -279,7 +278,7 @@ public class NettyImapSession implements ImapSession, NettyConstants {
      * @see org.apache.james.imap.api.process.ImapSession#isTLSActive()
      */
     public boolean isTLSActive() {
-        return context.getPipeline().get(SSL_HANDLER) != null;
+        return channel.getPipeline().get(SSL_HANDLER) != null;
     }
 
     /*
@@ -295,7 +294,7 @@ public class NettyImapSession implements ImapSession, NettyConstants {
      * @see org.apache.james.imap.api.process.ImapSession#isCompressionActive()
      */
     public boolean isCompressionActive() {
-        return context.getPipeline().get(ZLIB_DECODER) != null;
+        return channel.getPipeline().get(ZLIB_DECODER) != null;
     }
 
 }

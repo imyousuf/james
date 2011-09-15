@@ -33,7 +33,6 @@ import org.apache.james.imap.api.ImapMessage;
 import org.apache.james.imap.api.process.ImapSession;
 import org.apache.james.imap.decode.ImapDecoder;
 import org.apache.james.imap.decode.ImapRequestLineReader;
-import org.apache.james.protocols.impl.ChannelAttributeSupport;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferInputStream;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -46,7 +45,7 @@ import org.jboss.netty.handler.codec.frame.FrameDecoder;
 /**
  * {@link FrameDecoder} which will decode via and {@link ImapDecoder} instance
  */
-public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttributeSupport {
+public class ImapRequestFrameDecoder extends FrameDecoder implements NettyConstants {
 
     private final ImapDecoder decoder;
     private final int inMemorySizeLimit;

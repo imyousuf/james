@@ -21,7 +21,6 @@ package org.apache.james.imapserver.netty;
 import java.net.InetSocketAddress;
 
 import org.apache.james.imap.api.process.ImapSession;
-import org.apache.james.protocols.impl.ChannelAttributeSupport;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.timeout.IdleState;
 import org.jboss.netty.handler.timeout.IdleStateAwareChannelHandler;
@@ -31,7 +30,7 @@ import org.jboss.netty.handler.timeout.IdleStateEvent;
  * {@link IdleStateAwareChannelHandler} which will call {@link ImapSession#logout()} if the
  * connected client did not receive or send any traffic in a given timeframe
  */
-public class ImapIdleStateHandler extends IdleStateAwareChannelHandler implements ChannelAttributeSupport {
+public class ImapIdleStateHandler extends IdleStateAwareChannelHandler implements NettyConstants {
 
     @Override
     public void channelIdle(ChannelHandlerContext ctx, IdleStateEvent e) throws Exception {

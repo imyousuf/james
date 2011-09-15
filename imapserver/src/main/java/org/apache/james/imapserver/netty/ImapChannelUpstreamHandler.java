@@ -32,7 +32,6 @@ import org.apache.james.imap.encode.ImapEncoder;
 import org.apache.james.imap.encode.ImapResponseComposer;
 import org.apache.james.imap.encode.base.ImapResponseComposerImpl;
 import org.apache.james.imap.main.ResponseEncoder;
-import org.apache.james.protocols.impl.ChannelAttributeSupport;
 import org.apache.james.protocols.impl.SessionLog;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -49,7 +48,7 @@ import org.slf4j.Logger;
 /**
  * {@link SimpleChannelUpstreamHandler} which handles IMAP
  */
-public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler implements ChannelAttributeSupport {
+public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler implements NettyConstants{
 
     private final Logger logger;
 
@@ -91,7 +90,7 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
     @Override
     public void channelBound(final ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
 
-        ImapSession imapsession = new NettyImapSession(ctx, logger, context, enabledCipherSuites, compress, plainAuthDisallowed);
+        ImapSession imapsession = new NettyImapSession(ctx.getChannel(), logger, context, enabledCipherSuites, compress, plainAuthDisallowed);
         attributes.set(ctx.getChannel(), imapsession);
         super.channelBound(ctx, e);
     }
