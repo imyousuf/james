@@ -44,6 +44,7 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
     private final static int AUTH_REQUIRED = 1;
     private final static int AUTH_ANNOUNCE = 2;
     private int authRequired = AUTH_DISABLED;
+    
 
     /**
      * Whether the server needs helo to be send first
@@ -87,6 +88,8 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
 
     private final static SMTPResponseEncoder SMTP_RESPONSE_ENCODER = new SMTPResponseEncoder();
     
+    private SMTPChannelUpstreamHandler coreHandler;
+
     @Resource(name = "dnsservice")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
@@ -94,6 +97,7 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
     
     @Override
     protected void preInit() throws Exception {
+        super.preInit();
         if (authorizedAddresses != null) {
             java.util.StringTokenizer st = new java.util.StringTokenizer(authorizedAddresses, ", ", false);
             java.util.Collection<String> networks = new java.util.ArrayList<String>();
@@ -103,7 +107,8 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
             }
             authorizedNetworks = new NetMatcher(networks, dns);
         }
-        super.preInit();
+        coreHandler = new SMTPChannelUpstreamHandler(getProtocolHandlerChain(), theConfigData, getLogger(), getSSLContext(), getEnabledCipherSuites());
+        
     }
 
     @Override
@@ -359,7 +364,7 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
 
     @Override
     protected ChannelUpstreamHandler createCoreHandler() {
-        return new SMTPChannelUpstreamHandler(getProtocolHandlerChain(), theConfigData, getLogger(), getSSLContext(), getEnabledCipherSuites());
+        return coreHandler;
     }
 
     @Override

@@ -28,11 +28,13 @@ import org.apache.james.protocols.impl.AbstractChannelUpstreamHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.ChannelHandler.Sharable;
 import org.slf4j.Logger;
 
 /**
  * {@link ChannelUpstreamHandler} which is used for the POP3 Server
  */
+@Sharable
 public class POP3ChannelUpstreamHandler extends AbstractChannelUpstreamHandler {
 
     private final Logger logger;
@@ -59,15 +61,15 @@ public class POP3ChannelUpstreamHandler extends AbstractChannelUpstreamHandler {
             if (enabledCipherSuites != null && enabledCipherSuites.length > 0) {
                 engine.setEnabledCipherSuites(enabledCipherSuites);
             }
-            return new POP3NettySession(conf, logger, ctx, engine);
+            return new POP3NettySession(conf, logger, ctx.getChannel(), engine);
         } else {
-            return new POP3NettySession(conf, logger, ctx);
+            return new POP3NettySession(conf, logger, ctx.getChannel());
         }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-        Object obj = attributes.get(ctx.getChannel());
+        Object obj = ctx.getAttachment();
         if (obj != null) {
             ((POP3NettySession) obj).getLogger().debug("Unable to process pop3 request", e.getCause());
         } else {

@@ -1065,7 +1065,7 @@
     <dependency>
       <groupId>dnsjava</groupId>
       <artifactId>dnsjava</artifactId>
-      <version>2.1.2</version>
+      <version>2.1.1</version>
     </dependency>
     
     <dependency>
@@ -1427,7 +1427,7 @@
     <mailbox.version>0.4-SNAPSHOT</mailbox.version>
     <imap.version>0.3-SNAPSHOT</imap.version>
     <james.server.version>${project.version}</james.server.version>
-    <protocols.version>1.5</protocols.version>
+    <protocols.version>1.6-SNAPSHOT</protocols.version>
     <jsieve.version>0.4</jsieve.version>
     <jackrabbit.version>2.2.5</jackrabbit.version>
     <hbase.version>0.90.3</hbase.version>

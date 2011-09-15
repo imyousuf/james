@@ -30,16 +30,12 @@ import javax.net.ssl.SSLEngine;
 import org.apache.james.mailbox.MessageManager;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.pop3server.POP3Session;
-import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.impl.AbstractSession;
 import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.DefaultFileRegion;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
-import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.handler.stream.ChunkedNioFile;
+import org.jboss.netty.handler.stream.ChunkedStream;
 import org.slf4j.Logger;
 
 /**
@@ -56,16 +52,16 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
 
     private boolean zeroCopy;
 
-    public POP3NettySession(POP3HandlerConfigurationData configData, Logger logger, ChannelHandlerContext handlerContext) {
-        this(configData, logger, handlerContext, null);
+    public POP3NettySession(POP3HandlerConfigurationData configData, Logger logger,  Channel channel) {
+        this(configData, logger, channel, null);
     }
 
-    public POP3NettySession(POP3HandlerConfigurationData configData, Logger logger, ChannelHandlerContext handlerContext, SSLEngine engine) {
-        this(configData, logger, handlerContext, engine, true);
+    public POP3NettySession(POP3HandlerConfigurationData configData, Logger logger, Channel channel, SSLEngine engine) {
+        this(configData, logger, channel, engine, true);
     }
 
-    public POP3NettySession(POP3HandlerConfigurationData configData, Logger logger, ChannelHandlerContext handlerContext, SSLEngine engine, boolean zeroCopy) {
-        super(logger, handlerContext, engine);
+    public POP3NettySession(POP3HandlerConfigurationData configData, Logger logger,  Channel channel, SSLEngine engine, boolean zeroCopy) {
+        super(logger, channel, engine);
         this.configData = configData;
         this.zeroCopy = zeroCopy;
     }
@@ -137,46 +133,29 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
         this.mailbox = mailbox;
     }
 
-    /**
-     * Remove this once a version of protocols is released which includes PROTOCOLS-28
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.protocols.api.ProtocolSession#writeStream(java.io.InputStream)
      */
-    @Override
     public void writeStream(InputStream stream) {
-        Channel channel = getChannelHandlerContext().getChannel();
-        if (stream instanceof FileInputStream  && channel.getFactory() instanceof NioServerSocketChannelFactory) {
-            FileChannel fc = ((FileInputStream) stream).getChannel();
-            try {
-                // Zero-copy is only possible if no SSL/TLS is in place
-                //
-                // See JAMES-1305
-                if (zeroCopy && channel.getPipeline().get(SslHandler.class) == null) {
-                    channel.write(new DefaultFileRegion(fc, fc.position(), fc.size()));
-                } else {
-                    channel.write(new ChunkedNioFile(fc, 8192));
+        if (stream != null && channel.isConnected()) {
+
+            if (stream instanceof FileInputStream  && channel.getFactory() instanceof NioServerSocketChannelFactory) {
+                FileChannel fc = ((FileInputStream) stream).getChannel();
+                try {
+                    if (zeroCopy) {
+                        channel.write(new DefaultFileRegion(fc, fc.position(), fc.size()));
+                    } else {
+                        channel.write(new ChunkedNioFile(fc, 8192));
+                    }
+                } catch (IOException e) {
+                    // Catch the exception and just pass it so we get the exception later
+                    channel.write(new ChunkedStream(stream));
                 }
-            } catch (IOException e) {
-                // Catch the exception and just pass it so we get the exception later
-                super.writeStream(stream);
+            } else {
+                channel.write(new ChunkedStream(stream));
             }
-        } else {
-            super.writeStream(stream);
         }
     }
-    
-    /**
-     * Remove this once a version of protocols is released which includes PROTOCOLS-27
-     */
-    public void writeResponse(final Response response) {
-        Channel channel = getChannelHandlerContext().getChannel();
-        if (response != null && channel.isConnected()) {
-           ChannelFuture cf = channel.write(response);
-           if (response.isEndSession()) {
-                // close the channel if needed after the message was written out
-                cf.addListener(ChannelFutureListener.CLOSE);
-           }
-        }
-    }
-
-
 
 }

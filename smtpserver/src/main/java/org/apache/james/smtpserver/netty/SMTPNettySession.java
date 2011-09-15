@@ -25,16 +25,12 @@ import java.util.Map;
 import javax.net.ssl.SSLEngine;
 
 import org.apache.james.protocols.api.LineHandler;
-import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.impl.AbstractSession;
 import org.apache.james.protocols.impl.LineHandlerUpstreamHandler;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.smtpserver.netty.SMTPServer.SMTPHandlerConfigurationDataImpl;
 import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 
 /**
@@ -51,16 +47,16 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession {
 
     private int lineHandlerCount = 0;
 
-    public SMTPNettySession(SMTPConfiguration theConfigData, Logger logger, ChannelHandlerContext handlerContext, SSLEngine engine) {
-        super(logger, handlerContext, engine);
+    public SMTPNettySession(SMTPConfiguration theConfigData, Logger logger, Channel channel, SSLEngine engine) {
+        super(logger, channel, engine);
         this.theConfigData = theConfigData;
         connectionState = new HashMap<String, Object>();
 
         relayingAllowed = theConfigData.isRelayingAllowed(getRemoteIPAddress());
     }
 
-    public SMTPNettySession(SMTPConfiguration theConfigData, Logger logger, ChannelHandlerContext handlerContext) {
-        this(theConfigData, logger, handlerContext, null);
+    public SMTPNettySession(SMTPConfiguration theConfigData, Logger logger, Channel channel) {
+        this(theConfigData, logger, channel, null);
     }
 
     /**
@@ -110,7 +106,7 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession {
      */
     public void popLineHandler() {
         if (lineHandlerCount > 0) {
-            getChannelHandlerContext().getPipeline().remove("lineHandler" + lineHandlerCount);
+            getChannel().getPipeline().remove("lineHandler" + lineHandlerCount);
             lineHandlerCount--;
         }
     }
@@ -124,7 +120,7 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession {
         // it is executed with the same ExecutorHandler as the coreHandler (if one exist)
         // 
         // See JAMES-1277
-        getChannelHandlerContext().getPipeline().addBefore("coreHandler", "lineHandler" + lineHandlerCount, new LineHandlerUpstreamHandler<SMTPSession>(overrideCommandHandler));
+        getChannel().getPipeline().addBefore("coreHandler", "lineHandler" + lineHandlerCount, new LineHandlerUpstreamHandler<SMTPSession>(this, overrideCommandHandler));
     }
 
     /**
@@ -209,21 +205,6 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession {
         return lineHandlerCount;
     }
     
-    /**
-     * Remove this once a version of protocols is released which includes PROTOCOLS-27
-     */
-    public void writeResponse(final Response response) {
-        Channel channel = getChannelHandlerContext().getChannel();
-        if (response != null && channel.isConnected()) {
-           ChannelFuture cf = channel.write(response);
-           if (response.isEndSession()) {
-                // close the channel if needed after the message was written out
-                cf.addListener(ChannelFutureListener.CLOSE);
-           }
-        }
-    }
-
-
 
     public boolean verifyIdentity() {
         if (theConfigData instanceof SMTPHandlerConfigurationDataImpl) {

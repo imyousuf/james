@@ -35,12 +35,14 @@ import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.ChannelHandler.Sharable;
 import org.jboss.netty.handler.codec.frame.TooLongFrameException;
 import org.slf4j.Logger;
 
 /**
  * {@link ChannelUpstreamHandler} which is used by the SMTPServer
  */
+@Sharable
 public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler {
     private final Logger logger;
     private final SMTPConfiguration conf;
@@ -66,9 +68,9 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler {
             if (enabledCipherSuites != null && enabledCipherSuites.length > 0) {
                 engine.setEnabledCipherSuites(enabledCipherSuites);
             }
-            return new SMTPNettySession(conf, logger, ctx, engine);
+            return new SMTPNettySession(conf, logger, ctx.getChannel(), engine);
         } else {
-            return new SMTPNettySession(conf, logger, ctx);
+            return new SMTPNettySession(conf, logger, ctx.getChannel());
         }
     }
 
@@ -81,13 +83,13 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler {
             if (channel.isConnected()) {
                 ctx.getChannel().write(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to process request")).addListener(ChannelFutureListener.CLOSE);
             }
-            SMTPSession smtpSession = (SMTPSession) attributes.get(channel);
+            SMTPSession smtpSession = (SMTPSession) ctx.getAttachment();
             if (smtpSession != null) {
                 smtpSession.getLogger().debug("Unable to process request", e.getCause());
             } else {
                 logger.debug("Unable to process request", e.getCause());
             }
-            cleanup(channel);            
+            cleanup(ctx);            
         }
     }
 
@@ -96,16 +98,16 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler {
      * 
      * @param channel
      */
-    protected void cleanup(Channel channel) {
+    protected void cleanup(ChannelHandlerContext ctx) {
         // Make sure we dispose everything on exit on session close
-        SMTPSession smtpSession = (SMTPSession) attributes.get(channel);
+        SMTPSession smtpSession = (SMTPSession) ctx.getAttachment();
 
         if (smtpSession != null) {
             LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.MAIL));
             LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE));
         }
 
-        super.cleanup(channel);
+        super.cleanup(ctx);
     }
 
 }

@@ -19,6 +19,8 @@
 
 package org.apache.james.pop3server;
 
+import java.io.InputStream;
+
 import org.apache.james.mailbox.MessageManager;
 import org.apache.james.protocols.api.TLSSupportedSession;
 
@@ -79,4 +81,6 @@ public interface POP3Session extends TLSSupportedSession {
      *            mailbox
      */
     void setUserMailbox(MessageManager mailbox);
+    
+    void writeStream(InputStream in);
 }

@@ -36,7 +36,8 @@ public class POP3Server extends AbstractProtocolAsyncServer implements POP3Serve
      * The configuration data to be passed to the handler
      */
     private POP3HandlerConfigurationData theConfigData = new POP3HandlerConfigurationDataImpl();
-
+    private POP3ChannelUpstreamHandler coreHandler;
+    
     @Override
     protected int getDefaultPort() {
         return 110;
@@ -80,13 +81,21 @@ public class POP3Server extends AbstractProtocolAsyncServer implements POP3Serve
     }
 
     @Override
+    protected void preInit() throws Exception {
+        super.preInit();
+        coreHandler = new POP3ChannelUpstreamHandler(getProtocolHandlerChain(), theConfigData, getLogger(), getSSLContext(), getEnabledCipherSuites());
+        
+    }
+
+
+    @Override
     protected String getDefaultJMXName() {
         return "pop3server";
     }
 
     @Override
     protected ChannelUpstreamHandler createCoreHandler() {
-        return new POP3ChannelUpstreamHandler(getProtocolHandlerChain(), theConfigData, getLogger(), getSSLContext(), getEnabledCipherSuites());
+        return coreHandler; 
     }
 
     @Override
