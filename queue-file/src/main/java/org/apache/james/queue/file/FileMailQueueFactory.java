@@ -46,6 +46,15 @@ public class FileMailQueueFactory implements MailQueueFactory, LogEnabled{
     public void setFileSystem(FileSystem fs) {
         this.fs = fs;
     }
+    
+    /**
+     * If <code>true</code> the later created {@link FileMailQueue} will call <code>fsync</code> after each message {@link FileMailQueue#enQueue(org.apache.mailet.Mail)} call. This
+     * is needed to be fully RFC conform but gives a performance penalty. If you are brave enough you man set it to <code>false</code>
+     * 
+     * The default is <code>true</code>
+     * 
+     * @param sync
+     */
     public void setSync(boolean sync) {
         this.sync = sync;
     }

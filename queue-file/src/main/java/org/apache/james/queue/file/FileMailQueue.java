@@ -49,6 +49,9 @@ import org.slf4j.Logger;
 /**
  * {@link ManageableMailQueue} implementation which use the fs to store {@link Mail}'s
  * 
+ * On create of the {@link FileMailQueue} the {@link #init()} will get called. This takes care of load the needed meta-data into memory for fast access.
+ * 
+ * 
  * TODO: Split emails in sub-directories to make it more efficient with huge queues
  * 
  *
@@ -162,6 +165,7 @@ public class FileMailQueue implements ManageableMailQueue {
             keyMappings.put(key, item);
             
             if (delay > 0) {
+                // The message should get delayed so schedule it for later 
                 scheduler.schedule(new Runnable() {
                     
                     @Override
@@ -178,6 +182,8 @@ public class FileMailQueue implements ManageableMailQueue {
             } else {
                 inmemoryQueue.put(key);
             }
+            
+            //TODO: Think about exception handling in detail
         } catch (FileNotFoundException e) {
             throw new MailQueueException("Unable to enqueue mail", e);
         } catch (IOException e) {
@@ -217,6 +223,8 @@ public class FileMailQueue implements ManageableMailQueue {
     private String getFileNameWithoutExtension(String parentdir, String name, long delay) {
         return parentdir + "/" + System.currentTimeMillis() + delay + "-" + name;
     }
+    
+    
     @Override
     public void enQueue(Mail mail) throws MailQueueException {
         enQueue(mail, 0, TimeUnit.MILLISECONDS);
@@ -271,6 +279,8 @@ public class FileMailQueue implements ManageableMailQueue {
                         LifecycleUtil.dispose(mail);
                     }
                 };
+                
+                // TODO: Think about exception handling in detail
             } catch (FileNotFoundException e) {
                 throw new MailQueueException("Unable to dequeue", e);
             } catch (IOException e) {
