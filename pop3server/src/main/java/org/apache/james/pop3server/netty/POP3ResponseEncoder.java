@@ -24,11 +24,14 @@ import java.util.List;
 
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.protocols.impl.AbstractResponseEncoder;
+import org.jboss.netty.channel.ChannelHandler.Sharable;
+
 
 /**
  * {@link AbstractResponseEncoder} implementation which handles
  * {@link POP3Response} messages
  */
+@Sharable
 public class POP3ResponseEncoder extends AbstractResponseEncoder<POP3Response> {
 
     public POP3ResponseEncoder() {

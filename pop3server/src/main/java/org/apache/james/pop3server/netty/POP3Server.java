@@ -31,6 +31,7 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
  */
 public class POP3Server extends AbstractProtocolAsyncServer implements POP3ServerMBean {
 
+    private final static POP3ResponseEncoder POP3_RESPONSE_ENCODER =  new POP3ResponseEncoder();
     /**
      * The configuration data to be passed to the handler
      */
@@ -90,7 +91,7 @@ public class POP3Server extends AbstractProtocolAsyncServer implements POP3Serve
 
     @Override
     protected OneToOneEncoder createEncoder() {
-        return new POP3ResponseEncoder();
+        return POP3_RESPONSE_ENCODER;
     }
 
 

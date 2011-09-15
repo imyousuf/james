@@ -34,6 +34,8 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 public class LMTPServer extends AbstractProtocolAsyncServer implements LMTPServerMBean {
 
+    private final static SMTPResponseEncoder ENCODER =  new SMTPResponseEncoder();
+
     /**
      * The maximum message size allowed by this SMTP server. The default value,
      * 0, means no limit.
@@ -198,7 +200,7 @@ public class LMTPServer extends AbstractProtocolAsyncServer implements LMTPServe
 
     @Override
     protected OneToOneEncoder createEncoder() {
-        return new SMTPResponseEncoder();
+        return ENCODER;
     }
 
     @Override
