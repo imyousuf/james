@@ -216,7 +216,6 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport {
                 super.produceMail(session, props, msgPrio, mail);
             }
         } catch (JMSException e) {
-            e.printStackTrace();
             if (!reuse && blobMessage != null && blobMessage instanceof ActiveMQBlobMessage) {
                 ((ActiveMQBlobMessage) blobMessage).deleteFile();
             }
