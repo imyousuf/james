@@ -85,6 +85,8 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
     private DNSService dns;
     private String authorizedAddresses;
 
+    private final static SMTPResponseEncoder SMTP_RESPONSE_ENCODER = new SMTPResponseEncoder();
+    
     @Resource(name = "dnsservice")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
@@ -362,7 +364,7 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
 
     @Override
     protected OneToOneEncoder createEncoder() {
-        return new SMTPResponseEncoder();
+        return SMTP_RESPONSE_ENCODER;
     }
 
     @Override

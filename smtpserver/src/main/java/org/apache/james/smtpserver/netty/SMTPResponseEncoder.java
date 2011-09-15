@@ -24,10 +24,12 @@ import java.util.List;
 
 import org.apache.james.protocols.impl.AbstractResponseEncoder;
 import org.apache.james.protocols.smtp.SMTPResponse;
+import org.jboss.netty.channel.ChannelHandler.Sharable;
 
 /**
  * {@link AbstractResponseEncoder} which encode {@link SMTPResponse} objects
  */
+@Sharable
 public class SMTPResponseEncoder extends AbstractResponseEncoder<SMTPResponse> {
 
     public SMTPResponseEncoder() {
