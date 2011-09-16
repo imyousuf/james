@@ -27,8 +27,8 @@ import org.apache.james.lmtpserver.jmx.JMXHandlersLoader;
 import org.apache.james.protocols.api.HandlersPackage;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
+import org.apache.james.protocols.smtp.netty.SMTPResponseEncoder;
 import org.apache.james.smtpserver.netty.SMTPChannelUpstreamHandler;
-import org.apache.james.smtpserver.netty.SMTPResponseEncoder;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 

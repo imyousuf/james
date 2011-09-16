@@ -378,8 +378,6 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
      */
 
     private void buildSSLContext() throws Exception {
-        System.out.println(useStartTLS);
-
         if (useStartTLS || useSSL) {
             FileInputStream fis = null;
             try {
