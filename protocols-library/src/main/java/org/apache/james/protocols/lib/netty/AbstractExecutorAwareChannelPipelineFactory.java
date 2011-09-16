@@ -31,30 +31,20 @@ import org.jboss.netty.handler.execution.ExecutionHandler;
 public abstract class AbstractExecutorAwareChannelPipelineFactory extends AbstractSSLAwareChannelPipelineFactory{
 
 
-    public AbstractExecutorAwareChannelPipelineFactory(int timeout, int maxConnections, int maxConnectsPerIp, ChannelGroup group) {
-        super(timeout, maxConnections, maxConnectsPerIp, group);
+    public AbstractExecutorAwareChannelPipelineFactory(int timeout, int maxConnections, int maxConnectsPerIp, ChannelGroup group, ExecutionHandler eHandler) {
+        super(timeout, maxConnections, maxConnectsPerIp, group, eHandler);
     }
-    public AbstractExecutorAwareChannelPipelineFactory(int timeout, int maxConnections, int maxConnectsPerIp, ChannelGroup group, String[] enabledCipherSuites) {
-        super(timeout, maxConnections, maxConnectsPerIp, group, enabledCipherSuites);
+    public AbstractExecutorAwareChannelPipelineFactory(int timeout, int maxConnections, int maxConnectsPerIp, ChannelGroup group, String[] enabledCipherSuites, ExecutionHandler eHandler) {
+        super(timeout, maxConnections, maxConnectsPerIp, group, enabledCipherSuites, eHandler);
     }
     @Override
     public ChannelPipeline getPipeline() throws Exception {
         ChannelPipeline pipeLine = super.getPipeline();
         pipeLine.addBefore("coreHandler", "countHandler", getConnectionCountHandler());
-        ExecutionHandler ehandler = getExecutionHandler();
-        if (ehandler != null) {
-            pipeLine.addBefore("coreHandler", "executionHandler", ehandler);
-        }
+        
         return pipeLine;
     }
 
-    /**
-     * Return the {@link ExecutionHandler} to use or null if none
-     * should get used
-     * 
-     * @return eHandler
-     */
-    protected abstract ExecutionHandler getExecutionHandler();
     
     /**
      * REturn the {@link ConnectionCountHandler} to use

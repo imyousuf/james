@@ -43,24 +43,17 @@ import org.slf4j.Logger;
  * {@link ChannelUpstreamHandler} which is used by the SMTPServer
  */
 @Sharable
-public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler {
-    private final Logger logger;
-    private final SMTPConfiguration conf;
-    private final SSLContext context;
-    private String[] enabledCipherSuites;
+public class SMTPChannelUpstreamHandler extends org.apache.james.protocols.smtp.netty.SMTPChannelUpstreamHandler {
 
-    public SMTPChannelUpstreamHandler(ProtocolHandlerChain chain, SMTPConfiguration conf, Logger logger) {
-        this(chain, conf, logger, null, null);
-    }
 
     public SMTPChannelUpstreamHandler(ProtocolHandlerChain chain, SMTPConfiguration conf, Logger logger, SSLContext context, String[] enabledCipherSuites) {
-        super(chain);
-        this.conf = conf;
-        this.logger = logger;
-        this.context = context;
-        this.enabledCipherSuites = enabledCipherSuites;
+        super(chain, conf, logger, context, enabledCipherSuites);
     }
-
+    public SMTPChannelUpstreamHandler(ProtocolHandlerChain chain, SMTPConfiguration conf, Logger logger) {
+        super(chain, conf, logger);
+    }
+    
+    
     @Override
     protected ProtocolSession createSession(ChannelHandlerContext ctx) throws Exception {
         if (context != null) {
@@ -73,26 +66,6 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler {
             return new SMTPNettySession(conf, logger, ctx.getChannel());
         }
     }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-        Channel channel = ctx.getChannel();
-        if (e.getCause() instanceof TooLongFrameException) {
-            ctx.getChannel().write(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED, "Line length exceeded. See RFC 2821 #4.5.3.1."));
-        } else {
-            if (channel.isConnected()) {
-                ctx.getChannel().write(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to process request")).addListener(ChannelFutureListener.CLOSE);
-            }
-            SMTPSession smtpSession = (SMTPSession) ctx.getAttachment();
-            if (smtpSession != null) {
-                smtpSession.getLogger().debug("Unable to process request", e.getCause());
-            } else {
-                logger.debug("Unable to process request", e.getCause());
-            }
-            cleanup(ctx);            
-        }
-    }
-
     /**
      * Cleanup temporary files
      * 

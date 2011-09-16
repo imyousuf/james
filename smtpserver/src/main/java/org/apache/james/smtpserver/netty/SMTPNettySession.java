@@ -18,15 +18,8 @@
  ****************************************************************/
 package org.apache.james.smtpserver.netty;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.net.ssl.SSLEngine;
 
-import org.apache.james.protocols.api.LineHandler;
-import org.apache.james.protocols.impl.AbstractSession;
-import org.apache.james.protocols.impl.LineHandlerUpstreamHandler;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.smtpserver.netty.SMTPServer.SMTPHandlerConfigurationDataImpl;
@@ -36,175 +29,22 @@ import org.slf4j.Logger;
 /**
  * {@link SMTPSession} implementation for use with Netty
  */
-public class SMTPNettySession extends AbstractSession implements SMTPSession {
-    public final static String SMTP_SESSION = "SMTP_SESSION";
-
-    private boolean relayingAllowed;
-
-    private Map<String, Object> connectionState;
-
+public class SMTPNettySession extends org.apache.james.protocols.smtp.netty.SMTPNettySession {
+   
     private SMTPConfiguration theConfigData;
 
-    private int lineHandlerCount = 0;
 
     public SMTPNettySession(SMTPConfiguration theConfigData, Logger logger, Channel channel, SSLEngine engine) {
-        super(logger, channel, engine);
+        super(theConfigData, logger, channel, engine);
         this.theConfigData = theConfigData;
-        connectionState = new HashMap<String, Object>();
-
-        relayingAllowed = theConfigData.isRelayingAllowed(getRemoteIPAddress());
     }
+
 
     public SMTPNettySession(SMTPConfiguration theConfigData, Logger logger, Channel channel) {
-        this(theConfigData, logger, channel, null);
+        super(theConfigData, logger, channel);
+        this.theConfigData = theConfigData;
     }
 
-    /**
-     * @see org.apache.james.protocols.smtp.SMTPSession#getConnectionState()
-     */
-    public Map<String, Object> getConnectionState() {
-        return connectionState;
-    }
-
-    /**
-     * @see org.apache.james.protocols.smtp.SMTPSession#getState()
-     */
-    @SuppressWarnings("unchecked")
-    public Map<String, Object> getState() {
-        Map<String, Object> res = (Map<String, Object>) getConnectionState().get(SMTPSession.SESSION_STATE_MAP);
-        if (res == null) {
-            res = new HashMap<String, Object>();
-            getConnectionState().put(SMTPSession.SESSION_STATE_MAP, res);
-        }
-        return res;
-    }
-
-    /**
-     * @see org.apache.james.protocols.smtp.SMTPSession#isRelayingAllowed()
-     */
-    public boolean isRelayingAllowed() {
-        return relayingAllowed;
-    }
-
-    /**
-     * @see org.apache.james.protocols.smtp.SMTPSession#resetState()
-     */
-    public void resetState() {
-        // remember the ehlo mode between resets
-        Object currentHeloMode = getState().get(CURRENT_HELO_MODE);
-
-        getState().clear();
-
-        // start again with the old helo mode
-        if (currentHeloMode != null) {
-            getState().put(CURRENT_HELO_MODE, currentHeloMode);
-        }
-    }
-
-    /**
-     * @see org.apache.james.protocols.smtp.SMTPSession#popLineHandler()
-     */
-    public void popLineHandler() {
-        if (lineHandlerCount > 0) {
-            getChannel().getPipeline().remove("lineHandler" + lineHandlerCount);
-            lineHandlerCount--;
-        }
-    }
-
-    /**
-     * @see org.apache.james.protocols.smtp.SMTPSession#pushLineHandler(org.apache.james.smtpserver.protocol.LineHandler)
-     */
-    public void pushLineHandler(LineHandler<SMTPSession> overrideCommandHandler) {
-        lineHandlerCount++;
-        // Add the linehandler in front of the coreHandler so we can be sure 
-        // it is executed with the same ExecutorHandler as the coreHandler (if one exist)
-        // 
-        // See JAMES-1277
-        getChannel().getPipeline().addBefore("coreHandler", "lineHandler" + lineHandlerCount, new LineHandlerUpstreamHandler<SMTPSession>(this, overrideCommandHandler));
-    }
-
-    /**
-     * @see org.apache.james.protocols.smtp.SMTPSession#getHelloName()
-     */
-    public String getHelloName() {
-        return theConfigData.getHelloName();
-    }
-
-    /**
-     * @see org.apache.james.protocols.smtp.SMTPSession#getMaxMessageSize()
-     */
-    public long getMaxMessageSize() {
-        return theConfigData.getMaxMessageSize();
-    }
-
-    /**
-     * @see org.apache.james.protocols.smtp.SMTPSession#getRcptCount()
-     */
-    @SuppressWarnings("unchecked")
-    public int getRcptCount() {
-        int count = 0;
-
-        // check if the key exists
-        if (getState().get(SMTPSession.RCPT_LIST) != null) {
-            count = ((Collection) getState().get(SMTPSession.RCPT_LIST)).size();
-        }
-
-        return count;
-    }
-
-    /**
-     * @see org.apache.james.protocols.smtp.SMTPSession#getSMTPGreeting()
-     */
-    public String getSMTPGreeting() {
-        return theConfigData.getSMTPGreeting();
-    }
-
-    /**
-     * @see org.apache.james.protocols.smtp.SMTPSession#isAuthSupported()
-     */
-    public boolean isAuthSupported() {
-        return theConfigData.isAuthRequired(socketAddress.getAddress().getHostAddress());
-    }
-
-    /**
-     * @see org.apache.james.protocols.smtp.SMTPSession#setRelayingAllowed(boolean)
-     */
-    public void setRelayingAllowed(boolean relayingAllowed) {
-        this.relayingAllowed = relayingAllowed;
-    }
-
-    /**
-     * @see org.apache.james.protocols.smtp.SMTPSession#sleep(long)
-     */
-    public void sleep(long ms) {
-        // session.getFilterChain().addAfter("connectionFilter",
-        // "tarpitFilter",new TarpitFilter(ms));
-    }
-
-    /**
-     * @see org.apache.james.protocols.smtp.SMTPSession#useAddressBracketsEnforcement()
-     */
-    public boolean useAddressBracketsEnforcement() {
-        return theConfigData.useAddressBracketsEnforcement();
-    }
-
-    /**
-     * @see org.apache.james.protocols.smtp.SMTPSession#useHeloEhloEnforcement()
-     */
-    public boolean useHeloEhloEnforcement() {
-        return theConfigData.useHeloEhloEnforcement();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.protocols.smtp.SMTPSession#getPushedLineHandlerCount()
-     */
-    public int getPushedLineHandlerCount() {
-        return lineHandlerCount;
-    }
-    
 
     public boolean verifyIdentity() {
         if (theConfigData instanceof SMTPHandlerConfigurationDataImpl) {

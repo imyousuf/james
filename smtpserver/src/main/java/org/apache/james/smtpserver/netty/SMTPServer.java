@@ -27,6 +27,7 @@ import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
 import org.apache.james.protocols.api.HandlersPackage;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
+import org.apache.james.protocols.smtp.netty.SMTPResponseEncoder;
 import org.apache.james.smtpserver.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.jmx.JMXHandlersLoader;
 import org.jboss.netty.channel.ChannelUpstreamHandler;

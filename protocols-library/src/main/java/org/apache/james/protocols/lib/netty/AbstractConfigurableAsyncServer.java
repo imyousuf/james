@@ -239,8 +239,8 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     @PostConstruct
     public final void init() throws Exception {
         if (isEnabled()) {
-            preInit();
             buildSSLContext();
+            preInit();
             executionHandler = createExecutionHander();
             bind();
             
@@ -378,6 +378,8 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
      */
 
     private void buildSSLContext() throws Exception {
+        System.out.println(useStartTLS);
+
         if (useStartTLS || useSSL) {
             FileInputStream fis = null;
             try {
@@ -575,7 +577,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     
     @Override
     protected ChannelPipelineFactory createPipelineFactory(ChannelGroup group) {
-        return new AbstractExecutorAwareChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group, enabledCipherSuites) {
+        return new AbstractExecutorAwareChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group, enabledCipherSuites, getExecutionHandler()) {
             @Override
             protected SSLContext getSSLContext() {
                 return AbstractConfigurableAsyncServer.this.getSSLContext();
@@ -602,11 +604,6 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
             @Override
             protected ConnectionCountHandler getConnectionCountHandler() {
                 return AbstractConfigurableAsyncServer.this.getConnectionCountHandler();
-            }
-
-            @Override
-            protected ExecutionHandler getExecutionHandler() {
-                return AbstractConfigurableAsyncServer.this.getExecutionHandler();
             }
 
         };
