@@ -19,13 +19,13 @@
 
 package org.apache.james.pop3server.core;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
+import org.apache.james.pop3server.StartTlsPop3Response;
 import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
@@ -49,23 +49,13 @@ public class StlsCmdHandler implements CommandHandler<POP3Session>, CapaCapabili
         // check if starttls is supported, the state is the right one and it was
         // not started before
         if (session.isStartTLSSupported() && session.getHandlerState() == POP3Session.AUTHENTICATION_READY && session.isTLSStarted() == false) {
-            response = new POP3Response(POP3Response.OK_RESPONSE, "Begin TLS negotiation");
-            session.writeResponse(response);
-            try {
-                session.startTLS();
-            } catch (IOException e) {
-                session.getLogger().info("Error while trying to secure connection", e);
+            response = new StartTlsPop3Response(POP3Response.OK_RESPONSE, "Begin TLS negotiation");
+            return response;
 
-                // disconnect
-                response = new POP3Response(POP3Response.ERR_RESPONSE);
-                response.setEndSession(true);
-                return response;
-            }
         } else {
             response = new POP3Response(POP3Response.ERR_RESPONSE);
             return response;
         }
-        return null;
     }
 
     /**
