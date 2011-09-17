@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.james.protocols.api.RetCodeResponse;
+import org.apache.james.protocols.api.Response;
 
 /**
  * Contains an SMTP result
  */
-public class POP3Response implements RetCodeResponse {
+public class POP3Response implements Response {
 
     // POP3 response prefixes
     /** OK response. Requested content will follow */
