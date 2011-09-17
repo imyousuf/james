@@ -1067,7 +1067,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         } catch (SendFailedException sfe) {
             logSendFailedException(sfe);
 
-            Collection<MailAddress> recipients = mail.getRecipients();
+            // Copy the recipients as direct modification may not be possible
+            Collection<MailAddress> recipients = new ArrayList<MailAddress>(mail.getRecipients());
 
             boolean deleteMessage = false;
 
@@ -1139,6 +1140,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             log("Can't parse invalid address: " + pe.getMessage());
                         }
                     }
+                    // Set the recipients for the mail
+                    mail.setRecipients(recipients);
+                    
                     if (isDebug)
                         log("Invalid recipients: " + recipients);
                     deleteMessage = failMessage(mail, sfe, true);
@@ -1159,6 +1163,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                             log("Can't parse unsent address: " + pe.getMessage());
                         }
                     }
+                    // Set the recipients for the mail
+                    mail.setRecipients(recipients);
                     if (isDebug)
                         log("Unsent recipients: " + recipients);
                     if (sfe.getClass().getName().endsWith(".SMTPSendFailedException")) {
@@ -1169,7 +1175,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     }
                 }
             }
-
+            
+           
             return deleteMessage;
         } catch (MessagingException ex) {
             // We should do a better job checking this... if the failure is a
