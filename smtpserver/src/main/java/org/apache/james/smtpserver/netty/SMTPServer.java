@@ -18,6 +18,8 @@
  ****************************************************************/
 package org.apache.james.smtpserver.netty;
 
+import java.nio.charset.Charset;
+
 import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -25,9 +27,14 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
 import org.apache.james.protocols.api.HandlersPackage;
+import org.apache.james.protocols.api.ProtocolSession;
+import org.apache.james.protocols.api.ProtocolSessionFactory;
+import org.apache.james.protocols.api.ProtocolTransport;
+import org.apache.james.protocols.impl.ResponseEncoder;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
-import org.apache.james.protocols.smtp.netty.SMTPResponseEncoder;
+import org.apache.james.protocols.smtp.SMTPProtocol;
+import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.smtpserver.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.jmx.JMXHandlersLoader;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
@@ -87,7 +94,7 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
     private DNSService dns;
     private String authorizedAddresses;
 
-    private final static SMTPResponseEncoder SMTP_RESPONSE_ENCODER = new SMTPResponseEncoder();
+    private final static ResponseEncoder SMTP_RESPONSE_ENCODER = new ResponseEncoder(SMTPResponse.class, Charset.forName("US-ASCII"));
     
     private SMTPChannelUpstreamHandler coreHandler;
 
@@ -108,7 +115,21 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
             }
             authorizedNetworks = new NetMatcher(networks, dns);
         }
-        coreHandler = new SMTPChannelUpstreamHandler(getProtocolHandlerChain(), theConfigData, getLogger(), getSSLContext(), getEnabledCipherSuites());
+        SMTPProtocol transport = new SMTPProtocol(getProtocolHandlerChain(), theConfigData) {
+
+            @Override
+            public ProtocolSessionFactory getProtocolSessionFactory() {
+                return new ProtocolSessionFactory() {
+                    
+                    @Override
+                    public ProtocolSession newSession(ProtocolTransport transport) {
+                        return new SMTPNettySession(theConfigData, getLogger(), transport);
+                    }
+                };
+            }
+            
+        };
+        coreHandler = new SMTPChannelUpstreamHandler(getProtocolHandlerChain(), transport.getProtocolSessionFactory(), getLogger(), getSSLContext(), getEnabledCipherSuites());
         
     }
 
