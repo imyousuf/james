@@ -20,7 +20,7 @@ package org.apache.james.pop3server.netty;
 
 import java.nio.charset.Charset;
 
-import org.apache.james.pop3server.POP3HandlerConfigurationData;
+import org.apache.james.pop3server.POP3HandlerConfiguration;
 import org.apache.james.pop3server.POP3Protocol;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
@@ -45,7 +45,7 @@ public class POP3Server extends AbstractProtocolAsyncServer implements POP3Serve
     /**
      * The configuration data to be passed to the handler
      */
-    private POP3HandlerConfigurationData theConfigData = new POP3HandlerConfigurationDataImpl();
+    private POP3HandlerConfiguration theConfigData = new POP3HandlerConfigurationDataImpl();
     private BasicChannelUpstreamHandler coreHandler;
     
     @Override
@@ -66,24 +66,17 @@ public class POP3Server extends AbstractProtocolAsyncServer implements POP3Serve
     /**
      * A class to provide POP3 handler configuration to the handlers
      */
-    private class POP3HandlerConfigurationDataImpl implements POP3HandlerConfigurationData {
+    private class POP3HandlerConfigurationDataImpl implements POP3HandlerConfiguration {
 
         /**
-         * @see org.apache.james.pop3server.POP3HandlerConfigurationData#getHelloName()
+         * @see org.apache.james.pop3server.POP3HandlerConfiguration#getHelloName()
          */
         public String getHelloName() {
             return POP3Server.this.getHelloName();
         }
 
         /**
-         * @see org.apache.james.pop3server.POP3HandlerConfigurationData#getResetLength()
-         */
-        public int getResetLength() {
-            return -1;
-        }
-
-        /**
-         * @see org.apache.james.pop3server.POP3HandlerConfigurationData#isStartTLSSupported()
+         * @see org.apache.james.pop3server.POP3HandlerConfiguration#isStartTLSSupported()
          */
         public boolean isStartTLSSupported() {
             return POP3Server.this.isStartTLSSupported();

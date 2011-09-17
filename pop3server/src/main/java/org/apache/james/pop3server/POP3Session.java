@@ -48,7 +48,7 @@ public interface POP3Session extends TLSSupportedSession {
      * 
      * @return POP3HandlerConfigurationData
      */
-    POP3HandlerConfigurationData getConfigurationData();
+    POP3HandlerConfiguration getConfigurationData();
 
     /**
      * Returns the current handler state

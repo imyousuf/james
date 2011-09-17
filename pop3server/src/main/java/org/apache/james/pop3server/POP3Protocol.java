@@ -30,10 +30,10 @@ import org.slf4j.Logger;
 public class POP3Protocol implements Protocol{
 
     private ProtocolHandlerChain chain;
-    private POP3HandlerConfigurationData config;
+    private POP3HandlerConfiguration config;
     private Logger logger;
     
-    public POP3Protocol(ProtocolHandlerChain chain, POP3HandlerConfigurationData config, Logger logger) {
+    public POP3Protocol(ProtocolHandlerChain chain, POP3HandlerConfiguration config, Logger logger) {
         this.chain = chain;
         this.config = config;
         this.logger = logger;

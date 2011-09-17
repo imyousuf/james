@@ -22,7 +22,7 @@ package org.apache.james.pop3server;
 /**
  * Provides a number of server-wide constant values to the POP3Handlers
  */
-public interface POP3HandlerConfigurationData {
+public interface POP3HandlerConfiguration {
 
     /**
      * Returns the service wide hello name
@@ -30,13 +30,6 @@ public interface POP3HandlerConfigurationData {
      * @return the hello name
      */
     String getHelloName();
-
-    /**
-     * Returns the service wide reset length in bytes.
-     * 
-     * @return the reset length
-     */
-    int getResetLength();
 
     /**
      * Return if starttls is supported by the POP3Server
