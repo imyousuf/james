@@ -91,11 +91,6 @@
       <artifactId>protocols-impl</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.james.protocols</groupId>
-      <artifactId>protocols-smtp-netty</artifactId>
-      <version>${protocols.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.james.jspf</groupId>
       <artifactId>apache-jspf-resolver</artifactId>
     </dependency>
