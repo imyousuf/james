@@ -40,6 +40,7 @@ import org.apache.james.mailbox.MessageResult;
 import org.apache.james.mailbox.MessageResult.FetchGroup;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
+import org.apache.james.pop3server.POP3StreamResponse;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 
@@ -110,23 +111,15 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                     if (results.hasNext()) {
                         MessageResult result = results.next();
 
-                        session.writeStream(new ByteArrayInputStream((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes()));
-                        try {
+                        InputStream headersIn = result.getHeaders().getInputStream();
+                        InputStream bodyIn = new CountingBodyInputStream(new ExtraDotInputStream(new CRLFTerminatedInputStream(result.getBody().getInputStream())), lines);
 
-                          
-                            InputStream headersIn = result.getHeaders().getInputStream();
-                            InputStream bodyIn = new CountingBodyInputStream(new ExtraDotInputStream(new CRLFTerminatedInputStream(result.getBody().getInputStream())), lines);
+                        // write body
+                        InputStream in = new SequenceInputStream(Collections.enumeration(Arrays.asList(headersIn, new ByteArrayInputStream("\r\n".getBytes()), bodyIn)));
 
-                            // write body
-                            session.writeStream(new SequenceInputStream(Collections.enumeration(Arrays.asList(headersIn, new ByteArrayInputStream("\r\n".getBytes()), bodyIn))));
+                        response = new POP3StreamResponse(POP3Response.OK_RESPONSE, "Message follows", in);
+                        return response;
 
-                        } finally {
-                            // write a single dot to mark message as complete
-                            session.writeStream(new ByteArrayInputStream(".\r\n".getBytes()));
-
-                        }
-
-                        return null;
                     } else {
                         StringBuilder exceptionBuffer = new StringBuilder(64).append("Message (").append(num).append(") does not exist.");
                         response = new POP3Response(POP3Response.ERR_RESPONSE, exceptionBuffer.toString());

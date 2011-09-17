@@ -19,6 +19,7 @@
 
 package org.apache.james.pop3server;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -98,7 +99,15 @@ public class POP3Response implements RetCodeResponse {
      * @return all responseLines
      */
     public List<CharSequence> getLines() {
-        return lines;
+        List<CharSequence> responseList = new ArrayList<CharSequence>();
+        for (int i = 0; i < lines.size(); i++) {
+            if (i == 0) {
+                responseList.add(getRetCode() + " " +lines.get(i));
+            } else {
+                responseList.add(lines.get(i));
+            }
+        }
+        return responseList;
     }
 
     /**

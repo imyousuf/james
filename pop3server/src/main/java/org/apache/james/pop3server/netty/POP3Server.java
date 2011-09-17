@@ -19,24 +19,31 @@
 package org.apache.james.pop3server.netty;
 
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
+import org.apache.james.pop3server.POP3Protocol;
 import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.pop3server.jmx.JMXHandlersLoader;
 import org.apache.james.protocols.api.HandlersPackage;
+import org.apache.james.protocols.impl.BasicChannelUpstreamHandler;
+import org.apache.james.protocols.impl.ResponseEncoder;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
+import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
+import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 
 /**
  * NIO POP3 Server which use Netty
  */
 public class POP3Server extends AbstractProtocolAsyncServer implements POP3ServerMBean {
 
-    private final static POP3ResponseEncoder POP3_RESPONSE_ENCODER =  new POP3ResponseEncoder();
+    private final static ResponseEncoder POP3_RESPONSE_ENCODER =  new POP3ResponseEncoder(false);
     /**
      * The configuration data to be passed to the handler
      */
     private POP3HandlerConfigurationData theConfigData = new POP3HandlerConfigurationDataImpl();
-    private POP3ChannelUpstreamHandler coreHandler;
+    private BasicChannelUpstreamHandler coreHandler;
     
     @Override
     protected int getDefaultPort() {
@@ -83,8 +90,24 @@ public class POP3Server extends AbstractProtocolAsyncServer implements POP3Serve
     @Override
     protected void preInit() throws Exception {
         super.preInit();
-        coreHandler = new POP3ChannelUpstreamHandler(getProtocolHandlerChain(), theConfigData, getLogger(), getSSLContext(), getEnabledCipherSuites());
-        
+        POP3Protocol protocol = new POP3Protocol(getProtocolHandlerChain(), theConfigData, getLogger());
+        coreHandler = new BasicChannelUpstreamHandler(getProtocolHandlerChain(), protocol.getProtocolSessionFactory(), getLogger(), getSSLContext(), getEnabledCipherSuites());
+    }
+
+
+    @Override
+    protected ChannelPipelineFactory createPipelineFactory(ChannelGroup group) {
+         
+        final ChannelPipelineFactory cpf = super.createPipelineFactory(group);
+        return new ChannelPipelineFactory() {
+            
+            @Override
+            public ChannelPipeline getPipeline() throws Exception {
+                ChannelPipeline cp = cpf.getPipeline();
+                cp.addAfter("framer", "chunkHandler", new ChunkedWriteHandler());
+                return cp;
+            }
+        };
     }
 
 

@@ -19,8 +19,8 @@
 
 package org.apache.james.pop3server.core;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -36,6 +36,7 @@ import org.apache.james.mailbox.MessageResult;
 import org.apache.james.mailbox.MessageResult.FetchGroup;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
+import org.apache.james.pop3server.POP3StreamResponse;
 import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
@@ -87,21 +88,13 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
                     if (results.hasNext()) {
                         MessageResult result = results.next();
 
-                        try {
-                            session.writeStream(new ByteArrayInputStream((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes()));
-                            // response = new
-                            // POP3Response(POP3Response.OK_RESPONSE,
-                            // "Message follows");
-                            Content content = result.getFullContent();                           
-                            // session.writeStream(new ExtraDotInputStream(in));
-                            session.writeStream(new CRLFTerminatedInputStream(new ExtraDotInputStream(content.getInputStream())));
+                        Content content = result.getFullContent();                           
+                        InputStream in = new CRLFTerminatedInputStream(new ExtraDotInputStream(content.getInputStream()));
+                        response = new POP3StreamResponse(POP3Response.OK_RESPONSE, "Message follows", in);
+                        return response;
 
-                        } finally {
-                            // write a single dot to mark message as complete
-                            session.writeStream(new ByteArrayInputStream(".\r\n".getBytes()));
-                        }
+                        
 
-                        return null;
                     } else {
                         StringBuilder responseBuffer = new StringBuilder(64).append("Message (").append(num).append(") does not exist.");
                         response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());

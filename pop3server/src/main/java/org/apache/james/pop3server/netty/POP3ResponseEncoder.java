@@ -18,42 +18,76 @@
  ****************************************************************/
 package org.apache.james.pop3server.netty;
 
+import static org.jboss.netty.channel.Channels.write;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.james.pop3server.POP3Response;
-import org.apache.james.protocols.impl.AbstractResponseEncoder;
-import org.jboss.netty.channel.ChannelHandler.Sharable;
+import org.apache.james.pop3server.POP3StreamResponse;
+import org.apache.james.protocols.impl.ResponseEncoder;
+import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelEvent;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.DefaultFileRegion;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.jboss.netty.handler.stream.ChunkedNioFile;
+import org.jboss.netty.handler.stream.ChunkedStream;
+
+public class POP3ResponseEncoder extends ResponseEncoder{
+   
+    private boolean zeroCopy;
 
 
-/**
- * {@link AbstractResponseEncoder} implementation which handles
- * {@link POP3Response} messages
- */
-@Sharable
-public class POP3ResponseEncoder extends AbstractResponseEncoder<POP3Response> {
-
-    public POP3ResponseEncoder() {
+    public POP3ResponseEncoder(boolean zeroCopy) {
         super(POP3Response.class, Charset.forName("US-ASCII"));
+        this.zeroCopy = zeroCopy;
     }
-
+    
+    
     @Override
-    protected List<String> getResponse(POP3Response response) {
-        List<String> responseList = new ArrayList<String>();
-        for (int k = 0; k < response.getLines().size(); k++) {
-            StringBuffer respBuff = new StringBuffer(256);
-            if (k == 0) {
-                respBuff.append(response.getRetCode());
-                respBuff.append(" ");
-                respBuff.append(response.getLines().get(k));
+    public void handleDownstream(ChannelHandlerContext ctx, ChannelEvent evt) throws Exception {
+        if (evt instanceof MessageEvent) {
+            MessageEvent e = (MessageEvent) evt;
+            Object originalMessage = e.getMessage();
 
-            } else {
-                respBuff.append(response.getLines().get(k));
+            super.handleDownstream(ctx, evt);
+            
+            if (originalMessage instanceof POP3StreamResponse) {
+
+                InputStream stream = ((POP3StreamResponse) originalMessage).getStream();
+                Channel channel = ctx.getChannel();
+                if (stream != null && channel.isConnected()) {
+
+                    if (stream instanceof FileInputStream  && channel.getFactory() instanceof NioServerSocketChannelFactory) {
+                        FileChannel fc = ((FileInputStream) stream).getChannel();
+                        try {
+                            if (zeroCopy) {
+                                write(ctx, e.getFuture(), new DefaultFileRegion(fc, fc.position(), fc.size()), e.getRemoteAddress());
+
+                            } else {
+                                write(ctx, e.getFuture(), new ChunkedNioFile(fc, 8192), e.getRemoteAddress());
+                            }
+                        } catch (IOException ex) {
+                            // Catch the exception and just pass it so we get the exception later
+                            write(ctx, e.getFuture(), new ChunkedStream(stream), e.getRemoteAddress());
+
+                        }
+                    } else {
+                        write(ctx, e.getFuture(), new ChunkedStream(stream), e.getRemoteAddress());
+
+                    }
+                }
+                channel.write(ChannelBuffers.wrappedBuffer(".\r\n".getBytes()));
             }
-            responseList.add(respBuff.toString());
+        } else {
+            super.handleDownstream(ctx, evt);
         }
-        return responseList;
     }
 
 }

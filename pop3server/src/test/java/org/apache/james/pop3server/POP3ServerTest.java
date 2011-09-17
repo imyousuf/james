@@ -153,7 +153,7 @@ public class POP3ServerTest extends TestCase {
 
     public void testAuthenticationFail() throws Exception {
         finishSetUp(m_testConfiguration);
-
+        
         m_pop3Protocol = new POP3Client();
         m_pop3Protocol.connect("127.0.0.1", m_pop3ListenerPort);
 
