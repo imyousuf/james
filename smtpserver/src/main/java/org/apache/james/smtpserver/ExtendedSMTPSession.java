@@ -16,23 +16,24 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver.netty;
+package org.apache.james.smtpserver;
 
 import org.apache.james.protocols.api.ProtocolTransport;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.smtpserver.netty.SMTPServer;
 import org.apache.james.smtpserver.netty.SMTPServer.SMTPHandlerConfigurationDataImpl;
 import org.slf4j.Logger;
 
 /**
  * {@link SMTPSession} implementation for use with Netty
  */
-public class SMTPNettySession extends org.apache.james.protocols.smtp.SMTPSessionImpl {
+public class ExtendedSMTPSession extends org.apache.james.protocols.smtp.SMTPSessionImpl {
    
     private SMTPConfiguration theConfigData;
 
 
-    public SMTPNettySession(SMTPConfiguration theConfigData, Logger logger, ProtocolTransport transport) {
+    public ExtendedSMTPSession(SMTPConfiguration theConfigData, Logger logger, ProtocolTransport transport) {
         super(theConfigData, logger, transport);
         this.theConfigData = theConfigData;
     }

@@ -26,7 +26,6 @@ import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.AbstractSenderAuthIdentifyVerificationRcptHook;
 import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
-import org.apache.james.smtpserver.netty.SMTPNettySession;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.mailet.MailAddress;
@@ -51,7 +50,7 @@ public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthId
 
     @Override
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
-        SMTPNettySession nSession = (SMTPNettySession) session;
+        ExtendedSMTPSession nSession = (ExtendedSMTPSession) session;
         if (nSession.verifyIdentity()) {
             return super.doRcpt(session, sender, rcpt);
         } else {

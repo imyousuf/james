@@ -36,6 +36,7 @@ import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPProtocol;
 import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.smtpserver.CoreCmdHandlerLoader;
+import org.apache.james.smtpserver.ExtendedSMTPSession;
 import org.apache.james.smtpserver.jmx.JMXHandlersLoader;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
@@ -123,7 +124,7 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
                     
                     @Override
                     public ProtocolSession newSession(ProtocolTransport transport) {
-                        return new SMTPNettySession(theConfigData, getLogger(), transport);
+                        return new ExtendedSMTPSession(theConfigData, getLogger(), transport);
                     }
                 };
             }
