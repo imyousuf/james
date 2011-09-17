@@ -18,34 +18,34 @@
  ****************************************************************/
 package org.apache.james.pop3server.netty;
 
-import static org.jboss.netty.channel.Channels.write;
+import static org.jboss.netty.buffer.ChannelBuffers.copiedBuffer;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.util.List;
 
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3StreamResponse;
-import org.apache.james.protocols.impl.ResponseEncoder;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.DefaultFileRegion;
 import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelDownstreamHandler;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.handler.stream.ChunkedNioFile;
 import org.jboss.netty.handler.stream.ChunkedStream;
 
-public class POP3ResponseEncoder extends ResponseEncoder{
+public class POP3ResponseEncoder extends SimpleChannelDownstreamHandler{
    
     private boolean zeroCopy;
-
+    private Charset charset = Charset.forName("US-ASCII");
 
     public POP3ResponseEncoder(boolean zeroCopy) {
-        super(POP3Response.class, Charset.forName("US-ASCII"));
         this.zeroCopy = zeroCopy;
     }
     
@@ -55,31 +55,41 @@ public class POP3ResponseEncoder extends ResponseEncoder{
         if (evt instanceof MessageEvent) {
             MessageEvent e = (MessageEvent) evt;
             Object originalMessage = e.getMessage();
+            Channel channel = ctx.getChannel();
 
-            super.handleDownstream(ctx, evt);
-            
+            if (originalMessage instanceof POP3Response) {
+                    StringBuilder builder = new StringBuilder();
+                    POP3Response response = (POP3Response) originalMessage;
+                    List<CharSequence> lines = response.getLines();
+                    for (int i = 0; i < lines.size(); i++) {
+                        builder.append(lines.get(i));
+                        if (i < lines.size()) {
+                            builder.append("\r\n");
+                        }
+                    }
+                    channel.write(copiedBuffer(builder.toString(), charset));                
+            }
             if (originalMessage instanceof POP3StreamResponse) {
 
                 InputStream stream = ((POP3StreamResponse) originalMessage).getStream();
-                Channel channel = ctx.getChannel();
                 if (stream != null && channel.isConnected()) {
 
                     if (stream instanceof FileInputStream  && channel.getFactory() instanceof NioServerSocketChannelFactory) {
                         FileChannel fc = ((FileInputStream) stream).getChannel();
                         try {
                             if (zeroCopy) {
-                                write(ctx, e.getFuture(), new DefaultFileRegion(fc, fc.position(), fc.size()), e.getRemoteAddress());
+                                channel.write(new DefaultFileRegion(fc, fc.position(), fc.size()));
 
                             } else {
-                                write(ctx, e.getFuture(), new ChunkedNioFile(fc, 8192), e.getRemoteAddress());
+                                channel.write(new ChunkedNioFile(fc, 8192), e.getRemoteAddress());
                             }
                         } catch (IOException ex) {
                             // Catch the exception and just pass it so we get the exception later
-                            write(ctx, e.getFuture(), new ChunkedStream(stream), e.getRemoteAddress());
+                            channel.write(new ChunkedStream(stream));
 
                         }
                     } else {
-                        write(ctx, e.getFuture(), new ChunkedStream(stream), e.getRemoteAddress());
+                        channel.write(new ChunkedStream(stream));
 
                     }
                 }

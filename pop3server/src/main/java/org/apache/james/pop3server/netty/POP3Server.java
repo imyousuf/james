@@ -18,8 +18,11 @@
  ****************************************************************/
 package org.apache.james.pop3server.netty;
 
+import java.nio.charset.Charset;
+
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.pop3server.POP3Protocol;
+import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.pop3server.jmx.JMXHandlersLoader;
 import org.apache.james.protocols.api.HandlersPackage;
@@ -38,7 +41,7 @@ import org.jboss.netty.handler.stream.ChunkedWriteHandler;
  */
 public class POP3Server extends AbstractProtocolAsyncServer implements POP3ServerMBean {
 
-    private final static ResponseEncoder POP3_RESPONSE_ENCODER =  new POP3ResponseEncoder(false);
+    private final static ResponseEncoder POP3_RESPONSE_ENCODER =  new ResponseEncoder(POP3Response.class, Charset.forName("US-ASCII"));
     /**
      * The configuration data to be passed to the handler
      */
@@ -91,7 +94,7 @@ public class POP3Server extends AbstractProtocolAsyncServer implements POP3Serve
     protected void preInit() throws Exception {
         super.preInit();
         POP3Protocol protocol = new POP3Protocol(getProtocolHandlerChain(), theConfigData, getLogger());
-        coreHandler = new BasicChannelUpstreamHandler(getProtocolHandlerChain(), protocol.getProtocolSessionFactory(), getLogger(), getSSLContext(), getEnabledCipherSuites());
+        coreHandler = new POP3ChannelUpstreamHandler(getProtocolHandlerChain(), protocol.getProtocolSessionFactory(), getLogger(), getSSLContext(), getEnabledCipherSuites(), false);
     }
 
 
