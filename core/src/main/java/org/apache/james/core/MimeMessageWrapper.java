@@ -291,9 +291,7 @@ public class MimeMessageWrapper extends MimeMessage implements Disposable {
     }
 
     public synchronized void writeTo(OutputStream headerOs, OutputStream bodyOs, String[] ignoreList, boolean preLoad) throws IOException, MessagingException {
-        if (!saved)
-            saveChanges();
-
+        
         if (preLoad == false && source != null && !isBodyModified()) {
             // We do not want to instantiate the message... just read from
             // source
@@ -309,6 +307,10 @@ public class MimeMessageWrapper extends MimeMessage implements Disposable {
                 if (isHeaderModified() == false) {
                     myHeaders = parsedHeaders;
                 } else {
+                    // The headers was modified so we need to call saveChanges() just to be sure
+                    // See JAMES-1320
+                    if (!saved)
+                        saveChanges();
                     myHeaders = headers;
                 }
                 IOUtils.copy(new InternetHeadersInputStream(myHeaders.getNonMatchingHeaderLines(ignoreList)), headerOs);
@@ -317,6 +319,11 @@ public class MimeMessageWrapper extends MimeMessage implements Disposable {
                 IOUtils.closeQuietly(in);
             }
         } else {
+            // save the changes as the message was modified
+            // See JAMES-1320
+            if (!saved)
+                saveChanges();
+
             // MimeMessageUtil.writeToInternal(this, headerOs, bodyOs,
             // ignoreList);
             if (headers == null) {
