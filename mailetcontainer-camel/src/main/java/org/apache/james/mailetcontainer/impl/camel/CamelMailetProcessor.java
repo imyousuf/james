@@ -169,7 +169,7 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
                 processorDef.setProperty(MatcherSplitter.MATCHER_PROPERTY, constant(matcher)).setProperty(MatcherSplitter.ON_MATCH_EXCEPTION_PROPERTY, constant(onMatchException)).setProperty(MatcherSplitter.MAILETCONTAINER_PROPERTY, constant(CamelMailetProcessor.this))
 
                 // do splitting of the mail based on the stored matcher
-                        .split().method(MatcherSplitter.class).aggregationStrategy(aggr).parallelProcessing()
+                        .split().method(MatcherSplitter.class).aggregationStrategy(aggr)
 
                         .choice().when(new MatcherMatch()).process(mailetProccessor).end()
 
