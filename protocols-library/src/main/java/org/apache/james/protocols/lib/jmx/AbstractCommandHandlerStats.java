@@ -30,8 +30,8 @@ import javax.management.ObjectName;
 import javax.management.StandardMBean;
 
 import org.apache.james.lifecycle.api.Disposable;
-import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.api.Response;
+import org.apache.james.protocols.api.handler.CommandHandler;
 
 /**
  * Expose statistics for {@link CommandHandler} via JMX

@@ -21,7 +21,7 @@ package org.apache.james.lmtpserver.jmx;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.james.protocols.api.HandlersPackage;
+import org.apache.james.protocols.api.handler.HandlersPackage;
 
 public class JMXHandlersLoader implements HandlersPackage {
 

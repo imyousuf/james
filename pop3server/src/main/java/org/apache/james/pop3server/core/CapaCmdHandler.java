@@ -25,11 +25,11 @@ import java.util.List;
 
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
-import org.apache.james.protocols.api.CommandHandler;
-import org.apache.james.protocols.api.ExtensibleHandler;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.api.WiringException;
+import org.apache.james.protocols.api.handler.CommandHandler;
+import org.apache.james.protocols.api.handler.ExtensibleHandler;
 
 /**
  * This handler is used to handle CAPA commands
@@ -59,7 +59,7 @@ public class CapaCmdHandler implements CommandHandler<POP3Session>, ExtensibleHa
     }
 
     /**
-     * @see org.apache.james.api.protocol.ExtensibleHandler#getMarkerInterfaces()
+     * @see org.apache.james.protocols.api.handler.api.protocol.ExtensibleHandler#getMarkerInterfaces()
      */
     @SuppressWarnings("unchecked")
     public List<Class<?>> getMarkerInterfaces() {
@@ -69,7 +69,7 @@ public class CapaCmdHandler implements CommandHandler<POP3Session>, ExtensibleHa
     }
 
     /**
-     * @see org.apache.james.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class,
+     * @see org.apache.james.protocols.api.handler.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class,
      *      java.util.List)
      */
     @SuppressWarnings("unchecked")

@@ -26,7 +26,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 
 import org.apache.james.lifecycle.api.Disposable;
-import org.apache.james.protocols.api.CommandHandler;
+import org.apache.james.protocols.api.handler.CommandHandler;
 import org.apache.james.protocols.lib.jmx.AbstractCommandHandlerStats;
 import org.apache.james.protocols.smtp.SMTPResponse;
 

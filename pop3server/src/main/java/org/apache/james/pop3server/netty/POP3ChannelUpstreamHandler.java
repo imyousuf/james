@@ -22,9 +22,9 @@ package org.apache.james.pop3server.netty;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
-import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.protocols.api.ProtocolSessionFactory;
+import org.apache.james.protocols.api.handler.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.BasicChannelUpstreamHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;

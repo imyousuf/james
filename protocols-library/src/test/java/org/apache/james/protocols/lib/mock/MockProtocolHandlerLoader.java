@@ -12,8 +12,8 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.james.protocols.api.ProtocolHandler;
-import org.apache.james.protocols.api.ProtocolHandlerLoader;
+import org.apache.james.protocols.api.handler.ProtocolHandler;
+import org.apache.james.protocols.api.handler.ProtocolHandlerLoader;
 
 public class MockProtocolHandlerLoader implements ProtocolHandlerLoader{
 

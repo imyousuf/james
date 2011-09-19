@@ -26,7 +26,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.lmtpserver.CoreCmdHandlerLoader;
 import org.apache.james.lmtpserver.jmx.JMXHandlersLoader;
-import org.apache.james.protocols.api.HandlersPackage;
+import org.apache.james.protocols.api.handler.HandlersPackage;
 import org.apache.james.protocols.impl.ResponseEncoder;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;

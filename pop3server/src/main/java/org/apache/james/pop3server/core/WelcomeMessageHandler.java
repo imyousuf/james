@@ -21,7 +21,7 @@ package org.apache.james.pop3server.core;
 
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
-import org.apache.james.protocols.api.ConnectHandler;
+import org.apache.james.protocols.api.handler.ConnectHandler;
 
 public class WelcomeMessageHandler implements ConnectHandler<POP3Session> {
     /** POP3 Server identification string used in POP3 headers */

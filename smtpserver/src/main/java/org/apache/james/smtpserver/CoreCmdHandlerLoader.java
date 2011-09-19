@@ -22,7 +22,7 @@ package org.apache.james.smtpserver;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.james.protocols.api.HandlersPackage;
+import org.apache.james.protocols.api.handler.HandlersPackage;
 import org.apache.james.protocols.impl.log.ConnectHandlerResultLogger;
 import org.apache.james.protocols.impl.log.LineHandlerResultLogger;
 import org.apache.james.protocols.smtp.core.ExpnCmdHandler;

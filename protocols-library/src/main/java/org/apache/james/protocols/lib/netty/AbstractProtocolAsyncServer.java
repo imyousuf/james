@@ -22,10 +22,10 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.protocols.api.HandlersPackage;
-import org.apache.james.protocols.api.ProtocolHandler;
-import org.apache.james.protocols.api.ProtocolHandlerChain;
-import org.apache.james.protocols.api.ProtocolHandlerLoader;
+import org.apache.james.protocols.api.handler.HandlersPackage;
+import org.apache.james.protocols.api.handler.ProtocolHandler;
+import org.apache.james.protocols.api.handler.ProtocolHandlerChain;
+import org.apache.james.protocols.api.handler.ProtocolHandlerLoader;
 import org.apache.james.protocols.lib.ProtocolHandlerChainImpl;
 
 /**

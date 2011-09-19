@@ -33,9 +33,9 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.lifecycle.api.LifecycleUtil;
-import org.apache.james.protocols.api.ExtensibleHandler;
-import org.apache.james.protocols.api.LineHandler;
 import org.apache.james.protocols.api.WiringException;
+import org.apache.james.protocols.api.handler.ExtensibleHandler;
+import org.apache.james.protocols.api.handler.LineHandler;
 import org.apache.james.protocols.smtp.MailEnvelope;
 import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPRetCode;
@@ -206,7 +206,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
     }
 
     /**
-     * @see org.apache.james.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class,
+     * @see org.apache.james.protocols.api.handler.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class,
      *      java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
@@ -224,7 +224,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
     }
 
     /**
-     * @see org.apache.james.api.protocol.ExtensibleHandler#getMarkerInterfaces()
+     * @see org.apache.james.protocols.api.handler.api.protocol.ExtensibleHandler#getMarkerInterfaces()
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> classes = new LinkedList<Class<?>>();

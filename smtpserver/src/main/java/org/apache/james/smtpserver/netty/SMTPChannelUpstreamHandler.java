@@ -21,8 +21,8 @@ package org.apache.james.smtpserver.netty;
 import javax.net.ssl.SSLContext;
 
 import org.apache.james.lifecycle.api.LifecycleUtil;
-import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.api.ProtocolSessionFactory;
+import org.apache.james.protocols.api.handler.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.BasicChannelUpstreamHandler;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.smtpserver.SMTPConstants;

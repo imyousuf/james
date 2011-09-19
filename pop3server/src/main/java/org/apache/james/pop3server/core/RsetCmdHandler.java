@@ -32,9 +32,9 @@ import org.apache.james.mailbox.MessageResult;
 import org.apache.james.mailbox.MessageResult.FetchGroup;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
-import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
+import org.apache.james.protocols.api.handler.CommandHandler;
 
 /**
  * Handles RSET command

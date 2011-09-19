@@ -20,11 +20,11 @@
 package org.apache.james.pop3server;
 
 import org.apache.james.protocols.api.Protocol;
-import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.protocols.api.ProtocolSessionFactory;
 import org.apache.james.protocols.api.ProtocolTransport;
 import org.apache.james.protocols.api.Response;
+import org.apache.james.protocols.api.handler.ProtocolHandlerChain;
 import org.slf4j.Logger;
 
 public class POP3Protocol implements Protocol{

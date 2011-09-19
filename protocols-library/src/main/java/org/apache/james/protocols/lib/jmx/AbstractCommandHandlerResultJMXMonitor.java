@@ -26,13 +26,13 @@ import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.james.protocols.api.CommandHandler;
-import org.apache.james.protocols.api.CommandHandlerResultHandler;
-import org.apache.james.protocols.api.ExtensibleHandler;
-import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.api.WiringException;
+import org.apache.james.protocols.api.handler.CommandHandler;
+import org.apache.james.protocols.api.handler.CommandHandlerResultHandler;
+import org.apache.james.protocols.api.handler.ExtensibleHandler;
+import org.apache.james.protocols.api.handler.LifecycleAwareProtocolHandler;
 
 /**
  * Expose JMX statistics for {@link CommandHandler}
