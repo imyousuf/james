@@ -28,12 +28,12 @@ import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
-import org.apache.james.protocols.api.WiringException;
 import org.apache.james.protocols.api.handler.ExtensibleHandler;
 import org.apache.james.protocols.api.handler.HandlersPackage;
 import org.apache.james.protocols.api.handler.LifecycleAwareProtocolHandler;
 import org.apache.james.protocols.api.handler.ProtocolHandlerChain;
 import org.apache.james.protocols.api.handler.ProtocolHandlerLoader;
+import org.apache.james.protocols.api.handler.WiringException;
 
 public class ProtocolHandlerChainImpl implements ProtocolHandlerChain{
 

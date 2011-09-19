@@ -27,11 +27,11 @@ import java.util.Map;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.protocols.api.ProtocolSession;
-import org.apache.james.protocols.api.WiringException;
 import org.apache.james.protocols.api.handler.ConnectHandler;
 import org.apache.james.protocols.api.handler.ConnectHandlerResultHandler;
 import org.apache.james.protocols.api.handler.ExtensibleHandler;
 import org.apache.james.protocols.api.handler.LifecycleAwareProtocolHandler;
+import org.apache.james.protocols.api.handler.WiringException;
 
 /**
  * Handler which will gather statistics for {@link ConnectHandler}'s
