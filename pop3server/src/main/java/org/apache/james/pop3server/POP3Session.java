@@ -20,13 +20,13 @@
 package org.apache.james.pop3server;
 
 import org.apache.james.mailbox.MessageManager;
-import org.apache.james.protocols.api.TLSSupportedSession;
+import org.apache.james.protocols.api.ProtocolSession;
 
 /**
  * All the handlers access this interface to communicate with POP3Handler object
  */
 
-public interface POP3Session extends TLSSupportedSession {
+public interface POP3Session extends ProtocolSession {
 
     final static String UID_LIST = "UID_LIST";
     final static String DELETED_UID_LIST = "DELETED_UID_LIST";
