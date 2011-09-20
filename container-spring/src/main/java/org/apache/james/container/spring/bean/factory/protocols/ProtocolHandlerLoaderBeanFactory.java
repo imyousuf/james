@@ -21,9 +21,9 @@ package org.apache.james.container.spring.bean.factory.protocols;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.container.spring.bean.AbstractBeanFactory;
-import org.apache.james.protocols.api.LifecycleAwareProtocolHandler;
-import org.apache.james.protocols.api.ProtocolHandler;
-import org.apache.james.protocols.api.ProtocolHandlerLoader;
+import org.apache.james.protocols.api.handler.LifecycleAwareProtocolHandler;
+import org.apache.james.protocols.api.handler.ProtocolHandler;
+import org.apache.james.protocols.api.handler.ProtocolHandlerLoader;
 import org.springframework.beans.BeansException;
 
 public class ProtocolHandlerLoaderBeanFactory extends AbstractBeanFactory implements ProtocolHandlerLoader{
