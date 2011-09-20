@@ -20,15 +20,14 @@
 package org.apache.james.pop3server;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.james.protocols.api.Response;
+import org.apache.james.protocols.api.AbstractResponse;
 
 /**
- * Contains an SMTP result
+ * Contains an POP3 result
  */
-public class POP3Response implements Response {
+public class POP3Response extends AbstractResponse {
 
     // POP3 response prefixes
     /** OK response. Requested content will follow */
@@ -40,11 +39,6 @@ public class POP3Response implements Response {
      */
     public final static String ERR_RESPONSE = "-ERR";
 
-    private String retCode = null;
-    private List<CharSequence> lines = null;
-    private String rawLine = null;
-    private boolean endSession = false;
-
     /**
      * Construct a new POP3Response. The given code and description can not be
      * null, if null an IllegalArgumentException get thrown
@@ -55,43 +49,13 @@ public class POP3Response implements Response {
      *            the description
      */
     public POP3Response(String code, CharSequence description) {
-        if (code == null)
-            throw new IllegalArgumentException("POP3Response code can not be null");
-
-        this.setRetCode(code);
-        if (description == null) {
-            description = "";
-        }
-        this.rawLine = code + " " + description;
-
-        this.appendLine(description);
-
+        super(code, description);
     }
 
     public POP3Response(String code) {
         this(code, null);
     }
 
-    /**
-     * Append the responseLine to the SMTPResponse
-     * 
-     * @param line
-     *            the responseLine to append
-     */
-    public void appendLine(CharSequence line) {
-        if (lines == null) {
-            lines = new LinkedList<CharSequence>();
-        }
-        lines.add(line);
-    }
-
-    public String getRetCode() {
-        return retCode;
-    }
-
-    public void setRetCode(String retCode) {
-        this.retCode = retCode;
-    }
 
     /**
      * Return a List of all responseLines stored in this POP3Response
@@ -110,37 +74,4 @@ public class POP3Response implements Response {
         return responseList;
     }
 
-    /**
-     * Return the raw representation of the Stored POP3Response
-     * 
-     * @return rawLine the raw POP3Response
-     */
-    public String getRawLine() {
-        return rawLine;
-    }
-
-    /**
-     * Return true if the session is ended
-     * 
-     * @return true if session is ended
-     */
-    public boolean isEndSession() {
-        return endSession;
-    }
-
-    /**
-     * Set to true to end the session
-     * 
-     * @param endSession
-     */
-    public void setEndSession(boolean endSession) {
-        this.endSession = endSession;
-    }
-
-    /**
-     * @see java.lang.Object#toString()
-     */
-    public String toString() {
-        return getRetCode() + " " + getLines();
-    }
 }
