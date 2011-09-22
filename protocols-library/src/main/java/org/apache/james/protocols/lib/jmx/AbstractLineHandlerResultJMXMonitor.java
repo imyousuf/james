@@ -51,9 +51,8 @@ public abstract class AbstractLineHandlerResultJMXMonitor<S extends ProtocolSess
      * .apache.james.protocols.api.ProtocolSession, boolean, long,
      * org.apache.james.protocols.api.LineHandler)
      */
-    public boolean onResponse(ProtocolSession session, boolean response, long executionTime, LineHandler<S> handler) {
-        lStats.get(handler.getClass().getName()).increment(response);
-        return response;
+    public void onResponse(ProtocolSession session, long executionTime, LineHandler<S> handler) {
+        lStats.get(handler.getClass().getName()).increment();
     }
 
     /*

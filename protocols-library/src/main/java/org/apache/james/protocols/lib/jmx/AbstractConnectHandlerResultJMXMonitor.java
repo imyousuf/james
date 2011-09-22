@@ -56,17 +56,10 @@ public abstract class AbstractConnectHandlerResultJMXMonitor<S extends ProtocolS
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.protocols.api.ConnectHandlerResultHandler#onResponse
-     * (org.apache.james.protocols.api.ProtocolSession, boolean, long,
-     * org.apache.james.protocols.api.ConnectHandler)
-     */
-    public boolean onResponse(ProtocolSession session, boolean response, long executionTime, ConnectHandler<S> handler) {
-        cStats.get(handler.getClass().getName()).increment(response);
-        return response;
+
+
+    public void onResponse(ProtocolSession session, long executionTime, ConnectHandler<S> handler) {
+        cStats.get(handler.getClass().getName()).increment();
     }
 
     /*

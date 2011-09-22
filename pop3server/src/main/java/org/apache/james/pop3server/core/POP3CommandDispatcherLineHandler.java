@@ -65,18 +65,18 @@ public class POP3CommandDispatcherLineHandler extends AbstractCommandDispatcher<
     }
 
     
-    public boolean onLine(POP3Session session, byte[] line) {
+    @Override
+    public void onLine(POP3Session session, byte[] line) {
         MailboxSession mSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
 
         // notify the mailboxmanager about the start of the processing
         manager.startProcessingRequest(mSession);
 
         // do the processing
-        boolean disconnect = super.onLine(session, line);
+        super.onLine(session, line);
 
         // notify the mailboxmanager about the end of the processing
         manager.endProcessingRequest(mSession);
-        return disconnect;
 
     }
 

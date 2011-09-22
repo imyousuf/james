@@ -39,7 +39,6 @@ public class LineHandlerStats extends StandardMBean implements HandlerStatsMBean
     private String name;
     private String handlerName;
     private MBeanServer mbeanserver;
-    private AtomicLong disconnect = new AtomicLong(0);
     private AtomicLong all = new AtomicLong(0);
 
     public LineHandlerStats(String jmxName, String handlerName) throws NotCompliantMBeanException, MalformedObjectNameException, NullPointerException, InstanceAlreadyExistsException, MBeanRegistrationException {
@@ -57,10 +56,7 @@ public class LineHandlerStats extends StandardMBean implements HandlerStatsMBean
      * 
      * @param result
      */
-    public void increment(boolean disconnected) {
-        if (disconnected) {
-            disconnect.incrementAndGet();
-        }
+    public void increment() {
         all.incrementAndGet();
     }
 
@@ -88,7 +84,7 @@ public class LineHandlerStats extends StandardMBean implements HandlerStatsMBean
      * @see org.apache.james.socket.HandlerStatsMBean#getDisconnect()
      */
     public long getDisconnect() {
-        return disconnect.get();
+        return 0;
     }
 
     /*

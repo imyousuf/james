@@ -23,8 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.james.protocols.api.handler.HandlersPackage;
-import org.apache.james.protocols.impl.log.ConnectHandlerResultLogger;
-import org.apache.james.protocols.impl.log.LineHandlerResultLogger;
 import org.apache.james.protocols.smtp.core.ExpnCmdHandler;
 import org.apache.james.protocols.smtp.core.log.HookResultLogger;
 import org.apache.james.protocols.smtp.core.NoopCmdHandler;
@@ -68,8 +66,6 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
 
     // logging stuff
     private final String COMMANDHANDLERRESULTLOGGER = SMTPCommandHandlerResultLogger.class.getName();
-    private final String CONNECTHANDLERRESULTLOGGER = ConnectHandlerResultLogger.class.getName();
-    private final String LINEHANDLERRESULTLOGGER = LineHandlerResultLogger.class.getName();
     private final String HOOKRESULTLOGGER = HookResultLogger.class.getName();
 
     private final List<String> commands = new LinkedList<String>();
@@ -96,8 +92,6 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
 
         // Add logging stuff
         commands.add(COMMANDHANDLERRESULTLOGGER);
-        commands.add(CONNECTHANDLERRESULTLOGGER);
-        commands.add(LINEHANDLERRESULTLOGGER);
         commands.add(HOOKRESULTLOGGER);
     }
 

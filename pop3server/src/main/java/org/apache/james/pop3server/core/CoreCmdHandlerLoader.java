@@ -23,8 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.james.protocols.api.handler.HandlersPackage;
-import org.apache.james.protocols.impl.log.ConnectHandlerResultLogger;
-import org.apache.james.protocols.impl.log.LineHandlerResultLogger;
 
 public class CoreCmdHandlerLoader implements HandlersPackage {
 
@@ -48,8 +46,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
 
     // logging stuff
     private final String COMMANDHANDLERRESULTLOGGER = POP3CommandHandlerResultLogger.class.getName();
-    private final String CONNECTHANDLERRESULTLOGGER = ConnectHandlerResultLogger.class.getName();
-    private final String LINEHANDLERRESULTLOGGER = LineHandlerResultLogger.class.getName();
+
 
     private final List<String> commands = new LinkedList<String>();
 
@@ -75,8 +72,6 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
 
         // Add logging stuff
         commands.add(COMMANDHANDLERRESULTLOGGER);
-        commands.add(CONNECTHANDLERRESULTLOGGER);
-        commands.add(LINEHANDLERRESULTLOGGER);
     }
 
     /*
