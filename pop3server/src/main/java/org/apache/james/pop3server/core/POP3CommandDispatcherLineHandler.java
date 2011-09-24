@@ -27,6 +27,7 @@ import javax.annotation.Resource;
 import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.pop3server.POP3Session;
+import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.api.handler.AbstractCommandDispatcher;
 import org.apache.james.protocols.api.handler.CommandHandler;
 
@@ -66,18 +67,19 @@ public class POP3CommandDispatcherLineHandler extends AbstractCommandDispatcher<
 
     
     @Override
-    public void onLine(POP3Session session, byte[] line) {
+    public Response onLine(POP3Session session, byte[] line) {
         MailboxSession mSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
 
         // notify the mailboxmanager about the start of the processing
         manager.startProcessingRequest(mSession);
 
         // do the processing
-        super.onLine(session, line);
+        Response response = super.onLine(session, line);
 
         // notify the mailboxmanager about the end of the processing
         manager.endProcessingRequest(mSession);
 
+        return response;
     }
 
 }

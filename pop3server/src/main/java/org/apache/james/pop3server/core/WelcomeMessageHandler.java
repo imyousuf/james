@@ -21,6 +21,7 @@ package org.apache.james.pop3server.core;
 
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
+import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.api.handler.ConnectHandler;
 
 public class WelcomeMessageHandler implements ConnectHandler<POP3Session> {
@@ -31,13 +32,13 @@ public class WelcomeMessageHandler implements ConnectHandler<POP3Session> {
     /**
      * @see org.apache.james.pop3server.ConnectHandler#onConnect(org.apache.james.pop3server.POP3Session)
      */
-    public void onConnect(POP3Session session) {
+    public Response onConnect(POP3Session session) {
         StringBuilder responseBuffer = new StringBuilder();
         // Initially greet the connector
         // Format is: Sat, 24 Jan 1998 13:16:09 -0500
         responseBuffer.append(session.getConfigurationData().getHelloName()).append(" POP3 server (").append(softwaretype).append(") ready ");
         POP3Response response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
-        session.writeResponse(response);
+        return response;
     }
 
 }
