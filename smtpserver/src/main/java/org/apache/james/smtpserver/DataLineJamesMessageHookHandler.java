@@ -33,6 +33,7 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.lifecycle.api.LifecycleUtil;
+import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.api.handler.ExtensibleHandler;
 import org.apache.james.protocols.api.handler.LineHandler;
 import org.apache.james.protocols.api.handler.WiringException;
@@ -69,7 +70,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
      * .james.smtpserver.protocol.SMTPSession, byte[],
      * org.apache.james.api.protocol.LineHandler)
      */
-    public void onLine(SMTPSession session, byte[] line, LineHandler<SMTPSession> next) {
+    public Response onLine(SMTPSession session, byte[] line, LineHandler<SMTPSession> next) {
         MimeMessageInputStreamSource mmiss = (MimeMessageInputStreamSource) session.getState().get(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE);
 
         try {
@@ -93,15 +94,15 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
                     mimeMessageCopyOnWriteProxy = new MimeMessageCopyOnWriteProxy(mmiss);
                     mail.setMessage(mimeMessageCopyOnWriteProxy);
 
-                    processExtensions(session, mail);
+                    Response response = processExtensions(session, mail);
 
-                    session.popLineHandler();
-                    // next.onLine(session, line);
+                    session.popLineHandler();      
+                    return response;
 
                 } catch (MessagingException e) {
                     // TODO probably return a temporary problem
                     session.getLogger().info("Unexpected error handling DATA stream", e);
-                    session.writeResponse(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unexpected error handling DATA stream."));
+                    return new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unexpected error handling DATA stream.");
                 } finally {
                     LifecycleUtil.dispose(mimeMessageCopyOnWriteProxy);
                     LifecycleUtil.dispose(mmiss);
@@ -121,19 +122,19 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
         } catch (IOException e) {
             LifecycleUtil.dispose(mmiss);
 
-            SMTPResponse response;
-            response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.UNDEFINED_STATUS) + " Error processing message: " + e.getMessage());
+            SMTPResponse response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.UNDEFINED_STATUS) + " Error processing message: " + e.getMessage());
 
             session.getLogger().error("Unknown error occurred while processing DATA.", e);
-            session.writeResponse(response);
-            return;
+            
+            return response;
         }
+        return null;
     }
 
     /**
      * @param session
      */
-    private void processExtensions(SMTPSession session, Mail mail) {
+    private Response processExtensions(SMTPSession session, Mail mail) {
         if (mail != null && messageHandlers != null) {
             try {
                 MimeMessageInputStreamSource mmiss = (MimeMessageInputStreamSource) session.getState().get(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE);
@@ -164,8 +165,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
                     // if the response is received, stop processing of command
                     // handlers
                     if (response != null) {
-                        session.writeResponse(response);
-                        return;
+                        return response;
                     }
                 }
 
@@ -189,8 +189,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
                     // if the response is received, stop processing of command
                     // handlers
                     if (response != null) {
-                        session.writeResponse(response);
-                        break;
+                        return response;
                     }
                 }
             } finally {
@@ -203,6 +202,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
                 session.resetState();
             }
         }
+        return null;
     }
 
     /**

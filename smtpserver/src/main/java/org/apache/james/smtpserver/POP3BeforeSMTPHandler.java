@@ -22,6 +22,7 @@ package org.apache.james.smtpserver;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.lifecycle.api.Configurable;
+import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.api.handler.ConnectHandler;
 import org.apache.james.protocols.lib.POP3BeforeSMTPHelper;
 import org.apache.james.protocols.smtp.SMTPSession;
@@ -61,7 +62,7 @@ public class POP3BeforeSMTPHandler implements ConnectHandler<SMTPSession>, Confi
     /**
      * @see org.apache.james.smtpserver.protocol.ConnectHandler#onConnect(SMTPSession)
      */
-    public void onConnect(SMTPSession session) {
+    public Response onConnect(SMTPSession session) {
 
         // some kind of random cleanup process
         if (Math.random() > 0.99) {
@@ -72,6 +73,7 @@ public class POP3BeforeSMTPHandler implements ConnectHandler<SMTPSession>, Confi
         if (!session.isRelayingAllowed() && POP3BeforeSMTPHelper.isAuthorized(session.getRemoteIPAddress())) {
             session.setRelayingAllowed(true);
         }
+        return null;
     }
 
 }
