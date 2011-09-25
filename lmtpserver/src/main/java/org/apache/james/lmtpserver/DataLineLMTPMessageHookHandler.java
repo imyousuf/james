@@ -36,6 +36,7 @@ import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.mailbox.MailboxPath;
 import org.apache.james.mailbox.MailboxSession;
+import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.api.handler.LineHandler;
 import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPRetCode;
@@ -66,7 +67,7 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
     }
 
     @SuppressWarnings("unchecked")
-    public void onLine(SMTPSession session, byte[] line, LineHandler<SMTPSession> next) {
+    public Response onLine(SMTPSession session, byte[] line, LineHandler<SMTPSession> next) {
         MimeMessageInputStreamSource mmiss = (MimeMessageInputStreamSource) session.getState().get(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE);
 
         try {
@@ -124,9 +125,11 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
             SMTPResponse response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.UNDEFINED_STATUS) + " Error processing message: " + e.getMessage());
 
             session.getLogger().error("Unknown error occurred while processing DATA.", e);
-            session.writeResponse(response);
-            return;
+            return response;
         }
+        
+        // TODO: Fix me as we should better return the response all the time
+        return null;
     }
 
     /**
