@@ -18,9 +18,6 @@
  ****************************************************************/
 package org.apache.james.pop3server;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.james.mailbox.MessageManager;
 import org.apache.james.protocols.api.AbstractSession;
 import org.apache.james.protocols.api.ProtocolTransport;
@@ -32,8 +29,6 @@ import org.slf4j.Logger;
  */
 public class POP3SessionImpl extends AbstractSession implements POP3Session {
     private POP3HandlerConfiguration configData;
-
-    private Map<String, Object> state = new HashMap<String, Object>();
 
     private int handlerState;
 
@@ -63,14 +58,6 @@ public class POP3SessionImpl extends AbstractSession implements POP3Session {
         return handlerState;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.api.protocol.TLSSupportedSession#getState()
-     */
-    public Map<String, Object> getState() {
-        return state;
-    }
 
     /*
      * (non-Javadoc)
@@ -87,7 +74,7 @@ public class POP3SessionImpl extends AbstractSession implements POP3Session {
      * @see org.apache.james.api.protocol.TLSSupportedSession#resetState()
      */
     public void resetState() {
-        state.clear();
+        getState().clear();
 
         setHandlerState(AUTHENTICATION_READY);
     }
