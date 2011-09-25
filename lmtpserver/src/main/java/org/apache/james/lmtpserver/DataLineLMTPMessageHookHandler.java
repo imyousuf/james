@@ -91,12 +91,14 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
                     mimeMessageCopyOnWriteProxy = new MimeMessageCopyOnWriteProxy(mmiss);
                     mail.setMessage(mimeMessageCopyOnWriteProxy);
 
-                    deliverMail(session, mail);
+                    Response response = deliverMail(session, mail);
 
                     session.popLineHandler();
 
                     // do the clean up
                     session.resetState();
+                    
+                    return response;
 
                 } catch (MessagingException e) {
                     // TODO probably return a temporary problem
@@ -128,7 +130,6 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
             return response;
         }
         
-        // TODO: Fix me as we should better return the response all the time
         return null;
     }
 
@@ -139,7 +140,9 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
      * @param mail
      */
     @SuppressWarnings("unchecked")
-    protected void deliverMail(SMTPSession session, Mail mail) {
+    protected LMTPMultiResponse deliverMail(SMTPSession session, Mail mail) {
+        LMTPMultiResponse mResponse = null;
+        
         Iterator<MailAddress> recipients = mail.getRecipients().iterator();
         while (recipients.hasNext()) {
             MailAddress recipient = recipients.next();
@@ -177,8 +180,13 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
                 session.getLogger().info("Unexpected error handling DATA stream", e);
                 response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.UNDEFINED_STATUS) + " Temporary error deliver message to " + recipient);
             }
-            session.writeResponse(response);
+            if (mResponse == null) {
+                mResponse = new LMTPMultiResponse(response);
+            } else {
+                mResponse.addResponse(response);
+            }
         }
+        return mResponse;
 
     }
 

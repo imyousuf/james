@@ -26,19 +26,19 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.lmtpserver.CoreCmdHandlerLoader;
 import org.apache.james.lmtpserver.jmx.JMXHandlersLoader;
+import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.api.handler.HandlersPackage;
 import org.apache.james.protocols.impl.ResponseEncoder;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPProtocol;
-import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.smtpserver.netty.SMTPChannelUpstreamHandler;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 public class LMTPServer extends AbstractProtocolAsyncServer implements LMTPServerMBean {
 
-    private final static ResponseEncoder ENCODER =  new ResponseEncoder(SMTPResponse.class, Charset.forName("US-ASCII"));
+    private final static ResponseEncoder ENCODER =  new ResponseEncoder(Response.class, Charset.forName("US-ASCII"));
 
     /**
      * The maximum message size allowed by this SMTP server. The default value,
