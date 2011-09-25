@@ -20,7 +20,6 @@
 package org.apache.james.lmtpserver;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.james.protocols.api.Response;
@@ -52,19 +51,6 @@ public class LMTPMultiResponse implements Response {
         return lines;
     }
 
-    @Override
-    public String getRawLine() {
-        StringBuilder sb = new StringBuilder();
-        Iterator<Response> rIt = responses.iterator();
-        while(rIt.hasNext()) {
-            Response response = rIt.next();
-            sb.append(response.getRawLine());
-            if (rIt.hasNext()) {
-                sb.append("\r\n");
-            }
-        }
-        return sb.toString();
-    }
 
     @Override
     public boolean isEndSession() {
