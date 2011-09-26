@@ -103,7 +103,7 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
                 } catch (MessagingException e) {
                     // TODO probably return a temporary problem
                     session.getLogger().info("Unexpected error handling DATA stream", e);
-                    session.writeResponse(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unexpected error handling DATA stream."));
+                    return new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unexpected error handling DATA stream.");
                 } finally {
                     LifecycleUtil.dispose(mimeMessageCopyOnWriteProxy);
                     LifecycleUtil.dispose(mmiss);
