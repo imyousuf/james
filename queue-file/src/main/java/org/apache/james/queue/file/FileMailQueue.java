@@ -28,6 +28,8 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -424,15 +426,31 @@ public class FileMailQueue implements ManageableMailQueue {
         return i;
     }
 
-    /**
-     * TODO: implement me
-     * 
-     * @return
-     * @throws MailQueueException
-     */
     @Override
     public long clear() throws MailQueueException {
-        throw new MailQueueException("Not supported yet");
+        final Iterator<Entry<String, FileItem>> items = keyMappings.entrySet().iterator();
+        long count = 0;
+        while(items.hasNext()) {
+            Entry<String, FileItem> entry = items.next();
+            FileItem item = entry.getValue();
+            String key = entry.getKey();
+            File msgFile = new File(item.getMessageFile());
+            File objectFile = new File(item.getObjectFile());
+            if (objectFile.exists()) {
+                if (!objectFile.delete()) {
+                    throw new MailQueueException("Unable to delete mail " + key);
+                } 
+            }
+            keyMappings.remove(key);
+            count++;
+            if (msgFile.exists()) {
+                if (!msgFile.delete()) {
+                    log.debug("Remove of msg file for mail " + key +" failed");
+                }
+                
+            }
+        }
+        return count;
     }
 
     /**
@@ -449,15 +467,78 @@ public class FileMailQueue implements ManageableMailQueue {
 
     }
 
-    /**
-     * TODO: implement me
-     * 
-     * @return
-     * @throws MailQueueException
-     */
     @Override
     public MailQueueIterator browse() throws MailQueueException {
-        throw new MailQueueException("Not supported yet");
+        final Iterator<FileItem> items = keyMappings.values().iterator();
+        return new MailQueueIterator() {
+            private MailQueueItemView item = null;
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("Read-only");
+            }
+
+            @Override
+            public MailQueueItemView next() {
+                if (hasNext()) {
+                    MailQueueItemView vitem = item;
+                    item = null;
+                    return vitem;
+                } else {
+                    
+                    throw new NoSuchElementException();
+                }
+            }
+
+            @Override
+            public boolean hasNext() {
+                if (item == null) {
+                    while (items.hasNext()) {
+                        ObjectInputStream in = null;
+                        try {
+                            in = new ObjectInputStream(new FileInputStream(items.next().getObjectFile()));
+                            final Mail mail = (Mail) in.readObject();
+                            item = new MailQueueItemView() {
+
+                                @Override
+                                public long getNextDelivery() {
+                                    return (Long) mail.getAttribute(NEXT_DELIVERY);
+                                }
+
+                                @Override
+                                public Mail getMail() {
+                                    return mail;
+                                }
+                            };
+                            return true;
+                        } catch (FileNotFoundException e) {
+                            log.info("Unable to load mail", e);
+                        } catch (IOException e) {
+                            log.info("Unable to load mail", e);
+
+                        } catch (ClassNotFoundException e) {
+                            log.info("Unable to load mail", e);
+                        } finally {
+                            if (in != null) {
+                                try {
+                                    in.close();
+                                } catch (IOException e) {
+                                    // ignore on close
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+
+            @Override
+            public void close() {
+                // do nothing
+            }
+        };
     }
     
 }
