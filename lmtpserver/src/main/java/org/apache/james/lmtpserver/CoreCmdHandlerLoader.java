@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.james.lmtpserver.hook.MailboxDeliverToRecipientHandler;
 import org.apache.james.protocols.api.handler.HandlersPackage;
 import org.apache.james.protocols.lmtp.LhloCmdHandler;
-import org.apache.james.protocols.lmtp.LhloWelcomeMessageHandler;
+import org.apache.james.protocols.lmtp.WelcomeMessageHandler;
 import org.apache.james.protocols.smtp.core.ExpnCmdHandler;
 import org.apache.james.protocols.smtp.core.log.HookResultLogger;
 import org.apache.james.protocols.smtp.core.NoopCmdHandler;
@@ -61,7 +61,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
     private final String RSETCMDHANDLER = RsetCmdHandler.class.getName();
     private final String VRFYCMDHANDLER = VrfyCmdHandler.class.getName();
     private final String MAILSIZEHOOK = MailSizeEsmtpExtension.class.getName();
-    private final String WELCOMEMESSAGEHANDLER = LhloWelcomeMessageHandler.class.getName();
+    private final String WELCOMEMESSAGEHANDLER = WelcomeMessageHandler.class.getName();
     private final String POSTMASTERABUSEHOOK = PostmasterAbuseRcptHook.class.getName();
     private final String AUTHREQUIREDTORELAY = AuthRequiredToRelayRcptHook.class.getName();
     private final String RECEIVEDDATALINEFILTER = ReceivedDataLineFilter.class.getName();

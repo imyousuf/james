@@ -28,8 +28,8 @@ import org.apache.james.lmtpserver.jmx.JMXHandlersLoader;
 import org.apache.james.protocols.api.handler.HandlersPackage;
 import org.apache.james.protocols.impl.ResponseEncoder;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
-import org.apache.james.protocols.smtp.SMTPConfiguration;
-import org.apache.james.protocols.smtp.SMTPProtocol;
+import org.apache.james.protocols.lmtp.LMTPConfiguration;
+import org.apache.james.protocols.lmtp.LMTPProtocol;
 import org.apache.james.smtpserver.netty.SMTPChannelUpstreamHandler;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
@@ -43,7 +43,7 @@ public class LMTPServer extends AbstractProtocolAsyncServer implements LMTPServe
      * 0, means no limit.
      */
     private long maxMessageSize = 0;
-    private LMTPConfiguration lmtpConfig = new LMTPConfiguration();
+    private LMTPConfigurationImpl lmtpConfig = new LMTPConfigurationImpl();
     private String lmtpGreeting;
 
 
@@ -89,7 +89,7 @@ public class LMTPServer extends AbstractProtocolAsyncServer implements LMTPServe
     /**
      * A class to provide SMTP handler configuration to the handlers
      */
-    public class LMTPConfiguration implements SMTPConfiguration {
+    public class LMTPConfigurationImpl extends LMTPConfiguration {
 
         /**
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#getHelloName()
@@ -98,12 +98,7 @@ public class LMTPServer extends AbstractProtocolAsyncServer implements LMTPServe
             return LMTPServer.this.getHelloName();
         }
 
-        /**
-         * @see org.apache.james.protocols.smtp.SMTPConfiguration#getResetLength()
-         */
-        public int getResetLength() {
-            return -1;
-        }
+      
 
         /**
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#getMaxMessageSize()
@@ -113,46 +108,13 @@ public class LMTPServer extends AbstractProtocolAsyncServer implements LMTPServe
         }
 
         /**
-         * Relaying not allowed with LMTP
-         */
-        public boolean isRelayingAllowed(String remoteIP) {
-            return false;
-        }
-
-        /**
-         * No enforcement
-         */
-        public boolean useHeloEhloEnforcement() {
-            return false;
-        }
-
-        /**
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#getSMTPGreeting()
          */
         public String getSMTPGreeting() {
             return LMTPServer.this.lmtpGreeting;
         }
 
-        /**
-         * @see org.apache.james.protocols.smtp.SMTPConfiguration#useAddressBracketsEnforcement()
-         */
-        public boolean useAddressBracketsEnforcement() {
-            return true;
-        }
-
-        /**
-         * @see org.apache.james.protocols.smtp.SMTPConfiguration#isAuthRequired(java.lang.String)
-         */
-        public boolean isAuthRequired(String remoteIP) {
-            return true;
-        }
-
-        /**
-         * @see org.apache.james.protocols.smtp.SMTPConfiguration#isStartTLSSupported()
-         */
-        public boolean isStartTLSSupported() {
-            return false;
-        }
+       
     }
 
     /*
@@ -197,7 +159,7 @@ public class LMTPServer extends AbstractProtocolAsyncServer implements LMTPServe
 
     @Override
     protected ChannelUpstreamHandler createCoreHandler() {
-        SMTPProtocol protocol = new SMTPProtocol(getProtocolHandlerChain(), lmtpConfig);
+        LMTPProtocol protocol = new LMTPProtocol(getProtocolHandlerChain(), lmtpConfig);
         return new SMTPChannelUpstreamHandler(protocol, getLogger());
     }
 
