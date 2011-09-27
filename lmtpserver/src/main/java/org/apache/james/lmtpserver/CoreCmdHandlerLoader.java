@@ -22,6 +22,7 @@ package org.apache.james.lmtpserver;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.james.lmtpserver.hook.MailboxDeliverToRecipientHandler;
 import org.apache.james.protocols.api.handler.HandlersPackage;
 import org.apache.james.protocols.smtp.core.ExpnCmdHandler;
 import org.apache.james.protocols.smtp.core.log.HookResultLogger;
@@ -62,7 +63,8 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
     private final String POSTMASTERABUSEHOOK = PostmasterAbuseRcptHook.class.getName();
     private final String AUTHREQUIREDTORELAY = AuthRequiredToRelayRcptHook.class.getName();
     private final String RECEIVEDDATALINEFILTER = ReceivedDataLineFilter.class.getName();
-    private final String DATALINEMESSAGEHOOKHANDLER = DataLineLMTPMessageHookHandler.class.getName();
+    private final String DATALINEMESSAGEHOOKHANDLER = DataLineLMTPHandler.class.getName();
+    private final String DELIVERTORECIPIENTHANDLER = MailboxDeliverToRecipientHandler.class.getName();
 
     // logging stuff
     private final String COMMANDHANDLERRESULTLOGGER = SMTPCommandHandlerResultLogger.class.getName();
@@ -89,7 +91,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         commands.add(POSTMASTERABUSEHOOK);
         commands.add(RECEIVEDDATALINEFILTER);
         commands.add(DATALINEMESSAGEHOOKHANDLER);
-
+        commands.add(DELIVERTORECIPIENTHANDLER);
         // Add logging stuff
         commands.add(COMMANDHANDLERRESULTLOGGER);
         commands.add(HOOKRESULTLOGGER);

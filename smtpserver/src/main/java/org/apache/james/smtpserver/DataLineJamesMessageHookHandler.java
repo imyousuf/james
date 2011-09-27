@@ -31,6 +31,7 @@ import javax.mail.MessagingException;
 
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
+import org.apache.james.core.MimeMessageInputStream;
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.protocols.api.Response;
@@ -54,7 +55,7 @@ import org.apache.mailet.MailAddress;
 /**
  * Handles the calling of JamesMessageHooks
  */
-public final class DataLineJamesMessageHookHandler implements DataLineFilter, ExtensibleHandler {
+public class DataLineJamesMessageHookHandler implements DataLineFilter, ExtensibleHandler {
 
     private List<JamesMessageHook> messageHandlers;
 
@@ -134,7 +135,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
     /**
      * @param session
      */
-    private Response processExtensions(SMTPSession session, Mail mail) {
+    protected Response processExtensions(SMTPSession session, Mail mail) {
         if (mail != null && messageHandlers != null) {
             try {
                 MimeMessageInputStreamSource mmiss = (MimeMessageInputStreamSource) session.getState().get(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE);
@@ -234,7 +235,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
         return classes;
     }
 
-    private class MailToMailEnvelopeWrapper implements MailEnvelope {
+    protected class MailToMailEnvelopeWrapper implements MailEnvelope {
         private Mail mail;
         private OutputStream out;
 
@@ -247,7 +248,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
          * @see org.apache.james.protocols.smtp.MailEnvelope#getMessageInputStream()
          */
         public InputStream getMessageInputStream() throws Exception {
-            return mail.getMessage().getInputStream();
+            return new MimeMessageInputStream(mail.getMessage());
         }
 
         /*
@@ -256,7 +257,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
          * @see
          * org.apache.james.protocols.smtp.MailEnvelope#getMessageOutputStream()
          */
-        public OutputStream getMessageOutputStream() {
+        public OutputStream getMessageOutputStream() throws Exception {
             return out;
         }
 
