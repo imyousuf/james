@@ -18,7 +18,6 @@
  ****************************************************************/
 package org.apache.james.smtpserver.netty;
 
-import java.nio.charset.Charset;
 
 import javax.annotation.Resource;
 
@@ -33,7 +32,6 @@ import org.apache.james.protocols.impl.ResponseEncoder;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPProtocol;
-import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.smtpserver.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.ExtendedSMTPSession;
 import org.apache.james.smtpserver.jmx.JMXHandlersLoader;
