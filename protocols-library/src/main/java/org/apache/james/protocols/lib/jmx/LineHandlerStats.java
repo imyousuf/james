@@ -30,6 +30,7 @@ import javax.management.ObjectName;
 import javax.management.StandardMBean;
 
 import org.apache.james.lifecycle.api.Disposable;
+import org.apache.james.protocols.api.Response;
 
 /**
  * Gather stats for LineHandlers
@@ -40,6 +41,7 @@ public class LineHandlerStats extends StandardMBean implements HandlerStatsMBean
     private String handlerName;
     private MBeanServer mbeanserver;
     private AtomicLong all = new AtomicLong(0);
+    private AtomicLong disconnect = new AtomicLong(0);
 
     public LineHandlerStats(String jmxName, String handlerName) throws NotCompliantMBeanException, MalformedObjectNameException, NullPointerException, InstanceAlreadyExistsException, MBeanRegistrationException {
         super(HandlerStatsMBean.class);
@@ -56,8 +58,11 @@ public class LineHandlerStats extends StandardMBean implements HandlerStatsMBean
      * 
      * @param result
      */
-    public void increment() {
+    public void increment(Response response) {
         all.incrementAndGet();
+        if (response.isEndSession()) {
+            disconnect.incrementAndGet();
+        }
     }
 
     /*
@@ -84,7 +89,7 @@ public class LineHandlerStats extends StandardMBean implements HandlerStatsMBean
      * @see org.apache.james.socket.HandlerStatsMBean#getDisconnect()
      */
     public long getDisconnect() {
-        return 0;
+        return disconnect.get();
     }
 
     /*

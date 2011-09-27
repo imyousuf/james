@@ -18,10 +18,11 @@
  ****************************************************************/
 package org.apache.james.smtpserver.jmx;
 
+import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.lib.jmx.AbstractConnectHandlerResultJMXMonitor;
 import org.apache.james.protocols.smtp.SMTPSession;
 
-public class ConnectHandlerResultJMXMonitor extends AbstractConnectHandlerResultJMXMonitor<SMTPSession> {
+public class ConnectHandlerResultJMXMonitor extends AbstractConnectHandlerResultJMXMonitor<Response, SMTPSession> {
 
     /*
      * (non-Javadoc)

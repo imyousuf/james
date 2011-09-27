@@ -29,7 +29,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.api.handler.CommandHandler;
-import org.apache.james.protocols.api.handler.CommandHandlerResultHandler;
+import org.apache.james.protocols.api.handler.ProtocolHandler;
+import org.apache.james.protocols.api.handler.ProtocolHandlerResultHandler;
 import org.apache.james.protocols.api.handler.ExtensibleHandler;
 import org.apache.james.protocols.api.handler.LifecycleAwareProtocolHandler;
 import org.apache.james.protocols.api.handler.WiringException;
@@ -37,7 +38,7 @@ import org.apache.james.protocols.api.handler.WiringException;
 /**
  * Expose JMX statistics for {@link CommandHandler}
  */
-public abstract class AbstractCommandHandlerResultJMXMonitor<R extends Response, S extends ProtocolSession> implements CommandHandlerResultHandler<R, S>, ExtensibleHandler, LifecycleAwareProtocolHandler {
+public abstract class AbstractCommandHandlerResultJMXMonitor<R extends Response, S extends ProtocolSession> implements ProtocolHandlerResultHandler<R, S>, ExtensibleHandler, LifecycleAwareProtocolHandler {
 
     private Map<String, AbstractCommandHandlerStats<R>> cStats = new HashMap<String, AbstractCommandHandlerStats<R>>();
     private String jmxName;
@@ -51,11 +52,13 @@ public abstract class AbstractCommandHandlerResultJMXMonitor<R extends Response,
      * org.apache.james.protocols.api.Response, long,
      * org.apache.james.protocols.api.CommandHandler)
      */
-    public Response onResponse(ProtocolSession session, R response, long executionTime, CommandHandler<S> handler) {
-        String name = handler.getClass().getName();
-        AbstractCommandHandlerStats<R> stats = cStats.get(name);
-        if (stats != null) {
-            stats.increment(response);
+    public Response onResponse(ProtocolSession session, R response, long executionTime, ProtocolHandler handler) {
+        if (handler instanceof CommandHandler) {
+            String name = handler.getClass().getName();
+            AbstractCommandHandlerStats<R> stats = cStats.get(name);
+            if (stats != null) {
+                stats.increment(response);
+            }
         }
         return response;
     }

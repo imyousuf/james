@@ -19,9 +19,10 @@
 package org.apache.james.smtpserver.jmx;
 
 import org.apache.james.protocols.lib.jmx.AbstractLineHandlerResultJMXMonitor;
+import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPSession;
 
-public class LineHandlerResultJMXMonitor extends AbstractLineHandlerResultJMXMonitor<SMTPSession> {
+public class LineHandlerResultJMXMonitor extends AbstractLineHandlerResultJMXMonitor<SMTPResponse, SMTPSession> {
 
     /*
      * (non-Javadoc)

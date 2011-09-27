@@ -27,10 +27,12 @@ import java.util.Map;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.protocols.api.ProtocolSession;
+import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.api.handler.ConnectHandler;
-import org.apache.james.protocols.api.handler.ConnectHandlerResultHandler;
 import org.apache.james.protocols.api.handler.ExtensibleHandler;
 import org.apache.james.protocols.api.handler.LifecycleAwareProtocolHandler;
+import org.apache.james.protocols.api.handler.ProtocolHandler;
+import org.apache.james.protocols.api.handler.ProtocolHandlerResultHandler;
 import org.apache.james.protocols.api.handler.WiringException;
 
 /**
@@ -38,7 +40,7 @@ import org.apache.james.protocols.api.handler.WiringException;
  * 
  * @param <S>
  */
-public abstract class AbstractConnectHandlerResultJMXMonitor<S extends ProtocolSession> implements ConnectHandlerResultHandler<S>, ExtensibleHandler, LifecycleAwareProtocolHandler {
+public abstract class AbstractConnectHandlerResultJMXMonitor<R extends Response, S extends ProtocolSession> implements ProtocolHandlerResultHandler<R,S>, ExtensibleHandler, LifecycleAwareProtocolHandler {
 
     private Map<String, ConnectHandlerStats> cStats = new HashMap<String, ConnectHandlerStats>();
     private String jmxName;
@@ -58,8 +60,19 @@ public abstract class AbstractConnectHandlerResultJMXMonitor<S extends ProtocolS
 
 
 
-    public void onResponse(ProtocolSession session, long executionTime, ConnectHandler<S> handler) {
-        cStats.get(handler.getClass().getName()).increment();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.james.protocols.api.LineHandlerResultHandler#onResponse(org
+     * .apache.james.protocols.api.ProtocolSession, boolean, long,
+     * org.apache.james.protocols.api.LineHandler)
+     */
+    public Response onResponse(ProtocolSession session, Response response, long executionTime, ProtocolHandler handler) {
+        if (handler instanceof ConnectHandler) {
+            cStats.get(handler.getClass().getName()).increment(response);
+        }
+        return response;
     }
 
     /*

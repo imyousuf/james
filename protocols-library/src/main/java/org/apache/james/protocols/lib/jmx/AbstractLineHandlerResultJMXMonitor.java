@@ -27,10 +27,12 @@ import java.util.Map;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.protocols.api.ProtocolSession;
+import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.api.handler.ExtensibleHandler;
 import org.apache.james.protocols.api.handler.LifecycleAwareProtocolHandler;
 import org.apache.james.protocols.api.handler.LineHandler;
-import org.apache.james.protocols.api.handler.LineHandlerResultHandler;
+import org.apache.james.protocols.api.handler.ProtocolHandler;
+import org.apache.james.protocols.api.handler.ProtocolHandlerResultHandler;
 import org.apache.james.protocols.api.handler.WiringException;
 
 /**
@@ -38,7 +40,7 @@ import org.apache.james.protocols.api.handler.WiringException;
  * 
  * @param <S>
  */
-public abstract class AbstractLineHandlerResultJMXMonitor<S extends ProtocolSession> implements LineHandlerResultHandler<S>, ExtensibleHandler, LifecycleAwareProtocolHandler {
+public abstract class AbstractLineHandlerResultJMXMonitor<R extends Response, S extends ProtocolSession> implements ProtocolHandlerResultHandler<R, S>, ExtensibleHandler, LifecycleAwareProtocolHandler {
 
     private Map<String, LineHandlerStats> lStats = new HashMap<String, LineHandlerStats>();
     private String jmxName;
@@ -51,11 +53,14 @@ public abstract class AbstractLineHandlerResultJMXMonitor<S extends ProtocolSess
      * .apache.james.protocols.api.ProtocolSession, boolean, long,
      * org.apache.james.protocols.api.LineHandler)
      */
-    public void onResponse(ProtocolSession session, long executionTime, LineHandler<S> handler) {
-        lStats.get(handler.getClass().getName()).increment();
+    public Response onResponse(ProtocolSession session, Response response, long executionTime, ProtocolHandler handler) {
+        if (handler instanceof LineHandler) {
+            lStats.get(handler.getClass().getName()).increment(response);
+        }
+        return response;
     }
 
-    /*
+	/*
      * (non-Javadoc)
      * 
      * @see
