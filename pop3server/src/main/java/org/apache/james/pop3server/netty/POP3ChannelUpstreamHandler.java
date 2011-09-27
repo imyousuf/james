@@ -22,8 +22,8 @@ package org.apache.james.pop3server.netty;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
+import org.apache.james.protocols.api.Protocol;
 import org.apache.james.protocols.api.ProtocolSession;
-import org.apache.james.protocols.api.ProtocolSessionFactory;
 import org.apache.james.protocols.api.handler.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.BasicChannelUpstreamHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -33,13 +33,13 @@ public class POP3ChannelUpstreamHandler extends BasicChannelUpstreamHandler{
 
     private boolean zeroCopy;
 
-    public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, ProtocolSessionFactory sessionFactory, Logger logger, boolean zeroCopy) {
-        super(chain, sessionFactory, logger);
+    public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, Protocol protocol, Logger logger, boolean zeroCopy) {
+        super(chain, protocol, logger);
         this.zeroCopy = zeroCopy;
     }
 
-    public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, ProtocolSessionFactory sessionFactory, Logger logger, SSLContext context, String[] enabledCipherSuites, boolean zeroCopy) {
-        super(chain, sessionFactory, logger, context, enabledCipherSuites);
+    public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, Protocol protocol, Logger logger, SSLContext context, String[] enabledCipherSuites, boolean zeroCopy) {
+        super(chain, protocol, logger, context, enabledCipherSuites);
         this.zeroCopy = zeroCopy;
     }
 
@@ -53,7 +53,7 @@ public class POP3ChannelUpstreamHandler extends BasicChannelUpstreamHandler{
             }
         }
         
-        return sessionFactory.newSession(new POP3ProtocolTransport(ctx.getChannel(), engine, zeroCopy));
+        return protocol.newSession(new POP3ProtocolTransport(ctx.getChannel(), engine, zeroCopy));
     }
 
 

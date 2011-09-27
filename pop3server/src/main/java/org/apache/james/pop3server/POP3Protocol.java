@@ -21,7 +21,6 @@ package org.apache.james.pop3server;
 
 import org.apache.james.protocols.api.Protocol;
 import org.apache.james.protocols.api.ProtocolSession;
-import org.apache.james.protocols.api.ProtocolSessionFactory;
 import org.apache.james.protocols.api.ProtocolTransport;
 import org.apache.james.protocols.api.handler.ProtocolHandlerChain;
 import org.slf4j.Logger;
@@ -42,15 +41,10 @@ public class POP3Protocol implements Protocol{
         return chain;
     }
 
+    
     @Override
-    public ProtocolSessionFactory getProtocolSessionFactory() {
-        return new ProtocolSessionFactory() {
-            
-            @Override
-            public ProtocolSession newSession(ProtocolTransport transport) {
-                return new POP3SessionImpl(logger, transport, config);
-            }
-        };
+    public ProtocolSession newSession(ProtocolTransport transport) {
+        return new POP3SessionImpl(logger, transport, config);
     }
 
     @Override

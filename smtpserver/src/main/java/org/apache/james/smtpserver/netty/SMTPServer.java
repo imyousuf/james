@@ -27,7 +27,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
 import org.apache.james.protocols.api.ProtocolSession;
-import org.apache.james.protocols.api.ProtocolSessionFactory;
 import org.apache.james.protocols.api.ProtocolTransport;
 import org.apache.james.protocols.api.handler.HandlersPackage;
 import org.apache.james.protocols.impl.ResponseEncoder;
@@ -119,18 +118,12 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
         SMTPProtocol transport = new SMTPProtocol(getProtocolHandlerChain(), theConfigData) {
 
             @Override
-            public ProtocolSessionFactory getProtocolSessionFactory() {
-                return new ProtocolSessionFactory() {
-                    
-                    @Override
-                    public ProtocolSession newSession(ProtocolTransport transport) {
-                        return new ExtendedSMTPSession(theConfigData, getLogger(), transport);
-                    }
-                };
+            public ProtocolSession newSession(ProtocolTransport transport) {
+                return new ExtendedSMTPSession(theConfigData, getLogger(), transport);
             }
             
         };
-        coreHandler = new SMTPChannelUpstreamHandler(getProtocolHandlerChain(), transport.getProtocolSessionFactory(), getLogger(), getSSLContext(), getEnabledCipherSuites());
+        coreHandler = new SMTPChannelUpstreamHandler(getProtocolHandlerChain(), transport, getLogger(), getSSLContext(), getEnabledCipherSuites());
         
     }
 
