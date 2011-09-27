@@ -95,7 +95,7 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
     private DNSService dns;
     private String authorizedAddresses;
 
-    private final static ResponseEncoder SMTP_RESPONSE_ENCODER = new ResponseEncoder(SMTPResponse.class, Charset.forName("US-ASCII"));
+    private final static ResponseEncoder SMTP_RESPONSE_ENCODER = new ResponseEncoder();
     
     private SMTPChannelUpstreamHandler coreHandler;
 

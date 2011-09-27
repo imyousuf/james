@@ -18,7 +18,6 @@
  ****************************************************************/
 package org.apache.james.lmtpserver.netty;
 
-import java.nio.charset.Charset;
 
 import javax.net.ssl.SSLContext;
 
@@ -26,7 +25,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.lmtpserver.CoreCmdHandlerLoader;
 import org.apache.james.lmtpserver.jmx.JMXHandlersLoader;
-import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.api.handler.HandlersPackage;
 import org.apache.james.protocols.impl.ResponseEncoder;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
@@ -38,7 +36,7 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 public class LMTPServer extends AbstractProtocolAsyncServer implements LMTPServerMBean {
 
-    private final static ResponseEncoder ENCODER =  new ResponseEncoder(Response.class, Charset.forName("US-ASCII"));
+    private final static ResponseEncoder ENCODER =  new ResponseEncoder();
 
     /**
      * The maximum message size allowed by this SMTP server. The default value,

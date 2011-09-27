@@ -18,11 +18,9 @@
  ****************************************************************/
 package org.apache.james.pop3server.netty;
 
-import java.nio.charset.Charset;
 
 import org.apache.james.pop3server.POP3HandlerConfiguration;
 import org.apache.james.pop3server.POP3Protocol;
-import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.pop3server.jmx.JMXHandlersLoader;
 import org.apache.james.protocols.api.handler.HandlersPackage;
@@ -41,7 +39,7 @@ import org.jboss.netty.handler.stream.ChunkedWriteHandler;
  */
 public class POP3Server extends AbstractProtocolAsyncServer implements POP3ServerMBean {
 
-    private final static ResponseEncoder POP3_RESPONSE_ENCODER =  new ResponseEncoder(POP3Response.class, Charset.forName("US-ASCII"));
+    private final static ResponseEncoder POP3_RESPONSE_ENCODER =  new ResponseEncoder();
     /**
      * The configuration data to be passed to the handler
      */
