@@ -24,6 +24,8 @@ import java.util.List;
 
 import org.apache.james.lmtpserver.hook.MailboxDeliverToRecipientHandler;
 import org.apache.james.protocols.api.handler.HandlersPackage;
+import org.apache.james.protocols.lmtp.LhloCmdHandler;
+import org.apache.james.protocols.lmtp.LhloWelcomeMessageHandler;
 import org.apache.james.protocols.smtp.core.ExpnCmdHandler;
 import org.apache.james.protocols.smtp.core.log.HookResultLogger;
 import org.apache.james.protocols.smtp.core.NoopCmdHandler;

@@ -25,9 +25,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.james.lmtpserver.hook.DeliverToRecipientHook;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.api.handler.WiringException;
+import org.apache.james.protocols.lmtp.LMTPMultiResponse;
+import org.apache.james.protocols.lmtp.hook.DeliverToRecipientHook;
 import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPRetCode;
 import org.apache.james.protocols.smtp.SMTPSession;

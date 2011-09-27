@@ -28,6 +28,7 @@ import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.mailbox.MailboxPath;
 import org.apache.james.mailbox.MailboxSession;
+import org.apache.james.protocols.lmtp.hook.DeliverToRecipientHook;
 import org.apache.james.protocols.smtp.MailEnvelope;
 import org.apache.james.protocols.smtp.SMTPRetCode;
 import org.apache.james.protocols.smtp.SMTPSession;
