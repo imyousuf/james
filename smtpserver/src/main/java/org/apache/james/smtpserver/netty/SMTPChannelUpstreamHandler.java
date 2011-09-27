@@ -22,7 +22,6 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.protocols.api.Protocol;
-import org.apache.james.protocols.api.handler.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.BasicChannelUpstreamHandler;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.smtpserver.SMTPConstants;
@@ -38,12 +37,12 @@ import org.slf4j.Logger;
 public class SMTPChannelUpstreamHandler extends BasicChannelUpstreamHandler {
 
 
-    public SMTPChannelUpstreamHandler(ProtocolHandlerChain chain, Protocol protocol, Logger logger, SSLContext context, String[] enabledCipherSuites) {
-        super(chain, protocol, logger, context, enabledCipherSuites);
+    public SMTPChannelUpstreamHandler(Protocol protocol, Logger logger, SSLContext context, String[] enabledCipherSuites) {
+        super(protocol, logger, context, enabledCipherSuites);
     }
 
-    public SMTPChannelUpstreamHandler(ProtocolHandlerChain chain, Protocol protocol, Logger logger) {
-        super(chain, protocol, logger);
+    public SMTPChannelUpstreamHandler(Protocol protocol, Logger logger) {
+        super(protocol, logger);
     }
 
     /**

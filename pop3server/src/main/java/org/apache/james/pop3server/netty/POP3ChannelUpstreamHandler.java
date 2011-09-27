@@ -24,7 +24,6 @@ import javax.net.ssl.SSLEngine;
 
 import org.apache.james.protocols.api.Protocol;
 import org.apache.james.protocols.api.ProtocolSession;
-import org.apache.james.protocols.api.handler.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.BasicChannelUpstreamHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
@@ -33,13 +32,13 @@ public class POP3ChannelUpstreamHandler extends BasicChannelUpstreamHandler{
 
     private boolean zeroCopy;
 
-    public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, Protocol protocol, Logger logger, boolean zeroCopy) {
-        super(chain, protocol, logger);
+    public POP3ChannelUpstreamHandler(Protocol protocol, Logger logger, boolean zeroCopy) {
+        super(protocol, logger);
         this.zeroCopy = zeroCopy;
     }
 
-    public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, Protocol protocol, Logger logger, SSLContext context, String[] enabledCipherSuites, boolean zeroCopy) {
-        super(chain, protocol, logger, context, enabledCipherSuites);
+    public POP3ChannelUpstreamHandler(Protocol protocol, Logger logger, SSLContext context, String[] enabledCipherSuites, boolean zeroCopy) {
+        super(protocol, logger, context, enabledCipherSuites);
         this.zeroCopy = zeroCopy;
     }
 
