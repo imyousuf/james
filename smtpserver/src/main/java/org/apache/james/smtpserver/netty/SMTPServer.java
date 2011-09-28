@@ -28,7 +28,6 @@ import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.protocols.api.ProtocolTransport;
 import org.apache.james.protocols.api.handler.HandlersPackage;
-import org.apache.james.protocols.impl.ResponseEncoder;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPProtocol;
@@ -91,8 +90,6 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
 
     private DNSService dns;
     private String authorizedAddresses;
-
-    private final static ResponseEncoder SMTP_RESPONSE_ENCODER = new ResponseEncoder();
     
     private SMTPChannelUpstreamHandler coreHandler;
 
@@ -379,11 +376,6 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
     @Override
     protected ChannelUpstreamHandler createCoreHandler() {
         return coreHandler;
-    }
-
-    @Override
-    protected OneToOneEncoder createEncoder() {
-        return SMTP_RESPONSE_ENCODER;
     }
 
     @Override

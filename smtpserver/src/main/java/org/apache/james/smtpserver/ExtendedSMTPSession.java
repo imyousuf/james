@@ -21,7 +21,6 @@ package org.apache.james.smtpserver;
 import org.apache.james.protocols.api.ProtocolTransport;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPSession;
-import org.apache.james.smtpserver.netty.SMTPServer;
 import org.apache.james.smtpserver.netty.SMTPServer.SMTPHandlerConfigurationDataImpl;
 import org.slf4j.Logger;
 

@@ -25,21 +25,17 @@ import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.pop3server.jmx.JMXHandlersLoader;
 import org.apache.james.protocols.api.handler.HandlersPackage;
 import org.apache.james.protocols.impl.BasicChannelUpstreamHandler;
-import org.apache.james.protocols.impl.ResponseEncoder;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 
 /**
  * NIO POP3 Server which use Netty
  */
 public class POP3Server extends AbstractProtocolAsyncServer implements POP3ServerMBean {
-
-    private final static ResponseEncoder POP3_RESPONSE_ENCODER =  new ResponseEncoder();
     /**
      * The configuration data to be passed to the handler
      */
@@ -85,7 +81,7 @@ public class POP3Server extends AbstractProtocolAsyncServer implements POP3Serve
     protected void preInit() throws Exception {
         super.preInit();
         POP3Protocol protocol = new POP3Protocol(getProtocolHandlerChain(), theConfigData, getLogger());
-        coreHandler = new POP3ChannelUpstreamHandler(protocol, getLogger(), getSSLContext(), getEnabledCipherSuites(), false);
+        coreHandler = new BasicChannelUpstreamHandler(protocol, getLogger(), getSSLContext(), getEnabledCipherSuites());
     }
 
 
@@ -113,11 +109,6 @@ public class POP3Server extends AbstractProtocolAsyncServer implements POP3Serve
     @Override
     protected ChannelUpstreamHandler createCoreHandler() {
         return coreHandler; 
-    }
-
-    @Override
-    protected OneToOneEncoder createEncoder() {
-        return POP3_RESPONSE_ENCODER;
     }
 
 

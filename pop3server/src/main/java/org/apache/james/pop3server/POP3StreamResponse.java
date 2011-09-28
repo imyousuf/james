@@ -19,9 +19,13 @@
 
 package org.apache.james.pop3server;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.SequenceInputStream;
 
-public class POP3StreamResponse extends POP3Response {
+import org.apache.james.protocols.api.StreamResponse;
+
+public class POP3StreamResponse extends POP3Response implements StreamResponse {
 
     private InputStream stream;
 
@@ -31,6 +35,6 @@ public class POP3StreamResponse extends POP3Response {
     }
 
     public InputStream getStream() {
-        return stream;
+        return new SequenceInputStream(stream, new ByteArrayInputStream(".\r\n".getBytes()));
     }
 }

@@ -47,7 +47,6 @@ import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 import org.jboss.netty.handler.execution.ExecutionHandler;
 import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 import org.slf4j.Logger;
@@ -569,7 +568,6 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         return executionHandler;
     }
     
-    protected abstract OneToOneEncoder createEncoder();
 
     protected abstract ChannelUpstreamHandler createCoreHandler();
     
@@ -587,11 +585,6 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
                 return AbstractConfigurableAsyncServer.this.isSSLSocket();
             }
 
-            @Override
-            protected OneToOneEncoder createEncoder() {
-                return AbstractConfigurableAsyncServer.this.createEncoder();
-
-            }
 
             @Override
             protected ChannelUpstreamHandler createHandler() {
