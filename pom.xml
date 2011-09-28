@@ -64,6 +64,7 @@
     <module>pop3server</module>
     <module>smtpserver</module>
     <module>queue-api</module>
+    <module>queue-file</module>
     <module>queue-jms</module>
     <module>queue-activemq</module>
     <module>ldap</module>
@@ -477,6 +478,11 @@
       <version>${james.server.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-queue-file</artifactId>
+      <version>${james.server.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
