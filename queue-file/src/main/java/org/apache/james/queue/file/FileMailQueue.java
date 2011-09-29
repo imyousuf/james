@@ -55,9 +55,7 @@ import org.slf4j.Logger;
  * On create of the {@link FileMailQueue} the {@link #init()} will get called. This takes care of load the needed meta-data into memory for fast access.
  * 
  * 
- * TODO: Split emails in sub-directories to make it more efficient with huge queues
  * 
- *
  */
 public class FileMailQueue implements ManageableMailQueue {
 
@@ -73,7 +71,8 @@ public class FileMailQueue implements ManageableMailQueue {
     private final static String MSG_EXTENSION = ".msg";
     private final static String OBJECT_EXTENSION = ".obj";
     private final static String NEXT_DELIVERY = "FileQueueNextDelivery";
-    
+    private final static int SPLITCOUNT = 10;
+
     public FileMailQueue(File parentDir, String queuename, boolean sync, Logger log) throws IOException {
         this.queuename = queuename;
         this.parentDir = parentDir;
@@ -86,11 +85,11 @@ public class FileMailQueue implements ManageableMailQueue {
         File queueDir = new File(parentDir, queuename);
         queueDirName = queueDir.getAbsolutePath();
         
-        if (!queueDir.exists()) {
-            if (!queueDir.mkdirs()) {
-                throw new IOException("Unable to create queue directory " + queueDir);
+        for (int i = 1; i <= SPLITCOUNT; i++) {
+            File qDir = new File(queueDir, Integer.toString(i));
+            if (!qDir.exists() && !qDir.mkdirs()) {
+                throw new IOException("Unable to create queue directory " +  qDir);
             }
-        } else {
             String[] files = queueDir.list(new FilenameFilter() {
                 
                 @Override
@@ -175,7 +174,10 @@ public class FileMailQueue implements ManageableMailQueue {
         FileOutputStream foout = null;
         ObjectOutputStream oout = null;
         try {
-            String name = queueDirName + "/" + key;
+            int i = (int) (Math.random() * SPLITCOUNT + 1);
+
+            
+            String name = queueDirName + "/" + i + "/" + key;
             
             final FileItem item = new FileItem(name + OBJECT_EXTENSION, name + MSG_EXTENSION);
 
