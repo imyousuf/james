@@ -1252,13 +1252,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 sb.append(" ( ");
 
                 if (exception.getInvalidAddresses().length > 0) {
-                    sb.append(exception.getInvalidAddresses());
+                    sb.append(Arrays.toString(exception.getInvalidAddresses()));
                     invalidAddr = true;
                 }
                 if (exception.getValidUnsentAddresses().length > 0) {
                     if (invalidAddr == true)
                         sb.append(" ");
-                    sb.append(exception.getValidUnsentAddresses());
+                    sb.append(Arrays.toString(exception.getValidUnsentAddresses()));
                 }
                 sb.append(" - [");
                 sb.append(exception.getMessage().replaceAll("\\n", ""));
