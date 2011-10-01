@@ -247,8 +247,12 @@ public class DataLineJamesMessageHookHandler implements DataLineFilter, Extensib
         /**
          * @see org.apache.james.protocols.smtp.MailEnvelope#getMessageInputStream()
          */
-        public InputStream getMessageInputStream() throws Exception {
-            return new MimeMessageInputStream(mail.getMessage());
+        public InputStream getMessageInputStream() throws IOException {
+            try {
+                return new MimeMessageInputStream(mail.getMessage());
+            } catch (MessagingException e) {
+                throw new IOException("Unable to get inputstream for message", e);
+            }
         }
 
         /*
@@ -257,7 +261,7 @@ public class DataLineJamesMessageHookHandler implements DataLineFilter, Extensib
          * @see
          * org.apache.james.protocols.smtp.MailEnvelope#getMessageOutputStream()
          */
-        public OutputStream getMessageOutputStream() throws Exception {
+        public OutputStream getMessageOutputStream() throws IOException {
             return out;
         }
 

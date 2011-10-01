@@ -99,7 +99,7 @@ public class DataLineLMTPHandler extends DataLineJamesMessageHookHandler {
         }
         
         @Override
-        public OutputStream getMessageOutputStream() throws Exception{
+        public OutputStream getMessageOutputStream() throws IOException{
             throw new IOException("Read-only envelope");
         }
         
