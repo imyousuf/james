@@ -123,6 +123,7 @@ public class POP3ServerTest extends TestCase {
                 }
             }
         });
+        manager.init();
 
         chain.put("mailboxmanager", manager);
 
