@@ -27,7 +27,6 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.james.core.MimeMessageInputStream;
 import org.apache.james.mailbox.BadCredentialsException;
-import org.apache.james.mailbox.MailboxConstants;
 import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.mailbox.MailboxPath;
@@ -174,7 +173,10 @@ public class SieveMailet extends SieveMailboxMailet implements Poster {
                     }
                     if (destination.startsWith(session.getPathDelimiter() + ""))
                         destination = destination.substring(1);
-                    final MailboxPath path = new MailboxPath(MailboxConstants.USER_NAMESPACE, user, destination);
+                    
+                    // Use the MailboxSession to construct the MailboxPath.
+                    // See JAMES-1326
+                    final MailboxPath path = MailboxPath.inbox(session);
                     try {
                         if ("INBOX".equalsIgnoreCase(destination) && !(mailboxManager.mailboxExists(path, session))) {
                             mailboxManager.createMailbox(path, session);
