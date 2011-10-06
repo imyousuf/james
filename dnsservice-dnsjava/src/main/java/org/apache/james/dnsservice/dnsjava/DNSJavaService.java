@@ -111,21 +111,16 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
 
     private Logger logger;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
+    /**
+     * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger logger) {
         this.logger = logger;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
-     * configuration.HierarchicalConfiguration)
+     * org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     @SuppressWarnings("unchecked")
     public void configure(HierarchicalConfiguration configuration) throws ConfigurationException {
@@ -547,9 +542,7 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
         return InetAddress.getLocalHost();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.dnsservice.api.DNSServiceMBean#getMaximumCacheSize()
      */
@@ -557,9 +550,7 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
         return maxCacheSize;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.dnsservice.api.DNSServiceMBean#getCurrentCacheSize()
      */
@@ -567,9 +558,7 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
         return cache.getSize();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.dnsservice.api.DNSServiceMBean#clearCache()
      */
     public void clearCache() {

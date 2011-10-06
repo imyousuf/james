@@ -100,7 +100,7 @@ public class NetMatcher {
      * Return true if passed InetAddress match a network which was used to
      * construct the Netmatcher.
      * 
-     * @param an
+     * @param ip
      *            InetAddress
      * @return true if match the network
      */
@@ -119,8 +119,6 @@ public class NetMatcher {
 
     /**
      * Return a sorted representation of the inet networks.
-     * 
-     * @see InetNetwork#toString()
      */
     public String toString() {
         return networks.toString();

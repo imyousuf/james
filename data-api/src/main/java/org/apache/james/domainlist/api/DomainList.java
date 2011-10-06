@@ -46,7 +46,8 @@ public interface DomainList {
      * 
      * @param domain
      *            domain to add
-     * @return true if successfull
+     * @throws DomainListException
+     *            If the domain could not be added
      */
     void addDomain(String domain) throws DomainListException;
 
@@ -55,7 +56,8 @@ public interface DomainList {
      * 
      * @param domain
      *            domain to remove
-     * @return true if successfull
+     * @throws DomainListException
+     *            If the domain could not be removed
      */
     void removeDomain(String domain) throws DomainListException;
 

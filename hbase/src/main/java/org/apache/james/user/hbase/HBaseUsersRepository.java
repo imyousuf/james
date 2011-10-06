@@ -58,7 +58,7 @@ public class HBaseUsersRepository extends AbstractUsersRepository {
      */
     private String algo;
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.user.lib.AbstractUsersRepository#doConfigure(HierarchicalConfiguration)
      */
     public void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
@@ -66,7 +66,7 @@ public class HBaseUsersRepository extends AbstractUsersRepository {
         super.doConfigure(config);
     }
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.user.api.UsersRepository#getUserByName(String)
      */
     @Override
@@ -79,7 +79,7 @@ public class HBaseUsersRepository extends AbstractUsersRepository {
         return user;
     }
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.user.api.UsersRepository#updateUser(User)
      */
     @Override
@@ -97,7 +97,7 @@ public class HBaseUsersRepository extends AbstractUsersRepository {
         putUser((DefaultUser) user);
     }
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.user.api.UsersRepository#removeUser(String)
      */
     @Override
@@ -122,7 +122,7 @@ public class HBaseUsersRepository extends AbstractUsersRepository {
         }
     }
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.user.api.UsersRepository#contains(String)
      */
     @Override
@@ -131,7 +131,7 @@ public class HBaseUsersRepository extends AbstractUsersRepository {
         return (keyValue != null);
     }
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.user.api.UsersRepository#test(String, String)
      */
     @Override
@@ -145,7 +145,7 @@ public class HBaseUsersRepository extends AbstractUsersRepository {
         return false;
     }
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.user.api.UsersRepository#countUsers()
      */
     @Override
@@ -181,7 +181,7 @@ public class HBaseUsersRepository extends AbstractUsersRepository {
         }
     }
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.user.api.UsersRepository#list()
      */
     @Override
@@ -217,7 +217,7 @@ public class HBaseUsersRepository extends AbstractUsersRepository {
         return list.iterator();
     }
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.user.lib.AbstractUsersRepository#doAddUser(String, String)
      */
     @Override

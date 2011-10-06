@@ -61,6 +61,9 @@ public abstract class AbstractDomainList implements DomainList, LogEnabled, Conf
         return logger;
     }
 
+    /**
+     * @see org.apache.james.lifecycle.api.Configurable#configure(HierarchicalConfiguration)
+     */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         defaultDomain = config.getString("defaultDomain", "localhost");
 
@@ -68,19 +71,15 @@ public abstract class AbstractDomainList implements DomainList, LogEnabled, Conf
         setAutoDetectIP(config.getBoolean("autodetectIP", true));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.domainlist.api.DomainList#getDefaultDomain()
      */
     public String getDefaultDomain() throws DomainListException {
         return defaultDomain;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.api.domainlist.DomainList#getDomains()
+    /**
+     * @see org.apache.james.domainlist.api.DomainList#getDomains()
      */
     public String[] getDomains() throws DomainListException {
         List<String> domains = getDomainListInternal();
@@ -164,8 +163,8 @@ public abstract class AbstractDomainList implements DomainList, LogEnabled, Conf
      * Set to true to autodetect the hostname of the host on which james is
      * running, and add this to the domain service Default is true
      * 
-     * @param autodetect
-     *            set to false for disable
+     * @param autoDetect
+     *            set to <code>false</code> for disable
      */
     public synchronized void setAutoDetect(boolean autoDetect) {
         getLogger().info("Set autodetect to: " + autoDetect);
@@ -176,8 +175,8 @@ public abstract class AbstractDomainList implements DomainList, LogEnabled, Conf
      * Set to true to lookup the ipaddresses for each given domain and add these
      * to the domain service Default is true
      * 
-     * @param autodetectIP
-     *            set to false for disable
+     * @param autoDetectIP
+     *            set to <code>false</code> for disable
      */
     public synchronized void setAutoDetectIP(boolean autoDetectIP) {
         getLogger().info("Set autodetectIP to: " + autoDetectIP);

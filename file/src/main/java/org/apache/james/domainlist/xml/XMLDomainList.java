@@ -30,7 +30,7 @@ import org.apache.james.domainlist.lib.AbstractDomainList;
 import org.apache.james.lifecycle.api.Configurable;
 
 /**
- * Mimic the old behavoir of JAMES
+ * Mimic the old behavior of JAMES
  */
 public class XMLDomainList extends AbstractDomainList implements Configurable {
 
@@ -38,12 +38,9 @@ public class XMLDomainList extends AbstractDomainList implements Configurable {
 
     private boolean managementDisabled = false;
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
-     * configuration.HierarchicalConfiguration)
+     * org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     @SuppressWarnings("unchecked")
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
@@ -76,9 +73,7 @@ public class XMLDomainList extends AbstractDomainList implements Configurable {
         return domainNames.contains(domains);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.domainlist.api.DomainList#addDomain(java.lang.String)
      */
@@ -95,9 +90,7 @@ public class XMLDomainList extends AbstractDomainList implements Configurable {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.domainlist.api.DomainList#removeDomain(java.lang.String)
      */

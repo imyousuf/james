@@ -64,13 +64,10 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements NettyConsta
         super.channelOpen(ctx, e);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.jboss.netty.handler.codec.frame.FrameDecoder#decode(org.jboss.netty
-     * .channel.ChannelHandlerContext, org.jboss.netty.channel.Channel,
-     * org.jboss.netty.buffer.ChannelBuffer)
+     * org.jboss.netty.handler.codec.frame.FrameDecoder#decode(org.jboss.netty.channel.ChannelHandlerContext,
+     * org.jboss.netty.channel.Channel, org.jboss.netty.buffer.ChannelBuffer)
      */
     @SuppressWarnings("unchecked")
     protected Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer) throws Exception {

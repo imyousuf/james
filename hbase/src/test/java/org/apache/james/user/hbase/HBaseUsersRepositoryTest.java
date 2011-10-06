@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HBaseUsersRepositoryTest extends AbstractUsersRepositoryTest {
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.user.lib.AbstractUsersRepositoryTest#setUp()
      */
     @Override
@@ -46,7 +46,7 @@ public class HBaseUsersRepositoryTest extends AbstractUsersRepositoryTest {
         deleteAll();
     }
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.user.lib.AbstractUsersRepositoryTest#tearDown()
      */
     @Override
@@ -68,7 +68,7 @@ public class HBaseUsersRepositoryTest extends AbstractUsersRepositoryTest {
         }
     }
     
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.user.lib.AbstractUsersRepositoryTest#getUsersRepository()
      */
     @Override

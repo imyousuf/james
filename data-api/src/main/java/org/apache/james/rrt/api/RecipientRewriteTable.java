@@ -130,7 +130,6 @@ public interface RecipientRewriteTable {
      * @param domain
      *            the domain. Null if no domain should be used
      * @param error
-     * @return true if successfully
      * @throws RecipientRewriteTableException
      */
     void removeErrorMapping(String user, String domain, String error) throws RecipientRewriteTableException;
@@ -201,7 +200,7 @@ public interface RecipientRewriteTable {
      *            the aliasdomain which should be mapped to the realDomain
      * @param realDomain
      *            the realDomain
-     * @return true if successfully
+     * @throws RecipientRewriteTableException
      */
     void removeAliasDomainMapping(String aliasDomain, String realDomain) throws RecipientRewriteTableException;
 

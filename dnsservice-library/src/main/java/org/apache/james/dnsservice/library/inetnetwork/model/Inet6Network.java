@@ -54,11 +54,8 @@ public class Inet6Network implements InetNetwork {
         this.netmask = netmask;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.api.dnsservice.model.InetNetwork#contains(java.net.
-     * InetAddress)
+    /**
+     * @see org.apache.james.dnsservice.library.inetnetwork.model.InetNetwork#contains(InetAddress)
      */
     public boolean contains(final InetAddress ip) {
         if (!InetNetworkBuilder.isV6(ip.getHostAddress())) {

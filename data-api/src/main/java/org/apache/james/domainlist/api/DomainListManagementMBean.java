@@ -45,7 +45,8 @@ public interface DomainListManagementMBean {
      * 
      * @param domain
      *            domain to add
-     * @return true if successfull
+     * @throws Exception
+     *            If the domain could not be added
      */
     void addDomain(String domain) throws Exception;
 
@@ -54,7 +55,8 @@ public interface DomainListManagementMBean {
      * 
      * @param domain
      *            domain to remove
-     * @return true if successfull
+     * @throws Exception
+     *            If the domain could not be removed
      */
     void removeDomain(String domain) throws Exception;
 

@@ -54,11 +54,8 @@ public class Inet4Network implements InetNetwork {
         this.netmask = netmask;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.api.dnsservice.model.InetNetwork#contains(java.net.
-     * InetAddress)
+    /**
+     * @see org.apache.james.dnsservice.library.inetnetwork.model.InetNetwork#contains(InetAddress)
      */
     public boolean contains(final InetAddress ip) {
         if (InetNetworkBuilder.isV6(ip.getHostAddress())) {
@@ -71,27 +68,21 @@ public class Inet4Network implements InetNetwork {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see java.lang.Object#toString()
      */
     public String toString() {
         return network.getHostAddress() + "/" + netmask.getHostAddress();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see java.lang.Object#hashCode()
      */
     public int hashCode() {
         return maskIP(network, netmask).hashCode();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object obj) {

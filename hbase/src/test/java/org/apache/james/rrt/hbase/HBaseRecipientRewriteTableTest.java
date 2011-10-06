@@ -38,7 +38,7 @@ public class HBaseRecipientRewriteTableTest extends AbstractRecipientRewriteTabl
      */
     private static Logger logger = Logger.getLogger(HBaseRecipientRewriteTableTest.class);
     
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest#getRecipientRewriteTable()
      */
     @Override
@@ -49,7 +49,7 @@ public class HBaseRecipientRewriteTableTest extends AbstractRecipientRewriteTabl
         return rrt;
     }
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.jŒames.rrt.lib.AbstractRecipientRewriteTableTest#addMapping(String, String, String, int)
      */
     protected boolean addMapping(String user, String domain, String mapping, int type) throws RecipientRewriteTableException {
@@ -71,7 +71,7 @@ public class HBaseRecipientRewriteTableTest extends AbstractRecipientRewriteTabl
         }
     }
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTableTest#removeMapping(String, String, String, int)
      */
     protected boolean removeMapping(String user, String domain, String mapping, int type) throws RecipientRewriteTableException {

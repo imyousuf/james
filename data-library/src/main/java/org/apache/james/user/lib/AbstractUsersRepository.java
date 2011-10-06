@@ -41,21 +41,16 @@ public abstract class AbstractUsersRepository implements UsersRepository, LogEna
         return logger;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger logger) {
         this.logger = logger;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons
-     * .configuration.HierarchicalConfiguration)
+     * org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration configuration) throws ConfigurationException {
 
@@ -103,9 +98,7 @@ public abstract class AbstractUsersRepository implements UsersRepository, LogEna
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.user.api.UsersRepository#addUser(java.lang.String,
      * java.lang.String)
      */
@@ -120,9 +113,7 @@ public abstract class AbstractUsersRepository implements UsersRepository, LogEna
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.user.api.UsersRepository#supportVirtualHosting()
      */
     public boolean supportVirtualHosting() throws UsersRepositoryException {
@@ -134,7 +125,8 @@ public abstract class AbstractUsersRepository implements UsersRepository, LogEna
      * 
      * @param username
      * @param password
-     * @return successful
+     * @throws UsersRepositoryException
+     *           If an error occurred
      */
     protected abstract void doAddUser(String username, String password) throws UsersRepositoryException;
 }

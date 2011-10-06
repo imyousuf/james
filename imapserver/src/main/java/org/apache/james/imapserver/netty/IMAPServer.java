@@ -102,19 +102,16 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
         plainAuthDisallowed = configuration.getBoolean("plainAuthDisallowed", false);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.mina.AbstractAsyncServer#getDefaultPort()
+    /**
+     * @see AbstractConfigurableAsyncServer#getDefaultPort()
      */
+    @Override
     public int getDefaultPort() {
         return 143;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.mina.AbstractAsyncServer#getServiceType()
+    /**
+     * @see AbstractConfigurableAsyncServer#getServiceType()
      */
     public String getServiceType() {
         return "IMAP Service";

@@ -33,7 +33,7 @@ public interface InetNetwork {
     /**
      * Return true if the network contains the given name
      * 
-     * @param name
+     * @param ip
      *            hostname or ipAddress
      * @return true if the network contains the ip address
      */

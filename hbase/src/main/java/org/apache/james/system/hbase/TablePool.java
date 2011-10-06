@@ -28,7 +28,9 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.HTablePool;
 import org.apache.james.domainlist.hbase.def.HDomainList;
+import org.apache.james.rrt.api.RecipientRewriteTable;
 import org.apache.james.rrt.hbase.def.HRecipientRewriteTable;
+import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.hbase.def.HUsersRepository;
 
 /**
@@ -43,15 +45,15 @@ public class TablePool {
     private static HTablePool htablePool;
     
     /**
-     * Use getInstance to get an instance of the HTablePool.
+     * Use getInstance to get an instance of the {@link HTablePool}.
      * 
      * Don't give any configuration, the default one will be used
-     * via HBaseConfiguration.create().
+     * via {@link HBaseConfiguration#create(Configuration)}.
      * 
-     * If you want to create the instance with a specific HBase configuration,
+     * If you want to create the instance with a specific {@link HBaseConfiguration},
      * use {@link #getInstance(Configuration)}
      * 
-     * @return
+     * @return An instance using a default configuration
      * @throws IOException
      */
     public static synchronized TablePool getInstance() throws IOException {
@@ -59,12 +61,12 @@ public class TablePool {
     }
 
     /**
-     * Use getInstance to get an instance of the HTablePool.
+     * Use getInstance to get an instance of the {@link HTablePool}.
      * 
-     * You can give at first call a specific HBase configuration to suit your needs.
+     * You can give at first call a specific {@link HBaseConfiguration} to suit your needs.
      * 
      * @param configuration
-     * @return
+     * @return An instance of {@link HTablePool}
      * @throws IOException
      */
     public static synchronized TablePool getInstance(Configuration configuration) throws IOException {
@@ -80,9 +82,9 @@ public class TablePool {
     }
     
     /**
-     * Get an instance of the DomainList table.
+     * Get an instance of the {@link HDomainList} table.
      * 
-     * @return
+     * @return An instance of {@link HDomainList}
      */
     public HTable getDomainlistTable() {
         return (HTable) htablePool.getTable(HDomainList.TABLE_NAME);
@@ -91,7 +93,7 @@ public class TablePool {
     /**
      * Get an instance of the RecipientRewriteTable table.
      * 
-     * @return
+     * @return An instance of {@link RecipientRewriteTable}
      */
     public HTable getRecipientRewriteTable() {
         return (HTable) htablePool.getTable(HRecipientRewriteTable.TABLE_NAME);
@@ -100,7 +102,7 @@ public class TablePool {
     /**
      * Get an instance of the UsersRepository table.
      * 
-     * @return
+     * @return An instance of {@link UsersRepository}
      */
     public HTable getUsersRepositoryTable() {
         return (HTable) htablePool.getTable(HUsersRepository.TABLE_NAME);

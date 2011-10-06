@@ -38,8 +38,7 @@ public class FilePersistentStreamRepository
     implements StreamRepository
 {
 
-    /*
-     * (non-Javadoc)
+    /**
      * @see org.apache.james.repository.file.AbstractFileRepository#getExtensionDecorator()
      */
     protected String getExtensionDecorator()
@@ -48,8 +47,7 @@ public class FilePersistentStreamRepository
     }
 
 
-    /*
-     * (non-Javadoc)
+    /**
      * @see org.apache.james.repository.api.StreamRepository#get(java.lang.String)
      */
     public synchronized InputStream get( final String key )
@@ -67,8 +65,7 @@ public class FilePersistentStreamRepository
     }
 
 
-    /*
-     * (non-Javadoc)
+    /**
      * @see org.apache.james.repository.api.StreamRepository#put(java.lang.String)
      */
     public synchronized OutputStream put( final String key )

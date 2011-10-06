@@ -183,12 +183,9 @@ public abstract class AbstractFileRepository implements Repository, Configurable
         return (AbstractFileRepository) getClass().newInstance();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.repository.api.Repository#getChildRepository(java.lang
-     * .String)
+     * org.apache.james.repository.api.Repository#getChildRepository(java.lang.String)
      */
     public Repository getChildRepository(final String childName) {
         AbstractFileRepository child = null;

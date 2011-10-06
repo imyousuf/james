@@ -88,12 +88,9 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
      */
     protected abstract void doUpdateUser(User user) throws UsersRepositoryException;
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.user.lib.AbstractUsersRepository#doAddUser(java.lang
-     * .String, java.lang.String)
+     * org.apache.james.user.lib.AbstractUsersRepository#doAddUser(java.lang.String, java.lang.String)
      */
     protected void doAddUser(String username, String password) throws UsersRepositoryException {
         User newbie = new DefaultJamesUser(username, "SHA");
@@ -107,8 +104,6 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
      * 
      * @param user
      *            the user to be updated
-     * 
-     * @return true if successful.
      * @throws UsersRepositoryException
      */
     public void updateUser(User user) throws UsersRepositoryException {
@@ -181,9 +176,7 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
         this.ignoreCase = ignoreCase;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.rrt.api.RecipientRewriteTable#getAllMappings()
      */
     public Map<String, Collection<String>> getAllMappings() throws RecipientRewriteTableException {
@@ -217,12 +210,9 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
         return mappings;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.rrt.api.RecipientRewriteTable#getUserDomainMappings(java.
-     * lang.String, java.lang.String)
+     * org.apache.james.rrt.api.RecipientRewriteTable#getUserDomainMappings(java.lang.String, java.lang.String)
      */
     public Collection<String> getUserDomainMappings(String user, String domain) throws RecipientRewriteTableException {
         return new ArrayList<String>();

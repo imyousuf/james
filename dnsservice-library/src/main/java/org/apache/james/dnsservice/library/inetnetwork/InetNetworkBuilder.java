@@ -105,8 +105,9 @@ public class InetNetworkBuilder {
      * Returns true if the string parameters is a IPv6 pattern. Currently, only
      * tests for presence of ':'.
      * 
-     * @param address
+     * @param netspec
      * @return boolean
+     *              <code>true</code> if is a IPv6 pattern else <code>false</code>
      */
     public static boolean isV6(String netspec) {
         return netspec.contains(":");

@@ -420,7 +420,7 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
      * configured static account and a
      * <code>ParsedDynamicAccountParameters</code> for each dynamic account.
      * 
-     * @see org.apache.james.lifecycle.api.avalon.framework.configuration.Configurable#configure(Configuration)
+     * @see org.apache.james.lifecycle.api.Configurable#configure(HierarchicalConfiguration)
      */
     @SuppressWarnings("unchecked")
     public void configure(HierarchicalConfiguration configuration) throws ConfigurationException {

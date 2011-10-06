@@ -55,9 +55,7 @@ public class MXHostAddressIterator implements Iterator<HostAddress> {
         init();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see java.util.Iterator#hasNext()
      */
     public boolean hasNext() {
@@ -102,9 +100,8 @@ public class MXHostAddressIterator implements Iterator<HostAddress> {
         }
         addresses = hAddresses.iterator();
     }
-    /*
-     * (non-Javadoc)
-     * 
+
+    /**
      * @see java.util.Iterator#next()
      */
     public HostAddress next() {

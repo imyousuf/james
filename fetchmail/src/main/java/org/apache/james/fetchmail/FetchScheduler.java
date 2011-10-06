@@ -95,21 +95,16 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
         this.domainList = domainList;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
+    /**
+     * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
     public final void setLog(Logger logger) {
         this.logger = logger;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
-     * configuration.HierarchicalConfiguration)
+     * org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public final void configure(HierarchicalConfiguration config) throws ConfigurationException {
         this.conf = config;

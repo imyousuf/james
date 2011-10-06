@@ -71,9 +71,10 @@ public class NettyStreamImapRequestLineReader extends AbstractNettyImapRequestLi
      * filling the char array provided. TODO: remove unnecessary copying of
      * bits; line reader should maintain an internal ByteBuffer;
      * 
-     * @param holder
-     *            A char array which will be filled with chars read from the
-     *            underlying reader.
+     * @param size
+     *            number of characters to read and consume
+     * @param extraCRLF
+     *            Add extra CRLF
      * @throws DecodingException
      *             If a char can't be read into each array element.
      */

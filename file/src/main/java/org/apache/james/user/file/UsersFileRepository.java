@@ -153,6 +153,11 @@ public class UsersFileRepository extends AbstractJamesUsersRepository {
 
     /**
      * Return the real name, given the ignoreCase boolean parameter
+     * 
+     * @param name
+     * @param ignoreCase
+     * @return The real name
+     * @throws UsersRepositoryException
      */
     public String getRealName(String name, boolean ignoreCase) throws UsersRepositoryException {
         if (ignoreCase) {
@@ -170,7 +175,11 @@ public class UsersFileRepository extends AbstractJamesUsersRepository {
     }
 
     /**
-     * @see org.apache.james.user.api.UsersRepository#getRealName(java.lang.String)
+     * Return the real name, given the ignoreCase boolean parameter
+     * 
+     * @param name
+     * @return The real name
+     * @throws UsersRepositoryException
      */
     public String getRealName(String name) throws UsersRepositoryException {
         return getRealName(name, ignoreCase);
@@ -206,7 +215,8 @@ public class UsersFileRepository extends AbstractJamesUsersRepository {
         }
     }
 
-    /**
+    /*
+     * This is not longer in the api (deprecated)
      * @see org.apache.james.user.api.UsersRepository#containsCaseInsensitive(java.lang.String)
      */
     public boolean containsCaseInsensitive(String name) throws UsersRepositoryException {

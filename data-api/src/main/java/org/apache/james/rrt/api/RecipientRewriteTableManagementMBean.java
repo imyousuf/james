@@ -36,6 +36,8 @@ public interface RecipientRewriteTableManagementMBean {
      *            the domain. Null if no domain should be used
      * @param regex
      *            the regex.
+     * @throws Exception
+     *            If an error occurred
      */
     void addRegexMapping(String user, String domain, String regex) throws Exception;
 
@@ -48,6 +50,8 @@ public interface RecipientRewriteTableManagementMBean {
      *            the domain. Null if no domain should be used
      * @param regex
      *            the regex.
+     * @throws Exception
+     *            If an error occurred
      */
     void removeRegexMapping(String user, String domain, String regex) throws Exception;
 
@@ -60,6 +64,8 @@ public interface RecipientRewriteTableManagementMBean {
      *            the domain. Null if no domain should be used
      * @param address
      *            the address.
+     * @throws Exception
+     *            If an error occurred
      */
     void addAddressMapping(String user, String domain, String address) throws Exception;
 
@@ -71,6 +77,8 @@ public interface RecipientRewriteTableManagementMBean {
      * @param domain
      *            the domain. Null if no domain should be used
      * @param address
+     * @throws Exception
+     *            If an error occurred
      */
     void removeAddressMapping(String user, String domain, String address) throws Exception;
 
@@ -82,6 +90,8 @@ public interface RecipientRewriteTableManagementMBean {
      * @param domain
      *            the domain. Null if no domain should be used
      * @param error
+     * @throws Exception
+     *            If an error occurred
      */
     void addErrorMapping(String user, String domain, String error) throws Exception;
 
@@ -93,7 +103,8 @@ public interface RecipientRewriteTableManagementMBean {
      * @param domain
      *            the domain. Null if no domain should be used
      * @param error
-     * @return true if successfully
+     * @throws Exception
+     *            If an error occurred
      */
     void removeErrorMapping(String user, String domain, String error) throws Exception;
 
@@ -104,7 +115,8 @@ public interface RecipientRewriteTableManagementMBean {
      *            the domain. Null if no domain should be used
      * @param targetDomain
      *            the target domain for the mapping
-     * @return true if successfully
+     * @throws Exception
+     *            If an error occurred
      */
     void addDomainMapping(String domain, String targetDomain) throws Exception;
 
@@ -116,7 +128,8 @@ public interface RecipientRewriteTableManagementMBean {
      * @param targetDomain
      *            the target domain for the mapping
      * 
-     * @return true if successfully
+     * @throws Exception
+     *            If an error occurred
      */
     void removeDomainMapping(String domain, String targetDomain) throws Exception;
 
@@ -129,6 +142,8 @@ public interface RecipientRewriteTableManagementMBean {
      * @param domain
      *            the domain
      * @return the collection which holds the mappings.
+     * @throws Exception
+     *            If an error occurred
      */
     Collection<String> getUserDomainMappings(String user, String domain) throws Exception;
 
@@ -142,6 +157,8 @@ public interface RecipientRewriteTableManagementMBean {
      *            the domain. Null if no domain should be used
      * @param mapping
      *            the mapping.
+     * @throws Exception
+     *            If an error occurred
      */
     void addMapping(String user, String domain, String mapping) throws Exception;
 
@@ -155,6 +172,8 @@ public interface RecipientRewriteTableManagementMBean {
      *            the domain. Null if no domain should be used
      * @param mapping
      *            the mapping.
+     * @throws Exception
+     *            If an error occurred
      */
     void removeMapping(String user, String domain, String mapping) throws Exception;
 
@@ -163,6 +182,8 @@ public interface RecipientRewriteTableManagementMBean {
      * value is a Collection which holds all mappings
      * 
      * @return Map which holds all mappings
+     * @throws Exception
+     *            If an error occurred
      */
     Map<String, Collection<String>> getAllMappings() throws Exception;
 }

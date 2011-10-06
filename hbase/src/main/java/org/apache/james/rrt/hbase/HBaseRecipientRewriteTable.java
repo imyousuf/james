@@ -54,7 +54,7 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
     
     private static final String ROW_SEPARATOR = "@";
     
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTable#addMappingInternal(String, String, String)
      */
     @Override
@@ -70,7 +70,7 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
         }
     }
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTable#getUserDomainMappingsInternal(String, String)
      */
     @Override
@@ -105,7 +105,7 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
         }
     }
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTable#getAllMappingsInternal()
      */
     @Override
@@ -155,7 +155,7 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
         return map;
     }
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTable#mapAddressInternal(String, String)
      */
     @Override
@@ -196,7 +196,7 @@ public class HBaseRecipientRewriteTable extends AbstractRecipientRewriteTable {
         return null;
     }
     
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.rrt.lib.AbstractRecipientRewriteTable#removeMappingInternal(String, String, String)
      */
     @Override

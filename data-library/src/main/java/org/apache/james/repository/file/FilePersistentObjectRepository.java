@@ -31,20 +31,16 @@ import org.apache.james.repository.api.ObjectRepository;
  * serialization on the file system.
  */
 public class FilePersistentObjectRepository extends AbstractFileRepository implements ObjectRepository {
-    /*
-     * (non-Javadoc)
-     * 
+
+    /**
      * @see
-     * org.apache.james.repository.file.AbstractFileRepository#getExtensionDecorator
-     * ()
+     * org.apache.james.repository.file.AbstractFileRepository#getExtensionDecorator()
      */
     protected String getExtensionDecorator() {
         return ".FileObjectStore";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.repository.api.ObjectRepository#get(java.lang.String)
      */
@@ -73,9 +69,7 @@ public class FilePersistentObjectRepository extends AbstractFileRepository imple
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.repository.api.ObjectRepository#get(java.lang.String,
      * java.lang.ClassLoader)
@@ -108,9 +102,7 @@ public class FilePersistentObjectRepository extends AbstractFileRepository imple
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.repository.api.ObjectRepository#put(java.lang.String,
      * java.lang.Object)

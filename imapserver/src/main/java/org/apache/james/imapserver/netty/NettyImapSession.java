@@ -67,9 +67,7 @@ public class NettyImapSession implements ImapSession, NettyConstants {
         return channel;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.imap.api.process.ImapSession#logout()
      */
     public void logout() {
@@ -77,18 +75,14 @@ public class NettyImapSession implements ImapSession, NettyConstants {
         state = ImapSessionState.LOGOUT;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.imap.api.process.ImapSession#authenticated()
      */
     public void authenticated() {
         this.state = ImapSessionState.AUTHENTICATED;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.imap.api.process.ImapSession#deselect()
      */
     public void deselect() {
@@ -96,12 +90,9 @@ public class NettyImapSession implements ImapSession, NettyConstants {
         closeMailbox();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.imap.api.process.ImapSession#selected(org.apache.james
-     * .imap.api.process.SelectedMailbox)
+     * org.apache.james.imap.api.process.ImapSession#selected(org.apache.james.imap.api.process.SelectedMailbox)
      */
     public void selected(SelectedMailbox mailbox) {
         this.state = ImapSessionState.SELECTED;
@@ -109,18 +100,14 @@ public class NettyImapSession implements ImapSession, NettyConstants {
         this.selectedMailbox = mailbox;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.imap.api.process.ImapSession#getSelected()
      */
     public SelectedMailbox getSelected() {
         return this.selectedMailbox;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.imap.api.process.ImapSession#getState()
      */
     public ImapSessionState getState() {
@@ -134,24 +121,18 @@ public class NettyImapSession implements ImapSession, NettyConstants {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.imap.api.process.ImapSession#getAttribute(java.lang.
-     * String)
+     * org.apache.james.imap.api.process.ImapSession#getAttribute(java.lang.String)
      */
     public Object getAttribute(String key) {
         final Object result = attributesByKey.get(key);
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.imap.api.process.ImapSession#setAttribute(java.lang.
-     * String, java.lang.Object)
+     * org.apache.james.imap.api.process.ImapSession#setAttribute(java.lang.String, java.lang.Object)
      */
     public void setAttribute(String key, Object value) {
         if (value == null) {
@@ -161,9 +142,7 @@ public class NettyImapSession implements ImapSession, NettyConstants {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.imap.api.process.ImapSession#startTLS()
      */
     public boolean startTLS() {
@@ -183,18 +162,14 @@ public class NettyImapSession implements ImapSession, NettyConstants {
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.imap.api.process.ImapSession#supportStartTLS()
      */
     public boolean supportStartTLS() {
         return sslContext != null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.imap.api.process.ImapSession#isCompressionSupported()
      */
@@ -202,9 +177,7 @@ public class NettyImapSession implements ImapSession, NettyConstants {
         return compress;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.imap.api.process.ImapSession#startCompression()
      */
     public boolean startCompression() {
@@ -232,12 +205,9 @@ public class NettyImapSession implements ImapSession, NettyConstants {
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.imap.api.process.ImapSession#pushLineHandler(org.apache
-     * .james.imap.api.process.ImapLineHandler)
+     * org.apache.james.imap.api.process.ImapSession#pushLineHandler(org.apache.james.imap.api.process.ImapLineHandler)
      */
     public void pushLineHandler(ImapLineHandler lineHandler) {
         channel.setReadable(false);
@@ -245,9 +215,7 @@ public class NettyImapSession implements ImapSession, NettyConstants {
         channel.setReadable(true);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.imap.api.process.ImapSession#popLineHandler()
      */
     public void popLineHandler() {
@@ -256,41 +224,35 @@ public class NettyImapSession implements ImapSession, NettyConstants {
         channel.setReadable(true);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.imap.api.process.ImapSession#getLog()
      */
     public Logger getLog() {
         return log;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * @see org.apache.james.imap.api.process.ImapSession#isPlainAuthDisallowed()
      */
     public boolean isPlainAuthDisallowed() {
         return plainAuthDisallowed;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * @see org.apache.james.imap.api.process.ImapSession#isTLSActive()
      */
     public boolean isTLSActive() {
         return channel.getPipeline().get(SSL_HANDLER) != null;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * @see org.apache.james.imap.api.process.ImapSession#supportMultipleNamespaces()
      */
     public boolean supportMultipleNamespaces() {
         return false;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * @see org.apache.james.imap.api.process.ImapSession#isCompressionActive()
      */
     public boolean isCompressionActive() {

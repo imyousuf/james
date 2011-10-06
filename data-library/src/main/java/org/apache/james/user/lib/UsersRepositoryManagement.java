@@ -59,12 +59,9 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
         return (JamesUser) baseuser;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.user.api.UsersRepositoryManagementMBean#addUser(java
-     * .lang.String, java.lang.String)
+     * org.apache.james.user.api.UsersRepositoryManagementMBean#addUser(java.lang.String, java.lang.String)
      */
     public void addUser(String userName, String password) throws Exception {
         try {
@@ -74,12 +71,9 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.user.api.UsersRepositoryManagementMBean#deleteUser(java
-     * .lang.String)
+     * org.apache.james.user.api.UsersRepositoryManagementMBean#deleteUser(java.lang.String)
      */
     public void deleteUser(String userName) throws Exception {
         try {
@@ -89,9 +83,7 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.user.api.UsersRepositoryManagementMBean#verifyExists
      * (java.lang.String)
@@ -104,9 +96,7 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.user.api.UsersRepositoryManagementMBean#countUsers()
      */
@@ -118,9 +108,7 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.user.api.UsersRepositoryManagementMBean#listAllUsers()
      */
@@ -137,12 +125,10 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
         return (String[]) userNames.toArray(new String[] {});
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.user.api.UsersRepositoryManagementMBean#setPassword(
-     * java.lang.String, java.lang.String)
+     * org.apache.james.user.api.UsersRepositoryManagementMBean#setPassword
+     * (java.lang.String, java.lang.String)
      */
     public void setPassword(String userName, String password) throws Exception {
         try {
@@ -160,12 +146,9 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.user.api.UsersRepositoryManagementMBean#unsetAlias(java
-     * .lang.String)
+     * org.apache.james.user.api.UsersRepositoryManagementMBean#unsetAlias(java.lang.String)
      */
     public void unsetAlias(String userName) throws Exception {
         try {
@@ -182,12 +165,9 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.user.api.UsersRepositoryManagementMBean#getAlias(java
-     * .lang.String)
+     * org.apache.james.user.api.UsersRepositoryManagementMBean#getAlias(java.lang.String)
      */
     public String getAlias(String userName) throws Exception {
         try {
@@ -202,9 +182,7 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.user.api.UsersRepositoryManagementMBean#unsetForwardAddress
      * (java.lang.String)
@@ -224,9 +202,7 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.user.api.UsersRepositoryManagementMBean#getForwardAddress
      * (java.lang.String)
@@ -244,11 +220,8 @@ public class UsersRepositoryManagement extends StandardMBean implements UsersRep
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#
-     * getVirtualHostingEnabled()
+    /**
+     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#getVirtualHostingEnabled()
      */
     public boolean getVirtualHostingEnabled() throws Exception {
         try {

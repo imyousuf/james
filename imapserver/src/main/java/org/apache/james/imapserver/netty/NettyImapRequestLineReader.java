@@ -32,7 +32,7 @@ import org.jboss.netty.channel.Channel;
 /**
  * {@link ImapRequestLineReader} implementation which will write to a
  * {@link Channel} and read from a {@link ChannelBuffer}. Please see the docs on
- * {@link #nextChar()} and {@link #read(int)} to understand the special behavior
+ * {@link #nextChar()} and {@link #read(int, boolean)} to understand the special behavior
  * of this implementation
  */
 public class NettyImapRequestLineReader extends AbstractNettyImapRequestLineReader {
@@ -103,7 +103,7 @@ public class NettyImapRequestLineReader extends AbstractNettyImapRequestLineRead
     /**
      * {@link RuntimeException} which will get thrown by
      * {@link NettyImapRequestLineReader#nextChar()} and
-     * {@link NettyImapRequestLineReader#read(int)} if not enough data is
+     * {@link NettyImapRequestLineReader#read(int, boolean)} if not enough data is
      * readable in the underlying {@link ChannelBuffer}
      */
     @SuppressWarnings("serial")

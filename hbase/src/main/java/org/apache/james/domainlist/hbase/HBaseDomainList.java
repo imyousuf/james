@@ -47,7 +47,7 @@ public class HBaseDomainList extends AbstractDomainList {
      */
     private static Logger log = LoggerFactory.getLogger(HBaseDomainList.class.getName());
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.domainlist.api.DomainList#containsDomain(String)
      */
     @Override
@@ -75,7 +75,7 @@ public class HBaseDomainList extends AbstractDomainList {
         return false;
     }
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.domainlist.api.DomainList#addDomain(String)
      */
     @Override
@@ -123,7 +123,7 @@ public class HBaseDomainList extends AbstractDomainList {
         }
     }
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.domainlist.lib.AbstractDomainList#getDomainListInternal()
      */
     @Override

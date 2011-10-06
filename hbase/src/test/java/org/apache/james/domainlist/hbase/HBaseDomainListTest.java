@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HBaseDomainListTest extends AbstractDomainListTest {
 
-    /* (non-Javadoc)
+    /**
      * @see org.apache.james.domainlist.lib.AbstractDomainListTest#createDomainList()
      */
     @Override
