@@ -37,13 +37,9 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
  */
 public class MailboxConfigurationBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.springframework.beans.factory.config.BeanFactoryPostProcessor#
-     * postProcessBeanFactory
-     * (org.springframework.beans.factory.config.ConfigurableListableBeanFactory
-     * )
+    /**
+     * @see org.springframework.beans.factory.config.BeanFactoryPostProcessor#postProcessBeanFactory
+     * (org.springframework.beans.factory.config.ConfigurableListableBeanFactory)
      */
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         ConfigurationProvider confProvider = beanFactory.getBean(ConfigurationProvider.class);

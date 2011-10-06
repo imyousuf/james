@@ -168,7 +168,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements Disposab
     }
 
     /**
-     * @see org.apache.james.lifecycle.api.avalon.framework.activity.Disposable#dispose()
+     * @see org.apache.james.lifecycle.api.Disposable#dispose()
      */
     public synchronized void dispose() {
         if (refCount != null) {

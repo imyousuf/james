@@ -48,13 +48,9 @@ public class FileSystemBeanFactoryPostProcessor implements BeanFactoryPostProces
         this.fs = fs;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.springframework.beans.factory.config.BeanFactoryPostProcessor#
-     * postProcessBeanFactory
-     * (org.springframework.beans.factory.config.ConfigurableListableBeanFactory
-     * )
+    /**
+     * @see org.springframework.beans.factory.config.BeanFactoryPostProcessor#postProcessBeanFactory
+     * (org.springframework.beans.factory.config.ConfigurableListableBeanFactory)
      */
     public void postProcessBeanFactory(ConfigurableListableBeanFactory factory) throws BeansException {
         String names[] = factory.getBeanDefinitionNames();

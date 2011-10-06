@@ -103,7 +103,7 @@ public interface ServerProbe {
      *            The username, or null if no username should be used.
      * @param domain
      *            The domain, or null if no domain should be used.
-     * @param toAaddress
+     * @param toAddress
      *            The address.
      * @throws Exception
      */

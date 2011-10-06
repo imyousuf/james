@@ -171,9 +171,7 @@ public class James23Importer implements LogEnabled {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger log) {

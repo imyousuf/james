@@ -69,12 +69,9 @@ public class MailRepositoryStoreBeanFactory extends AbstractBeanFactory implemen
      */
     private Logger logger;
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons
-     * .configuration.HierarchicalConfiguration)
+     * org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration configuration) throws ConfigurationException {
         this.configuration = configuration;
@@ -165,8 +162,8 @@ public class MailRepositoryStoreBeanFactory extends AbstractBeanFactory implemen
      * &lt;/repository&gt;
      * </pre>
      * 
-     * @param hint
-     *            the Configuration object used to look up the repository
+     * @param destination
+     *            the destinationURL used to look up the repository
      * @return the selected repository
      * @throws MailRepositoryStoreException
      *             if any error occurs while parsing the Configuration or
@@ -242,10 +239,8 @@ public class MailRepositoryStoreBeanFactory extends AbstractBeanFactory implemen
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.mailstore.api.MailStore#getUrls()
+    /**
+     * @see org.apache.james.mailrepository.api.MailRepositoryStore#getUrls()
      */
     public synchronized List<String> getUrls() {
         return new ArrayList<String>(repositories.keySet());

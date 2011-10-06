@@ -161,7 +161,7 @@ public class MimeMessageInputStreamSource extends MimeMessageSource implements D
     }
 
     /**
-     * @return
+     * @return the output stream to write to
      * @throws FileNotFoundException
      */
     public synchronized OutputStream getWritableOutputStream() throws FileNotFoundException {
@@ -171,10 +171,8 @@ public class MimeMessageInputStreamSource extends MimeMessageSource implements D
         return out;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.core.MimeMessageSource#disposeSource()
+    /**
+     * @see org.apache.james.lifecycle.api.Disposable#dispose()
      */
     public void dispose() {
         // explicit close all streams

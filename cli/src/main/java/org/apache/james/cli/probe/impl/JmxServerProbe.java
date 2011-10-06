@@ -105,117 +105,91 @@ public class JmxServerProbe implements ServerProbe {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.cli.probe.ServerProbe#addUser(java.lang.String, java.lang.String)
      */
     public void addUser(String userName, String password) throws Exception {
         usersRepositoryProxy.addUser(userName, password);
     }
 
-    /* 
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.cli.probe.ServerProbe#removeUser(java.lang.String)
      */
     public void removeUser(String username) throws Exception {
         usersRepositoryProxy.deleteUser(username);
     }
 
-    /* 
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.cli.probe.ServerProbe#listUsers()
      */
     public String[] listUsers() throws Exception {
         return usersRepositoryProxy.listAllUsers();
     }
 
-    /* 
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.cli.probe.ServerProbe#setPassword(java.lang.String, java.lang.String)
      */
     public void setPassword(String userName, String password) throws Exception {
         usersRepositoryProxy.setPassword(userName, password);
     }
 
-    /* 
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.cli.probe.ServerProbe#addDomain(java.lang.String)
      */
     public void addDomain(String domain) throws Exception {
         domainListProcxy.addDomain(domain);
     }
 
-    /* 
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.cli.probe.ServerProbe#removeDomain(java.lang.String)
      */
     public void removeDomain(String domain) throws Exception {
         domainListProcxy.removeDomain(domain);
     }
 
-    /* 
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.cli.probe.ServerProbe#listDomains()
      */
     public String[] listDomains() throws Exception {
         return domainListProcxy.getDomains();
     }
 
-    /* 
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.cli.probe.ServerProbe#listMappings()
      */
     public Map<String, Collection<String>> listMappings() throws Exception {
         return virtualUserTableProxy.getAllMappings();
     }
 
-    /* 
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.cli.probe.ServerProbe#addAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public void addAddressMapping(String user, String domain, String toAddress) throws Exception {
         virtualUserTableProxy.addAddressMapping(user, domain, toAddress);
     }
 
-    /* 
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.cli.probe.ServerProbe#removeAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public void removeAddressMapping(String user, String domain, String fromAddress) throws Exception {
         virtualUserTableProxy.removeAddressMapping(user, domain, fromAddress);
     }
 
-    /* 
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.cli.probe.ServerProbe#listUserDomainMappings(java.lang.String, java.lang.String)
      */
     public Collection<String> listUserDomainMappings(String user, String domain) throws Exception {
         return virtualUserTableProxy.getUserDomainMappings(user, domain);
     }
 
-    /* 
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.cli.probe.ServerProbe#addRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public void addRegexMapping(String user, String domain, String regex) throws Exception {
         virtualUserTableProxy.addRegexMapping(user, domain, regex);
     }
 
-    /* 
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.cli.probe.ServerProbe#removeRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public void removeRegexMapping(String user, String domain, String regex) throws Exception {

@@ -34,11 +34,8 @@ public class JamesServerWebApplicationContext extends XmlWebApplicationContext i
      */
     private final JamesResourceLoader resourceLoader = new AbstractJamesResourceLoader() {
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see org.apache.james.container.spring.JamesResourceLoader#
-         * getAbsoluteDirectory()
+        /**
+         * @see org.apache.james.container.spring.JamesResourceLoader#getAbsoluteDirectory()
          */
         public String getAbsoluteDirectory() {
             if (absoluteDirectory == null) {
@@ -48,12 +45,8 @@ public class JamesServerWebApplicationContext extends XmlWebApplicationContext i
             }
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * org.apache.james.container.spring.JamesResourceLoader#getConfDirectory
-         * ()
+        /**
+         * @see org.apache.james.container.spring.JamesResourceLoader#getConfDirectory()
          */
         public String getConfDirectory() {
             if (confDirectory == null) {
@@ -63,12 +56,8 @@ public class JamesServerWebApplicationContext extends XmlWebApplicationContext i
             }
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * org.apache.james.container.spring.JamesResourceLoader#getRootDirectory
-         * ()
+        /**
+         * @see org.apache.james.container.spring.JamesResourceLoader#getRootDirectory()
          */
         public String getRootDirectory() {
             if (rootDirectory == null) {
@@ -79,12 +68,8 @@ public class JamesServerWebApplicationContext extends XmlWebApplicationContext i
             }
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * org.apache.james.container.spring.JamesResourceLoader#getVarDirectory
-         * ()
+        /**
+         * @see org.apache.james.container.spring.JamesResourceLoader#getVarDirectory()
          */
         public String getVarDirectory() {
             if (varDirectory == null) {
@@ -99,12 +84,9 @@ public class JamesServerWebApplicationContext extends XmlWebApplicationContext i
     private String varDirectory;
     private String confDirectory;
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.springframework.core.io.DefaultResourceLoader#getResource(java.lang
-     * .String)
+     * org.springframework.core.io.DefaultResourceLoader#getResource(java.lang.String)
      */
     public Resource getResource(String fileURL) {
         // delegate the loading to the resourceloader
@@ -131,42 +113,33 @@ public class JamesServerWebApplicationContext extends XmlWebApplicationContext i
         this.confDirectory = confDirectory;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.container.spring.JamesResourceLoader#getAbsoluteDirectory
-     * ()
+     * org.apache.james.container.spring.resource.JamesResourceLoader#getAbsoluteDirectory()
      */
     public String getAbsoluteDirectory() {
         return resourceLoader.getAbsoluteDirectory();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.container.spring.JamesResourceLoader#getConfDirectory()
+     * org.apache.james.container.spring.resource.JamesResourceLoader#getConfDirectory()
      */
     public String getConfDirectory() {
         return resourceLoader.getConfDirectory();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.container.spring.JamesResourceLoader#getVarDirectory()
+     * org.apache.james.container.spring.resource.JamesResourceLoader#getVarDirectory()
      */
     public String getVarDirectory() {
         return resourceLoader.getVarDirectory();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.container.spring.JamesResourceLoader#getRootDirectory()
+     * org.apache.james.container.spring.resource.JamesResourceLoader#getRootDirectory()
      */
     public String getRootDirectory() {
         return resourceLoader.getRootDirectory();

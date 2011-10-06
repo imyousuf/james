@@ -51,9 +51,7 @@ public class MailboxCopierManagement implements MailboxCopierManagementMBean, Ap
         this.copier = copier;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.container.spring.mailbox.MailboxCopierManagementMBean
      * #getMailboxManagerBeans()
@@ -72,9 +70,7 @@ public class MailboxCopierManagement implements MailboxCopierManagementMBean, Ap
         return bMap;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.container.spring.mailbox.MailboxCopierManagementMBean
      * #copy(java.lang.String, java.lang.String)
@@ -96,9 +92,7 @@ public class MailboxCopierManagement implements MailboxCopierManagementMBean, Ap
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.springframework.context.ApplicationContextAware#setApplicationContext
      * (org.springframework.context.ApplicationContext)

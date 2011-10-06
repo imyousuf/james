@@ -33,12 +33,9 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
  */
 public class MatcherLoaderBeanFactory extends AbstractLoaderBeanFactory<Matcher> implements MatcherLoader {
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.mailetcontainer.api.MatcherLoader#getMatcher(org.apache
-     * .mailet.MatcherConfig)
+     * org.apache.james.mailetcontainer.api.MatcherLoader#getMatcher(org.apache.mailet.MatcherConfig)
      */
     public Matcher getMatcher(MatcherConfig config) throws MessagingException {
 

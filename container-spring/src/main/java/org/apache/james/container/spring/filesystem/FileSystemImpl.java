@@ -37,28 +37,22 @@ public class FileSystemImpl implements FileSystem, ApplicationContextAware {
 
     private JamesResourceLoader resourceLoader = null;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.services.FileSystem#getBasedir()
+    /**
+     * @see org.apache.james.filesystem.api.FileSystem#getBasedir()
      */
     public File getBasedir() throws FileNotFoundException {
         return new File(resourceLoader.getRootDirectory());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.services.FileSystem#getResource(java.lang.String)
+    /**
+     * @see org.apache.james.filesystem.api.FileSystem#getResource(String)
      */
     public InputStream getResource(String url) throws IOException {
         return resourceLoader.getResource(url).getInputStream();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.services.FileSystem#getFile(java.lang.String)
+    /**
+     * @see org.apache.james.filesystem.api.FileSystem#getFile(String)
      */
     public File getFile(String fileURL) throws FileNotFoundException {
         try {
@@ -68,9 +62,7 @@ public class FileSystemImpl implements FileSystem, ApplicationContextAware {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.springframework.context.ApplicationContextAware#setApplicationContext
      * (org.springframework.context.ApplicationContext)

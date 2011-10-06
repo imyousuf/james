@@ -47,20 +47,15 @@ public class Main implements Daemon {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.commons.daemon.Daemon#destroy()
      */
     public void destroy() {
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.commons.daemon.Daemon#init(org.apache.commons.daemon.DaemonContext
-     * )
+     * org.apache.commons.daemon.Daemon#init(org.apache.commons.daemon.DaemonContext)
      */
     public void init(DaemonContext arg0) throws Exception {
         context = new JamesServerApplicationContext(new String[] { "META-INF/org/apache/james/spring-server.xml" });
@@ -68,18 +63,14 @@ public class Main implements Daemon {
         context.start();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.commons.daemon.Daemon#start()
      */
     public void start() throws Exception {
         context.start();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.commons.daemon.Daemon#stop()
      */
     public void stop() throws Exception {

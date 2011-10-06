@@ -557,7 +557,7 @@ public class MailImpl implements Disposable, Mail {
     }
 
     /**
-     * @see org.apache.james.lifecycle.api.avalon.framework.activity.Disposable#dispose()
+     * @see org.apache.james.lifecycle.api.Disposable#dispose()
      */
     public void dispose() {
         LifecycleUtil.dispose(message);

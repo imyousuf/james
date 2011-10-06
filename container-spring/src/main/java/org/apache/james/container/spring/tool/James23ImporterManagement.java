@@ -39,9 +39,7 @@ public class James23ImporterManagement implements James23ImporterManagementMBean
     @Resource(name = "james23importer")
     private James23Importer james23Importer;
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.container.spring.tool.James23ImporterManagementMBean
      * #importUsersAndMailsFromJames23(java.lang.String, java.lang.String)
@@ -62,9 +60,7 @@ public class James23ImporterManagement implements James23ImporterManagementMBean
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.container.spring.tool.James23ImporterManagementMBean
      * #importUsersFromJames23(java.lang.String)
@@ -81,9 +77,7 @@ public class James23ImporterManagement implements James23ImporterManagementMBean
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.container.spring.tool.James23ImporterManagementMBean
      * #importMailsFromJames23(java.lang.String)

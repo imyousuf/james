@@ -161,9 +161,9 @@ public class MimeMessageWrapper extends MimeMessage implements Disposable {
 
     /**
      * Overrides default javamail behaviour by not altering the Message-ID by
-     * default
-     * 
-     * @see JAMES-875 / JAMES-1010
+     * default, see <a href="https://issues.apache.org/jira/browse/JAMES-875">JAMES-875</a> and
+     * <a href="https://issues.apache.org/jira/browse/JAMES-1010">JAMES-1010</a>
+     *
      * @see javax.mail.internet.MimeMessage#updateMessageID()
      */
     protected void updateMessageID() throws MessagingException {
@@ -531,10 +531,8 @@ public class MimeMessageWrapper extends MimeMessage implements Disposable {
         super.setDataHandler(arg0);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.lifecycle.Disposable#dispose()
+    /**
+     * @see org.apache.james.lifecycle.api.Disposable#dispose()
      */
     public void dispose() {
         if (sourceIn != null) {
