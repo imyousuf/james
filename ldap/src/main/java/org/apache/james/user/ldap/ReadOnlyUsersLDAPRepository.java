@@ -351,14 +351,23 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      *             Propagated by the underlying LDAP communication layer.
      */
     private ReadOnlyLDAPUser buildUser(String userDN) throws NamingException {
-        ReadOnlyLDAPUser result;
+      SearchControls sc = new SearchControls();
+      sc.setSearchScope(SearchControls.OBJECT_SCOPE);
+      sc.setReturningAttributes(new String[] {userIdAttribute});
+      sc.setCountLimit(1);
 
-        Attributes userAttributes = ldapConnection.getLdapContext().getAttributes(userDN);
-        Attribute userName = userAttributes.get(userIdAttribute);
+      NamingEnumeration<SearchResult> sr = ldapConnection.getLdapContext().search(userDN, "(objectClass=" + userObjectClass + ")", sc);
+      
+      if (!sr.hasMore())
+          return null;
 
-        result = new ReadOnlyLDAPUser(userName.get().toString(), userDN, ldapHost);
-
-        return result;
+      Attributes userAttributes = sr.next().getAttributes();
+      Attribute userName = userAttributes.get(userIdAttribute);
+      
+      if (!restriction.isActivated() || userInGroupsMembershipList(userDN, restriction.getGroupMembershipLists(ldapConnection)))
+          return new ReadOnlyLDAPUser(userName.get().toString(), userDN, ldapHost);
+      
+      return null;
     }
 
     /*
@@ -424,22 +433,13 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      * org.apache.james.api.user.UsersRepository#getUserByName(java.lang.String)
      */
     public User getUserByName(String name) throws UsersRepositoryException {
-        try {
-            Iterator<ReadOnlyLDAPUser> userIt = buildUserCollection(getValidUsers()).iterator();
-            while (userIt.hasNext()) {
-                ReadOnlyLDAPUser u = userIt.next();
-                if (u.getUserName().equals(name)) {
-                    return u;
-                }
-            }
-
-        } catch (NamingException e) {
-            log.error("Unable to retrieve user from ldap", e);
-            throw new UsersRepositoryException("Unable to retrieve user from ldap", e);
-
-        }
-        return null;
-
+      try {
+        return buildUser(userIdAttribute + "=" + name + "," + userBase); 
+      } catch (NamingException e) {
+          log.error("Unable to retrieve user from ldap", e);
+          throw new UsersRepositoryException("Unable to retrieve user from ldap", e);
+  
+      }
     }
 
     /*
