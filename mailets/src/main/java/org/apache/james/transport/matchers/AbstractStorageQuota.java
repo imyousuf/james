@@ -137,7 +137,7 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
             List<MailboxMetaData> mList = manager.search(new MailboxQuery(MailboxPath.inbox(session), "", session.getPathDelimiter()), session);
             for (int i = 0; i < mList.size(); i++) {
                 MessageManager mailbox = manager.getMailbox(mList.get(i).getPath(), session);
-                Iterator<MessageResult> results = mailbox.getMessages(MessageRange.all(), FetchGroupImpl.MINIMAL, -1, session);
+                Iterator<MessageResult> results = mailbox.getMessages(MessageRange.all(), FetchGroupImpl.MINIMAL,  session);
                 while (results.hasNext()) {
                     size += results.next().getSize();
                 }
