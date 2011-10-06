@@ -60,12 +60,9 @@ public class JPADomainList extends AbstractDomainList {
         createEntityManager().close();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.domainlist.lib.AbstractDomainList#getDomainListInternal
-     * ()
+     * org.apache.james.domainlist.lib.AbstractDomainList#getDomainListInternal()
      */
     @SuppressWarnings("unchecked")
     protected List<String> getDomainListInternal() throws DomainListException {
@@ -118,9 +115,7 @@ public class JPADomainList extends AbstractDomainList {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.domainlist.api.DomainList#addDomain(java.lang.String)
      */
@@ -143,9 +138,7 @@ public class JPADomainList extends AbstractDomainList {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.domainlist.api.DomainList#removeDomain(java.lang.String)
      */

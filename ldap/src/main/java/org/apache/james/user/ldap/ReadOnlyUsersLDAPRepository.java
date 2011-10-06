@@ -370,10 +370,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
       return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.api.user.UsersRepository#contains(java.lang.String)
+    /**
+     * @see UsersRepository#contains(java.lang.String)
      */
     public boolean contains(String name) throws UsersRepositoryException {
         if (getUserByName(name) != null) {
@@ -383,11 +381,10 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
     }
 
     /*
-     * (non-Javadoc)
+     * TODO
+     * Should this be deprecated? At least the method isn't declared in the interface anymore
      * 
-     * @see
-     * org.apache.james.api.user.UsersRepository#containsCaseInsensitive(java
-     * .lang.String)
+     * @see UsersRepository#containsCaseInsensitive(java.lang.String)
      */
     public boolean containsCaseInsensitive(String name) throws UsersRepositoryException {
         if (getUserByNameCaseInsensitive(name) != null) {
@@ -396,10 +393,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.api.user.UsersRepository#countUsers()
+    /**
+     * @see UsersRepository#countUsers()
      */
     public int countUsers() throws UsersRepositoryException {
         try {
@@ -412,10 +407,10 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
     }
 
     /*
-     * (non-Javadoc)
+     * TODO
+     * Should this be deprecated? At least the method isn't declared in the interface anymore
      * 
-     * @see
-     * org.apache.james.api.user.UsersRepository#getRealName(java.lang.String)
+     * @see UsersRepository#getRealName(java.lang.String)
      */
     public String getRealName(String name) throws UsersRepositoryException {
         User u = getUserByNameCaseInsensitive(name);
@@ -426,11 +421,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.api.user.UsersRepository#getUserByName(java.lang.String)
+    /**
+     * @see UsersRepository#getUserByName(java.lang.String)
      */
     public User getUserByName(String name) throws UsersRepositoryException {
       try {
@@ -443,11 +435,10 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
     }
 
     /*
-     * (non-Javadoc)
+     * TODO
+     * Should this be deprecated? At least the method isn't declared in the interface anymore
      * 
-     * @see
-     * org.apache.james.api.user.UsersRepository#getUserByNameCaseInsensitive
-     * (java.lang.String)
+     * @see UsersRepository#getUserByNameCaseInsensitive(java.lang.String)
      */
     public User getUserByNameCaseInsensitive(String name) throws UsersRepositoryException {
         try {
@@ -467,10 +458,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.api.user.UsersRepository#list()
+    /**
+     * @see UsersRepository#list()
      */
     public Iterator<String> list() throws UsersRepositoryException {
         List<String> result = new ArrayList<String>();
@@ -509,11 +498,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
         return validUserDNs;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.api.user.UsersRepository#removeUser(java.lang.String)
+    /**
+     * @see UsersRepository#removeUser(java.lang.String)
      */
     public void removeUser(String name) throws UsersRepositoryException {
         log.warn("This user-repository is read-only. Modifications are not permitted.");
@@ -521,11 +507,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.api.user.UsersRepository#test(java.lang.String,
-     * java.lang.String)
+    /**
+     * @see UsersRepository#test(java.lang.String, java.lang.String)
      */
     public boolean test(String name, String password) throws UsersRepositoryException {
         User u = getUserByName(name);
@@ -535,11 +518,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.api.user.UsersRepository#addUser(java.lang.String,
-     * java.lang.String)
+    /**
+     * @see UsersRepository#addUser(java.lang.String, java.lang.String)
      */
     public void addUser(String username, String password) throws UsersRepositoryException {
         log.warn("This user-repository is read-only. Modifications are not permitted.");
@@ -547,21 +527,18 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
     }
 
     /*
-     * (non-Javadoc)
+     * TODO
+     * Should this be deprecated? At least the method isn't declared in the interface anymore
      * 
-     * @see
-     * org.apache.james.api.user.UsersRepository#updateUser(org.apache.james
-     * .api.user.User)
+     * @see UsersRepository#updateUser(org.apache.james.api.user.User)
      */
     public void updateUser(User user) throws UsersRepositoryException {
         log.warn("This user-repository is read-only. Modifications are not permitted.");
         throw new UsersRepositoryException("This user-repository is read-only. Modifications are not permitted.");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
+    /**
+     * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger log) {
         this.log = log;

@@ -86,7 +86,7 @@ public class JCRUsersRepository extends AbstractUsersRepository {
      * Get the user object with the specified user name. Return null if no such
      * user.
      * 
-     * @param name
+     * @param username
      *            the name of the user to retrieve
      * @return the user being retrieved, null if the user doesn't exist
      * 
@@ -136,7 +136,10 @@ public class JCRUsersRepository extends AbstractUsersRepository {
      * Update the repository with the specified user object. A user object with
      * this username must already exist.
      * 
-     * @return true if successful.
+     * @param user
+     *            the user
+     * @throws UsersRepositoryException
+     *            If an error occurred
      */
     public void updateUser(final User user) throws UsersRepositoryException {
         if (user != null && user instanceof JCRUser) {
@@ -176,7 +179,7 @@ public class JCRUsersRepository extends AbstractUsersRepository {
     /**
      * Removes a user from the repository
      * 
-     * @param name
+     * @param username
      *            the user to remove from the repository
      * @throws UsersRepositoryException
      */
@@ -240,7 +243,7 @@ public class JCRUsersRepository extends AbstractUsersRepository {
     /**
      * Test if user with name 'name' has password 'password'.
      * 
-     * @param name
+     * @param username
      *            the name of the user to be tested
      * @param password
      *            the password to be tested

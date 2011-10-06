@@ -49,7 +49,7 @@ public class JPAUsersRepository extends AbstractUsersRepository {
     /**
      * Sets entity manager.
      * 
-     * @param entityManager
+     * @param entityManagerFactory
      *            the entityManager to set
      */
     @PersistenceUnit
@@ -108,7 +108,6 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * Update the repository with the specified user object. A user object with
      * this username must already exist.
      * 
-     * @return true if successful.
      * @throws UsersRepositoryException
      */
     public void updateUser(User user) throws UsersRepositoryException {
@@ -251,12 +250,9 @@ public class JPAUsersRepository extends AbstractUsersRepository {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.user.lib.AbstractUsersRepository#doConfigure(org.apache
-     * .commons.configuration.HierarchicalConfiguration)
+     * org.apache.james.user.lib.AbstractUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
         algo = config.getString("algorithm", "MD5");
@@ -272,12 +268,9 @@ public class JPAUsersRepository extends AbstractUsersRepository {
         return entityManagerFactory.createEntityManager();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.user.lib.AbstractUsersRepository#doAddUser(java.lang
-     * .String, java.lang.String)
+     * org.apache.james.user.lib.AbstractUsersRepository#doAddUser(java.lang.String, java.lang.String)
      */
     protected void doAddUser(String username, String password) throws UsersRepositoryException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();

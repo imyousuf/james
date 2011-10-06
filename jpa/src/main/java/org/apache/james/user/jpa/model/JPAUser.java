@@ -95,19 +95,15 @@ public class JPAUser implements User {
         this.password = hashPassword(userName, password, alg);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.api.user.User#getUserName()
+    /**
+     * @see org.apache.james.user.api.model.User#getUserName()
      */
     public String getUserName() {
         return name;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.api.user.User#setPassword(java.lang.String)
+    /**
+     * @see org.apache.james.user.api.model.User#setPassword(java.lang.String)
      */
     public boolean setPassword(String newPass) {
         final boolean result;
@@ -120,10 +116,8 @@ public class JPAUser implements User {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.api.user.User#verifyPassword(java.lang.String)
+    /**
+     * @see org.apache.james.user.api.model.User#verifyPassword(java.lang.String)
      */
     public boolean verifyPassword(String pass) {
         final boolean result;

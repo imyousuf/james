@@ -216,7 +216,7 @@ public abstract class AbstractJdbcUsersRepository extends AbstractJamesUsersRepo
     /**
      * Set the DataSourceSelector
      * 
-     * @param datasources
+     * @param m_datasource
      *            the DataSourceSelector
      */
     @Resource(name = "datasource")
@@ -247,8 +247,6 @@ public abstract class AbstractJdbcUsersRepository extends AbstractJamesUsersRepo
      * 
      * @throws Exception
      *             if an error occurs
-     * 
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     @PostConstruct
     public void init() throws Exception {
