@@ -42,7 +42,7 @@ import org.apache.mailet.Matcher;
 import org.slf4j.Logger;
 
 /**
- * {@link AbstractStateMailetProcessor} implementation which use Camel DSL for
+ * {@link org.apache.james.mailetcontainer.lib.AbstractStateMailetProcessor} implementation which use Camel DSL for
  * the {@link Matcher} / {@link Mailet} routing
  */
 public class CamelMailetProcessor extends AbstractStateMailetProcessor implements CamelContextAware {
@@ -53,12 +53,9 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
 
     private final UseLatestAggregationStrategy aggr = new UseLatestAggregationStrategy();
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.mailetcontainer.api.MailProcessor#service(org.apache
-     * .mailet.Mail)
+     * org.apache.james.mailetcontainer.api.MailProcessor#service(org.apache.mailet.Mail)
      */
     public void service(Mail mail) throws MessagingException {
         try {
@@ -69,20 +66,15 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.camel.CamelContextAware#getCamelContext()
      */
     public CamelContext getCamelContext() {
         return context;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.CamelContextAware#setCamelContext(org.apache.camel.
-     * CamelContext)
+    /**
+     * @see org.apache.camel.CamelContextAware#setCamelContext(org.apache.camel.CamelContext)
      */
     public void setCamelContext(CamelContext context) {
         this.context = context;
@@ -93,7 +85,6 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
      * 
      * This will return a "direct" endpoint.
      * 
-     * @param processorName
      * @return endPoint
      */
     protected String getEndpoint() {
@@ -110,11 +101,9 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
         super.init();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.mailetcontainer.lib.AbstractMailetContainer#setupRouting
+     * org.apache.james.mailetcontainer.lib.AbstractStateMailetProcessor#setupRouting
      * (java.util.List)
      */
     protected void setupRouting(List<MatcherMailetPair> pairs) throws MessagingException {
@@ -128,7 +117,6 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
     /**
      * {@link RouteBuilder} which construct the Matcher and Mailet routing use
      * Camel DSL
-     * 
      */
     private final class MailetContainerRouteBuilder extends RouteBuilder {
 

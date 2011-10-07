@@ -29,7 +29,7 @@ public interface ConfigurationProvider {
     /**
      * Register a {@link HierarchicalConfiguration} for a bean name.<br>
      * It is not mandatory to use the registerConfiguration to have the
-     * configuration available as the {@link getConfiguration} method may load
+     * configuration available as the {@link #getConfiguration(String)} method may load
      * it based on conventions (naming,...).
      * 
      * @param beanName
@@ -44,7 +44,7 @@ public interface ConfigurationProvider {
      * Load and return the configuration for the bean with the given name. The
      * configuration may already be loaded from a previous method invocation or
      * from a previous configuration registration via the
-     * {@link registerConfiguation}.<br>
+     * {@link #registerConfiguration(String, HierarchicalConfiguration)}.<br>
      * This method may implement convention based configuration loading based on
      * naming,...
      * 

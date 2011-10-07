@@ -40,8 +40,8 @@ import org.apache.mailet.Mail;
 import org.slf4j.Logger;
 
 /**
- * Abstract base class for {@link CompositeProcessor} which service the
- * {@link Mail} with a {@link CamelProcessor} instances
+ * Abstract base class for {@link org.apache.james.mailetcontainer.impl.camel.CamelCompositeProcessor} which service the
+ * {@link Mail} with a {@link org.apache.james.mailetcontainer.impl.camel.CamelProcessor} instances
  */
 public abstract class AbstractStateCompositeProcessor implements MailProcessor, Configurable, LogEnabled {
 
@@ -53,10 +53,8 @@ public abstract class AbstractStateCompositeProcessor implements MailProcessor, 
     private JMXStateCompositeProcessorListener jmxListener;
     private boolean enableJmx = true;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
+    /**
+     * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger log) {
         this.logger = log;
@@ -75,12 +73,9 @@ public abstract class AbstractStateCompositeProcessor implements MailProcessor, 
         listeners.remove(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
-     * configuration.HierarchicalConfiguration)
+     * org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         this.config = config;
@@ -130,7 +125,7 @@ public abstract class AbstractStateCompositeProcessor implements MailProcessor, 
     /**
      * Return a {@link MailProcessor} for a given state
      * 
-     * @param name
+     * @param state
      * @return processor
      */
     public MailProcessor getProcessor(String state) {
@@ -223,7 +218,7 @@ public abstract class AbstractStateCompositeProcessor implements MailProcessor, 
 
     /**
      * A Listener which will get called after
-     * {@link CompositeProcessor#service(org.apache.mailet.Mail)} was called
+     * {@link org.apache.james.mailetcontainer.api.MailProcessor#service(Mail)} was called
      */
     public interface CompositeProcessorListener {
 

@@ -67,105 +67,78 @@ public final class MatcherManagement extends StandardMBean implements MatcherMan
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.mailetcontainer.MatcherManagementMBean#getMatcherName()
+     * org.apache.james.mailetcontainer.api.jmx.MatcherManagementMBean#getMatcherName()
      */
     public String getMatcherName() {
         return matcherConfig.getMatcherName();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.mailetcontainer.MatcherManagementMBean#getMatcherCondition
-     * ()
+     * org.apache.james.mailetcontainer.api.jmx.MatcherManagementMBean#getMatcherCondition()
      */
     public String getMatcherCondition() {
         return matcherConfig.getCondition();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.mailetcontainer.MailProcessingMBean#getErrorCount()
+    /**
+     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessorManagementMBean#getErrorCount()
      */
     public long getErrorCount() {
         return errorCount.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.mailetcontainer.MailProcessingMBean#getFastestProcessing
-     * ()
+     * org.apache.james.mailetcontainer.api.jmx.MailProcessorManagementMBean#getFastestProcessing()
      */
     public long getFastestProcessing() {
         return fastestProcessing.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.mailetcontainer.MailProcessingMBean#getHandledMailCount
-     * ()
+     * org.apache.james.mailetcontainer.api.jmx.MailProcessorManagementMBean#getHandledMailCount()
      */
     public long getHandledMailCount() {
         return getSuccessCount() + getErrorCount();
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.mailetcontainer.MailProcessingMBean#getSlowestProcessing
-     * ()
+     * org.apache.james.mailetcontainer.api.jmx.MailProcessorManagementMBean#getSlowestProcessing()
      */
     public long getSlowestProcessing() {
         return slowestProcessing.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.mailetcontainer.MailProcessingMBean#getSuccessCount()
+     * org.apache.james.mailetcontainer.api.jmx.MailProcessorManagementMBean#getSuccessCount()
      */
     public long getSuccessCount() {
         return successCount.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.mailetcontainer.api.jmx.MatcherManagementMBean#
-     * getMatchedCount()
+    /**
+     * @see org.apache.james.mailetcontainer.api.jmx.MatcherManagementMBean#getMatchedCount()
      */
     public long getMatchedCount() {
         return matchedCount.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.mailetcontainer.api.jmx.MatcherManagementMBean#
-     * getNotMatchedCount()
+    /**
+     * @see org.apache.james.mailetcontainer.api.jmx.MatcherManagementMBean#getNotMatchedCount()
      */
     public long getNotMatchedCount() {
         return notMatchedCount.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#
-     * getLastProcessing()
+    /**
+     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessorManagementMBean#getLastProcessing()
      */
     public long getLastProcessing() {
         return lastProcessing.get();

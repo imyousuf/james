@@ -30,9 +30,7 @@ import org.apache.mailet.Mail;
  */
 public class MatcherMatch implements Predicate {
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.camel.Predicate#matches(org.apache.camel.Exchange)
      */
     public boolean matches(Exchange arg0) {

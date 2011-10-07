@@ -54,18 +54,15 @@ public class NetworkIsInWhitelist extends AbstractSQLWhitelistMatcher {
     /**
      * Injection setter for the DNSService.
      * 
-     * @param dnsService
+     * @param dns
      */
     @Resource(name = "dnsservice")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#
-     * getSQLSectionName()
+    /**
+     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#getSQLSectionName()
      */
     protected String getSQLSectionName() {
         return "NetworkWhiteList";
@@ -78,11 +75,9 @@ public class NetworkIsInWhitelist extends AbstractSQLWhitelistMatcher {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#
-     * matchedWhitelist(org.apache.mailet.MailAddress, org.apache.mailet.Mail)
+    /**
+     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher
+     * #matchedWhitelist(org.apache.mailet.MailAddress, org.apache.mailet.Mail)
      */
     protected boolean matchedWhitelist(MailAddress recipientMailAddress, Mail mail) throws MessagingException {
         Connection conn = null;
@@ -132,22 +127,16 @@ public class NetworkIsInWhitelist extends AbstractSQLWhitelistMatcher {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#
-     * getTableCreateQueryName()
+    /**
+     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#getTableCreateQueryName()
      */
     protected String getTableCreateQueryName() {
         return "createNetworkWhiteListTable";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#getTableName
-     * ()
+     * org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#getTableName()
      */
     protected String getTableName() {
         return "networkWhiteListTableName";

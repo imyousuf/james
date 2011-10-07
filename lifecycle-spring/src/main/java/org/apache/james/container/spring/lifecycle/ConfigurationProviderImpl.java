@@ -64,12 +64,8 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Resourc
         this.configurationMappings = configurationMappings;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.container.spring.provider.configuration.
-     * ConfigurationProvider#registerConfiguration(java.lang.String,
-     * org.apache.commons.configuration.HierarchicalConfiguration)
+    /**
+     * @see ConfigurationProvider#registerConfiguration(String, HierarchicalConfiguration)
      */
     public void registerConfiguration(String beanName, HierarchicalConfiguration conf) {
         configurations.put(beanName, conf);
@@ -92,11 +88,8 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Resourc
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.container.spring.provider.configuration.
-     * ConfigurationProvider#getConfiguration(java.lang.String)
+    /**
+     * @see ConfigurationProvider#getConfiguration(java.lang.String)
      */
     public HierarchicalConfiguration getConfiguration(String name) throws ConfigurationException {
 
@@ -145,12 +138,9 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Resourc
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.springframework.context.ResourceLoaderAware#setResourceLoader(org
-     * .springframework.core.io.ResourceLoader)
+     * org.springframework.context.ResourceLoaderAware#setResourceLoader(org.springframework.core.io.ResourceLoader)
      */
     public void setResourceLoader(ResourceLoader loader) {
         this.loader = loader;

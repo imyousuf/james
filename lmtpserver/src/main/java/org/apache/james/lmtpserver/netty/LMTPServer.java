@@ -43,21 +43,16 @@ public class LMTPServer extends AbstractProtocolAsyncServer implements LMTPServe
     private String lmtpGreeting;
 
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer#
-     * getDefaultPort()
+     * org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer#getDefaultPort()
      */
     public int getDefaultPort() {
         return 24;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.ServerMBean#getServiceType()
+    /**
+     * @see org.apache.james.protocols.lib.jmx.ServerMBean#getServiceType()
      */
     public String getServiceType() {
         return "LMTP Service";
@@ -113,40 +108,30 @@ public class LMTPServer extends AbstractProtocolAsyncServer implements LMTPServe
        
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.smtpserver.SMTPServerMBean#getMaximalMessageSize()
+    /**
+     * @see LMTPServerMBean#getMaximalMessageSize()
      */
     public long getMaximalMessageSize() {
         return lmtpConfig.getMaxMessageSize();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer#
-     * getDefaultJMXName()
+     * org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer#getDefaultJMXName()
      */
     protected String getDefaultJMXName() {
         return "lmtpserver";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.smtpserver.netty.SMTPServerMBean#setMaximalMessageSize
-     * (long)
+     * org.apache.james.smtpserver.netty.SMTPServerMBean#setMaximalMessageSize(long)
      */
     public void setMaximalMessageSize(long maxSize) {
         maxMessageSize = maxSize;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.lmtpserver.netty.LMTPServerMBean#getHeloName()
      */
     public String getHeloName() {

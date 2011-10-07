@@ -29,9 +29,7 @@ import org.apache.mailet.Mail;
  */
 public class DisposeProcessor implements Processor {
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.camel.Processor#process(org.apache.camel.Exchange)
      */
     public void process(Exchange arg0) throws Exception {

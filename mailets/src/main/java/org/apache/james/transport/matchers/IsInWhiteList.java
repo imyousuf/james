@@ -66,21 +66,16 @@ public class IsInWhiteList extends AbstractSQLWhitelistMatcher {
         selectByPK = sqlQueries.getSqlString("selectByPK", true);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#
-     * getSQLSectionName()
+    /**
+     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#getSQLSectionName()
      */
     protected String getSQLSectionName() {
         return "WhiteList";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#
-     * matchedWhitelist(org.apache.mailet.MailAddress, org.apache.mailet.Mail)
+    /**
+     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher
+     * #matchedWhitelist(org.apache.mailet.MailAddress, org.apache.mailet.Mail)
      */
     protected boolean matchedWhitelist(MailAddress recipientMailAddress, Mail mail) throws MessagingException {
         MailAddress senderMailAddress = mail.getSender();
@@ -159,22 +154,17 @@ public class IsInWhiteList extends AbstractSQLWhitelistMatcher {
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#
-     * getTableCreateQueryName()
+    /**
+     * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher
+     * #getTableCreateQueryName()
      */
     protected String getTableCreateQueryName() {
         return "createWhiteListTable";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#getTableName
-     * ()
+     * org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#getTableName()
      */
     protected String getTableName() {
         return "whiteListTableName";

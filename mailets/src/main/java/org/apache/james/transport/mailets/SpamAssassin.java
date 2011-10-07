@@ -59,7 +59,7 @@ public class SpamAssassin extends GenericMailet {
     int spamdPort;
 
     /**
-     * @see org.apache.mailet.GenericMailet#init()
+     * @see org.apache.mailet.base.GenericMailet#init()
      */
     public void init() throws MessagingException {
         spamdHost = getInitParameter("spamdHost");
@@ -81,7 +81,7 @@ public class SpamAssassin extends GenericMailet {
     }
 
     /**
-     * @see org.apache.mailet.GenericMailet#service(Mail)
+     * @see org.apache.mailet.base.GenericMailet#service(Mail)
      */
     public void service(Mail mail) {
         try {
@@ -107,7 +107,7 @@ public class SpamAssassin extends GenericMailet {
     }
 
     /**
-     * @see org.apache.mailet.GenericMailet#getMailetInfo()
+     * @see org.apache.mailet.base.GenericMailet#getMailetInfo()
      */
     public String getMailetInfo() {
         return "Checks message against SpamAssassin";

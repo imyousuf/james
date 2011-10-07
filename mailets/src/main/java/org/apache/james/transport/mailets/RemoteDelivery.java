@@ -1543,8 +1543,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * Returns the javamail Session object.
      * 
      * @param props
-     * @param authenticator
-     * @return
+     * @return the java mail session
      */
     protected Session obtainSession(Properties props) {
         return Session.getInstance(props);

@@ -28,7 +28,7 @@ public interface LogProvider {
     /**
      * Return the Log for the bean with the given name
      * 
-     * @param name
+     * @param beanName
      * @return log
      */
     Logger getLog(String beanName);

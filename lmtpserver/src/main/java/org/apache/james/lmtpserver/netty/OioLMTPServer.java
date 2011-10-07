@@ -24,7 +24,7 @@ import org.jboss.netty.handler.execution.ExecutionHandler;
 
 /**
  * LMTPServer which use old IO and not NIO. If you want to use NIO you should
- * use {@link LMTPerver}
+ * use {@link LMTPServer}
  */
 public class OioLMTPServer extends LMTPServer {
 

@@ -41,9 +41,7 @@ public class UserRepositoryAuthenticator implements Authenticator, LogEnabled {
         this.repos = repos;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.mailbox.store.Authenticator#isAuthentic(java.lang.String
      * , java.lang.CharSequence)

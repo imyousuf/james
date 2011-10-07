@@ -311,7 +311,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
      * sorted by MX priority. If no host is found for domainName, the Iterator
      * returned will be empty and the first call to hasNext() will return false.
      * 
-     * @see org.apache.james.dnsservice.api.DNSService#getSMTPHostAddresses(String)
+     * @see org.apache.james.dnsservice.api.DNSService#getHostName(java.net.InetAddress)
      * @since Mailet API v2.2.0a16-unstable
      * @param domainName
      *            - the domain for which to find mail servers
@@ -326,18 +326,14 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
             return Collections.unmodifiableCollection(new ArrayList<HostAddress>(0)).iterator();
         }
     }
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.mailet.MailetContext#getServerInfo()
      */
     public String getServerInfo() {
         return "Apache JAMES";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.mailet.MailetContext#isLocalServer(java.lang.String)
      */
     public boolean isLocalServer(String name) {
@@ -349,18 +345,14 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.mailet.MailetContext#log(java.lang.String)
      */
     public void log(String arg0) {
         log.info(arg0);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.mailet.MailetContext#log(java.lang.String,
      * java.lang.Throwable)
      */
@@ -393,9 +385,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
         sendMail(sender, recipients, message);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.mailet.MailetContext#sendMail(org.apache.mailet.MailAddress,
      * java.util.Collection, javax.mail.internet.MimeMessage)
@@ -405,10 +395,8 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
         sendMail(sender, recipients, message, Mail.DEFAULT);
     }
 
-    /*
+    /**
      * TODO: Should we use the MailProcessorList or the MailQueue here ?
-     * 
-     * (non-Javadoc)
      * 
      * @see org.apache.mailet.MailetContext#sendMail(org.apache.mailet.Mail)
      */
@@ -416,9 +404,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
         processorList.service(mail);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.mailet.MailetContext#sendMail(org.apache.mailet.MailAddress,
      * java.util.Collection, javax.mail.internet.MimeMessage, java.lang.String)
@@ -454,17 +440,15 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
         throw new UnsupportedOperationException("Was removed");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
+    /**
+     * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger log) {
         this.log = log;
     }
 
-    /*
-     * 
+    /**
+     * @see org.apache.james.lifecycle.api.Configurable#configure(HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         try {

@@ -55,10 +55,8 @@ public class SPF extends GenericMailet {
     public final static String EXPLANATION_ATTRIBUTE = "org.apache.james.transport.mailets.spf.explanation";
     public final static String RESULT_ATTRIBUTE = "org.apache.james.transport.mailets.spf.result";
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.mailet.GenericMailet#init()
+    /**
+     * @see org.apache.mailet.base.GenericMailet#init()
      */
     public void init() {
         addHeader = Boolean.valueOf(getInitParameter("addHeader", "false"));
@@ -67,10 +65,8 @@ public class SPF extends GenericMailet {
         spf = new DefaultSPF(logger);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.mailet.GenericMailet#service(org.apache.mailet.Mail)
+    /**
+     * @see org.apache.mailet.base.GenericMailet#service(org.apache.mailet.Mail)
      */
     public void service(Mail mail) throws MessagingException {
         String sender = null;

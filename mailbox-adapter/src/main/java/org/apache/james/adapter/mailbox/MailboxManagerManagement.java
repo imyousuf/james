@@ -52,11 +52,8 @@ public class MailboxManagerManagement extends StandardMBean implements MailboxMa
         super(MailboxManagerManagementMBean.class);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.adapter.mailbox.MailboxManagerManagementMBean#
-     * deleteMailboxes(java.lang.String)
+    /**
+     * @see org.apache.james.adapter.mailbox.MailboxManagerManagementMBean#deleteMailboxes(java.lang.String)
      */
     public boolean deleteMailboxes(String username) {
         MailboxSession session = null;
@@ -83,18 +80,14 @@ public class MailboxManagerManagement extends StandardMBean implements MailboxMa
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
+    /**
+     * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger log) {
         this.log = log;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.adapter.mailbox.MailboxManagerManagementMBean#listMailboxes
      * (java.lang.String)

@@ -87,12 +87,9 @@ public class JamesMailSpooler implements Runnable, Configurable, LogEnabled, Mai
         this.mailProcessor = mailProcessor;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
-     * configuration.HierarchicalConfiguration)
+     * org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         numDequeueThreads = config.getInt("dequeueThreads", 2);
@@ -101,7 +98,7 @@ public class JamesMailSpooler implements Runnable, Configurable, LogEnabled, Mai
     }
 
     /**
-     * Initialises the spool manager.
+     * Initializes the spool manager.
      */
     @PostConstruct
     public void init() throws Exception {
@@ -205,7 +202,7 @@ public class JamesMailSpooler implements Runnable, Configurable, LogEnabled, Mai
      * This implementation shuts down the LinearProcessors managed by this
      * JamesSpoolManager
      * 
-     * @see org.apache.james.lifecycle.api.avalon.framework.activity.Disposable#dispose()
+     * @see org.apache.james.lifecycle.api.Disposable#dispose()
      */
     @PreDestroy
     public void dispose() {
@@ -226,31 +223,24 @@ public class JamesMailSpooler implements Runnable, Configurable, LogEnabled, Mai
         logger.info(getClass().getName() + " thread shutdown completed.");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
+    /**
+     * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger log) {
         this.logger = log;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.mailetcontainer.api.MailSpoolerMBean#getThreadCount()
+     * org.apache.james.mailetcontainer.api.jmx.MailSpoolerMBean#getThreadCount()
      */
     public int getThreadCount() {
         return numThreads;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.mailetcontainer.api.MailSpoolerMBean#getCurrentSpoolCount
-     * ()
+     * org.apache.james.mailetcontainer.api.jmx.MailSpoolerMBean#getCurrentSpoolCount()
      */
     public int getCurrentSpoolCount() {
         return processingActive.get();

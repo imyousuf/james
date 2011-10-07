@@ -29,7 +29,7 @@ import org.apache.james.mailetcontainer.api.jmx.MailProcessorManagementMBean;
 
 /**
  * Wrapper which helps to expose JMX statistics for {@link MailProcessor} and
- * {@link CamelProcessor} implementations
+ * {@link org.apache.james.mailetcontainer.impl.camel.CamelProcessor} implementations
  */
 public class MailProcessorManagement extends StandardMBean implements MailProcessorManagementMBean {
     private String processorName;
@@ -70,74 +70,56 @@ public class MailProcessorManagement extends StandardMBean implements MailProces
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#
-     * getHandledMailCount()
+    /**
+     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessorManagementMBean#getHandledMailCount()
      */
     public long getHandledMailCount() {
         return getSuccessCount() + getErrorCount();
     }
 
     /*
-     * (non-Javadoc)
+     * TODO
+     * Is deprecated or dead code? Can't find an interface defining this method
      * 
      * @see
-     * org.apache.james.mailetcontainer.api.jmx.MailProcessorDetailMBean#getName
-     * ()
+     * org.apache.james.mailetcontainer.api.jmx.MailProcessorDetailMBean#getName()
      */
     public String getName() {
         return processorName;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#
-     * getFastestProcessing()
+    /**
+     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessorManagementMBean#getFastestProcessing()
      */
     public long getFastestProcessing() {
         return fastestProcessing.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#
-     * getSlowestProcessing()
+    /**
+     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessorManagementMBean#getSlowestProcessing()
      */
     public long getSlowestProcessing() {
         return slowestProcessing.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#getErrorCount
-     * ()
+     * org.apache.james.mailetcontainer.api.jmx.MailProcessorManagementMBean#getErrorCount()
      */
     public long getErrorCount() {
         return errorCount.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#getSuccessCount
-     * ()
+     * org.apache.james.mailetcontainer.api.jmx.MailProcessorManagementMBean#getSuccessCount()
      */
     public long getSuccessCount() {
         return successCount.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#
-     * getLastProcessing()
+    /**
+     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessorManagementMBean#getLastProcessing()
      */
     public long getLastProcessing() {
         return lastProcessing.get();

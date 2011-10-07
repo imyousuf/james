@@ -49,9 +49,7 @@ public abstract class AbstractRecipientRewriteTableMailet extends GenericMailet 
         this.domainList = domainList;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.mailet.base.GenericMailet#service(org.apache.mailet.Mail)
      */
     public void service(Mail mail) throws MessagingException {

@@ -40,7 +40,7 @@ public class RecipientRewriteTable extends AbstractRecipientRewriteTableMailet {
     /**
      * Sets the virtual table store.
      * 
-     * @param vutStore
+     * @param vut
      *            the vutStore to set, possibly null
      */
     @Resource(name = "recipientrewritetable")
@@ -49,8 +49,7 @@ public class RecipientRewriteTable extends AbstractRecipientRewriteTableMailet {
     }
 
     /**
-     * @see org.apache.james.transport.mailets.AbstractRecipientRewriteTable#processMail(org.apache.mailet.MailAddress,
-     *      org.apache.mailet.MailAddress, javax.mail.internet.MimeMessage)
+     * @see org.apache.james.transport.mailets.AbstractRecipientRewriteTableMailet#processMail(MailAddress, MailAddress, MimeMessage)
      */
     public Collection<MailAddress> processMail(MailAddress sender, MailAddress recipient, MimeMessage message) throws MessagingException {
         try {

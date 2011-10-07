@@ -35,7 +35,6 @@ public class MaildirStoreUtil {
      * Return a {@link MaildirStore} instance
      * 
      * @param fs
-     * @param mailServer
      * @param rootURL
      * @param locker
      * @return store

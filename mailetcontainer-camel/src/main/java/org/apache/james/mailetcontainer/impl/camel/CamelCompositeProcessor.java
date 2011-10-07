@@ -73,31 +73,23 @@ public class CamelCompositeProcessor extends AbstractStateCompositeProcessor imp
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.camel.CamelContextAware#getCamelContext()
      */
     public CamelContext getCamelContext() {
         return camelContext;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.CamelContextAware#setCamelContext(org.apache.camel.
-     * CamelContext)
+    /**
+     * @see org.apache.camel.CamelContextAware#setCamelContext(org.apache.camel.CamelContext)
      */
     public void setCamelContext(CamelContext camelContext) {
         this.camelContext = camelContext;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.mailetcontainer.lib.AbstractCompositeMailProcessor#
-     * createMailProcessor(java.lang.String,
-     * org.apache.commons.configuration.HierarchicalConfiguration)
+    /**
+     * @see org.apache.james.mailetcontainer.lib.AbstractStateCompositeProcessor
+     * #createMailProcessor(java.lang.String, org.apache.commons.configuration.HierarchicalConfiguration)
      */
     protected MailProcessor createMailProcessor(String name, HierarchicalConfiguration config) throws Exception {
         CamelMailetProcessor processor = new CamelMailetProcessor();

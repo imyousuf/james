@@ -62,12 +62,10 @@ public class JMXStateMailetProcessorListener implements MailetProcessorListener,
         registerMBeans();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.mailetcontainer.api.MailetContainerListener#afterMailet
-     * (org.apache.mailet.Mailet, java.lang.String, java.lang.String, long,
+     * org.apache.james.mailetcontainer.lib.AbstractStateMailetProcessor.MailetProcessorListener
+     * #afterMailet(org.apache.mailet.Mailet, java.lang.String, java.lang.String, long,
      * javax.mail.MessagingException)
      */
     public void afterMailet(Mailet m, String mailName, String state, long processTime, MessagingException e) {
@@ -77,12 +75,10 @@ public class JMXStateMailetProcessorListener implements MailetProcessorListener,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.mailetcontainer.api.MailetContainerListener#afterMatcher
-     * (org.apache.mailet.Matcher, java.lang.String, java.util.Collection,
+     * org.apache.james.mailetcontainer.lib.AbstractStateMailetProcessor.MailetProcessorListener
+     * #afterMatcher(org.apache.mailet.Matcher, java.lang.String, java.util.Collection,
      * java.util.Collection, long, javax.mail.MessagingException)
      */
     public void afterMatcher(Matcher m, String mailName, Collection<MailAddress> rcpts, Collection<MailAddress> matches, long processTime, MessagingException e) {
@@ -171,9 +167,7 @@ public class JMXStateMailetProcessorListener implements MailetProcessorListener,
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.lifecycle.api.Disposable#dispose()
      */
     public void dispose() {

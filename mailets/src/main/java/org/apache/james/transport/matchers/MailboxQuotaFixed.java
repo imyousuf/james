@@ -31,12 +31,10 @@ import org.apache.mailet.Matcher;
  */
 public class MailboxQuotaFixed extends AbstractStorageQuota {
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.transport.matchers.AbstractQuotaMatcher#getQuota(org
-     * .apache.mailet.MailAddress, org.apache.mailet.Mail)
+     * org.apache.james.transport.matchers.AbstractQuotaMatcher
+     * #getQuota(org.apache.mailet.MailAddress, org.apache.mailet.Mail)
      */
     protected long getQuota(MailAddress arg0, Mail arg1) throws MessagingException {
         return parseQuota(this.getCondition());

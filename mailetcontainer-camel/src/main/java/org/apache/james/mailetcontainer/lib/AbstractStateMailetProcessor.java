@@ -86,21 +86,16 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
         this.mailetLoader = mailetLoader;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger log) {
         this.logger = log;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons
-     * .configuration.HierarchicalConfiguration)
+     * org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         this.state = config.getString("[@state]", null);
@@ -410,7 +405,7 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
 
     /**
      * Setup the routing for the configured {@link MatcherMailetPair}'s for this
-     * {@link CamelProcessor}
+     * {@link org.apache.james.mailetcontainer.impl.camel.CamelProcessor}
      */
     protected abstract void setupRouting(List<MatcherMailetPair> pairs) throws MessagingException;
 
@@ -427,9 +422,7 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
          */
         private static final String TERMINATING_MAILET_NAME = "Terminating%Mailet%Name";
 
-        /*
-         * (non-Javadoc)
-         * 
+        /**
          * @see
          * org.apache.mailet.base.GenericMailet#service(org.apache.mailet.Mail)
          */

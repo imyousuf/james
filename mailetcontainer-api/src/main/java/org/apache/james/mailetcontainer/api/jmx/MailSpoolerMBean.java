@@ -32,7 +32,7 @@ public interface MailSpoolerMBean {
 
     /**
      * 
-     * @return
+     * @return current spool count
      */
     int getCurrentSpoolCount();
 

@@ -33,10 +33,8 @@ public class JMXHandlersLoader implements HandlersPackage {
         handlers.add(LineHandlerResultJMXMonitor.class.getName());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.protocols.api.HandlersPackage#getHandlers()
+    /**
+     * @see HandlersPackage#getHandlers()
      */
     public List<String> getHandlers() {
         return handlers;

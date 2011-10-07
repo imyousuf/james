@@ -59,9 +59,7 @@ public class MailetContextLog implements Logger {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#error(java.lang.String)
      */
     public void error(String arg0) {
@@ -69,9 +67,7 @@ public class MailetContextLog implements Logger {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#error(java.lang.String, java.lang.Throwable)
      */
     public void error(String arg0, Throwable arg1) {
@@ -79,9 +75,7 @@ public class MailetContextLog implements Logger {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#info(java.lang.String)
      */
     public void info(String arg0) {
@@ -89,9 +83,7 @@ public class MailetContextLog implements Logger {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#info(java.lang.String, java.lang.Throwable)
      */
     public void info(String arg0, Throwable arg1) {
@@ -155,9 +147,7 @@ public class MailetContextLog implements Logger {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#warn(java.lang.String)
      */
     public void warn(String arg0) {
@@ -165,9 +155,7 @@ public class MailetContextLog implements Logger {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#warn(java.lang.String, java.lang.Throwable)
      */
     public void warn(String arg0, Throwable arg1) {
@@ -175,9 +163,7 @@ public class MailetContextLog implements Logger {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#getName()
      */
     public String getName() {
@@ -251,9 +237,7 @@ public class MailetContextLog implements Logger {
     public void trace(Marker marker, String msg, Throwable t) {
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#debug(java.lang.String, java.lang.Object)
      */
     public void debug(String format, Object arg) {
@@ -262,9 +246,7 @@ public class MailetContextLog implements Logger {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#debug(java.lang.String, java.lang.Object,
      * java.lang.Object)
      */
@@ -274,9 +256,7 @@ public class MailetContextLog implements Logger {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#debug(java.lang.String, java.lang.Object[])
      */
     public void debug(String format, Object[] argArray) {
@@ -285,18 +265,14 @@ public class MailetContextLog implements Logger {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#isDebugEnabled(org.slf4j.Marker)
      */
     public boolean isDebugEnabled(Marker marker) {
         return isDebug;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#debug(org.slf4j.Marker, java.lang.String)
      */
     public void debug(Marker marker, String msg) {
@@ -305,9 +281,7 @@ public class MailetContextLog implements Logger {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#debug(org.slf4j.Marker, java.lang.String,
      * java.lang.Object)
      */
@@ -317,9 +291,7 @@ public class MailetContextLog implements Logger {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#debug(org.slf4j.Marker, java.lang.String,
      * java.lang.Object, java.lang.Object)
      */
@@ -329,9 +301,7 @@ public class MailetContextLog implements Logger {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#debug(org.slf4j.Marker, java.lang.String,
      * java.lang.Object[])
      */
@@ -341,9 +311,7 @@ public class MailetContextLog implements Logger {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#debug(org.slf4j.Marker, java.lang.String,
      * java.lang.Throwable)
      */
@@ -353,18 +321,14 @@ public class MailetContextLog implements Logger {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#info(java.lang.String, java.lang.Object)
      */
     public void info(String format, Object arg) {
         infoLog(format, arg);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#info(java.lang.String, java.lang.Object,
      * java.lang.Object)
      */
@@ -372,36 +336,28 @@ public class MailetContextLog implements Logger {
         infoLog(format, arg1, arg2);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#info(java.lang.String, java.lang.Object[])
      */
     public void info(String format, Object[] argArray) {
         infoLog(format, argArray);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#isInfoEnabled(org.slf4j.Marker)
      */
     public boolean isInfoEnabled(Marker marker) {
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#info(org.slf4j.Marker, java.lang.String)
      */
     public void info(Marker marker, String msg) {
         infoLog(marker, msg);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#info(org.slf4j.Marker, java.lang.String,
      * java.lang.Object)
      */
@@ -409,9 +365,7 @@ public class MailetContextLog implements Logger {
         infoLog(marker, format, arg);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#info(org.slf4j.Marker, java.lang.String,
      * java.lang.Object, java.lang.Object)
      */
@@ -419,9 +373,7 @@ public class MailetContextLog implements Logger {
         infoLog(marker, format, arg1, arg2);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#info(org.slf4j.Marker, java.lang.String,
      * java.lang.Object[])
      */
@@ -429,9 +381,7 @@ public class MailetContextLog implements Logger {
         infoLog(marker, format, argArray);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#info(org.slf4j.Marker, java.lang.String,
      * java.lang.Throwable)
      */
@@ -439,27 +389,21 @@ public class MailetContextLog implements Logger {
         infoLog(marker, msg, t);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#warn(java.lang.String, java.lang.Object)
      */
     public void warn(String format, Object arg) {
         warnLog(format, arg);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#warn(java.lang.String, java.lang.Object[])
      */
     public void warn(String format, Object[] argArray) {
         warnLog(format, argArray);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#warn(java.lang.String, java.lang.Object,
      * java.lang.Object)
      */
@@ -467,27 +411,21 @@ public class MailetContextLog implements Logger {
         warnLog(format, arg1, arg2);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#isWarnEnabled(org.slf4j.Marker)
      */
     public boolean isWarnEnabled(Marker marker) {
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#warn(org.slf4j.Marker, java.lang.String)
      */
     public void warn(Marker marker, String msg) {
         warnLog(marker, msg);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#warn(org.slf4j.Marker, java.lang.String,
      * java.lang.Object)
      */
@@ -495,9 +433,7 @@ public class MailetContextLog implements Logger {
         warnLog(marker, format, arg);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#warn(org.slf4j.Marker, java.lang.String,
      * java.lang.Object, java.lang.Object)
      */
@@ -505,9 +441,7 @@ public class MailetContextLog implements Logger {
         warnLog(marker, format, arg1, arg2);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#warn(org.slf4j.Marker, java.lang.String,
      * java.lang.Object[])
      */
@@ -515,9 +449,7 @@ public class MailetContextLog implements Logger {
         warnLog(marker, format, argArray);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#warn(org.slf4j.Marker, java.lang.String,
      * java.lang.Throwable)
      */
@@ -525,18 +457,14 @@ public class MailetContextLog implements Logger {
         warnLog(marker, msg, t);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#error(java.lang.String, java.lang.Object)
      */
     public void error(String format, Object arg) {
         errorLog(format, arg);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#error(java.lang.String, java.lang.Object,
      * java.lang.Object)
      */
@@ -544,36 +472,28 @@ public class MailetContextLog implements Logger {
         errorLog(format, arg1, arg2);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#error(java.lang.String, java.lang.Object[])
      */
     public void error(String format, Object[] argArray) {
         errorLog(format, argArray);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#isErrorEnabled(org.slf4j.Marker)
      */
     public boolean isErrorEnabled(Marker marker) {
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#error(org.slf4j.Marker, java.lang.String)
      */
     public void error(Marker marker, String msg) {
         errorLog(marker, msg);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#error(org.slf4j.Marker, java.lang.String,
      * java.lang.Object)
      */
@@ -581,9 +501,7 @@ public class MailetContextLog implements Logger {
         errorLog(marker, format, arg);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#error(org.slf4j.Marker, java.lang.String,
      * java.lang.Object, java.lang.Object)
      */
@@ -591,9 +509,7 @@ public class MailetContextLog implements Logger {
         errorLog(marker, format, arg1, arg2);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#error(org.slf4j.Marker, java.lang.String,
      * java.lang.Object[])
      */
@@ -601,9 +517,7 @@ public class MailetContextLog implements Logger {
         errorLog(marker, format, argArray);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.slf4j.Logger#error(org.slf4j.Marker, java.lang.String,
      * java.lang.Throwable)
      */

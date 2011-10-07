@@ -94,7 +94,7 @@ public class LocalDelivery extends GenericMailet {
     }
 
     /**
-     * @see org.apache.mailet.GenericMailet#init()
+     * @see org.apache.mailet.base.GenericMailet#init()
      */
     public void init() throws MessagingException {
         super.init();

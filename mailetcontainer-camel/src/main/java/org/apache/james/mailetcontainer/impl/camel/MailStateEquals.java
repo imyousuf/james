@@ -33,9 +33,7 @@ public class MailStateEquals implements Predicate {
         this.state = state;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.camel.Predicate#matches(org.apache.camel.Exchange)
      */
     public boolean matches(Exchange ex) {

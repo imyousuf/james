@@ -113,12 +113,10 @@ public class JMXStateCompositeProcessorListener implements CompositeProcessorLis
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.mailetcontainer.api.MailProcessorListListener#afterProcessor
-     * (org.apache.james.mailetcontainer.api.MailProcessor, java.lang.String,
+     * org.apache.james.mailetcontainer.lib.AbstractStateCompositeProcessor.CompositeProcessorListener
+     * #afterProcessor(org.apache.james.mailetcontainer.api.MailProcessor, java.lang.String,
      * long, javax.mail.MessagingException)
      */
     public void afterProcessor(MailProcessor processor, String mailName, long processTime, MessagingException e) {
@@ -128,9 +126,7 @@ public class JMXStateCompositeProcessorListener implements CompositeProcessorLis
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.lifecycle.api.Disposable#dispose()
      */
     public void dispose() {
