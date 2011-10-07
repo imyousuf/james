@@ -38,12 +38,10 @@ public class CapaCmdHandler implements CommandHandler<POP3Session>, ExtensibleHa
     public final static String COMMAND_NAME = "CAPA";
     private List<CapaCapability> caps;
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.protocols.api.CommandHandler#onCommand(org.apache.james
-     * .protocols.api.ProtocolSession, org.apache.james.protocols.api.Request)
+     * org.apache.james.protocols.api.handler.CommandHandler
+     * #onCommand(org.apache.james.protocols.api.ProtocolSession, org.apache.james.protocols.api.Request)
      */
     public Response onCommand(POP3Session session, Request request) {
         POP3Response response = new POP3Response(POP3Response.OK_RESPONSE, "Capability list follows");
@@ -59,7 +57,7 @@ public class CapaCmdHandler implements CommandHandler<POP3Session>, ExtensibleHa
     }
 
     /**
-     * @see org.apache.james.protocols.api.handler.api.protocol.ExtensibleHandler#getMarkerInterfaces()
+     * @see org.apache.james.protocols.api.handler.ExtensibleHandler#getMarkerInterfaces()
      */
     @SuppressWarnings("unchecked")
     public List<Class<?>> getMarkerInterfaces() {
@@ -69,7 +67,7 @@ public class CapaCmdHandler implements CommandHandler<POP3Session>, ExtensibleHa
     }
 
     /**
-     * @see org.apache.james.protocols.api.handler.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class,
+     * @see org.apache.james.protocols.api.handler.ExtensibleHandler#wireExtensions(java.lang.Class,
      *      java.util.List)
      */
     @SuppressWarnings("unchecked")
@@ -80,7 +78,7 @@ public class CapaCmdHandler implements CommandHandler<POP3Session>, ExtensibleHa
     }
 
     /**
-     * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()
+     * @see org.apache.james.protocols.api.handler.CommandHandler#getImplCommands()
      */
     public Collection<String> getImplCommands() {
         List<String> commands = new ArrayList<String>();

@@ -83,11 +83,10 @@ public interface MailQueue {
 
     /**
      * Dequeue the next ready-to-process Mail of the queue. This method will
-     * block until a Mail is ready and then process the {@link DequeueOperation}
-     * . Implementations should take care todo some kind of transactions to not
+     * block until a Mail is ready and then process the operation.
+     * Implementations should take care todo some kind of transactions to not
      * loose any mail on error
      * 
-     * @param dequeueOperation
      * @throws MailQueueException
      */
     MailQueueItem deQueue() throws MailQueueException;

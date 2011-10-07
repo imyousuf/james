@@ -103,7 +103,7 @@ public class PassCmdHandler extends RsetCmdHandler {
     }
 
     /**
-     * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()
+     * @see org.apache.james.protocols.api.handler.CommandHandler#getImplCommands()
      */
     public Collection<String> getImplCommands() {
         List<String> commands = new ArrayList<String>();

@@ -37,12 +37,10 @@ public class POP3CommandHandlerStats extends AbstractCommandHandlerStats<POP3Res
         super(POP3CommandHandlerStatsMBean.class, jmxPath, handlerName, commands);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.socket.AbstractCommandHandlerStats#incrementStats(org
-     * .apache.james.protocols.api.Response)
+     * org.apache.james.protocols.lib.jmx.AbstractCommandHandlerStats
+     * #increment(org.apache.james.protocols.api.Response)
      */
     protected void incrementStats(POP3Response response) {
         String code = response.getRetCode();
@@ -53,9 +51,7 @@ public class POP3CommandHandlerStats extends AbstractCommandHandlerStats<POP3Res
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.pop3server.jmx.POP3CommandHandlerStatsMBean#getError()
      */
@@ -63,9 +59,7 @@ public class POP3CommandHandlerStats extends AbstractCommandHandlerStats<POP3Res
         return error.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.pop3server.jmx.POP3CommandHandlerStatsMBean#getOk()
      */
     public long getOk() {

@@ -87,7 +87,7 @@ public interface ManageableMailQueue extends MailQueue {
     }
 
     /**
-     * Represent a View over a queue {@link MailQueueItem}
+     * Represent a View over a queue {@link MailQueue.MailQueueItem}
      */
     public interface MailQueueItemView {
 

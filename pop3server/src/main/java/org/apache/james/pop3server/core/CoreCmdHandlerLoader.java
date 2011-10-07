@@ -74,10 +74,8 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         commands.add(COMMANDHANDLERRESULTLOGGER);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.protocols.api.HandlersPackage#getHandlers()
+    /**
+     * @see org.apache.james.protocols.api.handler.HandlersPackage#getHandlers()
      */
     public List<String> getHandlers() {
         return commands;

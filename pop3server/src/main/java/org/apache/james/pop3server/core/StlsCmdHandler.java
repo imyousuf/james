@@ -37,12 +37,8 @@ import org.apache.james.protocols.api.handler.CommandHandler;
 public class StlsCmdHandler implements CommandHandler<POP3Session>, CapaCapability {
     public final static String COMMAND_NAME = "STLS";
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.api.protocol.CommandHandler#onCommand(org.apache.james
-     * .api.protocol.LogEnabledSession, org.apache.james.api.protocol.Request)
+    /**
+     * @see CommandHandler#onCommand(org.apache.james.protocols.api.ProtocolSession, Request)
      */
     public Response onCommand(POP3Session session, Request request) {
         POP3Response response;
@@ -71,7 +67,7 @@ public class StlsCmdHandler implements CommandHandler<POP3Session>, CapaCapabili
     }
 
     /**
-     * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()
+     * @see org.apache.james.protocols.api.handler.CommandHandler#getImplCommands()
      */
     public Collection<String> getImplCommands() {
         List<String> commands = new ArrayList<String>();

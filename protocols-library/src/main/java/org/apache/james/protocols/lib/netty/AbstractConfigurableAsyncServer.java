@@ -114,21 +114,17 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         this.fileSystem = filesystem;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
+    /**
+     * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
     public final void setLog(Logger logger) {
         this.logger = logger;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
-     * configuration.HierarchicalConfiguration)
+     * org.apache.james.lifecycle.api.Configurable
+     * #configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public final void configure(HierarchicalConfiguration config) throws ConfigurationException {
 
@@ -419,7 +415,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     /**
      * Return the socket type. The Socket type can be secure or plain
      * 
-     * @return
+     * @return the socket type ('plain' or 'secure')
      */
     public String getSocketType() {
         if (isSSLSocket()) {
@@ -428,20 +424,16 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         return "plain";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.ServerMBean#getStartTLSSupported()
+    /**
+     * @see org.apache.james.protocols.lib.jmx.ServerMBean#getStartTLSSupported()
      */
     public boolean getStartTLSSupported() {
         return isStartTLSSupported();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.socket.ServerMBean#getMaximumConcurrentConnections()
+     * org.apache.james.protocols.lib.jmx.ServerMBean#getMaximumConcurrentConnections()
      */
     public int getMaximumConcurrentConnections() {
         return connectionLimit;
@@ -469,19 +461,15 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         return enabledCipherSuites;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.ServerMBean#isStarted()
+    /**
+     * @see org.apache.james.protocols.lib.jmx.ServerMBean#isStarted()
      */
     public boolean isStarted() {
         return isBound();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.ServerMBean#start()
+    /**
+     * @see org.apache.james.protocols.lib.jmx.ServerMBean#start()
      */
     public boolean start() {
         try {
@@ -493,29 +481,23 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.ServerMBean#stop()
+    /**
+     * @see org.apache.james.protocols.lib.jmx.ServerMBean#stop()
      */
     public boolean stop() {
         unbind();
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.server.jmx.ServerMBean#getHandledConnections()
+    /**
+     * @see org.apache.james.protocols.lib.jmx.ServerMBean#getHandledConnections()
      */
     public long getHandledConnections() {
         return countHandler.getConnectionsTillStartup();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.ServerMBean#getCurrentConnections()
+    /**
+     * @see org.apache.james.protocols.lib.jmx.ServerMBean#getCurrentConnections()
      */
     public int getCurrentConnections() {
         return countHandler.getCurrentConnectionCount();
@@ -525,9 +507,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         return countHandler;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.protocols.lib.jmx.ServerMBean#getBoundAddresses()
      */
     public String[] getBoundAddresses() {

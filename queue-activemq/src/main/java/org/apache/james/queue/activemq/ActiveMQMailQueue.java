@@ -93,7 +93,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport {
      * 
      * @throws NotCompliantMBeanException
      * 
-     * @see #ActiveMQMailQueue(ConnectionFactory, String, boolean, Log)
+     * @see #ActiveMQMailQueue(ConnectionFactory, String, boolean, Logger)
      */
     public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, final Logger logger) {
         this(connectionFactory, queuename, true, logger);
@@ -113,12 +113,9 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport {
         this.useBlob = useBlob;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.queue.jms.JMSMailQueue#populateMailMimeMessage(javax
-     * .jms.Message, org.apache.mailet.Mail)
+     * org.apache.james.queue.jms.JMSMailQueue#populateMailMimeMessage(javax.jms.Message, org.apache.mailet.Mail)
      */
     protected void populateMailMimeMessage(Message message, Mail mail) throws MessagingException, JMSException {
         if (message instanceof BlobMessage) {
@@ -144,12 +141,8 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport {
     }
 
     
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.queue.jms.JMSMailQueue#createMessage(javax.jms.Session,
-     * org.apache.mailet.Mail, long)
+    /**
+     * Produce the mail to the JMS Queue
      */
     protected void produceMail(Session session, Map<String, Object> props, int msgPrio, Mail mail) throws JMSException, MessagingException, IOException {
         MessageProducer producer = null;

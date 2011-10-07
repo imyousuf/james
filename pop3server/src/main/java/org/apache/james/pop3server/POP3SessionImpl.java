@@ -40,38 +40,29 @@ public class POP3SessionImpl extends AbstractSession implements POP3Session {
         this.configData = configData;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.pop3server.POP3Session#getConfigurationData()
      */
     public POP3HandlerConfiguration getConfigurationData() {
         return configData;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.pop3server.POP3Session#getHandlerState()
      */
     public int getHandlerState() {
         return handlerState;
     }
 
-
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.pop3server.POP3Session#setHandlerState(int)
      */
     public void setHandlerState(int handlerState) {
         this.handlerState = handlerState;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.api.protocol.TLSSupportedSession#resetState()
+    /**
+     * @see org.apache.james.protocols.api.ProtocolSession#resetState()
      */
     public void resetState() {
         getState().clear();
@@ -79,21 +70,16 @@ public class POP3SessionImpl extends AbstractSession implements POP3Session {
         setHandlerState(AUTHENTICATION_READY);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.pop3server.POP3Session#getUserMailbox()
      */
     public MessageManager getUserMailbox() {
         return mailbox;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.pop3server.POP3Session#setUserMailbox(org.apache.james
-     * .imap.mailbox.Mailbox)
+     * org.apache.james.pop3server.POP3Session#setUserMailbox(MessageManager)
      */
     public void setUserMailbox(MessageManager mailbox) {
         this.mailbox = mailbox;

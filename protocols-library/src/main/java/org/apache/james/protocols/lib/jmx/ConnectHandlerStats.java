@@ -54,7 +54,7 @@ public class ConnectHandlerStats extends StandardMBean implements HandlerStatsMB
     /**
      * Increment the stats
      * 
-     * @param result
+     * @param response
      */
     public void increment(Response response) {
         all.incrementAndGet();
@@ -63,38 +63,29 @@ public class ConnectHandlerStats extends StandardMBean implements HandlerStatsMB
         }
     }
 
-    /*
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.HandlerStatsMBean#getAll()
+    /**
+     * @see org.apache.james.protocols.lib.jmx.HandlerStatsMBean#getAll()
      */
     public long getAll() {
         return all.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.HandlerStatsMBean#getName()
+    /**
+     * @see org.apache.james.protocols.lib.jmx.HandlerStatsMBean#getName()
      */
     public String getName() {
         return handlerName;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.HandlerStatsMBean#getDisconnect()
+    /**
+     * @see org.apache.james.protocols.lib.jmx.HandlerStatsMBean#getDisconnect()
      */
     public long getDisconnect() {
         return disconnect.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.lifecycle.Disposable#dispose()
+    /**
+     * @see org.apache.james.lifecycle.api.Disposable#dispose()
      */
     public void dispose() {
         try {

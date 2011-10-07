@@ -46,12 +46,9 @@ public class POP3Server extends AbstractProtocolAsyncServer implements POP3Serve
     protected int getDefaultPort() {
         return 110;
     }
-    
-    
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.ServerMBean#getServiceType()
+
+    /**
+     * @see POP3ServerMBean#getServiceType()
      */
     public String getServiceType() {
         return "POP3 Service";

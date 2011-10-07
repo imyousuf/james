@@ -75,7 +75,7 @@ public interface POP3Session extends ProtocolSession {
     /**
      * Sets a new mailbox content
      * 
-     * @param userMailbox
+     * @param mailbox
      *            mailbox
      */
     void setUserMailbox(MessageManager mailbox);

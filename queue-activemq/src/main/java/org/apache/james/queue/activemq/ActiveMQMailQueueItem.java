@@ -49,9 +49,7 @@ public class ActiveMQMailQueueItem extends JMSMailQueueItem implements ActiveMQS
         this.logger = logger;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.queue.jms.JMSMailQueueItem#done(boolean)
      */
     public void done(boolean success) throws MailQueueException {

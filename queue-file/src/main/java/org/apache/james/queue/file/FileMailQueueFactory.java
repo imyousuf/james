@@ -59,8 +59,7 @@ public class FileMailQueueFactory implements MailQueueFactory, LogEnabled{
         this.sync = sync;
     }
     
-    /*
-     * (non-Javadoc)
+    /**
      * @see org.apache.james.queue.api.MailQueueFactory#getQueue(java.lang.String)
      */
     public MailQueue getQueue(String name) {
@@ -78,8 +77,7 @@ public class FileMailQueueFactory implements MailQueueFactory, LogEnabled{
         return queue;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger log) {

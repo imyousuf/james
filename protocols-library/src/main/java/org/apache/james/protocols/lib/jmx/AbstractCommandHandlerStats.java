@@ -78,28 +78,22 @@ public abstract class AbstractCommandHandlerStats<R extends Response> extends St
      */
     protected abstract void incrementStats(R response);
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.smtpserver.CommandHandlerStatsMBean#getAll()
+    /**
+     * @see org.apache.james.protocols.lib.jmx.CommandHandlerStatsMBean#getAll()
      */
     public long getAll() {
         return all.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.smtpserver.CommandHandlerStatsMBean#getName()
+    /**
+     * @see org.apache.james.protocols.lib.jmx.CommandHandlerStatsMBean#getName()
      */
     public String getName() {
         return handlerName;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.lifecycle.Disposable#dispose()
+    /**
+     * @see org.apache.james.lifecycle.api.Disposable#dispose()
      */
     public void dispose() {
         try {
@@ -109,19 +103,15 @@ public abstract class AbstractCommandHandlerStats<R extends Response> extends St
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.smtpserver.CommandHandlerStatsMBean#getCommands()
+    /**
+     * @see org.apache.james.protocols.lib.jmx.CommandHandlerStatsMBean#getCommands()
      */
     public String[] getCommands() {
         return commands;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.HandlerStatsMBean#getDisconnect()
+    /**
+     * @see org.apache.james.protocols.lib.jmx.CommandHandlerStatsMBean#getDisconnect()
      */
     public long getDisconnect() {
         return disconnect.get();

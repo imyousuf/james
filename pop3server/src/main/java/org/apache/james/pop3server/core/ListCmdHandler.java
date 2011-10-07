@@ -39,8 +39,10 @@ public class ListCmdHandler implements CommandHandler<POP3Session> {
      * of messages in the mailbox and its aggregate size, or optionally, the
      * number and size of a single message.
      * 
-     * @param argument
-     *            the first argument parsed by the parseCommand method
+     * @param session
+     *            the pop3 session
+     * @param request
+     *            the request to process
      */
 
     @SuppressWarnings("unchecked")
@@ -102,10 +104,8 @@ public class ListCmdHandler implements CommandHandler<POP3Session> {
         return response;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.protocols.api.CommandHandler#getImplCommands()
+    /**
+     * @see org.apache.james.protocols.api.handler.CommandHandler#getImplCommands()
      */
     public Collection<String> getImplCommands() {
         List<String> commands = new ArrayList<String>();

@@ -60,13 +60,11 @@ public abstract class AbstractConnectHandlerResultJMXMonitor<R extends Response,
 
 
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.protocols.api.LineHandlerResultHandler#onResponse(org
-     * .apache.james.protocols.api.ProtocolSession, boolean, long,
-     * org.apache.james.protocols.api.LineHandler)
+     * org.apache.james.protocols.api.handler.ProtocolHandlerResultHandler
+     * #onResponse(org.apache.james.protocols.api.ProtocolSession, long,
+     * org.apache.james.protocols.api.handler.ProtocolHandler)
      */
     public Response onResponse(ProtocolSession session, Response response, long executionTime, ProtocolHandler handler) {
         if (handler instanceof ConnectHandler) {
@@ -75,11 +73,9 @@ public abstract class AbstractConnectHandlerResultJMXMonitor<R extends Response,
         return response;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.protocols.api.ExtensibleHandler#getMarkerInterfaces()
+     * org.apache.james.protocols.api.handler.ExtensibleHandler#getMarkerInterfaces()
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> marker = new ArrayList<Class<?>>();
@@ -88,12 +84,9 @@ public abstract class AbstractConnectHandlerResultJMXMonitor<R extends Response,
         return marker;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.protocols.api.ExtensibleHandler#wireExtensions(java.
-     * lang.Class, java.util.List)
+     * org.apache.james.protocols.api.handler.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void wireExtensions(Class<?> interfaceName, List<?> extension) throws WiringException {

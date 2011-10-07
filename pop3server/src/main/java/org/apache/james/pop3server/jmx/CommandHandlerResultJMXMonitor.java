@@ -32,11 +32,9 @@ import org.apache.james.protocols.lib.jmx.AbstractCommandHandlerStats;
  */
 public class CommandHandlerResultJMXMonitor extends AbstractCommandHandlerResultJMXMonitor<POP3Response, POP3Session> implements LifecycleAwareProtocolHandler {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.AbstractCommandHandlerResultJMXMonitor#
-     * createCommandHandlerStats(org.apache.james.protocols.api.CommandHandler)
+    /**
+     * @see org.apache.james.protocols.lib.jmx.AbstractCommandHandlerResultJMXMonitor
+     * #createCommandHandlerStats(org.apache.james.protocols.api.CommandHandler)
      */
     protected AbstractCommandHandlerStats<POP3Response> createCommandHandlerStats(CommandHandler<POP3Session> handler) throws Exception {
         Collection<String> col = handler.getImplCommands();

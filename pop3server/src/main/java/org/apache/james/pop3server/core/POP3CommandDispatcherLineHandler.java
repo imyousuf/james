@@ -45,21 +45,21 @@ public class POP3CommandDispatcherLineHandler extends AbstractCommandDispatcher<
     }
 
     /**
-     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getMandatoryCommands()
+     * @see org.apache.james.protocols.api.handler.AbstractCommandDispatcher#getMandatoryCommands()
      */
     protected List<String> getMandatoryCommands() {
         return Arrays.asList(mandatoryCommands);
     }
 
     /**
-     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getUnknownCommandHandler()
+     * @see org.apache.james.protocols.api.handler.AbstractCommandDispatcher#getUnknownCommandHandler()
      */
     protected CommandHandler<POP3Session> getUnknownCommandHandler() {
         return unknownHandler;
     }
 
     /**
-     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getUnknownCommandHandlerIdentifier()
+     * @see org.apache.james.protocols.api.handler.AbstractCommandDispatcher#getUnknownCommandHandlerIdentifier()
      */
     protected String getUnknownCommandHandlerIdentifier() {
         return UnknownCmdHandler.COMMAND_NAME;

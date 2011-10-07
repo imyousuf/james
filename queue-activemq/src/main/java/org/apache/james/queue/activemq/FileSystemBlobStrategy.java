@@ -52,23 +52,19 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
         this.splitCount = splitCount;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.activemq.blob.BlobUploadStrategy#uploadFile(org.apache.activemq
-     * .command.ActiveMQBlobMessage, java.io.File)
+     * org.apache.activemq.blob.BlobUploadStrategy#uploadFile(org.apache.activemq.command.ActiveMQBlobMessage,
+     * java.io.File)
      */
     public URL uploadFile(ActiveMQBlobMessage message, File file) throws JMSException, IOException {
         return uploadStream(message, new FileInputStream(file));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.activemq.blob.BlobUploadStrategy#uploadStream(org.apache.activemq
-     * .command.ActiveMQBlobMessage, java.io.InputStream)
+     * org.apache.activemq.blob.BlobUploadStrategy#uploadStream(org.apache.activemq.command.ActiveMQBlobMessage,
+     * java.io.InputStream)
      */
     public URL uploadStream(ActiveMQBlobMessage message, InputStream in) throws JMSException, IOException {
         FileOutputStream out = null;
@@ -102,12 +98,9 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.activemq.blob.BlobDownloadStrategy#deleteFile(org.apache.activemq
-     * .command.ActiveMQBlobMessage)
+     * org.apache.activemq.blob.BlobDownloadStrategy#deleteFile(org.apache.activemq.command.ActiveMQBlobMessage)
      */
     public void deleteFile(ActiveMQBlobMessage message) throws IOException, JMSException {
         File f = getFile(message);
@@ -119,7 +112,7 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
     }
 
     /**
-     * Returns a {@link SharedFileInputStream} for the give {@link BlobMessage}
+     * Returns a {@link FileInputStream} for the give {@link BlobMessage}
      */
     public InputStream getInputStream(ActiveMQBlobMessage message) throws IOException, JMSException {
         File f = getFile(message);

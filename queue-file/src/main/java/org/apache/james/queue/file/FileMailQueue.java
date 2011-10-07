@@ -369,9 +369,7 @@ public class FileMailQueue implements ManageableMailQueue {
         }
         
 
-        /*
-         * (non-Javadoc)
-         * 
+        /**
          * @see org.apache.james.core.MimeMessageSource#disposeSource()
          */
         public void dispose() {
@@ -458,10 +456,7 @@ public class FileMailQueue implements ManageableMailQueue {
     /**
      * TODO: implement me
      * 
-     * @param type
-     * @param value
-     * @return
-     * @throws MailQueueException
+     * @see ManageableMailQueue#remove(org.apache.james.queue.api.ManageableMailQueue.Type, String)
      */
     @Override
     public long remove(Type type, String value) throws MailQueueException {
