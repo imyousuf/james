@@ -43,41 +43,32 @@ public class SMTPCommandHandlerStats extends AbstractCommandHandlerStats<SMTPRes
         super(SMTPCommandHandlerStatsMBean.class, jmxPath, handlerName, commands);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.smtpserver.CommandHandlerStatsMBean#getTemporaryError()
+     * org.apache.james.smtpserver.jmx.SMTPCommandHandlerStatsMBean#getTemporaryError()
      */
     public long getTemporaryError() {
         return temp.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.smtpserver.CommandHandlerStatsMBean#getPermantError()
+     * org.apache.james.smtpserver.jmx.SMTPCommandHandlerStatsMBean#getPermantError()
      */
     public long getPermantError() {
         return perm.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.smtpserver.CommandHandlerStatsMBean#getOk()
+    /**
+     * @see org.apache.james.smtpserver.jmx.SMTPCommandHandlerStatsMBean#getOk()
      */
     public long getOk() {
         return ok.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.socket.AbstractCommandHandlerStats#incrementStats(org
-     * .apache.james.protocols.api.Response)
+     * org.apache.james.protocols.lib.jmx.AbstractCommandHandlerStats#incrementStats(org.apache.james.protocols.api.Response)
      */
     protected void incrementStats(SMTPResponse response) {
         try {

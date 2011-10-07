@@ -117,58 +117,42 @@ public class JMXEnabledScheduledThreadPoolExecutor extends ScheduledThreadPoolEx
         return super.shutdownNow();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#
-     * getTotalTasks()
+    /**
+     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#getTotalTasks()
      */
     public synchronized int getTotalTasks() {
         return totalTasks;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#
-     * getAverageTaskTime()
+    /**
+     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#getAverageTaskTime()
      */
     public synchronized double getAverageTaskTime() {
         return (totalTasks == 0) ? 0 : totalTime / totalTasks;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#
-     * getActiveThreads()
+    /**
+     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#getActiveThreads()
      */
     public int getActiveThreads() {
         return getPoolSize();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#
-     * getActiveTasks()
+    /**
+     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#getActiveTasks()
      */
     public int getActiveTasks() {
         return getActiveCount();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#
-     * getQueuedTasks()
+    /**
+     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#getQueuedTasks()
      */
     public int getQueuedTasks() {
         return getQueue().size();
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#getMaximalThreads()
      */
     public int getMaximalThreads() {

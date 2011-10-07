@@ -73,7 +73,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Lifecy
     /**
      * Sets the virtual user table store.
      * 
-     * @param tableStore
+     * @param vut
      *            the tableStore to set
      */
     @Resource(name = "recipientrewritetable")
@@ -132,9 +132,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Lifecy
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.protocols.smtp.core.fastfail.AbstractValidRcptHandler
      * #isLocalDomain(org.apache.james.protocols.smtp.SMTPSession,

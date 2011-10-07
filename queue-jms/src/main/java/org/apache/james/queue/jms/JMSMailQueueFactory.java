@@ -37,9 +37,7 @@ public class JMSMailQueueFactory extends AbstractMailQueueFactory {
         this.connectionFactory = connectionFactory;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.queue.library.AbstractMailQueueFactory#createMailQueue
      * (java.lang.String)

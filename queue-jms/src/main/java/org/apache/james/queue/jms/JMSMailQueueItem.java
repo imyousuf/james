@@ -45,10 +45,8 @@ public class JMSMailQueueItem implements MailQueueItem {
         this.consumer = consumer;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.queue.MailQueue.MailQueueItem#done(boolean)
+    /**
+     * @see org.apache.james.queue.api.MailQueue.MailQueueItem#done(boolean)
      */
     public void done(boolean success) throws MailQueueException {
         try {
@@ -88,10 +86,8 @@ public class JMSMailQueueItem implements MailQueueItem {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.queue.MailQueue.MailQueueItem#getMail()
+    /**
+     * @see org.apache.james.queue.api.MailQueue.MailQueueItem#getMail()
      */
     public Mail getMail() {
         return mail;

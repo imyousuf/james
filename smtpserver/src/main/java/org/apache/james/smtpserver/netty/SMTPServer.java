@@ -187,16 +187,17 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
     }
 
     /**
-     * @see org.apache.james.socket.AbstractConfigurableAsyncServer.AbstractAsyncServer#getDefaultPort()
+     * Return the default port which will get used for this server if non is
+     * specify in the configuration
+     * 
+     * @return port
      */
     protected int getDefaultPort() {
         return 25;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.ServerMBean#getServiceType()
+    /**
+     * @see org.apache.james.smtpserver.netty.SMTPServerMBean#getServiceType()
      */
     public String getServiceType() {
         return "SMTP Service";
@@ -229,7 +230,7 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
         }
 
         /**
-         * @see org.apache.james.protocols.smtp.SMTPConfiguration#isAuthSupported(String)
+         * @see org.apache.james.protocols.smtp.SMTPConfiguration#isRelayingAllowed(String)
          */
         public boolean isRelayingAllowed(String remoteIP) {
             boolean relayingAllowed = false;
@@ -292,81 +293,60 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.smtpserver.SMTPServerMBean#getMaximalMessageSize()
+    /**
+     * @see org.apache.james.smtpserver.netty.SMTPServerMBean#getMaximalMessageSize()
      */
     public long getMaximalMessageSize() {
         return maxMessageSize;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.smtpserver.SMTPServerMBean#getAddressBracketsEnforcement
-     * ()
+     * org.apache.james.smtpserver.netty.SMTPServerMBean#getAddressBracketsEnforcement()
      */
     public boolean getAddressBracketsEnforcement() {
         return addressBracketsEnforcement;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.smtpserver.SMTPServerMBean#getHeloEhloEnforcement()
+    /**
+     * @see org.apache.james.smtpserver.netty.SMTPServerMBean#getHeloEhloEnforcement()
      */
     public boolean getHeloEhloEnforcement() {
         return heloEhloEnforcement;
     }
     
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer#
-     * getDefaultJMXName()
+     * org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer#getDefaultJMXName()
      */
     protected String getDefaultJMXName() {
         return "smtpserver";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.smtpserver.netty.SMTPServerMBean#setMaximalMessageSize
-     * (long)
+     * org.apache.james.smtpserver.netty.SMTPServerMBean#setMaximalMessageSize(long)
      */
     public void setMaximalMessageSize(long maxSize) {
         this.maxMessageSize = maxSize;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.smtpserver.netty.SMTPServerMBean#
-     * setAddressBracketsEnforcement(boolean)
+    /**
+     * @see org.apache.james.smtpserver.netty.SMTPServerMBean#setAddressBracketsEnforcement(boolean)
      */
     public void setAddressBracketsEnforcement(boolean enforceAddressBrackets) {
         this.addressBracketsEnforcement = enforceAddressBrackets;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.smtpserver.netty.SMTPServerMBean#setHeloEhloEnforcement
-     * (boolean)
+     * org.apache.james.smtpserver.netty.SMTPServerMBean#setHeloEhloEnforcement(boolean)
      */
     public void setHeloEhloEnforcement(boolean enforceHeloEHlo) {
         this.heloEhloEnforcement = enforceHeloEHlo;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.smtpserver.netty.SMTPServerMBean#getHeloName()
      */
     public String getHeloName() {

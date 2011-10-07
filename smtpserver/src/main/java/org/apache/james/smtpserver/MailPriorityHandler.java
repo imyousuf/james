@@ -45,12 +45,10 @@ public class MailPriorityHandler implements JamesMessageHook, LifecycleAwareProt
 
     private Map<String, Integer> prioMap = new HashMap<String, Integer>();
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.smtpserver.JamesMessageHook#onMessage(org.apache.james
-     * .protocols.smtp.SMTPSession, org.apache.mailet.Mail)
+     * org.apache.james.smtpserver.JamesMessageHook#onMessage(org.apache.james.protocols.smtp.SMTPSession,
+     *  org.apache.mailet.Mail)
      */
     @SuppressWarnings("unchecked")
     public HookResult onMessage(SMTPSession session, Mail mail) {

@@ -63,13 +63,9 @@ public class DataLineJamesMessageHookHandler implements DataLineFilter, Extensib
 
     private List<MessageHook> mHandlers;
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache
-     * .james.smtpserver.protocol.SMTPSession, byte[],
-     * org.apache.james.api.protocol.LineHandler)
+     * org.apache.james.protocols.smtp.core.DataLineFilter#onLine(SMTPSession, byte[], LineHandler)
      */
     public Response onLine(SMTPSession session, byte[] line, LineHandler<SMTPSession> next) {
         MimeMessageInputStreamSource mmiss = (MimeMessageInputStreamSource) session.getState().get(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE);
@@ -207,7 +203,7 @@ public class DataLineJamesMessageHookHandler implements DataLineFilter, Extensib
     }
 
     /**
-     * @see org.apache.james.protocols.api.handler.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class,
+     * @see org.apache.james.protocols.api.handler.ExtensibleHandler#wireExtensions(java.lang.Class,
      *      java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
@@ -225,7 +221,7 @@ public class DataLineJamesMessageHookHandler implements DataLineFilter, Extensib
     }
 
     /**
-     * @see org.apache.james.protocols.api.handler.api.protocol.ExtensibleHandler#getMarkerInterfaces()
+     * @see org.apache.james.protocols.api.handler.ExtensibleHandler#getMarkerInterfaces()
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> classes = new LinkedList<Class<?>>();
@@ -255,9 +251,7 @@ public class DataLineJamesMessageHookHandler implements DataLineFilter, Extensib
             }
         }
 
-        /*
-         * (non-Javadoc)
-         * 
+        /**
          * @see
          * org.apache.james.protocols.smtp.MailEnvelope#getMessageOutputStream()
          */
@@ -273,8 +267,6 @@ public class DataLineJamesMessageHookHandler implements DataLineFilter, Extensib
         }
 
         /**
-         * (non-Javadoc)
-         * 
          * @see org.apache.james.protocols.smtp.MailEnvelope#getSender()
          */
         public MailAddress getSender() {

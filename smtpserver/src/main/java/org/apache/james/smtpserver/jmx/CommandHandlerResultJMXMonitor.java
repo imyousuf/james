@@ -27,15 +27,13 @@ import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPSession;
 
 /**
- * Expose JMX statistics for {@link CommandHandler}
+ * Expose JMX statistics for {@link org.apache.james.protocols.api.handler.CommandHandler}
  */
 public class CommandHandlerResultJMXMonitor extends AbstractCommandHandlerResultJMXMonitor<SMTPResponse, SMTPSession> {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.AbstractCommandHandlerResultJMXMonitor#
-     * createCommandHandlerStats(org.apache.james.protocols.api.CommandHandler)
+    /**
+     * @see org.apache.james.protocols.lib.jmx.AbstractCommandHandlerResultJMXMonitor
+     * #createCommandHandlerStats(org.apache.james.protocols.api.handler.CommandHandler)
      */
     protected AbstractCommandHandlerStats<SMTPResponse> createCommandHandlerStats(CommandHandler<SMTPSession> handler) throws Exception {
         Collection<String> col = handler.getImplCommands();

@@ -119,8 +119,8 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements Life
     /**
      * Set the datasources.
      * 
-     * @param datasources
-     *            The datasources
+     * @param datasource
+     *            The datasource
      */
     @Resource(name = "datasource")
     public void setDataSource(DataSource datasource) {
@@ -214,8 +214,6 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements Life
     }
 
     /**
-     * (non-Javadoc)
-     * 
      * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#insertTriplet(java.lang.String,
      *      java.lang.String, java.lang.String, int, long)
      */
@@ -403,7 +401,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements Life
     }
 
     /**
-     * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.lifecycle.api.LogEnabled#setLog(Logger)
      */
     public void setLog(Logger log) {
         this.serviceLog = log;

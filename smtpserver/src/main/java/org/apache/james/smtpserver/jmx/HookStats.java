@@ -73,46 +73,36 @@ public class HookStats extends StandardMBean implements HookStatsMBean, Disposab
         all.incrementAndGet();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.smtpserver.HookStatsMBean#getOk()
+    /**
+     * @see org.apache.james.smtpserver.jmx.HookStatsMBean#getOk()
      */
     public long getOk() {
         return ok.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.smtpserver.HookStatsMBean#getDeclined()
+    /**
+     * @see org.apache.james.smtpserver.jmx.HookStatsMBean#getDeclined()
      */
     public long getDeclined() {
         return declined.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.smtpserver.HookStatsMBean#getDeny()
+    /**
+     * @see org.apache.james.smtpserver.jmx.HookStatsMBean#getDeny()
      */
     public long getDeny() {
         return deny.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.smtpserver.HookStatsMBean#getDenysoft()
+    /**
+     * @see org.apache.james.smtpserver.jmx.HookStatsMBean#getDenysoft()
      */
     public long getDenysoft() {
         return denysoft.get();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.lifecycle.Disposable#dispose()
+    /**
+     * @see org.apache.james.lifecycle.api.Disposable#dispose()
      */
     public void dispose() {
         try {
@@ -122,19 +112,15 @@ public class HookStats extends StandardMBean implements HookStatsMBean, Disposab
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.smtpserver.HookStatsMBean#getName()
+    /**
+     * @see org.apache.james.smtpserver.jmx.HookStatsMBean#getName()
      */
     public String getName() {
         return hookname;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.smtpserver.HookStatsMBean#getAll()
+    /**
+     * @see org.apache.james.smtpserver.jmx.HookStatsMBean#getAll()
      */
     public long getAll() {
         return all.get();

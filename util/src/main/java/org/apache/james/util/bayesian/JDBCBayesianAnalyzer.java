@@ -355,7 +355,7 @@ abstract public class JDBCBayesianAnalyzer extends BayesianAnalyzer {
      * 
      * @param conn
      *            The connection for accessing the database
-     * @param file
+     * @param sqlFile
      *            The sqlResources.xml file
      * @throws Exception
      *             If any error occurs

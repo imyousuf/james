@@ -56,9 +56,7 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.queue.api.MailQueueManagementMBean#clear()
      */
     public long clear() throws Exception {
@@ -69,9 +67,7 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.queue.api.MailQueueManagementMBean#flush()
      */
     public long flush() throws Exception {
@@ -82,9 +78,7 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.queue.api.MailQueueManagementMBean#getSize()
      */
     public long getSize() throws Exception {
@@ -95,12 +89,9 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.queue.api.MailQueueManagementMBean#removeWithName(java
-     * .lang.String)
+     * org.apache.james.queue.api.MailQueueManagementMBean#removeWithName(java.lang.String)
      */
     public long removeWithName(String name) throws Exception {
         try {
@@ -110,9 +101,7 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
      * org.apache.james.queue.api.MailQueueManagementMBean#removeWithRecipient
      * (java.lang.String)
@@ -125,12 +114,9 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.queue.api.MailQueueManagementMBean#removeWithSender(
-     * java.lang.String)
+     * org.apache.james.queue.api.MailQueueManagementMBean#removeWithSender(java.lang.String)
      */
     public long removeWithSender(String address) throws Exception {
         try {
@@ -140,9 +126,7 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.queue.api.MailQueueManagementMBean#browse()
      */
     @SuppressWarnings("unchecked")

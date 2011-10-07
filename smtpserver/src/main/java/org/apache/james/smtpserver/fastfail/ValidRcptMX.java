@@ -68,7 +68,7 @@ public class ValidRcptMX implements LifecycleAwareProtocolHandler, RcptHook {
      * Sets the service log.<br>
      * Where available, a context sensitive log should be used.
      * 
-     * @param Log
+     * @param log
      *            not null
      */
     public void setLog(Logger log) {

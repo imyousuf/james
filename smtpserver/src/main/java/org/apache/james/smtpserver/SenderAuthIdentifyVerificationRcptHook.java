@@ -69,11 +69,8 @@ public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthId
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.protocols.smtp.core.
-     * AbstractSenderAuthIdentifyVerificationRcptHook#useVirtualHosting()
+    /**
+     * @see org.apache.james.protocols.smtp.core.AbstractSenderAuthIdentifyVerificationRcptHook#useVirtualHosting()
      */
     protected boolean useVirtualHosting() {
         try {

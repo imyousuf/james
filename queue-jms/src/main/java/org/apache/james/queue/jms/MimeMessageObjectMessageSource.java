@@ -53,28 +53,22 @@ public class MimeMessageObjectMessageSource extends MimeMessageSource implements
         return content.length;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.core.MimeMessageSource#getInputStream()
      */
     public InputStream getInputStream() throws IOException {
         return in.newStream(0, -1);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.core.MimeMessageSource#getSourceId()
      */
     public String getSourceId() {
         return id;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.lifecycle.Disposable#dispose()
+    /**
+     * @see org.apache.james.lifecycle.api.Disposable#dispose()
      */
     public void dispose() {
         try {

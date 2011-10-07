@@ -48,7 +48,7 @@ public class SMTPChannelUpstreamHandler extends BasicChannelUpstreamHandler {
     /**
      * Cleanup temporary files
      * 
-     * @param channel
+     * @param ctx
      */
     protected void cleanup(ChannelHandlerContext ctx) {
         // Make sure we dispose everything on exit on session close

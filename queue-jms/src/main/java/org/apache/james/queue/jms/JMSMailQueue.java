@@ -82,10 +82,9 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
 
     /**
      * <p>
-     * Execute the given {@link DequeueOperation} when a mail is ready to
-     * process. As JMS does not support delay scheduling out-of-the box, we use
-     * a messageselector to check if a mail is ready. For this a
-     * {@link MessageConsumer#receive(long) is used with a timeout of 10
+     * Dequeues a mail when it is ready to process. As JMS does not support delay scheduling out-of-the box,
+     * we use a messageselector to check if a mail is ready. For this a
+     * {@link MessageConsumer#receive(long)} is used with a timeout of 10
      * seconds.
      * </p>
      * <p>
@@ -174,10 +173,8 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.queue.MailQueue#enQueue(org.apache.mailet.Mail,
+    /**
+     * @see org.apache.james.queue.api.MailQueue#enQueue(org.apache.mailet.Mail,
      * long, java.util.concurrent.TimeUnit)
      */
     public void enQueue(Mail mail, long delay, TimeUnit unit) throws MailQueueException {
@@ -233,10 +230,8 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.queue.MailQueue#enQueue(org.apache.mailet.Mail)
+    /**
+     * @see org.apache.james.queue.api.MailQueue#enQueue(org.apache.mailet.Mail)
      */
     public void enQueue(Mail mail) throws MailQueueException {
         enQueue(mail, NO_DELAY, TimeUnit.MILLISECONDS);
@@ -289,7 +284,6 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
     /**
      * Get JMS Message properties with values
      * 
-     * @param message
      * @param mail
      * @param delayInMillis
      * @throws JMSException
@@ -352,10 +346,10 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
 
     /**
      * Create the complete Mail from the JMS Message. So the created
-     * {@link Mail} is completly populated
+     * {@link Mail} is completely populated
      * 
      * @param message
-     * @return
+     * @return the complete mail
      * @throws MessagingException
      * @throws JMSException
      */
@@ -472,7 +466,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
     }
 
     /**
-     * Create a {@link MailQueueItem} for the given parameters
+     * Create a {@link org.apache.james.queue.api.MailQueue.MailQueueItem} for the given parameters
      * 
      * @param connection
      * @param session
@@ -491,9 +485,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
         return JAMES_NEXT_DELIVERY + " <= " + System.currentTimeMillis() + " OR " + FORCE_DELIVERY + " = true";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.queue.api.ManageableMailQueue#getSize()
      */
     @SuppressWarnings("unchecked")
@@ -544,9 +536,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.queue.api.ManageableMailQueue#flush()
      */
     public long flush() throws MailQueueException {
@@ -626,9 +616,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.queue.api.MailQueueManagementMBean#clear()
      */
     public long clear() throws MailQueueException {
@@ -735,12 +723,10 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
         return copy;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see
-     * org.apache.james.queue.api.ManageableMailQueue#remove(org.apache.james
-     * .queue.api.ManageableMailQueue.Type, java.lang.String)
+     * org.apache.james.queue.api.ManageableMailQueue#remove(org.apache.james.queue.api.ManageableMailQueue.Type,
+     * java.lang.String)
      */
     public long remove(Type type, String value) throws MailQueueException {
         switch (type) {
@@ -756,9 +742,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
         return -1;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see org.apache.james.queue.api.ManageableMailQueue#browse()
      */
     @SuppressWarnings("unchecked")
@@ -789,9 +773,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
                     throw new UnsupportedOperationException("Read-only");
                 }
 
-                /*
-                 * (non-Javadoc)
-                 * 
+                /**
                  * @see java.util.Iterator#next()
                  */
                 public MailQueueItemView next() {
@@ -802,23 +784,17 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
                             final long nextDelivery = m.getLongProperty(JAMES_NEXT_DELIVERY);
                             return new MailQueueItemView() {
 
-                                /*
-                                 * (non-Javadoc)
-                                 * 
+                                /**
                                  * @see
-                                 * org.apache.james.queue.api.ManageableMailQueue
-                                 * .MailQueueItemView#getNextDelivery()
+                                 * org.apache.james.queue.api.ManageableMailQueue.MailQueueItemView#getNextDelivery()
                                  */
                                 public long getNextDelivery() {
                                     return nextDelivery;
                                 }
 
-                                /*
-                                 * (non-Javadoc)
-                                 * 
+                                /**
                                  * @see
-                                 * org.apache.james.queue.api.ManageableMailQueue
-                                 * .MailQueueItemView#getMail()
+                                 * org.apache.james.queue.api.ManageableMailQueue.MailQueueItemView#getMail()
                                  */
                                 public Mail getMail() {
                                     return mail;
@@ -835,21 +811,16 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
 
                 }
 
-                /*
-                 * (non-Javadoc)
-                 * 
+                /**
                  * @see java.util.Iterator#hasNext()
                  */
                 public boolean hasNext() {
                     return messages.hasMoreElements();
                 }
 
-                /*
-                 * (non-Javadoc)
-                 * 
+                /**
                  * @see
-                 * org.apache.james.queue.api.ManageableMailQueue.MailQueueIterator
-                 * #close()
+                 * org.apache.james.queue.api.ManageableMailQueue.MailQueueIterator#close()
                  */
                 public void close() {
 

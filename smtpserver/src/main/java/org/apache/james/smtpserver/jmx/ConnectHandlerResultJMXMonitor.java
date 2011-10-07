@@ -24,11 +24,8 @@ import org.apache.james.protocols.smtp.SMTPSession;
 
 public class ConnectHandlerResultJMXMonitor extends AbstractConnectHandlerResultJMXMonitor<Response, SMTPSession> {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.AbstractConnectHandlerResultJMXMonitor#
-     * getDefaultJMXName()
+    /**
+     * @see org.apache.james.protocols.lib.jmx.AbstractConnectHandlerResultJMXMonitor#getDefaultJMXName()
      */
     protected String getDefaultJMXName() {
         return "smtpserver";

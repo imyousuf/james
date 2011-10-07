@@ -60,7 +60,7 @@ public class POP3BeforeSMTPHandler implements ConnectHandler<SMTPSession>, Confi
     }
 
     /**
-     * @see org.apache.james.smtpserver.protocol.ConnectHandler#onConnect(SMTPSession)
+     * @see org.apache.james.protocols.api.handler.ConnectHandler#onConnect(org.apache.james.protocols.api.ProtocolSession)
      */
     public Response onConnect(SMTPSession session) {
 

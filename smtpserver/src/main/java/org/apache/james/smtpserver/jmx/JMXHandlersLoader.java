@@ -34,10 +34,8 @@ public class JMXHandlersLoader implements HandlersPackage {
         handlers.add(HookResultJMXMonitor.class.getName());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.protocols.api.HandlersPackage#getHandlers()
+    /**
+     * @see org.apache.james.protocols.api.handler.HandlersPackage#getHandlers()
      */
     public List<String> getHandlers() {
         return handlers;
