@@ -19,6 +19,7 @@
 package org.apache.james.protocols.lib.netty;
 
 import java.io.FileInputStream;
+import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -30,6 +31,8 @@ import java.util.concurrent.Executor;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 
@@ -109,6 +112,8 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     private int maxExecutorThreads;
 
+    private MBeanServer mbeanServer;
+
     @Resource(name = "filesystem")
     public final void setFileSystem(FileSystem filesystem) {
         this.fileSystem = filesystem;
@@ -121,6 +126,30 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         this.logger = logger;
     }
 
+    protected void registerMBean() {
+
+        try {
+            mbeanServer.registerMBean(this, new ObjectName(getMBeanName()));
+
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to register mbean", e);
+        }
+
+    }
+
+    protected void unregisterMBean() {
+        try {
+            mbeanServer.unregisterMBean(new ObjectName(getMBeanName()));
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to unregister mbean", e);
+        }
+
+    }
+    
+    private String getMBeanName() {
+        return  "org.apache.james:type=server,name=" + jmxName;
+    }
+    
     /**
      * @see
      * org.apache.james.lifecycle.api.Configurable
@@ -234,10 +263,14 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     @PostConstruct
     public final void init() throws Exception {
         if (isEnabled()) {
+
             buildSSLContext();
             preInit();
             executionHandler = createExecutionHander();
             bind();
+
+            mbeanServer = ManagementFactory.getPlatformMBeanServer();
+            registerMBean();
             
             getLogger().info("Init " + getServiceType() + " done");
 
@@ -254,7 +287,8 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
             if (executionHandler != null) {
                 executionHandler.releaseExternalResources();
             }
-            
+
+            unregisterMBean();
         }
         getLogger().info("Dispose " + getServiceType() + " done");
 

@@ -19,7 +19,10 @@
 package org.apache.james.smtpserver.netty;
 
 
+import java.lang.management.ManagementFactory;
+
 import javax.annotation.Resource;
+import javax.management.ObjectName;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -35,7 +38,6 @@ import org.apache.james.smtpserver.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.ExtendedSMTPSession;
 import org.apache.james.smtpserver.jmx.JMXHandlersLoader;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
-import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 /**
  * NIO SMTPServer which use Netty
@@ -97,6 +99,8 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
     public void setDNSService(DNSService dns) {
         this.dns = dns;
     }
+    
+    
     
     @Override
     protected void preInit() throws Exception {
