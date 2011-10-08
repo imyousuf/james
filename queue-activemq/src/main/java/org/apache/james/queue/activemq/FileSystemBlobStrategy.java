@@ -104,8 +104,8 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
      */
     public void deleteFile(ActiveMQBlobMessage message) throws IOException, JMSException {
         File f = getFile(message);
-        if (f.exists()) {
-            if (f.delete() == false) {
+        synchronized (f) {
+            if (f.exists() && !f.delete()) {
                 throw new IOException("Unable to delete file " + f);
             }
         }
@@ -143,20 +143,12 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
 
         File queueF = fs.getFile(queueUrl);
 
-        // check if we need to create the queue folder
-        if (!queueF.exists()) {
-            if (!queueF.mkdirs()) {
-                // It could be that queueF.mkdirs() returned false because
-                // queueF has been created
-                // in the meantime (eg. by a different thread). Only throw an
-                // exception if this is
-                // not the case.
-                if (!queueF.exists()) {
-                    throw new IOException("Unable to create directory " + queueF.getAbsolutePath());
-                }
+        synchronized (queueF) {
+            // check if we need to create the queue folder
+            if (!queueF.exists() && !queueF.mkdirs()) {
+                throw new IOException("Unable to create directory " + queueF.getAbsolutePath());
             }
-         
-         }
+        }
 
         return fs.getFile(queueUrl + "/" + filename);
 
