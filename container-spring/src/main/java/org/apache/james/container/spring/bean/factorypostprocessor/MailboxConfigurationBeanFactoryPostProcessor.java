@@ -62,7 +62,9 @@ public class MailboxConfigurationBeanFactoryPostProcessor implements BeanFactory
             } else if (provider.equalsIgnoreCase("maildir")) {
                 mailbox = "maildir-mailboxmanager";
                 subscription = "maildir-subscriptionManager";
-
+            } else if (provider.equalsIgnoreCase("hbase")) {
+                mailbox = "hbase-mailboxmanager";
+                subscription = "hbase-subscriptionManager";
             }
 
             if (mailbox == null)
