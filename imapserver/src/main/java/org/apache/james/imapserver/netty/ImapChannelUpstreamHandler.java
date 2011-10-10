@@ -98,7 +98,7 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
     @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         InetSocketAddress address = (InetSocketAddress) ctx.getChannel().getRemoteAddress();
-        getLogger(ctx.getChannel()).info("Connection closed for " + address.getHostName() + " (" + address.getAddress().getHostAddress() + ")");
+        getLogger(ctx.getChannel()).info("Connection closed for " + address.getAddress().getHostAddress());
 
         // remove the stored attribute for the channel to free up resources
         // See JAMES-1195
@@ -112,7 +112,7 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         InetSocketAddress address = (InetSocketAddress) ctx.getChannel().getRemoteAddress();
-        getLogger(ctx.getChannel()).info("Connection established from " + address.getHostName() + " (" + address.getAddress().getHostAddress() + ")");
+        getLogger(ctx.getChannel()).info("Connection established from " + address.getAddress().getHostAddress());
 
         ImapResponseComposer response = new ImapResponseComposerImpl(new ChannelImapResponseWriter(ctx.getChannel()));
         ctx.setAttachment(response);
