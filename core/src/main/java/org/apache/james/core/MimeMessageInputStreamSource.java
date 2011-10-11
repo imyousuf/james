@@ -20,16 +20,16 @@
 package org.apache.james.core;
 
 import javax.mail.MessagingException;
+import javax.mail.util.SharedByteArrayInputStream;
 import javax.mail.util.SharedFileInputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.DeferredFileOutputStream;
 import org.apache.james.lifecycle.api.Disposable;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -39,27 +39,33 @@ import java.util.List;
 /**
  * Takes an input stream and creates a repeatable input stream source for a
  * MimeMessageWrapper. It does this by completely reading the input stream and
- * saving that to a temporary file that should delete on exit, or when this
- * object is GC'd.
+ * saving that to data to an {@link DeferredFileOutputStream} with its threshold set to 100kb
  * 
- * @see MimeMessageWrapper
- */
+ **/
 public class MimeMessageInputStreamSource extends MimeMessageSource implements Disposable {
 
     private final List<InputStream> streams = new ArrayList<InputStream>();
 
-    private OutputStream out;
-
     /**
      * A temporary file used to hold the message stream
      */
-    private File file;
+    private DeferredFileOutputStream out;
 
     /**
      * The full path of the temporary file
      */
     private String sourceId;
 
+    /**
+     * 100kb threshold for the stream.
+     */
+    private final static int THRESHOLD = 1024 * 100;
+    
+    /**
+     * Temporary directory to use
+     */
+    private final static File TMPDIR = new File(System.getProperty("java.io.tmpdir"));
+    
     /**
      * Construct a new MimeMessageInputStreamSource from an
      * <code>InputStream</code> that contains the bytes of a MimeMessage.
@@ -76,18 +82,21 @@ public class MimeMessageInputStreamSource extends MimeMessageSource implements D
         super();
         // We want to immediately read this into a temporary file
         // Create a temp file and channel the input stream into it
-        OutputStream fout = null;
         try {
-            file = File.createTempFile(key, ".m64");
-            fout = new BufferedOutputStream(new FileOutputStream(file));
-            IOUtils.copy(in, fout);
-            sourceId = file.getCanonicalPath();
+            out = new DeferredFileOutputStream(THRESHOLD, key, ".m64", TMPDIR );
+            IOUtils.copy(in, out);
+            sourceId = key;
         } catch (IOException ioe) {
             throw new MessagingException("Unable to retrieve the data: " + ioe.getMessage(), ioe);
         } finally {
             try {
-                if (fout != null) {
-                    fout.close();
+                if (out != null) {
+                    out.close();
+                    
+                    File file = out.getFile();
+                    if (file != null) {
+                        file.delete();
+                    }
                 }
             } catch (IOException ioe) {
                 // Ignored - logging unavailable to log this non-fatal error.
@@ -100,31 +109,14 @@ public class MimeMessageInputStreamSource extends MimeMessageSource implements D
             } catch (IOException ioe) {
                 // Ignored - logging unavailable to log this non-fatal error.
             }
-
-            // if sourceId is null while file is not null then we had
-            // an IOxception and we have to clean the file.
-            if (sourceId == null && file != null) {
-                // No need to throw an IOException when unable to delete as it's a temporary file
-                file.delete();
-            }
+            
         }
     }
 
     public MimeMessageInputStreamSource(String key) throws MessagingException {
         super();
-        try {
-            file = File.createTempFile(key, ".m64");
-            sourceId = file.getCanonicalPath();
-        } catch (IOException e) {
-            throw new MessagingException("Unable to get canonical file path: " + e.getMessage(), e);
-        } finally {
-            // if sourceId is null while file is not null then we had
-            // an IOxception and we have to clean the file.
-            if (sourceId == null && file != null) {
-                // No need to throw an IOException when unable to delete as it's a temporary file
-                file.delete();
-            }
-        }
+        out = new DeferredFileOutputStream(THRESHOLD, key, ".m64", TMPDIR );
+        sourceId = key;
     }
 
     /**
@@ -142,7 +134,12 @@ public class MimeMessageInputStreamSource extends MimeMessageSource implements D
      * @return a <code>BufferedInputStream</code> containing the data
      */
     public synchronized InputStream getInputStream() throws IOException {
-        SharedFileInputStream in = new SharedFileInputStream(file);
+        InputStream in;
+        if (out.isInMemory()) {
+            in = new SharedByteArrayInputStream(out.getData());
+        } else {
+            in = new SharedFileInputStream(out.getFile());
+        }
         streams.add(in);
         return in;
     }
@@ -157,17 +154,14 @@ public class MimeMessageInputStreamSource extends MimeMessageSource implements D
      *             message
      */
     public long getMessageSize() throws IOException {
-        return file.length();
+        return out.getByteCount();
     }
 
     /**
      * @return the output stream to write to
      * @throws FileNotFoundException
      */
-    public synchronized OutputStream getWritableOutputStream() throws FileNotFoundException {
-        if (out == null) {
-            out = new FileOutputStream(file);
-        }
+    public OutputStream getWritableOutputStream() throws FileNotFoundException {
         return out;
     }
 
@@ -179,11 +173,16 @@ public class MimeMessageInputStreamSource extends MimeMessageSource implements D
         for (int i = 0; i < streams.size(); i++) {
             IOUtils.closeQuietly(streams.get(i));
         }
-        IOUtils.closeQuietly(out);
-        out = null;
 
-        FileUtils.deleteQuietly(file);
-        file = null;
+        if (out != null) {
+            IOUtils.closeQuietly(out);
+            File file = out.getFile();
+            if (file != null) {
+            	FileUtils.deleteQuietly(file);
+            	file = null;
+            }
+            out = null;
+        }
     }
 
 }
