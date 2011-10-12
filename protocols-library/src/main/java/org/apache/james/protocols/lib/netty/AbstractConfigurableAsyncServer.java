@@ -51,7 +51,6 @@ import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.execution.ExecutionHandler;
-import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 import org.slf4j.Logger;
 
 /**
@@ -114,6 +113,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     private MBeanServer mbeanServer;
 
+    
     @Resource(name = "filesystem")
     public final void setFileSystem(FileSystem filesystem) {
         this.fileSystem = filesystem;
@@ -473,14 +473,18 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         return connectionLimit;
     }
 
+    protected String getThreadPoolJMXPath() {
+        return "org.apache.james:type=server,name=" + jmxName + ",sub-type=threadpool";
+    }
+    
     @Override
     protected Executor createBossExecutor() {
-        return JMXEnabledThreadPoolExecutor.newCachedThreadPool("org.apache.james:type=server,name=" + jmxName + ",sub-type=threadpool", "boss");
+        return JMXEnabledThreadPoolExecutor.newCachedThreadPool(getThreadPoolJMXPath(), "boss");
     }
 
     @Override
     protected Executor createWorkerExecutor() {
-        return JMXEnabledThreadPoolExecutor.newCachedThreadPool("org.apache.james:type=server,name=" + jmxName + ",sub-type=threadpool", "worker");
+        return JMXEnabledThreadPoolExecutor.newCachedThreadPool(getThreadPoolJMXPath(), "worker");
     }
 
     /**
@@ -570,7 +574,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
      * @return ehandler
      */
     protected ExecutionHandler createExecutionHander() {
-        return new ExecutionHandler(new OrderedMemoryAwareThreadPoolExecutor(maxExecutorThreads, 0, 0));
+        return new ExecutionHandler(new JMXEnabledOrderedMemoryAwareThreadPoolExecutor(maxExecutorThreads, 0, 0, getThreadPoolJMXPath(), "executor"));
     }
 
     /**
