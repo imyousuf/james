@@ -130,7 +130,7 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
             public ChannelPipeline getPipeline() throws Exception {
                 ChannelPipeline pipeline = pipeline();
                 pipeline.addLast(GROUP_HANDLER, groupHandler);
-                pipeline.addLast("idleHandler", new IdleStateHandler(timer, 0, 30, TIMEOUT, TIMEOUT_UNIT));
+                pipeline.addLast("idleHandler", new IdleStateHandler(timer, 0, 0, TIMEOUT, TIMEOUT_UNIT));
                 pipeline.addLast(TIMEOUT_HANDLER, new ImapIdleStateHandler());
                 pipeline.addLast(CONNECTION_LIMIT_HANDLER, new ConnectionLimitUpstreamHandler(IMAPServer.this.connectionLimit));
 
