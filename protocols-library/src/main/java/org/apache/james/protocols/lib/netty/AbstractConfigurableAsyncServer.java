@@ -58,10 +58,10 @@ import org.slf4j.Logger;
  */
 public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServer implements LogEnabled, Configurable, ServerMBean {
     /** The default value for the connection backlog. */
-    private static final int DEFAULT_BACKLOG = 200;
+    public static final int DEFAULT_BACKLOG = 200;
 
     /** The default value for the connection timeout. */
-    private static final int DEFAULT_TIMEOUT = 5 * 60;
+    public static final int DEFAULT_TIMEOUT = 5 * 60;
 
     /** The name of the parameter defining the connection timeout. */
     private static final String TIMEOUT_NAME = "connectiontimeout";
@@ -72,6 +72,8 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     /** The name of the parameter defining the service hello name. */
     public static final String HELLO_NAME = "helloName";
 
+    public static final int DEFAULT_MAX_EXECUTOR_COUNT = 16;
+    
     // By default, use the Sun X509 algorithm that comes with the Sun JCE
     // provider for SSL
     // certificates
@@ -113,6 +115,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     private MBeanServer mbeanServer;
 
+    
     
     @Resource(name = "filesystem")
     public final void setFileSystem(FileSystem filesystem) {
@@ -193,7 +196,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         int ioWorker = config.getInt("ioWorkerCount", DEFAULT_IO_WORKER_COUNT);
         setIoWorkerCount(ioWorker);
 
-        maxExecutorThreads = config.getInt("maxExecutorCount", 50);
+        maxExecutorThreads = config.getInt("maxExecutorCount", DEFAULT_MAX_EXECUTOR_COUNT);
 
         
         configureHelloName(config);
