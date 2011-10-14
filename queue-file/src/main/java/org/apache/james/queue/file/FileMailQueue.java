@@ -59,31 +59,30 @@ import org.slf4j.Logger;
  */
 public class FileMailQueue implements ManageableMailQueue {
 
-    private ConcurrentHashMap<String, FileItem> keyMappings = new ConcurrentHashMap<String, FileMailQueue.FileItem>();
-    private BlockingQueue<String> inmemoryQueue = new LinkedBlockingQueue<String>();
-    private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private final ConcurrentHashMap<String, FileItem> keyMappings = new ConcurrentHashMap<String, FileMailQueue.FileItem>();
+    private final BlockingQueue<String> inmemoryQueue = new LinkedBlockingQueue<String>();
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private final static AtomicLong COUNTER = new AtomicLong();
-    private final String queuename;
-    private final File parentDir;
-    private String queueDirName;
+    private final String queueDirName;
+    private final File queueDir;
     private final Logger log;
-    private boolean sync;
+    
+    private final boolean sync;
     private final static String MSG_EXTENSION = ".msg";
     private final static String OBJECT_EXTENSION = ".obj";
     private final static String NEXT_DELIVERY = "FileQueueNextDelivery";
     private final static int SPLITCOUNT = 10;
 
     public FileMailQueue(File parentDir, String queuename, boolean sync, Logger log) throws IOException {
-        this.queuename = queuename;
-        this.parentDir = parentDir;
         this.log = log;
         this.sync = sync;
+        this.queueDir = new File(parentDir, queuename);
+        this.queueDirName = queueDir.getAbsolutePath();
+
         init();
     }
     
     private void init() throws IOException {
-        File queueDir = new File(parentDir, queuename);
-        queueDirName = queueDir.getAbsolutePath();
         
         for (int i = 1; i <= SPLITCOUNT; i++) {
             File qDir = new File(queueDir, Integer.toString(i));
@@ -272,10 +271,11 @@ public class FileMailQueue implements ManageableMailQueue {
 
             }
             final String key = k;
+            final FileItem fitem = item;
             ObjectInputStream oin = null;
             try {
-                final File objectFile = new File(item.getObjectFile());
-                final File msgFile = new File(item.getMessageFile());
+                final File objectFile = new File(fitem.getObjectFile());
+                final File msgFile = new File(fitem.getMessageFile());
                 oin = new ObjectInputStream(new FileInputStream(objectFile));
                 final Mail mail = (Mail) oin.readObject();
                 mail.setMessage(new MimeMessageCopyOnWriteProxy(new FileMimeMessageSource(msgFile)));
@@ -296,16 +296,7 @@ public class FileMailQueue implements ManageableMailQueue {
                                 throw new MailQueueException("Unable to rollback", e);
                             }
                         } else {
-                            keyMappings.remove(key);
-                            if (!objectFile.delete()) {
-                                if (log.isInfoEnabled()) {
-                                    log.info("Unable to delete file " + objectFile);
-                                }
-                            }
-                            if (!msgFile.delete()) {
-                                if (log.isInfoEnabled()) {
-                                    log.info("Unable to delete file " + msgFile);
-                                }                            }
+                            fitem.delete();
                         }
 
                         LifecycleUtil.dispose(mail);
@@ -388,7 +379,7 @@ public class FileMailQueue implements ManageableMailQueue {
      * 
      *
      */
-    private final static class FileItem {
+    private final class FileItem {
         private String objectfile;
         private String messagefile;
 
@@ -404,6 +395,23 @@ public class FileMailQueue implements ManageableMailQueue {
         
         public String getMessageFile() {
             return messagefile;
+        }
+        
+        public void delete() throws MailQueueException {
+            File msgFile = new File(getMessageFile());
+            File objectFile = new File(getObjectFile());
+            
+            if (objectFile.exists()) {
+                if (!objectFile.delete()) {
+                    throw new MailQueueException("Unable to delete mail");
+                } 
+            }
+            if (msgFile.exists()) {
+                if (!msgFile.delete()) {
+                    log.debug("Remove of msg file for mail failed");
+                }
+                
+            }
         }
         
     }
@@ -434,21 +442,11 @@ public class FileMailQueue implements ManageableMailQueue {
             Entry<String, FileItem> entry = items.next();
             FileItem item = entry.getValue();
             String key = entry.getKey();
-            File msgFile = new File(item.getMessageFile());
-            File objectFile = new File(item.getObjectFile());
-            if (objectFile.exists()) {
-                if (!objectFile.delete()) {
-                    throw new MailQueueException("Unable to delete mail " + key);
-                } 
-            }
+           
+            item.delete();
             keyMappings.remove(key);
             count++;
-            if (msgFile.exists()) {
-                if (!msgFile.delete()) {
-                    log.debug("Remove of msg file for mail " + key +" failed");
-                }
-                
-            }
+
         }
         return count;
     }
@@ -460,6 +458,19 @@ public class FileMailQueue implements ManageableMailQueue {
      */
     @Override
     public long remove(Type type, String value) throws MailQueueException {
+        switch (type) {
+        case Name:
+            FileItem item = keyMappings.remove(value);
+            if (item != null) {
+                item.delete();
+                return 1;
+            } else {
+                return 0;
+            }
+            
+        default:
+            break;
+        }
         throw new MailQueueException("Not supported yet");
 
     }
