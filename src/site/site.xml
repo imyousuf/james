@@ -111,6 +111,7 @@ Removed from trunk for now.
         <item name="Matchers" href="/dev-provided-matchers.html" />
         <item name="SMTP Hooks" href="/dev-provided-smtp-hooks.html" />
       </item>
+      <item name="Nightly builds" href="https://repository.apache.org/content/repositories/snapshots/org/apache/james/apache-james/"/>
     </menu>
 
     <menu name="References">
