@@ -170,7 +170,7 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Resourc
 
     /**
      * Return the configuration prefix to load the configuration. In this case
-     * its file://conf/
+     * it is classpath:, but could be also file://conf/
      * 
      * @return prefix
      */
