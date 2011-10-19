@@ -175,7 +175,7 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Resourc
      * @return prefix
      */
     private String getConfigPrefix() {
-        return "file://conf/";
+        return "classpath:";
     }
 
 }
