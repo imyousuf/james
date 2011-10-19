@@ -30,6 +30,7 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.james.imap.api.ImapMessage;
+import org.apache.james.imap.api.ImapSessionState;
 import org.apache.james.imap.api.process.ImapSession;
 import org.apache.james.imap.decode.ImapDecoder;
 import org.apache.james.imap.decode.ImapRequestLineReader;
@@ -160,7 +161,8 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements NettyConsta
         ImapSession session = (ImapSession) attributes.get(channel);
 
         // check if the session was removed before to prevent a harmless NPE. See JAMES-1312
-        if (session != null) {
+        // Also check if the session was logged out if so there is not need to try to decode it. See JAMES-1341
+        if (session != null && session.getState() != ImapSessionState.LOGOUT) {
             try {
 
                 ImapMessage message = decoder.decode(reader, session);
