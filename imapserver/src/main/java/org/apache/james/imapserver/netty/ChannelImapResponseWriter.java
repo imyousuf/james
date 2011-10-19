@@ -58,28 +58,34 @@ public class ChannelImapResponseWriter implements ImapResponseWriter {
      * @see org.apache.james.imap.encode.ImapResponseWriter#write(byte[])
      */
     public void write(byte[] buffer) throws IOException {
-        channel.write(ChannelBuffers.wrappedBuffer(buffer));
+        if (channel.isConnected()) {
+            channel.write(ChannelBuffers.wrappedBuffer(buffer));
+        }
     }
 
     /**
      * @see org.apache.james.imap.encode.ImapResponseWriter#write(org.apache.james.imap.message.response.Literal)
      */
     public void write(Literal literal) throws IOException {
-        InputStream in = literal.getInputStream();
-        if (in instanceof FileInputStream && channel.getFactory() instanceof NioServerSocketChannelFactory) {
-            FileChannel fc = ((FileInputStream) in).getChannel();
-            // Zero-copy is only possible if no SSL/TLS  and no COMPRESS is in place
-            //
-            // See JAMES-1305 and JAMES-1306
-            ChannelPipeline cp = channel.getPipeline();
-            if (zeroCopy && cp.get(SslHandler.class) == null && cp.get(ZlibEncoder.class) == null ) {
-                channel.write(new DefaultFileRegion(fc, fc.position(), literal.size()));
+        if (channel.isConnected()) {
+            InputStream in = literal.getInputStream();
+            if (in instanceof FileInputStream && channel.getFactory() instanceof NioServerSocketChannelFactory) {
+                FileChannel fc = ((FileInputStream) in).getChannel();
+                   // Zero-copy is only possible if no SSL/TLS  and no COMPRESS is in place
+                //
+                // See JAMES-1305 and JAMES-1306
+                ChannelPipeline cp = channel.getPipeline();
+                if (zeroCopy && cp.get(SslHandler.class) == null && cp.get(ZlibEncoder.class) == null ) {
+                    channel.write(new DefaultFileRegion(fc, fc.position(), literal.size()));
+                } else {
+                    channel.write(new ChunkedNioFile(fc, 8192));
+                }
             } else {
-                channel.write(new ChunkedNioFile(fc, 8192));
+                channel.write(new ChunkedStream(literal.getInputStream()));
             }
-        } else {
-            channel.write(new ChunkedStream(literal.getInputStream()));
         }
     }
+    
+    
 
 }
