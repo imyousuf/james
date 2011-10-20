@@ -91,7 +91,7 @@ Removed from trunk for now.
         <item name="JMX" href="/monitor-jmx.html" />
         <item name="Folders" href="/monitor-folders.html" />
       </item>
-      <item name="6. Upgrade" collapse="true" >
+      <item name="6. Upgrade" href="upgrade.html" collapse="true" >
         <item name="Upgrade from 2.3" href="/upgrade-2.3.html" />
         <item name="Upgrade database" href="/upgrade-database.html" />
       </item>
