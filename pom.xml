@@ -84,7 +84,7 @@
     <distributionManagement>
         <site>
             <id>server-trunk-website</id>
-            <url>scp://people.apache.org/www/james.apache.org/server/3/</url>
+            <url>scpexe://people.apache.org/www/james.apache.org/server/3/</url>
         </site>
     </distributionManagement>
 
