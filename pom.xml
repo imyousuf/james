@@ -1136,51 +1136,6 @@
                 <javax.activation.artifactId>geronimo-activation_1.1_spec</javax.activation.artifactId>
             </properties>
         </profile>
-
-        <!-- TODO: Move this to james parent pom -->
-        <!-- This take care of generate a zip and tar.gz file for the source -->
-        <profile>
-            <id>apache-release</id>
-            <activation>
-                <property>
-                    <name>apache-release</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <!-- waiting for release -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                                <phase>package</phase>
-                                <configuration>
-                                    <tarLongFileMode>gnu</tarLongFileMode>
-                                    <runOnlyAtExecutionRoot>true</runOnlyAtExecutionRoot>
-                                    <descriptorRefs>
-                                        <descriptorRef>source-release</descriptorRef>
-                                    </descriptorRefs>
-                                </configuration>
-                            </execution>
-                        </executions>
-                        <dependencies>
-                            <dependency>
-                                <!-- apache version not yet released -->
-                                <!--<groupId>org.apache</groupId> -->
-                                <groupId>org.apache.geronimo.genesis</groupId>
-                                <artifactId>apache-source-release-assembly-descriptor</artifactId>
-                                <!-- apache version not yet known -->
-                                <version>2.0</version>
-                            </dependency>
-                        </dependencies>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     </profiles>
 
 
