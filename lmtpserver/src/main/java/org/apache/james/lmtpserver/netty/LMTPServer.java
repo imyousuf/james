@@ -28,7 +28,7 @@ import org.apache.james.lmtpserver.jmx.JMXHandlersLoader;
 import org.apache.james.protocols.api.handler.HandlersPackage;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
 import org.apache.james.protocols.lmtp.LMTPConfiguration;
-import org.apache.james.protocols.lmtp.LMTPProtocol;
+import org.apache.james.protocols.smtp.SMTPProtocol;
 import org.apache.james.smtpserver.netty.SMTPChannelUpstreamHandler;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 
@@ -105,6 +105,13 @@ public class LMTPServer extends AbstractProtocolAsyncServer implements LMTPServe
             return LMTPServer.this.lmtpGreeting;
         }
 
+
+
+        @Override
+        public boolean isStartTLSSupported() {
+            return false;
+        }
+
        
     }
 
@@ -140,7 +147,7 @@ public class LMTPServer extends AbstractProtocolAsyncServer implements LMTPServe
 
     @Override
     protected ChannelUpstreamHandler createCoreHandler() {
-        LMTPProtocol protocol = new LMTPProtocol(getProtocolHandlerChain(), lmtpConfig);
+        SMTPProtocol protocol = new SMTPProtocol(getProtocolHandlerChain(), lmtpConfig);
         return new SMTPChannelUpstreamHandler(protocol, getLogger());
     }
 
