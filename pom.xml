@@ -1061,15 +1061,17 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <!-- just delete the bin directory -->
+                            <directory>bin</directory>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
             </plugin>
-            <!-- Use maven deploy plugin version 2.4 as workaround -->
-            <!-- See: http://jira.codehaus.org/browse/MAPPASM-96 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -1085,19 +1087,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <!-- just delete the bin directory -->
-                            <directory>bin</directory>
-                            <followSymlinks>false</followSymlinks>
-                        </fileset>
-                    </filesets>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
@@ -1110,7 +1099,6 @@
                         </goals>
                     </execution>
                 </executions>
-
                 <configuration>
                     <excludeDependencies>${james.osgi.exclude.dependencies}</excludeDependencies>
                     <instructions>
@@ -1122,6 +1110,24 @@
                         <Implementation-Version>${project.version}</Implementation-Version>
                     </instructions>
                 </configuration>
+            </plugin>
+            <plugin>      
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>emma-maven-plugin</artifactId>
+                <inherited>true</inherited>          
+                <executions>
+                    <execution>
+                        <phase>process-classes</phase>               
+                        <goals>
+                            <goal>instrument</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <inherited>true</inherited>
             </plugin>
         </plugins>
     </build>
