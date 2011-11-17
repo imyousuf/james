@@ -55,6 +55,9 @@ public class POP3Response extends AbstractResponse {
     public POP3Response(String code) {
         this(code, null);
     }
+    
+    protected POP3Response() {
+    }
 
 
     /**
