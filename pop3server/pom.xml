@@ -59,6 +59,10 @@
             <artifactId>protocols-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.james.protocols</groupId>
+            <artifactId>protocols-pop3</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.james</groupId>
             <artifactId>apache-james-mailbox-api</artifactId>
         </dependency>

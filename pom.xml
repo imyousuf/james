@@ -101,7 +101,7 @@
         <mailbox.version>0.4-SNAPSHOT</mailbox.version>
         <imap.version>0.3-SNAPSHOT</imap.version>
         <james.server.version>${project.version}</james.server.version>
-        <protocols.version>1.6-beta2</protocols.version>
+        <protocols.version>1.6-beta3-SNAPSHOT</protocols.version>
         <jsieve.version>0.4</jsieve.version>
         <jackrabbit.version>2.2.5</jackrabbit.version>
         <hbase.version>0.90.3</hbase.version>
@@ -287,6 +287,10 @@
                 <groupId>org.apache.james.protocols</groupId>
                 <artifactId>protocols-impl</artifactId>
                 <version>${protocols.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.james.protocols</groupId>
+                <artifactId>protocols-pop3</artifactId>
             </dependency>
             <dependency>
                 <groupId>org.apache.james.protocols</groupId>
