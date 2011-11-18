@@ -16,25 +16,17 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.pop3server.core;
 
-import java.util.List;
+import javax.annotation.Resource;
 
-import org.apache.james.pop3server.POP3Session;
+import org.apache.james.protocols.pop3.core.PassCmdHandler;
+import org.apache.james.protocols.pop3.mailbox.MailboxFactory;
 
-/**
- * A handler which support the POP3 Extension Mechanism should implement this
- * interface
- */
-public interface CapaCapability {
+public class JamesPassCmdHandler extends PassCmdHandler{
 
-    /**
-     * Return a List of responses which should get returned when a client issue
-     * the CAPA command
-     * 
-     * @param session
-     * @return list
-     */
-    List<String> getImplementedCapabilities(POP3Session session);
+    @Resource(name = "mailboxfactory")
+    public void setMailboxFactory(MailboxFactory factory) {
+        super.setMailboxFactory(factory);
+    }
 }

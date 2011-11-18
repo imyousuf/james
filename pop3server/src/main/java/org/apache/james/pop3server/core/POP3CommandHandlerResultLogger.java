@@ -18,9 +18,9 @@
  ****************************************************************/
 package org.apache.james.pop3server.core;
 
-import org.apache.james.pop3server.POP3Response;
-import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.impl.log.AbstractCommandHandlerResultLogger;
+import org.apache.james.protocols.pop3.POP3Response;
+import org.apache.james.protocols.pop3.POP3Session;
 
 /**
  * Log {@link POP3Response} with {@link POP3Response#ERR_RESPONSE} return code

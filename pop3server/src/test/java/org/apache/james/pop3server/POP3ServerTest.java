@@ -42,6 +42,7 @@ import org.apache.james.mailbox.MessageManager;
 import org.apache.james.mailbox.inmemory.InMemoryMailboxSessionMapperFactory;
 import org.apache.james.mailbox.store.Authenticator;
 import org.apache.james.mailbox.store.StoreMailboxManager;
+import org.apache.james.pop3server.mailbox.JamesMailboxFactory;
 import org.apache.james.pop3server.netty.POP3Server;
 import org.apache.james.protocols.lib.POP3BeforeSMTPHelper;
 import org.apache.james.protocols.lib.PortUtil;
@@ -125,7 +126,10 @@ public class POP3ServerTest extends TestCase {
         });
         manager.init();
 
-        chain.put("mailboxmanager", manager);
+        //chain.put("mailboxmanager", manager);
+        JamesMailboxFactory mailboxFactory = new JamesMailboxFactory();
+        mailboxFactory.setMailboxManager(manager);
+        chain.put("mailboxFactory", mailboxFactory);
 
         fSystem = new MockFileSystem();
         chain.put("filesystem", fSystem);

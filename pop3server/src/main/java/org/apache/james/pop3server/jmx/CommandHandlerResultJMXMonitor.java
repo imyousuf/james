@@ -20,12 +20,13 @@ package org.apache.james.pop3server.jmx;
 
 import java.util.Collection;
 
-import org.apache.james.pop3server.POP3Response;
-import org.apache.james.pop3server.POP3Session;
+
 import org.apache.james.protocols.api.handler.CommandHandler;
 import org.apache.james.protocols.api.handler.LifecycleAwareProtocolHandler;
 import org.apache.james.protocols.lib.jmx.AbstractCommandHandlerResultJMXMonitor;
 import org.apache.james.protocols.lib.jmx.AbstractCommandHandlerStats;
+import org.apache.james.protocols.pop3.POP3Response;
+import org.apache.james.protocols.pop3.POP3Session;
 
 /**
  * Gather JMX stats for {@link CommandHandler}

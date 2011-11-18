@@ -25,8 +25,8 @@ import javax.management.MBeanRegistrationException;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 
-import org.apache.james.pop3server.POP3Response;
 import org.apache.james.protocols.lib.jmx.AbstractCommandHandlerStats;
+import org.apache.james.protocols.pop3.POP3Response;
 
 public class POP3CommandHandlerStats extends AbstractCommandHandlerStats<POP3Response> implements POP3CommandHandlerStatsMBean {
 

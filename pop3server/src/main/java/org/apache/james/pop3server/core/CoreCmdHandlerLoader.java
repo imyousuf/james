@@ -23,12 +23,26 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.james.protocols.api.handler.HandlersPackage;
+import org.apache.james.protocols.pop3.core.CapaCmdHandler;
+import org.apache.james.protocols.pop3.core.DeleCmdHandler;
+import org.apache.james.protocols.pop3.core.ListCmdHandler;
+import org.apache.james.protocols.pop3.core.NoopCmdHandler;
+import org.apache.james.protocols.pop3.core.POP3CommandDispatcherLineHandler;
+import org.apache.james.protocols.pop3.core.QuitCmdHandler;
+import org.apache.james.protocols.pop3.core.RetrCmdHandler;
+import org.apache.james.protocols.pop3.core.RsetCmdHandler;
+import org.apache.james.protocols.pop3.core.StatCmdHandler;
+import org.apache.james.protocols.pop3.core.StlsCmdHandler;
+import org.apache.james.protocols.pop3.core.TopCmdHandler;
+import org.apache.james.protocols.pop3.core.UidlCmdHandler;
+import org.apache.james.protocols.pop3.core.UnknownCmdHandler;
+import org.apache.james.protocols.pop3.core.UserCmdHandler;
 
 public class CoreCmdHandlerLoader implements HandlersPackage {
 
     private final static String CAPACMDHANDLER = CapaCmdHandler.class.getName();
     private final static String USERCMDHANDLER = UserCmdHandler.class.getName();
-    private final static String PASSCMDHANDLER = PassCmdHandler.class.getName();
+    private final static String PASSCMDHANDLER = JamesPassCmdHandler.class.getName();
     private final static String LISTCMDHANDLER = ListCmdHandler.class.getName();
     private final static String UIDLCMDHANDLER = UidlCmdHandler.class.getName();
     private final static String RSETCMDHANDLER = RsetCmdHandler.class.getName();

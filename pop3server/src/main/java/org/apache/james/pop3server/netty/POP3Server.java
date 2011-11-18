@@ -19,13 +19,13 @@
 package org.apache.james.pop3server.netty;
 
 
-import org.apache.james.pop3server.POP3HandlerConfiguration;
-import org.apache.james.pop3server.POP3Protocol;
 import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.pop3server.jmx.JMXHandlersLoader;
 import org.apache.james.protocols.api.handler.HandlersPackage;
 import org.apache.james.protocols.impl.BasicChannelUpstreamHandler;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
+import org.apache.james.protocols.pop3.POP3HandlerConfiguration;
+import org.apache.james.protocols.pop3.POP3Protocol;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
