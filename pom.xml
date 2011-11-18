@@ -26,7 +26,7 @@
     <parent>
         <artifactId>james-project</artifactId>
         <groupId>org.apache.james</groupId>
-        <version>1.7</version>
+        <version>1.8-SNAPSHOT</version>
         <relativePath></relativePath>
     </parent>
 
@@ -1116,24 +1116,6 @@
                     </instructions>
                 </configuration>
             </plugin>
-            <plugin>      
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>emma-maven-plugin</artifactId>
-                <inherited>true</inherited>          
-                <executions>
-                    <execution>
-                        <phase>process-classes</phase>               
-                        <goals>
-                            <goal>instrument</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <inherited>true</inherited>
-            </plugin>
         </plugins>
     </build>
 
@@ -1148,7 +1130,4 @@
             </properties>
         </profile>
     </profiles>
-
-
-
 </project>
