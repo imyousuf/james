@@ -129,7 +129,7 @@ public class POP3ServerTest extends TestCase {
         //chain.put("mailboxmanager", manager);
         JamesMailboxFactory mailboxFactory = new JamesMailboxFactory();
         mailboxFactory.setMailboxManager(manager);
-        chain.put("mailboxFactory", mailboxFactory);
+        chain.put("mailboxfactory", mailboxFactory);
 
         fSystem = new MockFileSystem();
         chain.put("filesystem", fSystem);
@@ -151,7 +151,7 @@ public class POP3ServerTest extends TestCase {
         chain.dispose();
 
         m_pop3Server.destroy();
-        
+
         super.tearDown();
 
     }

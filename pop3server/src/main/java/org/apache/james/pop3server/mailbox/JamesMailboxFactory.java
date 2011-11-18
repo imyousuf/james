@@ -47,6 +47,12 @@ public class JamesMailboxFactory implements MailboxFactory {
         try {
             mSession = manager.login(session.getUser(), password, session.getLogger());
             manager.startProcessingRequest(mSession);
+            MailboxPath inbox = MailboxPath.inbox(mSession);
+            
+            // check if the mailbox exists, if not create it
+            if (!manager.mailboxExists(inbox, mSession)) {
+                manager.createMailbox(inbox, mSession);
+            }
             MessageManager mailbox = manager.getMailbox(MailboxPath.inbox(mSession), mSession);
             return new MailboxAdapter(manager, mailbox, mSession);
         } catch (BadCredentialsException e) {
