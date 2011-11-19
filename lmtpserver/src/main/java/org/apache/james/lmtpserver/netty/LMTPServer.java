@@ -104,14 +104,6 @@ public class LMTPServer extends AbstractProtocolAsyncServer implements LMTPServe
         public String getSMTPGreeting() {
             return LMTPServer.this.lmtpGreeting;
         }
-
-
-
-        @Override
-        public boolean isStartTLSSupported() {
-            return false;
-        }
-
        
     }
 

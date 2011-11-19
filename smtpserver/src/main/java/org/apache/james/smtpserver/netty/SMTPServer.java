@@ -28,6 +28,7 @@ import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.protocols.api.ProtocolTransport;
+import org.apache.james.protocols.api.Secure;
 import org.apache.james.protocols.api.handler.HandlersPackage;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
@@ -120,7 +121,13 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
             }
             
         };
-        coreHandler = new SMTPChannelUpstreamHandler(transport, getLogger(), getSSLContext(), getEnabledCipherSuites());
+        Secure secure;
+        if (isStartTLSSupported()) {
+            secure = Secure.createStartTls(getSSLContext(), getEnabledCipherSuites());
+        } else {
+            secure = Secure.createTls(getSSLContext(), getEnabledCipherSuites());
+        }
+        coreHandler = new SMTPChannelUpstreamHandler(transport, getLogger(), secure);
         
     }
 
