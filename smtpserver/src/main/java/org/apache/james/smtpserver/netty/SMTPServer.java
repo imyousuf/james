@@ -19,10 +19,8 @@
 package org.apache.james.smtpserver.netty;
 
 
-import java.lang.management.ManagementFactory;
 
 import javax.annotation.Resource;
-import javax.management.ObjectName;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
