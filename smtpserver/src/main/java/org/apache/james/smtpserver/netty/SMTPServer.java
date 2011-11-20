@@ -74,12 +74,6 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
     private long maxMessageSize = 0;
 
     /**
-     * The number of bytes to read before resetting the connection timeout
-     * timer. Defaults to 20 KB.
-     */
-    private int lengthReset = 20 * 1024;
-
-    /**
      * The configuration data to be passed to the handler
      */
     private final SMTPConfiguration theConfigData = new SMTPHandlerConfigurationDataImpl();
@@ -215,13 +209,6 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
          */
         public String getHelloName() {
             return SMTPServer.this.getHelloName();
-        }
-
-        /**
-         * @see org.apache.james.protocols.smtp.SMTPConfiguration#getResetLength()
-         */
-        public int getResetLength() {
-            return SMTPServer.this.lengthReset;
         }
 
         /**
