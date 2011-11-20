@@ -21,7 +21,6 @@ package org.apache.james.pop3server.netty;
 
 import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.pop3server.jmx.JMXHandlersLoader;
-import org.apache.james.protocols.api.Secure;
 import org.apache.james.protocols.api.handler.HandlersPackage;
 import org.apache.james.protocols.impl.BasicChannelUpstreamHandler;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
@@ -66,26 +65,14 @@ public class POP3Server extends AbstractProtocolAsyncServer implements POP3Serve
         public String getHelloName() {
             return POP3Server.this.getHelloName();
         }
-
-        /**
-         * @see org.apache.james.pop3server.POP3HandlerConfiguration#isStartTLSSupported()
-         */
-        public boolean isStartTLSSupported() {
-            return POP3Server.this.isStartTLSSupported();
-        }
     }
 
     @Override
     protected void preInit() throws Exception {
         super.preInit();
         POP3Protocol protocol = new POP3Protocol(getProtocolHandlerChain(), theConfigData);
-        Secure secure;
-        if (isStartTLSSupported()) {
-            secure = Secure.createStartTls(getSSLContext(), getEnabledCipherSuites());
-        } else {
-            secure = Secure.createTls(getSSLContext(), getEnabledCipherSuites());
-        }
-        coreHandler = new BasicChannelUpstreamHandler(protocol, getLogger(), secure);
+        
+        coreHandler = new BasicChannelUpstreamHandler(protocol, getLogger(), getSecure());
     }
 
 

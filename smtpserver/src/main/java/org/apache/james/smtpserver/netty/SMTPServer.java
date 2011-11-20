@@ -28,7 +28,6 @@ import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.protocols.api.ProtocolTransport;
-import org.apache.james.protocols.api.Secure;
 import org.apache.james.protocols.api.handler.HandlersPackage;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
@@ -121,13 +120,7 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
             }
             
         };
-        Secure secure;
-        if (isStartTLSSupported()) {
-            secure = Secure.createStartTls(getSSLContext(), getEnabledCipherSuites());
-        } else {
-            secure = Secure.createTls(getSSLContext(), getEnabledCipherSuites());
-        }
-        coreHandler = new SMTPChannelUpstreamHandler(transport, getLogger(), secure);
+        coreHandler = new SMTPChannelUpstreamHandler(transport, getLogger(), getSecure());
         
     }
 
@@ -281,13 +274,6 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
                 authRequired = authRequired && !SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
             }
             return authRequired;
-        }
-
-        /**
-         * @see org.apache.james.protocols.smtp.SMTPConfiguration#isStartTLSSupported()
-         */
-        public boolean isStartTLSSupported() {
-            return SMTPServer.this.isStartTLSSupported();
         }
 
         /**

@@ -31,6 +31,7 @@ import org.apache.james.imap.api.ImapConstants;
 import org.apache.james.imap.api.process.ImapProcessor;
 import org.apache.james.imap.decode.ImapDecoder;
 import org.apache.james.imap.encode.ImapEncoder;
+import org.apache.james.protocols.api.Secure;
 import org.apache.james.protocols.impl.ChannelGroupHandler;
 import org.apache.james.protocols.impl.ConnectionLimitUpstreamHandler;
 import org.apache.james.protocols.impl.ConnectionPerIpLimitUpstreamHandler;
@@ -140,10 +141,11 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
                 // don't strip the delimiter and use CRLF as delimiter
                 pipeline.addLast(FRAMER, new DelimiterBasedFrameDecoder(maxLineLength, false, Delimiters.lineDelimiter()));
                
-                if (isSSLSocket()) {
+                Secure secure = getSecure();
+                if (secure != null && !secure.isStartTLS()) {
                     // We need to set clientMode to false.
                     // See https://issues.apache.org/jira/browse/JAMES-1025
-                    SSLEngine engine = getSSLContext().createSSLEngine();
+                    SSLEngine engine = secure.getContext().createSSLEngine();
                     engine.setUseClientMode(false);
                     pipeline.addFirst(SSL_HANDLER, new SslHandler(engine));
 
@@ -174,8 +176,9 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
     @Override
     protected ChannelUpstreamHandler createCoreHandler() {
         ImapChannelUpstreamHandler coreHandler;
-        if (isStartTLSSupported()) {
-           coreHandler = new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress, plainAuthDisallowed, getSSLContext(), getEnabledCipherSuites());
+        Secure secure = getSecure();
+        if (secure!= null && secure.isStartTLS()) {
+           coreHandler = new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress, plainAuthDisallowed, secure.getContext(), getEnabledCipherSuites());
         } else {
            coreHandler = new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress, plainAuthDisallowed);
         }

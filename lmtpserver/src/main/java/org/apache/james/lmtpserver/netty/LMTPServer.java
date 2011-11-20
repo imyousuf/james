@@ -19,8 +19,6 @@
 package org.apache.james.lmtpserver.netty;
 
 
-import javax.net.ssl.SSLContext;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.lmtpserver.CoreCmdHandlerLoader;
@@ -141,17 +139,6 @@ public class LMTPServer extends AbstractProtocolAsyncServer implements LMTPServe
     protected ChannelUpstreamHandler createCoreHandler() {
         SMTPProtocol protocol = new SMTPProtocol(getProtocolHandlerChain(), lmtpConfig);
         return new SMTPChannelUpstreamHandler(protocol, getLogger());
-    }
-
-
-    @Override
-    protected SSLContext getSSLContext() {
-        return null;
-    }
-
-    @Override
-    protected boolean isSSLSocket() {
-        return false;
     }
 
     @Override

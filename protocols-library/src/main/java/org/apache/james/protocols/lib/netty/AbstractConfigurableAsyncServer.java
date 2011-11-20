@@ -43,6 +43,7 @@ import org.apache.james.filesystem.api.FileSystem;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 
+import org.apache.james.protocols.api.Secure;
 import org.apache.james.protocols.impl.AbstractAsyncServer;
 import org.apache.james.protocols.lib.jmx.ServerMBean;
 import org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutor;
@@ -101,7 +102,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     private String secret;
 
-    private SSLContext context;
+    private Secure secure;
 
     protected String jmxName;
 
@@ -385,22 +386,8 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         return helloName;
     }
 
-    /**
-     * Return if startTLS is supported by this server
-     * 
-     * @return startTlsSupported
-     */
-    protected boolean isStartTLSSupported() {
-        return useStartTLS;
-    }
-
-    /**
-     * Return if the socket is using SSL
-     * 
-     * @return useSSL
-     */
-    protected boolean isSSLSocket() {
-        return useSSL;
+    protected Secure getSecure() {
+        return secure;
     }
 
     /**
@@ -422,8 +409,13 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
                 kmf.init(ks, secret.toCharArray());
 
                 // Initialize the SSLContext to work with our key managers.
-                context = SSLContext.getInstance("TLS");
+                SSLContext context = SSLContext.getInstance("TLS");
                 context.init(kmf.getKeyManagers(), null, null);
+                if (useStartTLS) {
+                    secure = Secure.createStartTls(context, enabledCipherSuites);
+                } else {
+                    secure = Secure.createTls(context, enabledCipherSuites);
+                }
             } finally {
                 if (fis != null) {
                     fis.close();
@@ -440,14 +432,6 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
      */
     protected abstract int getDefaultPort();
 
-    /**
-     * Return the SSLContext to use
-     * 
-     * @return sslContext
-     */
-    protected SSLContext getSSLContext() {
-        return context;
-    }
 
     /**
      * Return the socket type. The Socket type can be secure or plain
@@ -455,7 +439,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
      * @return the socket type ('plain' or 'secure')
      */
     public String getSocketType() {
-        if (isSSLSocket()) {
+        if (secure != null && !secure.isStartTLS()) {
             return "secure";
         }
         return "plain";
@@ -465,7 +449,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
      * @see org.apache.james.protocols.lib.jmx.ServerMBean#getStartTLSSupported()
      */
     public boolean getStartTLSSupported() {
-        return isStartTLSSupported();
+        return secure != null && secure.isStartTLS();
     }
 
     /**
@@ -597,13 +581,16 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         return new AbstractExecutorAwareChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group, enabledCipherSuites, getExecutionHandler()) {
             @Override
             protected SSLContext getSSLContext() {
-                return AbstractConfigurableAsyncServer.this.getSSLContext();
-
+                if (secure == null) {
+                    return null;
+                } else {
+                    return secure.getContext();
+                }
             }
 
             @Override
             protected boolean isSSLSocket() {
-                return AbstractConfigurableAsyncServer.this.isSSLSocket();
+                return secure != null && !secure.isStartTLS();
             }
 
 
