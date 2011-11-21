@@ -24,7 +24,7 @@ import org.apache.james.pop3server.jmx.JMXHandlersLoader;
 import org.apache.james.protocols.api.handler.HandlersPackage;
 import org.apache.james.protocols.impl.BasicChannelUpstreamHandler;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
-import org.apache.james.protocols.pop3.POP3HandlerConfiguration;
+import org.apache.james.protocols.pop3.POP3Configuration;
 import org.apache.james.protocols.pop3.POP3Protocol;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
@@ -39,7 +39,7 @@ public class POP3Server extends AbstractProtocolAsyncServer implements POP3Serve
     /**
      * The configuration data to be passed to the handler
      */
-    private POP3HandlerConfiguration theConfigData = new POP3HandlerConfigurationDataImpl();
+    private POP3Configuration theConfigData = new POP3HandlerConfigurationDataImpl();
     private BasicChannelUpstreamHandler coreHandler;
     
     @Override
@@ -57,7 +57,7 @@ public class POP3Server extends AbstractProtocolAsyncServer implements POP3Serve
     /**
      * A class to provide POP3 handler configuration to the handlers
      */
-    private class POP3HandlerConfigurationDataImpl implements POP3HandlerConfiguration {
+    private class POP3HandlerConfigurationDataImpl implements POP3Configuration {
 
         /**
          * @see org.apache.james.pop3server.POP3HandlerConfiguration#getHelloName()
@@ -72,7 +72,7 @@ public class POP3Server extends AbstractProtocolAsyncServer implements POP3Serve
         super.preInit();
         POP3Protocol protocol = new POP3Protocol(getProtocolHandlerChain(), theConfigData);
         
-        coreHandler = new BasicChannelUpstreamHandler(protocol, getLogger(), getSecure());
+        coreHandler = new BasicChannelUpstreamHandler(protocol, getLogger(), getEncryption());
     }
 
 

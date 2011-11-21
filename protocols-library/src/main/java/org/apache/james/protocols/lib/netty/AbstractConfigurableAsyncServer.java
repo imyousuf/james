@@ -43,7 +43,7 @@ import org.apache.james.filesystem.api.FileSystem;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 
-import org.apache.james.protocols.api.Secure;
+import org.apache.james.protocols.api.Encryption;
 import org.apache.james.protocols.impl.AbstractAsyncServer;
 import org.apache.james.protocols.lib.jmx.ServerMBean;
 import org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutor;
@@ -102,7 +102,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     private String secret;
 
-    private Secure secure;
+    private Encryption encryption;
 
     protected String jmxName;
 
@@ -386,8 +386,8 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         return helloName;
     }
 
-    protected Secure getSecure() {
-        return secure;
+    protected Encryption getEncryption() {
+        return encryption;
     }
 
     /**
@@ -412,9 +412,9 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
                 SSLContext context = SSLContext.getInstance("TLS");
                 context.init(kmf.getKeyManagers(), null, null);
                 if (useStartTLS) {
-                    secure = Secure.createStartTls(context, enabledCipherSuites);
+                	encryption = Encryption.createStartTls(context, enabledCipherSuites);
                 } else {
-                    secure = Secure.createTls(context, enabledCipherSuites);
+                	encryption = Encryption.createTls(context, enabledCipherSuites);
                 }
             } finally {
                 if (fis != null) {
@@ -439,7 +439,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
      * @return the socket type ('plain' or 'secure')
      */
     public String getSocketType() {
-        if (secure != null && !secure.isStartTLS()) {
+        if (encryption != null && !encryption.isStartTLS()) {
             return "secure";
         }
         return "plain";
@@ -449,7 +449,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
      * @see org.apache.james.protocols.lib.jmx.ServerMBean#getStartTLSSupported()
      */
     public boolean getStartTLSSupported() {
-        return secure != null && secure.isStartTLS();
+        return encryption != null && encryption.isStartTLS();
     }
 
     /**
@@ -581,16 +581,16 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         return new AbstractExecutorAwareChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group, enabledCipherSuites, getExecutionHandler()) {
             @Override
             protected SSLContext getSSLContext() {
-                if (secure == null) {
+                if (encryption == null) {
                     return null;
                 } else {
-                    return secure.getContext();
+                    return encryption.getContext();
                 }
             }
 
             @Override
             protected boolean isSSLSocket() {
-                return secure != null && !secure.isStartTLS();
+                return encryption != null && !encryption.isStartTLS();
             }
 
 

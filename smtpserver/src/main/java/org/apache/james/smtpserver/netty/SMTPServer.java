@@ -114,7 +114,7 @@ public class SMTPServer extends AbstractProtocolAsyncServer implements SMTPServe
             }
             
         };
-        coreHandler = new SMTPChannelUpstreamHandler(transport, getLogger(), getSecure());
+        coreHandler = new SMTPChannelUpstreamHandler(transport, getLogger(), getEncryption());
         
     }
 

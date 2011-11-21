@@ -31,7 +31,7 @@ import org.apache.james.imap.api.ImapConstants;
 import org.apache.james.imap.api.process.ImapProcessor;
 import org.apache.james.imap.decode.ImapDecoder;
 import org.apache.james.imap.encode.ImapEncoder;
-import org.apache.james.protocols.api.Secure;
+import org.apache.james.protocols.api.Encryption;
 import org.apache.james.protocols.impl.ChannelGroupHandler;
 import org.apache.james.protocols.impl.ConnectionLimitUpstreamHandler;
 import org.apache.james.protocols.impl.ConnectionPerIpLimitUpstreamHandler;
@@ -141,7 +141,7 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
                 // don't strip the delimiter and use CRLF as delimiter
                 pipeline.addLast(FRAMER, new DelimiterBasedFrameDecoder(maxLineLength, false, Delimiters.lineDelimiter()));
                
-                Secure secure = getSecure();
+                Encryption secure = getEncryption();
                 if (secure != null && !secure.isStartTLS()) {
                     // We need to set clientMode to false.
                     // See https://issues.apache.org/jira/browse/JAMES-1025
@@ -176,7 +176,7 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
     @Override
     protected ChannelUpstreamHandler createCoreHandler() {
         ImapChannelUpstreamHandler coreHandler;
-        Secure secure = getSecure();
+        Encryption secure = getEncryption();
         if (secure!= null && secure.isStartTLS()) {
            coreHandler = new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress, plainAuthDisallowed, secure.getContext(), getEnabledCipherSuites());
         } else {
