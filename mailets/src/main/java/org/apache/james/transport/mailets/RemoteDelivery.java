@@ -75,31 +75,74 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * <p>
- * Receives a MessageContainer from JamesSpoolManager and takes care of delivery
- * the message to remote hosts. If for some reason mail can't be delivered store
- * it in the "outgoing" Repository and set an Alarm. After the next "delayTime"
- * the Alarm will wake the servlet that will try to send it again. After
- * "maxRetries" the mail will be considered undeliverable and will be returned
- * to sender.
- * </p>
- * <p>
- * TO DO (in priority):
- * </p>
- * <ol>
- * <li>Support a gateway (a single server where all mail will be delivered)
- * (DONE)</li>
- * <li>Provide better failure messages (DONE)</li>
- * <li>More efficiently handle numerous recipients</li>
- * <li>Migrate to use Phoenix for the delivery threads</li>
- * </ol>
- * <p>
- * You really want to read the JavaMail documentation if you are working in
- * here, and you will want to view the list of JavaMail attributes, which are
- * documented <a href=
- * "http://java.sun.com/products/javamail/javadocs/com/sun/mail/smtp/package-summary.html"
- * >here</a > as well as other places.
- * </p>
+ * <p>The RemoteDelivery mailet delivers messages to a remote SMTP server able to deliver or forward messages to their final
+ * destination.
+ *  
+ * <p>The remote SMTP server through which each mail is delivered is resolved using MX lookup for each message destination 
+ * unless the <code>&lt;gateway/&gt</code> parameter is set. The <code>&lt;gateway/&gt</code> parameter enables the
+ * definition of one or more gateway servers through which all messages are sent.
+ * 
+ * <p>If an attempt to deliver a message fails, a redelivery attempt is scheduled according to the scheme defined
+ * by the <code>&lt;delayTime/&gt</code> parameter, retrying up to the limit defined 
+ * by the <code>&lt;maxRetries/&gt</code> parameter. When the retry limit is exceeded, delivery failure is processed
+ * according to the setting of the <code>&lt;bounceProcessor/&gt</code> parameter. 
+ * 
+ * <p>These are the parameters that control the operation of the RemoteDelivery mailet:
+ * 
+ * <ul>
+ * <li><b>deliveryThreads</b> (required) - an Integer for the number of threads this mailet will use to deliver mail.</li> 
+ * <li><b>outgoing</b> (required) - a String containing the URL for the repository that will hold messages being processed by this mailet.</li>
+ * <li><b>bind</b> (optional) - a String describing the local IP address to which the mailet should be bound while delivering
+ * emails. This tag is useful for multihomed machines. Default is to bind to the default local address of the machine.<br>
+ * Note: The same IP address must be used for all of those RemoteDelivery instances where you explicitly supply a bind address. 
+ * <li><b>delayTime</b> (optional> a String containing a comma separated list of patterns defining the number of and delays between delivery
+ * attempts. The pattern is <code>[attempts\*]delay [unit]</code> where:
+ *   <ul> 
+ *   <li><i>attempts</i> (optional) - an Integer for the number of delivery attempts. Default is 1.</li>
+ *   <li><i>delay</i> (required) - a Long for the delay between attempts.</li>
+ *   <li><i>unit</i> (optional) - a String with the value of one of 'msec', 'sec', 'minute', 'hour', or 'day'. Default is msec.</li>
+ *   </ul>
+ * Default is one attempt after 6 hours, which if explicitly declared would be written as <code>&lt;delayTime&gt;1 * 6 hour&lt;/delayTime&gt;</code></li>
+ * <li><b>maxRetries</b> (optional) an Integer for the number of times an attempt is made to deliver a particular mail.
+ * Default is the greater of five and the sum of the attempts for each <code>&lt;delayTime/&gt;</code> specified.
+ * <li><b>maxDnsProblemRetries</b> (optional) - an Integer for the number of times to retry if DNS problems for a domain occur.
+ * Default is 0.
+ * <li><b>timeout</b> (optional) - an Integer for the Socket I/O timeout in milliseconds. Default is 180000</li>
+ * <li><b>connectionTimeout</b> (optional) - an Integer for the Socket connection timeout in milliseconds. Default is 60000</li>
+ * <li><b>bounceProcessor</b> (optional) - a String containing the name of the mailet processor to pass messages that cannot
+ * be delivered to for DSN bounce processing. Default is to send a traditional message containing the bounce details.</li>
+ * <li><b>startTLS</b> (optional) - a Boolean (true/false) indicating whether the STARTTLS command (if supported by the server)
+ * to switch the connection to a TLS-protected connection before issuing any login commands. Default is false.</li> 
+ * <li><b>sslEnable</b> (optional) - a Boolean (true/false) indicating whether to use SSL to connect and use the SSL port unless 
+ * explicitly overridden. Default is false.</li>
+ * <li><b>gateway</b> (optional) - a String containing a comma separated list of patterns defining the gateway servers to be used to
+ * deliver mail regardless of the recipient address. If multiple gateway servers are defined, each will be tried in definition order
+ * until delivery is successful. If none are successful, the mail is bounced. The pattern is <code>host[:port]</code> where:
+ *   <ul>
+ *   <li><i>host</i> (required) - the FQN of the gateway server.</li>
+ *   <li><i>port</i> (optional) - the port of the gateway server. Default is the value defined in the <code>&lt;gatewayPort/&gt;</code>
+ *   parameter if set, else the default port for the specified connection type.</li>
+ *   </ul>
+ * Default is to resolve the destination SMTP server for each mail using MX lookup.
+ * </li>
+ * <li><b>gatewayPort</b> (optional) - an Integer for the gateway port to be used for each defined gateway server for which a
+ * port is not explicitly defined in the <code>&lt;gateway/&gt;</code> parameter. Default is the default port for the specified connection type.</li>
+ * <li><b>gatewayUsername</b> (optional) - a String containing the user name to be used to authenticate the user using the
+ *  AUTH command. Default is not to issue the AUTH command.
+ * <li><b>gatewayPassword</b> (required if <code>gatewayUsername</code>) is set - a String representing the password to be used
+ * to authenticate the user using the AUTH command. 
+ * <li><b>heloName</b> (optional) - a String containing the name used in the SMTP HELO and EHLO commands. Default is the default domain, 
+ * which is typically <code>localhost</code>.</li> 
+ * <li><b>mail.*</b> (optional) - Any property beginning with <code>mail.</code> described in the Javadoc for package
+ * <a href="http://java.sun.com/products/javamail/javadocs/com/sun/mail/smtp/package-summary.html"><code>com.sun.mail.smtp</code></a> 
+ * can be set with a parameter of the corresponding name. For example the parameter
+ * <code>&lt;mail.smtp.ssl.enable&gt;true&lt;/mail.smtp.ssl.enable&gt;</code> is equivalent to the Java code 
+ * <code>props.put("mail.smtp.ssl.enable", "true");</code>. Properties set by this facility override settings made 
+ * within the mailet code.<br>
+ * Note: This facility should be used with extreme care by expert users with a thorough knowledge of the relevant RFCs and 
+ * the ability to perform their own problem resolutions.</li>
+ * <li><b>debug</b> (optional) - a Boolean (true/false) indicating whether debugging is on. Default is false.</li>
+ * </ul>
  */
 public class RemoteDelivery extends GenericMailet implements Runnable {
 
@@ -212,6 +255,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private DomainList domainList;
 
     private boolean startTLS = false;
+    
+    private boolean isSSLEnable = false;
 
     @Resource(name = "domainlist")
     public void setDomainList(DomainList domainList) {
@@ -323,6 +368,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         if (sTLS != null) {
             startTLS = Boolean.valueOf(sTLS);
         }
+        
+        isSSLEnable = (getInitParameter("sslEnable") == null) ? false : Boolean.valueOf(getInitParameter("sslEnable"));
+        
         String gateway = getInitParameter("gateway");
         String gatewayPort = getInitParameter("gatewayPort");
 
@@ -689,6 +737,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
         // handle starttls
         props.put("mail.smtp.starttls.enable", String.valueOf(startTLS));
+        
+        // handle SSLEnable
+        props.put("mail.smtp.ssl.enable", String.valueOf(isSSLEnable));
 
         if (isBindUsed) {
             // undocumented JavaMail 1.2 feature, smtp transport will use
