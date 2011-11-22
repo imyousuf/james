@@ -26,11 +26,7 @@ import org.apache.james.protocols.impl.BasicChannelUpstreamHandler;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
 import org.apache.james.protocols.pop3.POP3Configuration;
 import org.apache.james.protocols.pop3.POP3Protocol;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
-import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 
 /**
  * NIO POP3 Server which use Netty
@@ -73,22 +69,6 @@ public class POP3Server extends AbstractProtocolAsyncServer implements POP3Serve
         POP3Protocol protocol = new POP3Protocol(getProtocolHandlerChain(), theConfigData);
         
         coreHandler = new BasicChannelUpstreamHandler(protocol, getLogger(), getEncryption());
-    }
-
-
-    @Override
-    protected ChannelPipelineFactory createPipelineFactory(ChannelGroup group) {
-         
-        final ChannelPipelineFactory cpf = super.createPipelineFactory(group);
-        return new ChannelPipelineFactory() {
-            
-            @Override
-            public ChannelPipeline getPipeline() throws Exception {
-                ChannelPipeline cp = cpf.getPipeline();
-                cp.addAfter("framer", "chunkHandler", new ChunkedWriteHandler());
-                return cp;
-            }
-        };
     }
 
 
