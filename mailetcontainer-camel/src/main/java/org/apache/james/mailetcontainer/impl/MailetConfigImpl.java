@@ -27,11 +27,15 @@ import org.apache.mailet.MailetContext;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Implements the configuration object for a Mailet.
  */
 public class MailetConfigImpl implements MailetConfig {
+    
+    // A Pattern used to locate attributes
+    private static final Pattern ATTRIBUTE_REGEX = Pattern.compile(Pattern.quote("[@") + ".+" + Pattern.quote("]"));
 
     /** The mailet MailetContext */
     private MailetContext mailetContext;
@@ -65,8 +69,6 @@ public class MailetConfigImpl implements MailetConfig {
     }
 
     /**
-     * Returns an iterator over the set of configuration parameter names.
-     * 
      * @return an iterator over the set of configuration parameter names.
      */
     @SuppressWarnings("unchecked")
@@ -75,8 +77,10 @@ public class MailetConfigImpl implements MailetConfig {
         List<String> params = new ArrayList<String>();
         while (it.hasNext()) {
             String param = it.next();
-            if ((param.startsWith("[@") && param.endsWith("]")) == false) {
-
+            // Remove all attributes
+            param = (ATTRIBUTE_REGEX.matcher(param).replaceAll("")).trim();
+            // Store each parameter name just once with a guard that we have not reduced the parameter name to nothing
+            if (!params.contains(param) && !param.isEmpty()) {
                 params.add(param);
             }
         }

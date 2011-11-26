@@ -20,10 +20,16 @@
 package org.apache.james.mailetcontainer.impl;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.mail.MessagingException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.mailetcontainer.impl.MailetConfigImpl;
+import org.apache.mailet.Mail;
 
 import junit.framework.TestCase;
 
@@ -64,5 +70,26 @@ public class MailetConfigImplTest extends TestCase{
         String param = config.getInitParameterNames().next();
         assertEquals("whatever", param);
         assertEquals("value1,value2", config.getInitParameter(param));
+    } 
+    
+    public void testParamWithXmlSpace() throws ConfigurationException {
+        DefaultConfigurationBuilder builder = new DefaultConfigurationBuilder();
+        builder.setDelimiterParsingDisabled(true);
+        builder.load(new ByteArrayInputStream("<mailet><whatever xml:space=\"preserve\"> some text </whatever></mailet>".getBytes()));
+
+        MailetConfigImpl config = new MailetConfigImpl();
+        config.setConfiguration(builder);
+
+        String param = config.getInitParameterNames().next();
+        assertEquals("whatever", param);
+        assertEquals(" some text ", config.getInitParameter(param));
+               
+        List<String> parms = new ArrayList<String>();
+        Iterator<String> iter = config.getInitParameterNames();
+        while (iter.hasNext())
+        {
+            parms.add(iter.next());
+        }
+        assertEquals(parms.size(), 1);             
     }
 }
