@@ -22,7 +22,7 @@ package org.apache.james.pop3server.netty;
 import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.pop3server.jmx.JMXHandlersLoader;
 import org.apache.james.protocols.api.handler.HandlersPackage;
-import org.apache.james.protocols.impl.BasicChannelUpstreamHandler;
+import org.apache.james.protocols.netty.BasicChannelUpstreamHandler;
 import org.apache.james.protocols.lib.netty.AbstractProtocolAsyncServer;
 import org.apache.james.protocols.pop3.POP3Configuration;
 import org.apache.james.protocols.pop3.POP3Protocol;

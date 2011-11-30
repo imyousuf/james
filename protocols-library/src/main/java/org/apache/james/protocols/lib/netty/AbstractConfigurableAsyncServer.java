@@ -44,7 +44,7 @@ import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 
 import org.apache.james.protocols.api.Encryption;
-import org.apache.james.protocols.impl.AbstractAsyncServer;
+import org.apache.james.protocols.netty.AbstractAsyncServer;
 import org.apache.james.protocols.lib.jmx.ServerMBean;
 import org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutor;
 import org.jboss.netty.bootstrap.ServerBootstrap;

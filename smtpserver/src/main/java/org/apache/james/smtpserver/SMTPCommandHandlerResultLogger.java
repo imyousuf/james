@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.smtpserver;
 
-import org.apache.james.protocols.impl.log.AbstractCommandHandlerResultLogger;
+import org.apache.james.protocols.netty.log.AbstractCommandHandlerResultLogger;
 import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPSession;
 

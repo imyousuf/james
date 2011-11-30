@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.pop3server.core;
 
-import org.apache.james.protocols.impl.log.AbstractCommandHandlerResultLogger;
+import org.apache.james.protocols.netty.log.AbstractCommandHandlerResultLogger;
 import org.apache.james.protocols.pop3.POP3Response;
 import org.apache.james.protocols.pop3.POP3Session;
 

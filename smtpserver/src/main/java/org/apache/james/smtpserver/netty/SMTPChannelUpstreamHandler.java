@@ -21,7 +21,7 @@ package org.apache.james.smtpserver.netty;
 import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.protocols.api.Encryption;
 import org.apache.james.protocols.api.Protocol;
-import org.apache.james.protocols.impl.BasicChannelUpstreamHandler;
+import org.apache.james.protocols.netty.BasicChannelUpstreamHandler;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.smtpserver.SMTPConstants;
 import org.jboss.netty.channel.ChannelHandler.Sharable;

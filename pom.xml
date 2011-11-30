@@ -287,7 +287,7 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.james.protocols</groupId>
-                <artifactId>protocols-impl</artifactId>
+                <artifactId>protocols-netty</artifactId>
                 <version>${protocols.version}</version>
             </dependency>
             <dependency>

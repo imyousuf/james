@@ -18,7 +18,8 @@
  ****************************************************************/
 package org.apache.james.protocols.lib.netty;
 
-import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
+import org.apache.james.protocols.netty.AbstractSSLAwareChannelPipelineFactory;
+import org.apache.james.protocols.netty.HandlerConstants;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.execution.ExecutionHandler;
@@ -40,7 +41,7 @@ public abstract class AbstractExecutorAwareChannelPipelineFactory extends Abstra
     @Override
     public ChannelPipeline getPipeline() throws Exception {
         ChannelPipeline pipeLine = super.getPipeline();
-        pipeLine.addBefore("coreHandler", "countHandler", getConnectionCountHandler());
+        pipeLine.addBefore(HandlerConstants.CORE_HANDLER, "countHandler", getConnectionCountHandler());
         
         return pipeLine;
     }
