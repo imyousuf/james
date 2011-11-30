@@ -106,7 +106,7 @@
         <jsieve.version>0.4</jsieve.version>
         <mailbox.version>0.4-SNAPSHOT</mailbox.version>
         <productName>Apache-James Mail Server</productName>
-        <protocols.version>1.6-beta3-SNAPSHOT</protocols.version>
+        <protocols.version>1.6-beta3</protocols.version>
         <spring.version>3.0.5.RELEASE</spring.version>
     </properties>
 
@@ -563,7 +563,7 @@
             <dependency>
                 <groupId>org.apache.james.jspf</groupId>
                 <artifactId>apache-jspf-resolver</artifactId>
-                <version>0.9.9</version>
+                <version>1.0.0</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>log4j</artifactId>
