@@ -210,7 +210,9 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
     public void configure(HierarchicalConfiguration configuration) throws ConfigurationException {
         ldapHost = configuration.getString("[@ldapHost]");
         principal = configuration.getString("[@principal]");
-        credentials = configuration.getString("[@credentials]");
+        // JAMES-1351 - ReadOnlyUsersLDAPRepository credentials parameter should be optional
+        //              Added an emtpy String as the default
+        credentials = configuration.getString("[@credentials]", "");
         userBase = configuration.getString("[@userBase]");
         userIdAttribute = configuration.getString("[@userIdAttribute]");
         userObjectClass = configuration.getString("[@userObjectClass]");
