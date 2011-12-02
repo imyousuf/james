@@ -86,10 +86,10 @@ import org.slf4j.Logger;
  * <ul>
  * <li><b>ldapHost:</b> The URL of the LDAP server to connect to.</li>
  * <li>
- * <b>principal:</b> The name (DN) of the user with which to initially bind to
+ * <b>principal:</b> (optional) The name (DN) of the user with which to initially bind to
  * the LDAP server.</li>
  * <li>
- * <b>credentials:</b> The password with which to initially bind to the LDAP
+ * <b>credentials:</b> (optional) The password with which to initially bind to the LDAP
  * server.</li>
  * <li>
  * <b>userBase:</b>The context within which to search for user entities.</li>
@@ -209,9 +209,9 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      */
     public void configure(HierarchicalConfiguration configuration) throws ConfigurationException {
         ldapHost = configuration.getString("[@ldapHost]");
-        principal = configuration.getString("[@principal]");
-        // JAMES-1351 - ReadOnlyUsersLDAPRepository credentials parameter should be optional
-        //              Added an emtpy String as the default
+        // JAMES-1351 - ReadOnlyUsersLDAPRepository principal and credentials parameters should be optional
+        //              Added an empty String as the default
+        principal = configuration.getString("[@principal]", "");
         credentials = configuration.getString("[@credentials]", "");
         userBase = configuration.getString("[@userBase]");
         userIdAttribute = configuration.getString("[@userIdAttribute]");
