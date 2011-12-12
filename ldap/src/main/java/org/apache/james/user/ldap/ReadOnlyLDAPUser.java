@@ -21,9 +21,12 @@ package org.apache.james.user.ldap;
 
 import java.io.Serializable;
 
+import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
 
 import org.apache.james.user.api.model.User;
+import org.apache.james.user.ldap.api.LdapConstants;
 
 /**
  * Encapsulates the details of a user as taken from an LDAP compliant directory.
@@ -40,7 +43,8 @@ import org.apache.james.user.api.model.User;
  * 
  */
 public class ReadOnlyLDAPUser implements User, Serializable {
-    private static final long serialVersionUID = -6712066073820393235L;
+    // private static final long serialVersionUID = -6712066073820393235L; 
+    private static final long serialVersionUID = -5201235065842464013L;
 
     /**
      * The user's identifier or name. This is the value that is returned by the
@@ -50,18 +54,26 @@ public class ReadOnlyLDAPUser implements User, Serializable {
      * <code>&quot;myorg.com&quot;</code>, the user's email address will be
      * <code>&quot;john.bold&#64;myorg.com&quot;</code>.
      */
-    private String userName;
+    private String _userName;
 
     /**
      * The distinguished name of the user-record in the LDAP directory.
      */
-    private String userDN;
+    private String _userDN;
 
     /**
-     * The URL for connecting to the LDAP server from which to retrieve the
+     * The context for the LDAP server from which to retrieve the
      * user's details.
      */
-    private String ldapURL;
+    private LdapContext _ldapContext = null;
+
+    /**
+     * Creates a new instance of ReadOnlyLDAPUser.
+     *
+     */
+    private ReadOnlyLDAPUser() {
+        super();
+    }
 
     /**
      * Constructs an instance for the given user-details, and which will
@@ -74,16 +86,18 @@ public class ReadOnlyLDAPUser implements User, Serializable {
      * @param userDN
      *            The distinguished (unique-key) of the user details as stored
      *            on the LDAP directory.
-     * @param ldapURL
-     *            The URL of the LDAP server on which the user details are held.
+     * @param ldapContext
+     *            The context for the LDAP server on which the user details are held.
      *            This is also the host against which the user will be
      *            authenticated, when {@link #verifyPassword(String)} is
      *            invoked.
+     * @throws NamingException 
      */
-    public ReadOnlyLDAPUser(String userName, String userDN, String ldapURL) {
-        this.userName = userName;
-        this.userDN = userDN;
-        this.ldapURL = ldapURL;
+    public ReadOnlyLDAPUser(String userName, String userDN, LdapContext ldapContext) throws NamingException {
+        this();
+        _userName = userName;
+        _userDN = userDN;
+        _ldapContext = ldapContext;
     }
 
     /**
@@ -94,7 +108,7 @@ public class ReadOnlyLDAPUser implements User, Serializable {
      * @return The user's identifier or name.
      */
     public String getUserName() {
-        return userName;
+        return _userName;
     }
 
     /**
@@ -111,27 +125,37 @@ public class ReadOnlyLDAPUser implements User, Serializable {
 
     /**
      * Verifies that the password supplied is actually the user's password, by
-     * attempting to bind to the LDAP server using the user's username and the
-     * supplied password.
+     * attempting to rebind to a copy of the LDAP server context using the user's 
+     * username and the supplied password.
      * 
      * @param password
      *            The password to validate.
      * @return <code>True</code> if a connection can successfully be established
      *         to the LDAP host using the user's id and the supplied password,
-     *         and <code>False</code> otherwise. <b>Please note</b> that if the
-     *         LDAP server has suffered a crash or failure in between the
-     *         initialisation of the user repository and the invocation of this
-     *         method, the result will still be <code>false</code>.
+     *         and <code>False</code> otherwise.
      */
     public boolean verifyPassword(String password) {
-        boolean result;
+        boolean result = false;
+        LdapContext ldapContext = null;
         try {
-            SimpleLDAPConnection.openLDAPConnection(userDN, password, ldapURL);
+            ldapContext = _ldapContext.newInstance(null);
+            ldapContext.addToEnvironment(Context.SECURITY_AUTHENTICATION,
+                    LdapConstants.SECURITY_AUTHENTICATION_SIMPLE);
+            ldapContext.addToEnvironment(Context.SECURITY_PRINCIPAL, _userDN);
+            ldapContext.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
+            ldapContext.reconnect(null);
             result = true;
         } catch (NamingException exception) {
-            result = false;
+            // no-op
+        } finally {
+            if (null != ldapContext) {
+                try {
+                    ldapContext.close();
+                } catch (NamingException ex) {
+                    // no-op
+                }
+            }
         }
         return result;
     }
-
 }

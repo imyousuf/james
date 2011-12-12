@@ -29,6 +29,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.ldap.LdapContext;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
@@ -122,7 +123,7 @@ public class ReadOnlyLDAPGroupRestriction {
      * @throws NamingException
      *             Propagated from underlying LDAP communication layer.
      */
-    protected Map<String, Collection<String>> getGroupMembershipLists(SimpleLDAPConnection connection) throws NamingException {
+    protected Map<String, Collection<String>> getGroupMembershipLists(LdapContext ldapContext) throws NamingException {
         Map<String, Collection<String>> result = new HashMap<String, Collection<String>>();
 
         Iterator<String> groupDNsIterator = groupDNs.iterator();
@@ -130,7 +131,7 @@ public class ReadOnlyLDAPGroupRestriction {
         Attributes groupAttributes;
         while (groupDNsIterator.hasNext()) {
             String groupDN = (String) groupDNsIterator.next();
-            groupAttributes = connection.getLdapContext().getAttributes(groupDN);
+            groupAttributes = ldapContext.getAttributes(groupDN);
             result.put(groupDN, extractMembers(groupAttributes));
         }
 

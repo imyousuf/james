@@ -25,15 +25,19 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
+import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -42,6 +46,11 @@ import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.api.model.User;
+import org.apache.james.user.ldap.api.LdapConstants;
+import org.apache.james.util.retry.DoublingRetrySchedule;
+import org.apache.james.util.retry.api.RetrySchedule;
+import org.apache.james.util.retry.naming.ldap.RetryingLdapContext;
+
 import org.slf4j.Logger;
 
 /**
@@ -75,8 +84,12 @@ import org.slf4j.Logger;
  *      principal=&quot;uid=ldapUser,ou=system&quot;
  *      credentials=&quot;password&quot;
  *      userBase=&quot;ou=People,o=myorg.com,ou=system&quot;
- *      userIdAttribute=&quot;uid&quot;/&gt;
- *      userObjectClass=&quot;inetOrgPerson&quot;/&gt;
+ *      userIdAttribute=&quot;uid&quot;
+ *      userObjectClass=&quot;inetOrgPerson&quot;
+ *      maxRetries=&quot;20&quot;
+ *      retryStartInterval=&quot;0&quot;
+ *      retryMaxInterval=&quot;30&quot;
+ *      retryIntervalScale=&quot;1000&quot;
  *  &lt;/users-store&gt;
  * </pre>
  * 
@@ -86,11 +99,11 @@ import org.slf4j.Logger;
  * <ul>
  * <li><b>ldapHost:</b> The URL of the LDAP server to connect to.</li>
  * <li>
- * <b>principal:</b> (optional) The name (DN) of the user with which to initially bind to
- * the LDAP server.</li>
+ * <b>principal:</b> (optional) The name (DN) of the user with which to
+ * initially bind to the LDAP server.</li>
  * <li>
- * <b>credentials:</b> (optional) The password with which to initially bind to the LDAP
- * server.</li>
+ * <b>credentials:</b> (optional) The password with which to initially bind to
+ * the LDAP server.</li>
  * <li>
  * <b>userBase:</b>The context within which to search for user entities.</li>
  * <li>
@@ -101,6 +114,59 @@ import org.slf4j.Logger;
  * <b>userObjectClass:</b>The objectClass value for user nodes below the
  * userBase. For example &quot;inetOrgPerson&quot; for Apache DS, or
  * &quot;user&quot; for Microsoft Active Directory.</li>
+ **
+ * <li>
+ * <b>maxRetries:</b> (optional, default = 0) The maximum number of times to
+ * retry a failed operation. -1 means retry forever.</li>
+ * <li>
+ * <b>retryStartInterval:</b> (optional, default = 0) The interval in
+ * milliseconds to wait before the first retry. If > 0, subsequent retries are
+ * made at double the proceeding one up to the <b>retryMaxInterval</b> described
+ * below. If = 0, the next retry is 1 and subsequent retries proceed as above.</li>
+ * <li>
+ * <b>retryMaxInterval:</b> (optional, default = 60) The maximum interval in
+ * milliseconds to wait between retries</li>
+ * <li>
+ * <b>retryIntervalScale:</b> (optional, default = 1000) The amount by which to
+ * multiply each retry interval. The default value of 1000 (milliseconds) is 1
+ * second, so the default <b>retryMaxInterval</b> of 60 is 60 seconds, or 1
+ * minute.
+ * </ul>
+ * </p>
+ * <p>
+ * <em>Example Schedules</em>
+ * <ul>
+ * <li>
+ * Retry after 1000 milliseconds, doubling the interval for each retry up to
+ * 30000 milliseconds, subsequent retry intervals are 30000 milliseconds until
+ * 10 retries have been attempted, after which the <code>Exception</code>
+ * causing the fault is thrown:
+ * <ul>
+ * <li>maxRetries = 10
+ * <li>retryStartInterval = 1000
+ * <li>retryMaxInterval = 30000
+ * <li>retryIntervalScale = 1
+ * </ul>
+ * <li>
+ * Retry immediately, then retry after 1 * 1000 milliseconds, doubling the
+ * interval for each retry up to 30 * 1000 milliseconds, subsequent retry
+ * intervals are 30 * 1000 milliseconds until 20 retries have been attempted,
+ * after which the <code>Exception</code> causing the fault is thrown:
+ * <ul>
+ * <li>maxRetries = 20
+ * <li>retryStartInterval = 0
+ * <li>retryMaxInterval = 30
+ * <li>retryIntervalScale = 1000
+ * </ul>
+ * <li>
+ * Retry after 5000 milliseconds, subsequent retry intervals are 5000
+ * milliseconds. Retry forever:
+ * <ul>
+ * <li>maxRetries = -1
+ * <li>retryStartInterval = 5000
+ * <li>retryMaxInterval = 5000
+ * <li>retryIntervalScale = 1
+ * </ul>
  * </ul>
  * </p>
  * 
@@ -117,7 +183,6 @@ import org.slf4j.Logger;
  * &lt;/restriction&gt;
  * </pre>
  * 
- * <br>
  * Its constituent attributes and elements are defined as follows:
  * <ul>
  * <li>
@@ -130,12 +195,38 @@ import org.slf4j.Logger;
  * </ul>
  * </p>
  * 
- * @see SimpleLDAPConnection
+ * <p>
+ * The following parameters may be used to adjust the underlying
+ * <code>com.sun.jndi.ldap.LdapCtxFactory</code>. See <a href=
+ * "http://docs.oracle.com/javase/1.5.0/docs/guide/jndi/jndi-ldap.html#SPIPROPS"
+ * > LDAP Naming Service Provider for the Java Naming and Directory InterfaceTM
+ * (JNDI) : Provider-specific Properties</a> for details.
+ * <ul>
+ * <li>
+ * <b>useConnectionPool:</b> (optional, default = true) Sets property
+ * <code>com.sun.jndi.ldap.connect.pool</code> to the specified boolean value
+ * <li>
+ * <b>connectionTimeout:</b> (optional) Sets property
+ * <code>com.sun.jndi.ldap.connect.timeout</code> to the specified integer value
+ * <li>
+ * <b>readTimeout:</b> (optional) Sets property
+ * <code>com.sun.jndi.ldap.read.timeout</code> to the specified integer value.
+ * Applicable to Java 6 and above.
+ * </ul>
+ * 
  * @see ReadOnlyLDAPUser
  * @see ReadOnlyLDAPGroupRestriction
  * 
  */
 public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurable, LogEnabled {
+
+    // The name of the factory class which creates the initial context
+    // for the LDAP service provider
+    private static final String INITIAL_CONTEXT_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
+
+    private static final String PROPERTY_NAME_CONNECTION_POOL = "com.sun.jndi.ldap.connect.pool";
+    private static final String PROPERTY_NAME_CONNECT_TIMEOUT = "com.sun.jndi.ldap.connect.timeout";
+    private static final String PROPERTY_NAME_READ_TIMEOUT = "com.sun.jndi.ldap.read.timeout";
 
     /**
      * The URL of the LDAP server against which users are to be authenticated.
@@ -190,13 +281,39 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
     private ReadOnlyLDAPGroupRestriction restriction;
 
     /**
-     * The connection handle to the LDAP server. This is the connection that is
-     * built from the configuration attributes &quot;ldapHost&quot;,
+     * The context for the LDAP server. This is the connection that is built
+     * from the configuration attributes &quot;ldapHost&quot;,
      * &quot;principal&quot; and &quot;credentials&quot;.
      */
-    private SimpleLDAPConnection ldapConnection;
+    private LdapContext ldapContext;
+
+    // Use a connection pool. Default is true.
+    private boolean useConnectionPool = true;
+
+    // The connection timeout in milliseconds.
+    // A value of less than or equal to zero means to use the network protocol's
+    // (i.e., TCP's) timeout value.
+    private int connectionTimeout = -1;
+    
+    // The LDAP read timeout in milliseconds.
+    private int readTimeout = -1;
+
+    // The schedule for retry attempts
+    private RetrySchedule schedule = null;
+    
+    // Maximum number of times to retry a connection attempts. Default is no
+    // retries.
+    private int maxRetries = 0;
 
     private Logger log;
+
+    /**
+     * Creates a new instance of ReadOnlyUsersLDAPRepository.
+     * 
+     */
+    public ReadOnlyUsersLDAPRepository() {
+        super();
+    }
 
     /**
      * Extracts the parameters required by the repository instance from the
@@ -208,14 +325,25 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      *            An encapsulation of the James server configuration data.
      */
     public void configure(HierarchicalConfiguration configuration) throws ConfigurationException {
-        ldapHost = configuration.getString("[@ldapHost]");
-        // JAMES-1351 - ReadOnlyUsersLDAPRepository principal and credentials parameters should be optional
-        //              Added an empty String as the default
+        ldapHost = configuration.getString("[@ldapHost]", "");
         principal = configuration.getString("[@principal]", "");
         credentials = configuration.getString("[@credentials]", "");
         userBase = configuration.getString("[@userBase]");
         userIdAttribute = configuration.getString("[@userIdAttribute]");
         userObjectClass = configuration.getString("[@userObjectClass]");
+        // Default is to use connection pooling
+        useConnectionPool = configuration.getBoolean("[@useConnectionPool]", true);
+        connectionTimeout = configuration.getInt("[@connectionTimeout]", -1);
+        readTimeout = configuration.getInt("[@readTimeout]", -1);
+        // Default maximum retries is 1, which allows an alternate connection to
+        // be found in a multi-homed environment
+        maxRetries = configuration.getInt("[@maxRetries]", 1);
+        // Default retry start interval is 0 second
+        long retryStartInterval = configuration.getLong("[@retryStartInterval]", 0);
+        // Default maximum retry interval is 60 seconds
+        long retryMaxInterval = configuration.getLong("[@retryMaxInterval]", 60);
+        int scale = configuration.getInt("[@retryIntervalScale]", 1000); // seconds
+        schedule = new DoublingRetrySchedule(retryStartInterval, retryMaxInterval, scale);
 
         HierarchicalConfiguration restrictionConfig = null;
         // Check if we have a restriction we can use
@@ -237,21 +365,101 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      */
     @PostConstruct
     public void init() throws Exception {
-        StringBuffer logBuffer;
         if (log.isDebugEnabled()) {
-            logBuffer = new StringBuffer(128).append(this.getClass().getName()).append(".initialize()");
-            log.debug(logBuffer.toString());
-
-            logBuffer = new StringBuffer(256).append("Openning connection to LDAP host: ").append(ldapHost).append(".");
-            log.debug(logBuffer.toString());
+            log.debug(new StringBuilder(128).
+                    append(this.getClass().getName()).
+                    append(".init()").
+                    append('\n').
+                    append("LDAP host: ").
+                    append(ldapHost).
+                    append('\n').
+                    append("User baseDN: ").
+                    append(userBase).
+                    append('\n').
+                    append("userIdAttribute: ").
+                    append(userIdAttribute).
+                    append('\n').
+                    append("Group restriction: ").
+                    append(restriction).
+                    append('\n').
+                    append("UseConnectionPool: ").
+                    append(useConnectionPool).
+                    append('\n').
+                    append("connectionTimeout: ").
+                    append(connectionTimeout).
+                    append('\n').
+                    append("readTimeout: ").
+                    append(readTimeout).
+                    append('\n').                    
+                    append("retrySchedule: ").
+                    append(schedule).
+                    append('\n').
+                    append("maxRetries: ").
+                    append(maxRetries).                   
+                    append('\n').
+                    toString());
         }
+        // Setup the initial LDAP context
+        updateLdapContext();
+    }
 
-        ldapConnection = SimpleLDAPConnection.openLDAPConnection(principal, credentials, ldapHost);
-
-        if (log.isDebugEnabled()) {
-            logBuffer = new StringBuffer(256).append("Initialization complete. User baseDN=").append(userBase).append(" ; userIdAttribute=" + userIdAttribute).append("\n\tGroup restriction:" + restriction);
-            log.debug(logBuffer.toString());
+    /**
+     * Answer the LDAP context used to connect with the LDAP server.
+     * 
+     * @return an <code>LdapContext</code>
+     * @throws NamingException
+     */
+    protected LdapContext getLdapContext() throws NamingException {
+        if (null == ldapContext) {
+            updateLdapContext();
         }
+        return ldapContext;
+    }
+    
+    protected void updateLdapContext() throws NamingException {
+        ldapContext = computeLdapContext();
+    }
+
+    /**
+     * Answers a new LDAP/JNDI context using the specified user credentials.
+     * 
+     * @return an LDAP directory context
+     * @throws NamingException
+     *             Propagated from underlying LDAP communication API.
+     */
+    protected LdapContext computeLdapContext() throws NamingException {
+        return new RetryingLdapContext(schedule, maxRetries, log) {
+
+            @Override
+            public Context newDelegate() throws NamingException {
+                return new InitialLdapContext(getContextEnvironment(), null);
+            }
+        };
+    }
+    
+    protected Properties getContextEnvironment()
+    {
+        final Properties props = new Properties();
+        props.put(Context.INITIAL_CONTEXT_FACTORY, INITIAL_CONTEXT_FACTORY);
+        props.put(Context.PROVIDER_URL, null == ldapHost ? "" : ldapHost);
+        if (null == credentials || credentials.isEmpty()) {
+            props.put(Context.SECURITY_AUTHENTICATION, LdapConstants.SECURITY_AUTHENTICATION_NONE);
+        } else {
+            props.put(Context.SECURITY_AUTHENTICATION, LdapConstants.SECURITY_AUTHENTICATION_SIMPLE);
+            props.put(Context.SECURITY_PRINCIPAL, null == principal ? "" : principal);
+            props.put(Context.SECURITY_CREDENTIALS, credentials);
+        }
+        // The following properties are specific to com.sun.jndi.ldap.LdapCtxFactory
+        props.put(PROPERTY_NAME_CONNECTION_POOL, Boolean.toString(useConnectionPool));
+        if (connectionTimeout > -1)
+        {
+            props.put(PROPERTY_NAME_CONNECT_TIMEOUT, Integer.toString(connectionTimeout));
+        }
+        if (readTimeout > -1)
+        {
+            props.put(PROPERTY_NAME_READ_TIMEOUT, Integer.toString(readTimeout));
+        }        
+        return props;
     }
 
     /**
@@ -271,7 +479,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      *         least one group in the parameter map, and <code>False</code>
      *         otherwise.
      */
-    private boolean userInGroupsMembershipList(String userDN, Map<String, Collection<String>> groupMembershipList) {
+    private boolean userInGroupsMembershipList(String userDN,
+            Map<String, Collection<String>> groupMembershipList) {
         boolean result = false;
 
         Collection<Collection<String>> memberLists = groupMembershipList.values();
@@ -300,7 +509,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
         SearchControls sc = new SearchControls();
         sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
         sc.setReturningAttributes(new String[] { "distinguishedName" });
-        NamingEnumeration<SearchResult> sr = ldapConnection.getLdapContext().search(userBase, "(objectClass=" + userObjectClass + ")", sc);
+        NamingEnumeration<SearchResult> sr = ldapContext.search(userBase, "(objectClass="
+                + userObjectClass + ")", sc);
         while (sr.hasMore()) {
             SearchResult r = sr.next();
             result.add(r.getNameInNamespace());
@@ -323,7 +533,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      * @throws NamingException
      *             Propagated from the underlying LDAP communication layer.
      */
-    private Collection<ReadOnlyLDAPUser> buildUserCollection(Collection<String> userDNs) throws NamingException {
+    private Collection<ReadOnlyLDAPUser> buildUserCollection(Collection<String> userDNs)
+            throws NamingException {
         List<ReadOnlyLDAPUser> results = new ArrayList<ReadOnlyLDAPUser>();
 
         Iterator<String> userDNIterator = userDNs.iterator();
@@ -353,23 +564,29 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      *             Propagated by the underlying LDAP communication layer.
      */
     private ReadOnlyLDAPUser buildUser(String userDN) throws NamingException {
-      SearchControls sc = new SearchControls();
-      sc.setSearchScope(SearchControls.OBJECT_SCOPE);
-      sc.setReturningAttributes(new String[] {userIdAttribute});
-      sc.setCountLimit(1);
+        SearchControls sc = new SearchControls();
+        sc.setSearchScope(SearchControls.OBJECT_SCOPE);
+        sc.setReturningAttributes(new String[] { userIdAttribute });
+        sc.setCountLimit(1);
 
-      NamingEnumeration<SearchResult> sr = ldapConnection.getLdapContext().search(userDN, "(objectClass=" + userObjectClass + ")", sc);
-      
-      if (!sr.hasMore())
-          return null;
+        StringBuilder builderFilter = new StringBuilder("(objectClass=");
+        builderFilter.append(userObjectClass);
+        builderFilter.append(")");
+        NamingEnumeration<SearchResult> sr = ldapContext.search(userDN, builderFilter.toString(),
+                sc);
 
-      Attributes userAttributes = sr.next().getAttributes();
-      Attribute userName = userAttributes.get(userIdAttribute);
-      
-      if (!restriction.isActivated() || userInGroupsMembershipList(userDN, restriction.getGroupMembershipLists(ldapConnection)))
-          return new ReadOnlyLDAPUser(userName.get().toString(), userDN, ldapHost);
-      
-      return null;
+        if (!sr.hasMore())
+            return null;
+
+        Attributes userAttributes = sr.next().getAttributes();
+        Attribute userName = userAttributes.get(userIdAttribute);
+
+        if (!restriction.isActivated()
+                || userInGroupsMembershipList(userDN, restriction
+                        .getGroupMembershipLists(ldapContext)))
+            return new ReadOnlyLDAPUser(userName.get().toString(), userDN, ldapContext);
+
+        return null;
     }
 
     /**
@@ -383,8 +600,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
     }
 
     /*
-     * TODO
-     * Should this be deprecated? At least the method isn't declared in the interface anymore
+     * TODO Should this be deprecated? At least the method isn't declared in the
+     * interface anymore
      * 
      * @see UsersRepository#containsCaseInsensitive(java.lang.String)
      */
@@ -409,8 +626,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
     }
 
     /*
-     * TODO
-     * Should this be deprecated? At least the method isn't declared in the interface anymore
+     * TODO Should this be deprecated? At least the method isn't declared in the
+     * interface anymore
      * 
      * @see UsersRepository#getRealName(java.lang.String)
      */
@@ -427,18 +644,18 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      * @see UsersRepository#getUserByName(java.lang.String)
      */
     public User getUserByName(String name) throws UsersRepositoryException {
-      try {
-        return buildUser(userIdAttribute + "=" + name + "," + userBase); 
-      } catch (NamingException e) {
-          log.error("Unable to retrieve user from ldap", e);
-          throw new UsersRepositoryException("Unable to retrieve user from ldap", e);
-  
-      }
+        try {
+            return buildUser(userIdAttribute + "=" + name + "," + userBase);
+        } catch (NamingException e) {
+            log.error("Unable to retrieve user from ldap", e);
+            throw new UsersRepositoryException("Unable to retrieve user from ldap", e);
+
+        }
     }
 
     /*
-     * TODO
-     * Should this be deprecated? At least the method isn't declared in the interface anymore
+     * TODO Should this be deprecated? At least the method isn't declared in the
+     * interface anymore
      * 
      * @see UsersRepository#getUserByNameCaseInsensitive(java.lang.String)
      */
@@ -473,7 +690,9 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
                 result.add(userIt.next().getUserName());
             }
         } catch (NamingException namingException) {
-            throw new UsersRepositoryException("Unable to retrieve users list from LDAP due to unknown naming error.", namingException);
+            throw new UsersRepositoryException(
+                    "Unable to retrieve users list from LDAP due to unknown naming error.",
+                    namingException);
         }
 
         return result.iterator();
@@ -484,7 +703,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
         Collection<String> validUserDNs;
 
         if (restriction.isActivated()) {
-            Map<String, Collection<String>> groupMembershipList = restriction.getGroupMembershipLists(ldapConnection);
+            Map<String, Collection<String>> groupMembershipList = restriction
+                    .getGroupMembershipLists(ldapContext);
             validUserDNs = new ArrayList<String>();
 
             Iterator<String> userDNIterator = userDNs.iterator();
@@ -505,7 +725,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      */
     public void removeUser(String name) throws UsersRepositoryException {
         log.warn("This user-repository is read-only. Modifications are not permitted.");
-        throw new UsersRepositoryException("This user-repository is read-only. Modifications are not permitted.");
+        throw new UsersRepositoryException(
+                "This user-repository is read-only. Modifications are not permitted.");
 
     }
 
@@ -524,19 +745,18 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      * @see UsersRepository#addUser(java.lang.String, java.lang.String)
      */
     public void addUser(String username, String password) throws UsersRepositoryException {
-        log.warn("This user-repository is read-only. Modifications are not permitted.");
-        throw new UsersRepositoryException("This user-repository is read-only. Modifications are not permitted.");
+        log.error("This user-repository is read-only. Modifications are not permitted.");
+        throw new UsersRepositoryException(
+                "This user-repository is read-only. Modifications are not permitted.");
     }
 
-    /*
-     * TODO
-     * Should this be deprecated? At least the method isn't declared in the interface anymore
-     * 
+    /**
      * @see UsersRepository#updateUser(org.apache.james.api.user.User)
      */
     public void updateUser(User user) throws UsersRepositoryException {
-        log.warn("This user-repository is read-only. Modifications are not permitted.");
-        throw new UsersRepositoryException("This user-repository is read-only. Modifications are not permitted.");
+        log.error("This user-repository is read-only. Modifications are not permitted.");
+        throw new UsersRepositoryException(
+                "This user-repository is read-only. Modifications are not permitted.");
     }
 
     /**
